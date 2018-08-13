@@ -10,6 +10,12 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "node-app-couchdb-client": "git+https://github.com/colo/node-app-couchdb-client.git",
+    "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
+    "node-mngr-docs": "git+https://github.com/colo/node-mngr-docs.git",
+    "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
+    "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",
+    "node-cron": "^1.2.1",
     "admin-lte": "^2.4.8",
     "axios": "^0.18.0",
     "bootstrap": "^3.3.7",

@@ -6,8 +6,9 @@
   <admin-lte-left-sidebar/>
 
   <!-- Content Wrapper. Contains page content -->
-    <router-view :EventBus="EventBus"/>
-
+    <!-- <router-view :EventBus="EventBus"/> -->
+    <router-view />
+    
   <!-- /.content-wrapper -->
 
   <!-- Main Footer -->
@@ -39,10 +40,10 @@ export default {
     AdminLteControlSidebar
   },
   props: {
-    EventBus: {
-      type: [Object],
-       default: () => ({})
-    },
+    // EventBus: {
+    //   type: [Object],
+    //    default: () => ({})
+    // },
   },
 
   data () {

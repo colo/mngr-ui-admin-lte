@@ -1,6 +1,7 @@
 // Configuration for your app
 
 const ProvidePlugin = require('webpack/lib/ProvidePlugin')//for jQuery
+const CopyWebpackPlugin = require('copy-webpack-plugin')//amchart3 assets
 
 module.exports = function (ctx) {
   return {
@@ -30,6 +31,19 @@ module.exports = function (ctx) {
       // extractCSS: false,
       extendWebpack (cfg) {
         /**
+      	 * for npm 'request' (https://github.com/request/request/issues/1529)
+      	 * */
+        cfg.node = {
+          console: true,
+          fs: 'empty',
+          net: 'empty',
+          tls: 'empty',
+          //'node-express-authorization': 'empty'
+        },
+        // cfg.plugins.push(
+        //   new CopyWebpackPlugin([{ from: 'node_modules/amcharts3/amcharts/images', to: 'dist/amcharts/images' },])
+        // ),
+        /**
         * jQuery
         **/
         cfg.plugins.push(
@@ -40,26 +54,7 @@ module.exports = function (ctx) {
              "window.$": "jquery"
          })
        )
-       /**
-       * jQuery-ui (webpack-jquery-ui)
-       * https://www.npmjs.com/package/webpack-jquery-ui
-       **/
-       // cfg.module.rules.push({
-       //    test: /\.css$/,
-       //    loaders: ["style-loader","css-loader"]
-       //  })
-        // cfg.module.rules.push({
-        //   test: /\.(jpe?g|png|gif)$/i,
-        //   loader:"file-loader",
-        //   options:{
-        //     name:'[name].[ext]',
-        //     outputPath:'assets/images/'
-        //     //the images will be emited to dist/assets/images/ folder
-        //   }
-        // })
-        /**
-        * jQuery-ui
-        **/
+
       }
     },
     devServer: {
@@ -101,8 +96,9 @@ module.exports = function (ctx) {
       pwa: false
     },
     pwa: {
-      // workboxPluginMode: 'InjectManifest',
-      // workboxOptions: {},
+      workboxPluginMode: 'InjectManifest',
+      // workboxPluginMode: 'GenerateSW',
+      // workboxOptions: { debug: false },
       manifest: {
         // name: 'Quasar App',
         // short_name: 'Quasar-PWA',
