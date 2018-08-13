@@ -8,11 +8,11 @@ module.exports = function (ctx) {
     plugins: [
       'admin-lte',
       'i18n',
-      'axios'
+      // 'axios'
     ],
-    css: [
-      'app.styl'
-    ],
+    // css: [
+    //   'app.styl'
+    // ],
     // extras: [
     //   ctx.theme.mat ? 'roboto-font' : null,
     //   // 'material-icons', // optional, you are not bound to it
@@ -39,7 +39,7 @@ module.exports = function (ctx) {
              "window.jQuery": "jquery'",
              "window.$": "jquery"
          })
-       ),
+       )
        /**
        * jQuery-ui (webpack-jquery-ui)
        * https://www.npmjs.com/package/webpack-jquery-ui
