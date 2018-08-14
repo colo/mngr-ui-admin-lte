@@ -43,8 +43,9 @@
           </router-link>
           <ul class="treeview-menu" v-for="(host) in hosts">
             <!-- class="active" -->
-            <li v-bind:class="{ 'active': $route.params.host == host }">
-              <router-link :to="{ name: 'Dashboard', params: { host: host }}">
+            <li v-bind:class="{ 'active': $route.name == host }">
+              <router-link :to="{ name: 'DashboardHost', params: { host: host }}">
+              <!-- <router-link :to="'/dashboard/'+host"> -->
                 <i class="fa fa-circle-o"></i> {{host}}
               </router-link>
             </li>

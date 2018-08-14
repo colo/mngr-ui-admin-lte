@@ -58,6 +58,11 @@ export default {
 
   created: function(){
 
+    EventBus.$on('count', doc => {
+      console.log('recived doc via Event count', doc)
+
+      this.$store.commit('app/docs_per_sec', doc.data)
+    })
 
     EventBus.$on('search', doc => {
 			// console.log('recived doc via Event search', doc)

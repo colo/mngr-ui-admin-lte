@@ -52,7 +52,7 @@ export default  {
 
 			doc = JSON.decode(doc)
 
-			console.log(doc)
+			// console.log(doc)
 
 			if(typeof EventBus !== 'undefined')
 				EventBus.$emit('count', doc)

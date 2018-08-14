@@ -39,3 +39,7 @@
  export const charts_tree_menu = (state, menu) => {
    state.charts_tree_menu = menu
  }
+
+ export const docs_per_sec = (state, docs) => {
+   state.docs_per_sec = docs
+ }

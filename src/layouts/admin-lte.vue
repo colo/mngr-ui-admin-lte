@@ -7,8 +7,30 @@
 
   <!-- Content Wrapper. Contains page content -->
     <!-- <router-view :EventBus="EventBus"/> -->
-    <router-view />
-    
+    <div class="content-wrapper">
+      <!-- Content Header (Page header) -->
+      <section class="content-header">
+        <h1>
+          {{$route.name}}
+          <!-- <small>{{$route.params.host}}</small> -->
+        </h1>
+        <ol class="breadcrumb">
+          <li>
+            <router-link :to="{name: 'Home'}">
+              <i class="fa fa-dashboard"></i> Home
+            </router-link>
+          </li>
+          <li class="active">{{$route.name}}</li>
+        </ol>
+      </section>
+
+      <!-- Main content -->
+       <router-view></router-view>
+
+
+      <!-- /.content -->
+    </div>
+
   <!-- /.content-wrapper -->
 
   <!-- Main Footer -->
@@ -48,7 +70,7 @@ export default {
 
   data () {
     return {
-      leftDrawerOpen: this.$q.platform.is.desktop
+      // leftDrawerOpen: this.$q.platform.is.desktop
     }
   },
   methods: {
@@ -57,6 +79,18 @@ export default {
   created: function(){
     // Resolve conflict in jQuery UI tooltip with Bootstrap tooltip
     jQuery.widget.bridge('uibutton', jQuery.ui.button)
+  },
+  mounted: function(){
+    console.log('admin-lte this.$route',this.$route)
+    // Make the dashboard widgets sortable Using jquery UI
+    $('.connectedSortable').sortable({
+      placeholder         : 'sort-highlight',
+      connectWith         : '.connectedSortable',
+      handle              : '.box-header, .nav-tabs',
+      forcePlaceholderSize: true,
+      zIndex              : 999999
+    });
+    $('.connectedSortable .box-header, .connectedSortable .nav-tabs-custom').css('cursor', 'move');
   }
 }
 

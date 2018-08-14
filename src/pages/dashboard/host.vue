@@ -1,25 +1,11 @@
 <template>
-  <!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper bg-dark">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Dashboard
-      <small>Control panel</small>
-    </h1>
-    <ol class="breadcrumb bg-aqua">
-      <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-      <li class="active">Dashboard</li>
-    </ol>
-  </section>
-
   <!-- Main content -->
   <section class="content">
-    <div class="row">
+    <!-- <div class="row">
       <section class="col-lg-12 connectedSortable">
         <admin-lte-box-solid/>
       </section>
-    </div>
+    </div> -->
     <!-- Small boxes (Stat box) -->
     <div class="row">
       <div class="col-lg-3 col-xs-6">
@@ -476,9 +462,6 @@
 
   </section>
   <!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
-
 </template>
 
 <style>
@@ -487,26 +470,26 @@
 <script>
 
 
-import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
+// import AdminLteBoxSolid from 'components/admin-lte/dashboard/boxSolid'
 
 export default {
-  name: 'dashboard',
+  name: 'DashboardHost',
 
-  components: {
-    AdminLteBoxSolid
-  },
+  // components: {
+  //   AdminLteBoxSolid
+  // },
 
   mounted: function(){
-
-    // Make the dashboard widgets sortable Using jquery UI
-    $('.connectedSortable').sortable({
-      placeholder         : 'sort-highlight',
-      connectWith         : '.connectedSortable',
-      handle              : '.box-header, .nav-tabs',
-      forcePlaceholderSize: true,
-      zIndex              : 999999
-    });
-    $('.connectedSortable .box-header, .connectedSortable .nav-tabs-custom').css('cursor', 'move');
+    console.log('this.$route',this.$route)
+    // // Make the dashboard widgets sortable Using jquery UI
+    // $('.connectedSortable').sortable({
+    //   placeholder         : 'sort-highlight',
+    //   connectWith         : '.connectedSortable',
+    //   handle              : '.box-header, .nav-tabs',
+    //   forcePlaceholderSize: true,
+    //   zIndex              : 999999
+    // });
+    // $('.connectedSortable .box-header, .connectedSortable .nav-tabs-custom').css('cursor', 'move');
   }
 }
 </script>

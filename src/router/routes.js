@@ -7,15 +7,21 @@ const routes = [
     redirect: { name: 'Dashboard' },
     children: [
       {
-        path: 'dashboard/:host?',
+        path: 'dashboard',
         component: () => import('pages/dashboard.vue'),
-        name: 'Dashboard'
-        // children: [
-        //   {
-        //     path: ':host',
-        //     component: () => import('pages/dashboard/host.vue'),
-        //   }
-        // ]
+        name: 'Dashboard',
+        children: [
+          // {
+          //   name: 'DashboardMain',
+          //   path: '',
+          //   component: () => import('pages/dashboard/main.vue'),
+          // },
+          {
+            name: 'DashboardHost',
+            path: ':host',
+            component: () => import('pages/dashboard/host.vue'),
+          }
+        ]
       }
     ]
   }

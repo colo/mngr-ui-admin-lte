@@ -1,5 +1,6 @@
 export default function() {
   return {
+    docs_per_sec: 0,
     paths: [],
     /**
     *
@@ -15,16 +16,16 @@ export default function() {
       Date.now() - 300 * 1000,
       null
     ],
-    charts_tree_menu: [],
-    default_chart_icon: 'mdi-pulse',
-    icons: {
-      'mdi-chart-line': /^os$/,
-      'mdi-flash': /cpus.*/,
-      'mdi-memory': /^.*mem.*$/,
-      'mdi-clock': /minute.*/,
-      'mdi-harddisk': /blockdevices.*|mounts.*/,
-      'mdi-network': /networkInterfaces.*/
-      // 'mdi-pulse': /.*/
-    },
+    // charts_tree_menu: [],
+    // default_chart_icon: 'mdi-pulse',
+    // icons: {
+    //   'mdi-chart-line': /^os$/,
+    //   'mdi-flash': /cpus.*/,
+    //   'mdi-memory': /^.*mem.*$/,
+    //   'mdi-clock': /minute.*/,
+    //   'mdi-harddisk': /blockdevices.*|mounts.*/,
+    //   'mdi-network': /networkInterfaces.*/
+    //   // 'mdi-pulse': /.*/
+    // },
   }
 }

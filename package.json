@@ -23,8 +23,7 @@
     "node-mngr-docs": "git+https://github.com/colo/node-mngr-docs.git",
     "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
     "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",
-    "vue-i18n": "^7.3.3",
-    "webpack-node-externals": "^1.7.2"
+    "vue-i18n": "^7.3.3"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^4.5.1",

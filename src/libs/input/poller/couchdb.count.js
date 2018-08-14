@@ -98,7 +98,7 @@ export default new Class({
   },
 
   view: function(err, resp, view){
-		console.log('count.view ', resp, view.options);
+		// console.log('count.view ', resp, view.options);
 
 		if(err){
 			////////console.log('this.sort_by_path error %o', err);
