@@ -4,16 +4,12 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      {{$route.name}}
-      <!-- <small>{{$route.params.host}}</small> -->
+      Dashboard
+      <small>Control panel</small>
     </h1>
     <ol class="breadcrumb bg-aqua">
-      <li>
-        <router-link :to="{name: 'Home'}">
-          <i class="fa fa-dashboard"></i> Home
-        </router-link>
-      </li>
-      <li class="active">{{$route.name}}</li>
+      <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+      <li class="active">Dashboard</li>
     </ol>
   </section>
 

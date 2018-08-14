@@ -34,16 +34,20 @@
         <!-- Optionally, you can add icons to the links -->
         <!-- <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
         <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li> -->
-        <li class="active treeview">
-          <a href="#">
+        <li class="treeview" v-bind:class="{ 'active': $route.name == 'dashboard' }">
+          <router-link :to="{ name: 'Dashboard' }">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
-          </a>
-          <ul class="treeview-menu">
-            <li class="active"><a href="index.html"><i class="fa fa-circle-o"></i> Dashboard v1</a></li>
-            <li><a href="index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>
+          </router-link>
+          <ul class="treeview-menu" v-for="(host) in hosts">
+            <!-- class="active" -->
+            <li v-bind:class="{ 'active': $route.params.host == host }">
+              <router-link :to="{ name: 'Dashboard', params: { host: host }}">
+                <i class="fa fa-circle-o"></i> {{host}}
+              </router-link>
+            </li>
           </ul>
         </li>
       </ul>
@@ -55,8 +59,17 @@
 
 <script>
 
+
+import { mapState } from 'vuex'
+
 export default {
   name: 'admin-lte-left-sidebar',
+
+  computed: Object.merge(
+    mapState({
+      hosts: state => state.hosts.all,
+    })
+  ),
 }
 
 </script>

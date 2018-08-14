@@ -14,7 +14,7 @@ import Vue from 'vue'
 export const EventBus = new Vue();
 
 /**
-* needed for nodejs imports (pipelines)
+* needed for pipelines and libs (dygraph) as a way to comunicate with Vue (emit events)
 **/
 if(!window['EventBus'])
   window['EventBus'] = EventBus
