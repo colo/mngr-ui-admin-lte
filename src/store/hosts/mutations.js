@@ -4,6 +4,9 @@ export const current = (state, host) => {
   state.current = host
 }
 
+/**
+* @start all hosts
+**/
 export const add = (state, host) => {
   state.all.push(host)
 }
@@ -24,7 +27,7 @@ export const erase = (state, hosts) => {
   if(state.all.contains(hosts)){
     let tmp_array = Array.clone(state.all)
     tmp_array.erase(host)
-    Vue.set(state, all, tmp_array)
+    Vue.set(state, 'all', tmp_array)
   }
 }
 
@@ -32,6 +35,9 @@ export const erase = (state, hosts) => {
 export const clear = (state) => {
   Vue.set(state, 'all', [])
 }
+/**
+* @end all hosts
+**/
 
 export const clear_modules_blacklist = (state) => {
   Vue.set(state, 'modules_blacklist', {})

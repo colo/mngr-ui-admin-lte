@@ -24,10 +24,43 @@ if(!window['EventBus'])
 **/
 let hostStore = {
   namespaced: true,
-  state: {},
+  state: function() {
+    return {
+      pipelines: [],
+    }
+  },
   getters: {},
   actions: {},
-  mutations: {}
+  mutations: {
+    add: (state, pipeline) => {
+      state.pipelines.push(pipeline)
+    },
+
+    set: (state, pipelines) => {
+      Array.each(pipelines, function(pipeline){
+        if(!state.pipelines.contains(pipeline))
+          state.pipelines.push(pipeline)
+      })
+      Array.each(state.pipelines, function(pipeline){
+        if(!hosts.contains(pipeline))
+          state.pipelines.erase(pipeline)
+      })
+      // Vue.set(state, 'all', hosts)
+    },
+
+    erase: (state, pipeline) => {
+      if(state.pipelines.contains(pipeline)){
+        let tmp_array = Array.clone(state.pipelines)
+        tmp_array.erase(pipeline)
+        Vue.set(state, 'pipelines', tmp_array)
+      }
+    },
+
+
+    clear: (state) => {
+      Vue.set(state, 'pipelines', [])
+    }
+  }
 }
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
@@ -104,7 +137,7 @@ export default {
       */
       Array.each(this.$store.state.hosts, function(host){
         if(!doc.hosts.contains(host)){
-          //console.log('UNregisterModule HOSTS', host)
+          console.log('UNregisterModule HOSTS', host)
           this.$store.unregisterModule(['hosts', host])
         }
       }.bind(this))

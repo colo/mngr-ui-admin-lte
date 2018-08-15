@@ -18,6 +18,7 @@
 
 <script>
 
+import AdminLTE from 'admin-lte/dist/js/adminlte.min.js'
 
 import AdminLteBoxSolid from 'components/admin-lte/dashboard/boxSolid'
 
@@ -28,6 +29,11 @@ export default {
     AdminLteBoxSolid
   },
 
+  updated: function(){
+    this.$store.commit('hosts/current', this.$route.params.host || '')
+  }
 
 }
+
+
 </script>

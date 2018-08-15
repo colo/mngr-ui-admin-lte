@@ -4,12 +4,17 @@ const routes = [
     path: '/',
     component: () => import('layouts/admin-lte.vue'),
     name: 'Home',
-    redirect: { name: 'Dashboard' },
+    // redirect: { name: 'Dashboard' },
     children: [
       {
         path: 'dashboard',
         component: () => import('pages/dashboard.vue'),
         name: 'Dashboard',
+        meta: {
+          breadcrumb: {
+            parent: 'Home'
+          }
+        },
         children: [
           // {
           //   name: 'DashboardMain',
@@ -20,6 +25,12 @@ const routes = [
             name: 'Host',
             path: ':host',
             component: () => import('pages/dashboard/host.vue'),
+            // meta: {
+            //   breadcrumb: {
+            //     parent: 'Dashboard'
+            //
+            //   }
+            // },
           }
         ]
       }

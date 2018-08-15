@@ -14,7 +14,20 @@
           {{$route.name}}
           <small>{{$route.params.host}}</small>
         </h1>
-        <!-- https://github.com/Suruat/vue-2-crumbs -->
+        <app-breadcrumbs container="ol" class="breadcrumb">
+          <li slot-scope="{to, label, utils}" class="active">
+            <router-link
+              :to="to"
+              exact
+            >
+            <!-- :itemprop="utils && utils.itemprop" -->
+              <!-- <i class="fa fa-dashboard"></i>  -->
+              {{label}}
+            </router-link>
+          </li>
+        </app-breadcrumbs>
+
+
         <!-- <ol class="breadcrumb">
           <li>
             <router-link :to="{name: 'Home'}">
@@ -51,6 +64,10 @@
 // import { openURL } from 'quasar'
 
 // try -> https://github.com/Suruat/vue-2-crumbs
+import Vue from 'vue'
+import Vue2Crumbs from 'vue-2-crumbs'
+
+Vue.use(Vue2Crumbs)
 
 import AdminLteHeader from './admin-lte/header'
 import AdminLteLeftSidebar from './admin-lte/leftSidebar'
@@ -85,7 +102,7 @@ export default {
     // Resolve conflict in jQuery UI tooltip with Bootstrap tooltip
     jQuery.widget.bridge('uibutton', jQuery.ui.button)
   },
-  mounted: function(){
+  updated: function(){
     // console.log('admin-lte this.$route',this.$route)
 
     // Make the dashboard widgets sortable Using jquery UI
@@ -97,6 +114,12 @@ export default {
       zIndex              : 999999
     });
     $('.connectedSortable .box-header, .connectedSortable .nav-tabs-custom').css('cursor', 'move');
+
+
+    $('.box').boxWidget({
+      animationSpeed : 300,
+    });
+    
   }
 }
 

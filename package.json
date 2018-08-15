@@ -23,6 +23,7 @@
     "node-mngr-docs": "git+https://github.com/colo/node-mngr-docs.git",
     "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
     "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",
+    "vue-2-crumbs": "^0.5.2",
     "vue-i18n": "^7.3.3"
   },
   "devDependencies": {
