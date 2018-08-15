@@ -12,16 +12,19 @@
       <section class="content-header">
         <h1>
           {{$route.name}}
-          <!-- <small>{{$route.params.host}}</small> -->
+          <small>{{$route.params.host}}</small>
         </h1>
-        <ol class="breadcrumb">
+        <!-- https://github.com/Suruat/vue-2-crumbs -->
+        <!-- <ol class="breadcrumb">
           <li>
             <router-link :to="{name: 'Home'}">
               <i class="fa fa-dashboard"></i> Home
             </router-link>
           </li>
-          <li class="active">{{$route.name}}</li>
-        </ol>
+
+          <li class="active">{{$route.name || $route.path}}</li>
+
+        </ol> -->
       </section>
 
       <!-- Main content -->
@@ -46,6 +49,8 @@
 
 <script>
 // import { openURL } from 'quasar'
+
+// try -> https://github.com/Suruat/vue-2-crumbs
 
 import AdminLteHeader from './admin-lte/header'
 import AdminLteLeftSidebar from './admin-lte/leftSidebar'
@@ -81,7 +86,8 @@ export default {
     jQuery.widget.bridge('uibutton', jQuery.ui.button)
   },
   mounted: function(){
-    console.log('admin-lte this.$route',this.$route)
+    // console.log('admin-lte this.$route',this.$route)
+
     // Make the dashboard widgets sortable Using jquery UI
     $('.connectedSortable').sortable({
       placeholder         : 'sort-highlight',

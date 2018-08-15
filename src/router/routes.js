@@ -17,7 +17,7 @@ const routes = [
           //   component: () => import('pages/dashboard/main.vue'),
           // },
           {
-            name: 'DashboardHost',
+            name: 'Host',
             path: ':host',
             component: () => import('pages/dashboard/host.vue'),
           }
