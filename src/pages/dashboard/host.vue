@@ -79,6 +79,8 @@ export default {
   // components: {
   //   AdminLteBoxSolid
   // },
+  used_paths:['os.procs'],
+
   breadcrumb () {
     return {
       label: this.$route.params.host,
@@ -88,7 +90,6 @@ export default {
   data () {
     return {
       title: 'title',
-      used_paths:['os.procs'],
       // parent: 'Dashboard'
     }
   },
@@ -161,9 +162,10 @@ export default {
 
 		})
   },
-  // watch: {
-  //   '$route.params.host': function(host){ this.$store.commit('hosts/current', host) }
-  // },
+  watch: {
+    // '$route.params.host': function(host){ this.$store.commit('hosts/current', host) }
+    '$store.state.app.paths': function(val){ this.create_host_pipelines(val) }
+  },
   computed: Object.merge(
     mapState({
       // modules_blacklist: state => state.hosts.modules_blacklist,
@@ -239,11 +241,12 @@ export default {
         this.$store.commit('hosts/'+host+'/clear')
 
 
+
         // Array.each(hosts, function(host){
         Array.each(host_pipelines_templates, function(pipeline_template){
 
           Array.each(paths, function(path){//one pipeline per used/visible path
-            if(this.used_paths.contains(path)){
+            if(this.$options.used_paths.contains(path)){
 
               let template = Object.clone(pipeline_template)
 

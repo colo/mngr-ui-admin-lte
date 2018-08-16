@@ -8,6 +8,8 @@ import InputPollerCouchDBOS from '../input/poller/couchdb.os'
 
 import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
 
+import sizeof from 'object-sizeof'
+
 let os = {
 	mounts: {
 		type: /ext.*/ //filter mounts
@@ -46,6 +48,7 @@ export default {
 	filters: [
 		// decompress,
 		function(doc, opts, next){
+
 			let paths = /^os.*/
 
 			// if(doc != null
@@ -131,7 +134,7 @@ export default {
 
 				//console.log('host.template.filter', doc)
 
-			 	next(doc)
+				next(doc)
 			}
       // if(doc != null && opts.type == 'periodical' && doc.metadata.path == 'os'){
 			// 	// ////console.log('host doc perdiodical', doc)
@@ -281,6 +284,8 @@ export default {
 	],
 	output: [
 		function(doc){
+			console.log('sizeof', sizeof(doc))
+
       doc = JSON.decode(doc)
 
 			// ////console.log('InputPollerCouchDBOS output', doc)
