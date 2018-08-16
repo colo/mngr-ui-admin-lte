@@ -27,11 +27,56 @@ let hostStore = {
   state: function() {
     return {
       pipelines: [],
+      stats: {}
     }
   },
   getters: {},
   actions: {},
   mutations: {
+    data: function(state, payload) {//generic mutation
+      if(Array.isArray(payload.value)){
+        // state.networkInterfaces = payload
+        if(!state.stats[payload.path])
+          Vue.set(state.stats, payload.path, {})
+
+        Vue.set(state.stats[payload.path], payload.key, payload.value)
+        // let len = state[payload.key].length;
+        // while (len--) {
+        //   state[payload.key].pop()
+        // }
+        // len = payload.value.length;
+        // let index = 0
+        // while (index<len) {
+        //   state[payload.key].push(payload.value[index])
+        // }
+
+
+      }
+      else {
+
+        // if(payload.key == 'loadavg'){
+        //   ////////console.log('data', state, payload)
+        // }
+        if(!state.stats[payload.path])
+          Vue.set(state.stats, payload.path, {})
+
+        if(!state.stats[payload.path][payload.key])
+          Vue.set(state.stats[payload.path], payload.key, [])
+
+        state.stats[payload.path][payload.key].push(payload.value)
+      }
+    },
+    splice: (state, payload) => {
+
+      if(state.stats[payload.path] && state.stats[payload.path][payload.key]){
+        let length = state.stats[payload.path][payload.key].length
+        state.stats[payload.path][payload.key].splice(
+          -payload.length -1,
+          length - payload.length
+        )
+      }
+    },
+
     add: (state, pipeline) => {
       state.pipelines.push(pipeline)
     },
@@ -92,7 +137,7 @@ export default {
   created: function(){
 
     EventBus.$on('count', doc => {
-      console.log('recived doc via Event count', doc)
+      // console.log('recived doc via Event count', doc)
 
       this.$store.commit('app/docs_per_sec', doc.data)
     })

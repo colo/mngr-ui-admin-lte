@@ -7,6 +7,8 @@ import app from './app'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
+  strict: false,
+  // strict: process.env.NODE_ENV !== 'production'
   modules: {
     hosts,
     app
