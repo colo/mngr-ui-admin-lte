@@ -51,7 +51,6 @@ export default new Class({
                         {
           								// startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
           								// endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
-                          // startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
                           startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
           								endkey: [path, app.options.stat_host, "periodical",end],
 
@@ -75,47 +74,47 @@ export default new Class({
 			],
 			periodical: [
 
-				// {
-				// 	sort_by_path: function(req, next, app){
-        //
-        //     if(app.options.stat_host){
-        //       // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
-        //       // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
-        //
-        //       /**
-        //       * limit for 'os',
-        //       * unlimit for 'munin'
-        //       */
-        //
-        //       Array.each(app.options.paths, function(path){
-        //
-        //         if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
-        //           console.log('couchdb.os path', path)
-        //
-        //           app.view({
-      	// 						uri: app.options.db,
-        //             args: [
-        //               'sort',
-        //               'by_path',
-        //               {
-        // 								// startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
-        // 								// endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
-        //                 startkey: [path, app.options.stat_host, "periodical",Date.now() + 0],
-        // 								endkey: [path, app.options.stat_host, "periodical", Date.now() - 1000],
-        //                 limit: 1,
-        // 								descending: true,
-        // 								inclusive_end: true,
-        // 								include_docs: true
-        // 							}
-        //
-        //             ]
-      	// 					})
-        //         }
-        //       })
-        //     }
-        //
-				// 	}
-				// }
+				{
+					sort_by_path: function(req, next, app){
+
+            if(app.options.stat_host){
+              // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+              // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+
+              /**
+              * limit for 'os',
+              * unlimit for 'munin'
+              */
+
+              Array.each(app.options.paths, function(path){
+
+                if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
+                  console.log('couchdb.os path', path)
+
+                  app.view({
+      							uri: app.options.db,
+                    args: [
+                      'sort',
+                      'by_path',
+                      {
+        								// startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
+        								// endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
+                        startkey: [path, app.options.stat_host, "periodical",Date.now() + 0],
+        								endkey: [path, app.options.stat_host, "periodical", Date.now() - 1000],
+                        limit: 1,
+        								descending: true,
+        								inclusive_end: true,
+        								include_docs: true
+        							}
+
+                    ]
+      						})
+                }
+              })
+            }
+
+					}
+				}
 
 			],
 

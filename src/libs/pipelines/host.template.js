@@ -48,6 +48,7 @@ export default {
 	filters: [
 		// decompress,
 		function(doc, opts, next){
+			console.log('sizeof', sizeof(doc))
 
 			let paths = /^os.*/
 

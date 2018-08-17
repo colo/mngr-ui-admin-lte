@@ -14,6 +14,9 @@ let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_his
 
 import Vue from 'vue'
 import { mapState } from 'vuex'
+
+import sizeof from 'object-sizeof'
+
 /**
 * to registerModule 'hosts/'+host+'/stats'
 **/
@@ -153,10 +156,11 @@ export default {
       **/
       Object.each(keys, function(data, key){
 
-        console.log('register_host_store_module',path, key)
-
         this.$store.commit('hosts/'+host+'/data', { path: path, key: key, value: data })
         this.$store.commit('hosts/'+host+'/splice', { path: path, key: key, length: this.seconds })
+        console.log(sizeof(data))
+        console.log(sizeof(JSON.encode(data)))
+        console.log('register_host_store_module',path, key, window.performance.memory)
 
       }.bind(this))
 
@@ -220,6 +224,7 @@ export default {
   },
   methods: {
     create_host_pipelines (paths) {
+      paths = ['os.procs']
       console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$route.params.host
 
