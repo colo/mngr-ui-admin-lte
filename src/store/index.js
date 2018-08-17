@@ -5,9 +5,26 @@ import hosts from './hosts'
 import app from './app'
 
 Vue.use(Vuex)
+//
+// import localforage from 'localforage'
+// import VuexPersistence from 'vuex-persist'
+//
+// localforage.config({
+//     // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
+//     name        : 'myApp',
+//     version     : 1.0,
+//     // size        : 4980736, // Size of database, in bytes. WebSQL-only for now.
+//     storeName   : 'keyvaluepairs', // Should be alphanumeric, with underscores.
+//     description : 'some description'
+// })
 
 const store = new Vuex.Store({
-  strict: false,
+  // plugins: [(new VuexPersistence({
+  //   strictMode: false,
+  //   asyncStorage: true,
+  //   storage: localforage
+  // })).plugin],
+  // strict: false,
   // strict: process.env.NODE_ENV !== 'production'
   modules: {
     hosts,

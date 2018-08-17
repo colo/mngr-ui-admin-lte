@@ -9,6 +9,7 @@ module.exports = function (ctx) {
     plugins: [
       'admin-lte',
       'i18n',
+      'vue-pouch'
       // 'axios'
     ],
     // css: [
