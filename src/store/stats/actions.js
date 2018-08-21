@@ -46,6 +46,49 @@ const QUEUE_SIZE = 300
 let deque = new Deque(QUEUE_SIZE)
 let compacted = false
 
+export const get = ({ commit, dispatch }, payload) => {
+  return new Promise((resolve, reject) => {
+    let length = payload.length
+    let docs = []
+
+    console.log('fetching deque.length', deque.length)
+
+    if(deque.length > 0){
+      while (length > 0){
+        console.log('fetching while...', length)
+        docs[length - 1] = deque[length - 1]
+        length--
+      }
+    }
+
+    if(length > 0){//from db
+      console.log('fetching from db', length)
+      db.query('sort/by_path', {
+        startkey:[dispatch.path, dispatch.host+'\ufff0'],
+        endkey:[dispatch.path, dispatch.host],
+        inclusive_end: true,
+        descending: true,
+        limit: length,
+        include_docs: true
+      }).then(function (res) {
+        console.log('fetching from db', res)
+        resolve()
+      }).catch(function (err) {
+        console.log('fetching from db err', err)
+      })
+    }
+    else{
+      resolve(docs)
+    }
+
+    // setTimeout(() => {
+    //   // commit('someMutation')
+    //   console.log('stats get')
+    //   resolve()
+    // }, 1000)
+  })
+}
+
 export const add = ({ commit, dispatch }, payload) => {
 
   // console.log('length', deque.length)
@@ -116,6 +159,7 @@ export const flush = ({ commit, state }, payload) => {
     db.bulkDocs(docs)
     .then(function (status) {
       console.log('bulkDocs status', status)
+      commit('clear', payload)
 
     }).catch(function (err) {
       console.log('bulkDocs err', err)

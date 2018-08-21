@@ -4,9 +4,17 @@
     <div class="row">
       <section class="col-lg-12 connectedSortable">
         <admin-lte-box-solid
-          :docs_per_sec="docs_per_sec"
-          :number_of_hosts="number_of_hosts"
+          title="Summary"
+          id="dashboard-summary"
+          v-once
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
         >
+          <admin-lte-dashboard-summary
+            :docs_per_sec="docs_per_sec"
+            :number_of_hosts="number_of_hosts"
+          >
+          </admin-lte-dashboard-summary>
         </admin-lte-box-solid>
       </section>
     </div>
@@ -22,17 +30,22 @@
 
 <script>
 
-import AdminLTE from 'admin-lte/dist/js/adminlte.min.js'
+import chart from 'components/mixins/chart'
+import dashboard from 'components/mixins/dashboard'
 
-import AdminLteBoxSolid from 'components/admin-lte/dashboard/boxSolid'
+import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
+import AdminLteDashboardSummary from 'components/admin-lte/dashboard/summary'
 
 import { mapState } from 'vuex'
 
 export default {
-  name: 'Dashboard',
+  mixins: [chart, dashboard],
+
+  name: 'admin-lte-dashboard',
 
   components: {
-    AdminLteBoxSolid
+    AdminLteBoxSolid,
+    AdminLteDashboardSummary
   },
 
   computed: Object.merge(mapState({
@@ -46,5 +59,5 @@ export default {
 
 }
 
-
+// import AdminLTE from 'admin-lte/dist/js/adminlte.min.js'
 </script>

@@ -18,6 +18,21 @@ export const add = function(state, payload) {//generic mutation
   }
 }
 
+export const clear = (state, payload) => {
+  console.log('clear mutation')
+
+  if(!state[payload.host])
+    Vue.set(state, payload.host, {})
+
+  if(!state[payload.host][payload.path])
+    Vue.set(state[payload.host], payload.path, {})
+
+  if(!state[payload.host][payload.path][payload.key])
+    Vue.set(state[payload.host][payload.path], payload.key, [])
+
+
+}
+
 export const splice = (state, payload) => {
 
   if(state[payload.host]

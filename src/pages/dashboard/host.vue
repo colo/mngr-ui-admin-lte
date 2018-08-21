@@ -1,7 +1,28 @@
 <template>
- <div>
-   {{title}}
- </div>
+  <section class="content">
+    <div class="row">
+      <section class="col-lg-12 connectedSortable">
+        <admin-lte-box-solid
+          title="Summary"
+          :id="host+'_summary-collapsible'"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+          <admin-lte-dashboard-host-summary>
+          </admin-lte-dashboard-host-summary>
+        </admin-lte-box-solid>
+
+        <admin-lte-box-solid
+          title="CPU"
+          :id="host+'.os.cpu-collapsible'"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+        </admin-lte-box-solid>
+      </section>
+    </div>
+
+  </section>
 </template>
 
 <style>
@@ -76,13 +97,22 @@ let host_pipelines_templates = [
   // HostHistoricalTemplatePipeline
 ]
 
-export default {
-  name: 'DashboardHost',
+import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
+import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
 
-  // components: {
-  //   AdminLteBoxSolid
-  // },
-  visible_paths:['os', 'os.procs'],
+import dashboard from 'components/mixins/dashboard'
+
+export default {
+  mixins: [dashboard],
+
+  name: 'admin-lte-dashboard-host',
+
+  components: {
+    AdminLteBoxSolid,
+    AdminLteDashboardHostSummary
+  },
+
+  // visible_paths:['os', 'os.procs'],
 
   breadcrumb () {
     return {
@@ -92,7 +122,7 @@ export default {
   },
   data () {
     return {
-      title: 'title',
+      // title: 'title',
       // parent: 'Dashboard'
     }
   },
@@ -196,6 +226,8 @@ export default {
       // }.bind(this))
       //
 		})
+
+
   },
 
   computed: Object.merge(
@@ -203,6 +235,8 @@ export default {
       // modules_blacklist: state => state.hosts.modules_blacklist,
       // modules_whitelist: state => state.hosts.modules_whitelist,
       // reset: state => state.app.reset,
+      paused: state => state.app.pause,
+      freezed: state => state.app.freeze,
 
       seconds: function(state){
         // //////////console.log('seconds to splice', state.app.range)
@@ -220,12 +254,26 @@ export default {
       // hosts: state => state.hosts.all,
       // currentHost: state => state.hosts.current,
 
-    })
+    }),
+    {
+      host: function(){
+        return this.$route.params.host
+      }
+    }
 
   ),
   mounted: function(){
     console.log('this.$route',this.$route.params.host)
     this.create_host_pipelines(this.$store.state.app.paths)
+
+    this.$store.dispatch('stats/get', {
+      host: this.host,
+      path: 'os',
+      key: 'cpus',
+      length: this.seconds,
+    }).then((docs) => {
+      console.log('got stat', docs)
+    })
 
   },
   // beforeUpdate: function(){
@@ -260,7 +308,7 @@ export default {
         this.$store.commit('host.'+host+'/clear')
       }
     },
-    
+
     process_os_doc: function(doc){
       let {keys, path, host} = extract_data_os(doc)
       console.log('pre register_host_store_module',path, keys)
