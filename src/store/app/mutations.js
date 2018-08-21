@@ -6,6 +6,20 @@
  //    state.paths.push(payload)
  //  }
  // }
+
+ import Vue from 'vue'
+
+ export const doc = (state, payload) => {
+  if(!state.docs[payload.type])
+    Vue.set(state.docs, payload.type, null)
+
+  state.docs[payload.type] = payload.value
+ }
+
+ // export const search = (state, doc) => {
+ //  state.docs.search = doc
+ // }
+
  export const paths = (state, paths) => {
    Array.each(paths, function(path){
      if(!state.paths.contains(path))

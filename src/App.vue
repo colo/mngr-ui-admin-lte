@@ -22,91 +22,93 @@ if(!window['EventBus'])
 /**
 * to registerModule 'hosts'
 **/
-let hostStore = {
-  namespaced: true,
-  state: function() {
-    return {
-      pipelines: [],
-      stats: {}
-    }
-  },
-  getters: {},
-  actions: {},
-  mutations: {
-    data: function(state, payload) {//generic mutation
-      if(Array.isArray(payload.value)){
-        // state.networkInterfaces = payload
-        if(!state.stats[payload.path])
-          Vue.set(state.stats, payload.path, {})
-
-        Vue.set(state.stats[payload.path], payload.key, payload.value)
-        // let len = state[payload.key].length;
-        // while (len--) {
-        //   state[payload.key].pop()
-        // }
-        // len = payload.value.length;
-        // let index = 0
-        // while (index<len) {
-        //   state[payload.key].push(payload.value[index])
-        // }
-
-
-      }
-      else {
-
-        // if(payload.key == 'loadavg'){
-        //   ////////console.log('data', state, payload)
-        // }
-        if(!state.stats[payload.path])
-          Vue.set(state.stats, payload.path, {})
-
-        if(!state.stats[payload.path][payload.key])
-          Vue.set(state.stats[payload.path], payload.key, [])
-
-        state.stats[payload.path][payload.key].push(payload.value)
-      }
-    },
-    splice: (state, payload) => {
-
-      if(state.stats[payload.path] && state.stats[payload.path][payload.key]){
-        let length = state.stats[payload.path][payload.key].length
-        state.stats[payload.path][payload.key].splice(
-          -payload.length -1,
-          length - payload.length
-        )
-      }
-    },
-
-    add: (state, pipeline) => {
-      state.pipelines.push(pipeline)
-    },
-
-    set: (state, pipelines) => {
-      Array.each(pipelines, function(pipeline){
-        if(!state.pipelines.contains(pipeline))
-          state.pipelines.push(pipeline)
-      })
-      Array.each(state.pipelines, function(pipeline){
-        if(!hosts.contains(pipeline))
-          state.pipelines.erase(pipeline)
-      })
-      // Vue.set(state, 'all', hosts)
-    },
-
-    erase: (state, pipeline) => {
-      if(state.pipelines.contains(pipeline)){
-        let tmp_array = Array.clone(state.pipelines)
-        tmp_array.erase(pipeline)
-        Vue.set(state, 'pipelines', tmp_array)
-      }
-    },
-
-
-    clear: (state) => {
-      Vue.set(state, 'pipelines', [])
-    }
-  }
-}
+// let hostStore = {
+//   namespaced: true,
+//   state: function() {
+//     return {
+//       pipelines: [],
+//       stats: {}
+//     }
+//   },
+//   getters: {},
+//   actions: {},
+//   mutations: {
+//     data: function(state, payload) {//generic mutation
+//       if(Array.isArray(payload.value)){
+//         // state.networkInterfaces = payload
+//         if(!state.stats[payload.path])
+//           Vue.set(state.stats, payload.path, {})
+//
+//         Vue.set(state.stats[payload.path], payload.key, payload.value)
+//         // let len = state[payload.key].length;
+//         // while (len--) {
+//         //   state[payload.key].pop()
+//         // }
+//         // len = payload.value.length;
+//         // let index = 0
+//         // while (index<len) {
+//         //   state[payload.key].push(payload.value[index])
+//         // }
+//
+//
+//       }
+//       else {
+//
+//         // if(payload.key == 'loadavg'){
+//         //   ////////console.log('data', state, payload)
+//         // }
+//         if(!state.stats[payload.path])
+//           Vue.set(state.stats, payload.path, {})
+//
+//         if(!state.stats[payload.path][payload.key])
+//           Vue.set(state.stats[payload.path], payload.key, [])
+//
+//         state.stats[payload.path][payload.key].push(payload.value)
+//       }
+//     },
+//     splice: (state, payload) => {
+//
+//       if(state.stats[payload.path] && state.stats[payload.path][payload.key]){
+//         let length = state.stats[payload.path][payload.key].length
+//         state.stats[payload.path][payload.key].splice(
+//           -payload.length -1,
+//           length - payload.length
+//         )
+//       }
+//     },
+//
+//     add: (state, pipeline) => {
+//       state.pipelines.push(pipeline)
+//     },
+//
+//     set: (state, pipelines) => {
+//       Array.each(pipelines, function(pipeline){
+//         if(!state.pipelines.contains(pipeline))
+//           state.pipelines.push(pipeline)
+//       })
+//       Array.each(state.pipelines, function(pipeline){
+//         if(!hosts.contains(pipeline))
+//           state.pipelines.erase(pipeline)
+//       })
+//       // Vue.set(state, 'all', hosts)
+//     },
+//
+//     erase: (state, pipeline) => {
+//       if(state.pipelines.contains(pipeline)){
+//         let tmp_array = Array.clone(state.pipelines)
+//         tmp_array.erase(pipeline)
+//         Vue.set(state, 'pipelines', tmp_array)
+//       }
+//     },
+//
+//
+//     clear: (state) => {
+//       Vue.set(state, 'pipelines', [])
+//     }
+//   }
+// }
+import hostStore from 'src/store/host'
+// import statsStore from 'src/store/stats'
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 
@@ -114,82 +116,165 @@ import Pipeline from 'node-mngr-worker/lib/pipeline'
 /**
 * search host & paths
 **/
-import SearchPipeline from './libs/pipelines/search'
+import SearchPipeline from '@libs/pipelines/search'
 let search_pipeline = new Pipeline(SearchPipeline)
 
 
 /**
 * count docs x sec
 **/
-import CountPipeline from './libs/pipelines/count'
+import CountPipeline from '@libs/pipelines/count'
 let count_pipeline = new Pipeline(CountPipeline)
 
 import { mapState } from 'vuex'
 
+import VuexPersistence from 'vuex-persist'
+const vuexLocal = new VuexPersistence ({
+  storage: window.localStorage,
+  // reducer: state => ({app: state.app, hosts : state.hosts, stats: state.stats}), //only save app module
+  // modules: ['app', 'hosts', 'stats']
+})
+
 export default {
   name: 'App',
+
+  intervals: [],
+
   data () {
     return {
       // EventBus : EventBus
     }
   },
 
+  watch: {
+    '$store.state.app.docs.search': function(oldVal, newVal){
+      console.log('recived doc via Event search', newVal)
+      this.process_search_doc(newVal)
+    },
+  },
+  // mounted: function(){
+  //   this.process_search_doc(this.$store.state.app.docs.search)
+  // },
+  methods: {
+    process_search_doc: function(doc){
+      if(doc != null){
+        let currentPaths = this.$store.state.app.paths
+        if (currentPaths.equals(doc.paths) !== true){
+
+          this.$store.commit('app/paths', doc.paths)
+
+          this.$store.commit('hosts/clear')
+          this.$store.commit('hosts/set', doc.hosts)
+
+
+          let currentRange = Object.clone(this.$store.state.app.range)
+          ////console.log('update range', currentRange)
+          //just a small modification to notify of update
+          this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
+
+          this.$store.commit('app/reset', false)
+          this.$store.commit('app/reset', true)
+
+        }
+        else {
+          this.$store.commit('hosts/set', doc.hosts)
+        }
+
+
+
+        Array.each(doc.hosts, function(host){
+          if(!this.$store.state['host.'+host]){
+            //console.log('registerModule HOSTS', host)
+            this.$store.registerModule('host.'+host, Object.clone(hostStore))
+          }
+          // if(!this.$store.state.stats[host]){
+          //   //console.log('registerModule HOSTS', host)
+          //   this.$store.registerModule(['stats',host], Object.clone(statsStore), { preserveState: true })
+          // }
+        }.bind(this))
+
+        /**
+        * should unregister modules for unset hosts?
+        */
+        Array.each(this.$store.state, function(host){
+          if(!doc.hosts.contains(host.replace('host.'))){
+            console.log('UNregisterModule HOSTS', host)
+            this.$store.unregisterModule('host.'+host)
+          }
+        }.bind(this))
+
+        // Array.each(this.$store.state.stats, function(host){
+        //   if(!doc.hosts.contains(host)){
+        //     console.log('UNregisterModule Stats', host)
+        //     this.$store.unregisterModule(['stats',host])
+        //   }
+        // }.bind(this))
+
+      }
+    }
+  },
   created: function(){
+    let self = this
+    // this.$options.intervals.push(
+    //   setInterval(function(){
+    //     console.log('flushing...')
+    //     self.$store.dispatch('stats/flush')
+    //   }, 5000)
+    // )
+    // EventBus.$on('count', doc => {
+    //   // console.log('recived doc via Event count', doc)
+    //
+    //   this.$store.commit('app/docs_per_sec', doc.data)
+    // })
 
-    EventBus.$on('count', doc => {
-      // console.log('recived doc via Event count', doc)
-
-      this.$store.commit('app/docs_per_sec', doc.data)
-    })
-
-    EventBus.$on('search', doc => {
-			// console.log('recived doc via Event search', doc)
-
-
-      let currentPaths = this.$store.state.app.paths
-      if (currentPaths.equals(doc.paths) !== true){
-
-        this.$store.commit('app/paths', doc.paths)
-
-        this.$store.commit('hosts/clear')
-        this.$store.commit('hosts/set', doc.hosts)
-
-
-        let currentRange = Object.clone(this.$store.state.app.range)
-        ////console.log('update range', currentRange)
-        //just a small modification to notify of update
-        this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
-
-        this.$store.commit('app/reset', false)
-        this.$store.commit('app/reset', true)
-
-      }
-      else {
-        this.$store.commit('hosts/set', doc.hosts)
-      }
-
-
-
-      Array.each(doc.hosts, function(host){
-        if(!this.$store.state.hosts[host]){
-          //console.log('registerModule HOSTS', host)
-          this.$store.registerModule(['hosts', host], Object.clone(hostStore))
-        }
-      }.bind(this))
-
-      /**
-      * should unregister modules for unset hosts?
-      */
-      Array.each(this.$store.state.hosts, function(host){
-        if(!doc.hosts.contains(host)){
-          console.log('UNregisterModule HOSTS', host)
-          this.$store.unregisterModule(['hosts', host])
-        }
-      }.bind(this))
-
-
-
-		})
+    // EventBus.$on('search', doc => {
+		// 	// console.log('recived doc via Event search', doc)
+    //
+    //
+    //   let currentPaths = this.$store.state.app.paths
+    //   if (currentPaths.equals(doc.paths) !== true){
+    //
+    //     this.$store.commit('app/paths', doc.paths)
+    //
+    //     this.$store.commit('hosts/clear')
+    //     this.$store.commit('hosts/set', doc.hosts)
+    //
+    //
+    //     let currentRange = Object.clone(this.$store.state.app.range)
+    //     ////console.log('update range', currentRange)
+    //     //just a small modification to notify of update
+    //     this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
+    //
+    //     this.$store.commit('app/reset', false)
+    //     this.$store.commit('app/reset', true)
+    //
+    //   }
+    //   else {
+    //     this.$store.commit('hosts/set', doc.hosts)
+    //   }
+    //
+    //
+    //
+    //   Array.each(doc.hosts, function(host){
+    //     if(!this.$store.state.hosts[host]){
+    //       //console.log('registerModule HOSTS', host)
+    //       this.$store.registerModule(['hosts', host], Object.clone(hostStore))
+    //     }
+    //   }.bind(this))
+    //
+    //   /**
+    //   * should unregister modules for unset hosts?
+    //   */
+    //   Array.each(this.$store.state.hosts, function(host){
+    //     if(!doc.hosts.contains(host)){
+    //       console.log('UNregisterModule HOSTS', host)
+    //       this.$store.unregisterModule(['hosts', host])
+    //     }
+    //   }.bind(this))
+    //
+    //
+    //
+		// })
   },
 }
 

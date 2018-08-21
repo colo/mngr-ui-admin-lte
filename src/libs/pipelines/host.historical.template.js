@@ -209,7 +209,7 @@ export default {
 	],
 	output: [
 		function(doc){
-      doc = JSON.decode(doc)
+      // doc = JSON.decode(doc)
 
       //console.log('InputPollerCouchDBOSHistorical->output', doc)
       //

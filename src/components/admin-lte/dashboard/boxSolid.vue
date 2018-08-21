@@ -84,12 +84,16 @@ import { mapState } from 'vuex'
 export default {
   name: 'admin-lte-box-solid',
 
-  // props: {
-  //   docs_per_sec: {
-  //     type: [Number],
-  //      default: 0
-  //   },
-  // },
+  props: {
+    docs_per_sec: {
+      type: [Number],
+       default: 0
+    },
+    number_of_hosts: {
+      type: [Number],
+       default: 0
+    },
+  },
 
   data () {
     return {
@@ -97,30 +101,30 @@ export default {
     }
   },
 
-  computed: Object.merge(
-    mapState({
-      docs_per_sec: state => state.app.docs_per_sec,
-      // modules_whitelist: state => state.hosts.modules_whitelist,
-      // reset: state => state.app.reset,
-      // // arrow functions can make the code very succinct!
-      // seconds: function(state){
-      //   // //////////console.log('seconds to splice', state.app.range)
-      //
-      //   let end = new Date().getTime()
-      //   if(state.app.range[1] != null)
-      //     end = state.app.range[1]
-      //
-      //   let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
-      //
-      //
-      //   return seconds
-      // },
-      number_of_hosts: state => state.hosts.all.length,
-      // currentHost: state => state.hosts.current,
-
-    })
-
-  ),
+//   computed: Object.merge(
+//     mapState({
+//       docs_per_sec: state => state.app.docs_per_sec,
+//       // modules_whitelist: state => state.hosts.modules_whitelist,
+//       // reset: state => state.app.reset,
+//       // // arrow functions can make the code very succinct!
+//       // seconds: function(state){
+//       //   // //////////console.log('seconds to splice', state.app.range)
+//       //
+//       //   let end = new Date().getTime()
+//       //   if(state.app.range[1] != null)
+//       //     end = state.app.range[1]
+//       //
+//       //   let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
+//       //
+//       //
+//       //   return seconds
+//       // },
+//       number_of_hosts: state => state.hosts.all.length,
+//       // currentHost: state => state.hosts.current,
+//
+//     })
+//
+//   ),
 }
 
 </script>

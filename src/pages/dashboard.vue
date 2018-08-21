@@ -3,7 +3,11 @@
   <section class="content" v-if="!$route.params.host">
     <div class="row">
       <section class="col-lg-12 connectedSortable">
-        <admin-lte-box-solid/>
+        <admin-lte-box-solid
+          :docs_per_sec="docs_per_sec"
+          :number_of_hosts="number_of_hosts"
+        >
+        </admin-lte-box-solid>
       </section>
     </div>
 
@@ -22,6 +26,8 @@ import AdminLTE from 'admin-lte/dist/js/adminlte.min.js'
 
 import AdminLteBoxSolid from 'components/admin-lte/dashboard/boxSolid'
 
+import { mapState } from 'vuex'
+
 export default {
   name: 'Dashboard',
 
@@ -29,6 +35,11 @@ export default {
     AdminLteBoxSolid
   },
 
+  computed: Object.merge(mapState({
+    // arrow functions can make the code very succinct!
+    docs_per_sec: state => state.app.docs.count,
+    number_of_hosts: state => state.hosts.all.length,
+  })),
   updated: function(){
     this.$store.commit('hosts/current', this.$route.params.host || '')
   }

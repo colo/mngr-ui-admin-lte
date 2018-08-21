@@ -75,8 +75,49 @@ export default new Class({
 			],
 			periodical: [
 
-				{
-					sort_by_path: function(req, next, app){
+				// {
+				// 	sort_by_path: function(req, next, app){
+        //
+        //     if(app.options.stat_host){
+        //       // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+        //       // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+        //
+        //       /**
+        //       * limit for 'os',
+        //       * unlimit for 'munin'
+        //       */
+        //
+        //       Array.each(app.options.paths, function(path){
+        //
+        //         if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
+        //           console.log('couchdb.os path', path)
+        //
+        //           app.view({
+      	// 						uri: app.options.db,
+        //             args: [
+        //               'sort',
+        //               'by_path',
+        //               {
+        // 								// startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
+        // 								// endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
+        //                 startkey: [path, app.options.stat_host, "periodical",Date.now() + 0],
+        // 								endkey: [path, app.options.stat_host, "periodical", Date.now() - 1000],
+        //                 limit: 1,
+        // 								descending: true,
+        // 								inclusive_end: true,
+        // 								include_docs: true
+        // 							}
+        //
+        //             ]
+      	// 					})
+        //         }
+        //       })
+        //     }
+        //
+				// 	}
+				// }
+        {
+					sort_by_host: function(req, next, app){
 
             if(app.options.stat_host){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
@@ -87,22 +128,22 @@ export default new Class({
               * unlimit for 'munin'
               */
 
-              Array.each(app.options.paths, function(path){
+              // Array.each(app.options.paths, function(path){
 
-                if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
-                  console.log('couchdb.os path', path)
+                // if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
+                //   console.log('couchdb.os path', path)
 
                   app.view({
       							uri: app.options.db,
                     args: [
                       'sort',
-                      'by_path',
+                      'by_host',
                       {
         								// startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
         								// endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
-                        startkey: [path, app.options.stat_host, "periodical",Date.now() + 0],
-        								endkey: [path, app.options.stat_host, "periodical", Date.now() - 1000],
-                        limit: 1,
+                        startkey: [app.options.stat_host, "periodical",Date.now() + 0],
+        								endkey: [app.options.stat_host, "periodical", Date.now() - 1000],
+                        // limit: 1,
         								descending: true,
         								inclusive_end: true,
         								include_docs: true
@@ -110,8 +151,8 @@ export default new Class({
 
                     ]
       						})
-                }
-              })
+                // }
+              // })
             }
 
 					}
@@ -149,7 +190,7 @@ export default new Class({
   },
 
   view: function(err, resp, view){
-		// //////////console.log('this.view ', resp, view.options.args);
+		console.log('this.view ', resp, view.options.args);
 
 		if(err){
 			////////////console.log('this.sort_by_path error %o', err);
@@ -157,16 +198,18 @@ export default new Class({
 		}
 		else{
 
-
-        if(view.options.args[2].limit == 1 && resp.rows[0]){
-  				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
-  			}
-        else if(resp.rows.length > 0){//range docs
-          //////console.log('range docs', resp)
-          this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
-
-
+        if(view.options.args[0] == 'sort' && view.options.args[1] == 'by_host'){
+          this.fireEvent('onPeriodicalDoc', [resp.rows, {type: 'periodical', input_type: this, app: null}]);
         }
+        // else if(view.options.args[2].limit == 1 && resp.rows[0]){
+  			// 	this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
+  			// }
+        // else if(resp.rows.length > 0){//range docs
+        //   //////console.log('range docs', resp)
+        //   this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
+        //
+        //
+        // }
       // }
 		}
   },

@@ -3,11 +3,13 @@
 // import Vue from 'vue'
 // const EventBus = new Vue()
 
-import InputPollerCouchDBCount from '../input/poller/couchdb.count'
+import InputPollerCouchDBCount from '@libs/input/poller/couchdb.count'
 
-import DefaultConn from '../../etc/default.conn'
+import DefaultConn from '@etc/default.conn'
 
-let buffer = {}
+import store from 'src/store'
+
+// let buffer = {}
 
 export default  {
 	input: [
@@ -50,12 +52,13 @@ export default  {
 		function(doc){
 
 
-			doc = JSON.decode(doc)
+			// doc = JSON.decode(doc)
 
 			// console.log(doc)
+			store.commit('app/doc', {type: 'count', 'value': doc.data})
 
-			if(typeof EventBus !== 'undefined')
-				EventBus.$emit('count', doc)
+			// if(typeof EventBus !== 'undefined')
+			// 	EventBus.$emit('count', doc)
 
 
 		}

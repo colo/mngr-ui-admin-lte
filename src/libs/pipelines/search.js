@@ -3,10 +3,12 @@
 // import Vue from 'vue'
 // const EventBus = new Vue()
 
-import InputPollerCouchDBSearch from '../input/poller/couchdb.search'
+import InputPollerCouchDBSearch from '@libs/input/poller/couchdb.search'
 // import InputPollerCouchDBPaths from '../input/poller/couchdb.paths'
 
-import DefaultConn from '../../etc/default.conn'
+import DefaultConn from '@etc/default.conn'
+
+import store from 'src/store'
 
 let buffer = {}
 
@@ -70,12 +72,14 @@ export default  {
 		function(doc){
 
 
-			doc = JSON.decode(doc)
+			// doc = JSON.decode(doc)
 
 			// console.log(doc, EventBus)
 
-			if(typeof EventBus !== 'undefined')
-				EventBus.$emit('search', doc)
+			store.commit('app/doc', {type: 'search', 'value': doc})
+
+			// if(typeof EventBus !== 'undefined')
+			// 	EventBus.$emit('search', doc)
 
       // if(doc.data.hosts){
       //

@@ -3,11 +3,12 @@ import Vuex from 'vuex'
 
 import hosts from './hosts'
 import app from './app'
+import stats from './stats'
 
 Vue.use(Vuex)
 //
 // import localforage from 'localforage'
-// import VuexPersistence from 'vuex-persist'
+import VuexPersistence from 'vuex-persist'
 //
 // localforage.config({
 //     // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
@@ -18,17 +19,40 @@ Vue.use(Vuex)
 //     description : 'some description'
 // })
 
+// const vuexSession = new VuexPersistence ({
+//   storage: window.sessionStorage,
+//   reducer: state => ({hosts: state.hosts}), //only save app module
+// })
+
+const vuexLocal = new VuexPersistence ({
+  storage: window.localStorage,
+  // reducer: state => ({app: state.app, hosts : state.hosts, stats: state.stats}), //only save app module
+  // modules: ['app', 'hosts', 'stats']
+  modules: ['app', 'hosts']
+})
+
 const store = new Vuex.Store({
   // plugins: [(new VuexPersistence({
-  //   strictMode: false,
-  //   asyncStorage: true,
-  //   storage: localforage
+  //   // strictMode: false,
+  //   // asyncStorage: true,
+  //   storage: window.localStorage,
   // })).plugin],
   // strict: false,
   // strict: process.env.NODE_ENV !== 'production'
+  plugins: [vuexLocal.plugin],
   modules: {
     hosts,
-    app
+    app,
+    stats,
+    // stats: {
+    //   namespaced: true,
+    //   state: function() {
+    //     return {}
+    //   },
+    //   getters: {},
+    //   actions: {},
+    //   mutations: {}
+    // }
   }
 })
 

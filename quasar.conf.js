@@ -3,6 +3,8 @@
 const ProvidePlugin = require('webpack/lib/ProvidePlugin')//for jQuery
 const CopyWebpackPlugin = require('copy-webpack-plugin')//amchart3 assets
 
+let path = require('path')
+
 module.exports = function (ctx) {
   return {
     // app plugins (/src/plugins)
@@ -30,7 +32,16 @@ module.exports = function (ctx) {
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
-      extendWebpack (cfg) {
+      extendWebpack (cfg, { isServer, isClient }) {
+        // console.log(cfg.resolve.alias),
+        cfg.resolve.alias = {
+          ...cfg.resolve.alias, // This adds the existing alias
+
+
+          // Add your own alias like this
+          '@libs': path.resolve(__dirname, './src/libs'),
+          '@etc': path.resolve(__dirname, './src/etc')
+        },
         /**
       	 * for npm 'request' (https://github.com/request/request/issues/1529)
       	 * */
