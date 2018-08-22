@@ -66,7 +66,7 @@ import sizeof from 'object-sizeof'
 //       else {
 //
 //         // if(payload.key == 'loadavg'){
-//         //   ////////console.log('data', state, payload)
+//         //   //////////console.log('data', state, payload)
 //         // }
 //
 //         state[payload.key].push(payload.value)
@@ -132,16 +132,37 @@ export default {
 
   watch: {
     // '$store.state.app.docs.os': function(oldVal, newVal){
-    //   console.log('recived doc via Event os', newVal)
+    //   //console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
+    '$store.state.stats.colo.os.cpus': function(oldVal, newVal){
+      console.log('$store.state.stats.colo.os/cpus',newVal)
+      console.log('geting stats...')
+      this.$store.dispatch('stats/get', {
+        host: this.host,
+        path: 'os',
+        key: 'cpus',
+        length: this.seconds,
+      }).then((docs) => {
+        console.log('got stat', docs)
+        Array.each(docs, function(doc){
+          console.log(new Date(doc.metadata.timestamp))
+        })
+      })
+    },
     '$store.state.app.paths': function(oldVal, newVal){ this.create_host_pipelines(newVal) }
   },
 
 
   created: function(){
+    // this.$watch(function(){
+    //   return "$store.state.stats.colo.os.cpus"
+    // },function(oldVal, newVal){
+    //   console.log('$store.state.stats.colo.os/cpus',newVal)
+    // })
+
     EventBus.$on('os', doc => {
-      console.log('recived doc via Event os', doc, this.seconds)
+      //console.log('recived doc via Event os', doc, this.seconds)
       if(Array.isArray(doc)){
         Array.each(doc, function(val){
           this.process_os_doc(val.doc)
@@ -157,7 +178,7 @@ export default {
       // //   if(register == true){
       // //     Object.each(keys, function(data, key){
       // //
-      // //       console.log('register_host_store_module',path, key)
+      // //       //console.log('register_host_store_module',path, key)
       // //
       // //       this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
       // //       this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
@@ -169,7 +190,7 @@ export default {
       // // }.bind(this)
       //
       // let {keys, path, host} = extract_data_os(doc)
-      // // console.log('pre register_host_store_module',path, keys)
+      // // //console.log('pre register_host_store_module',path, keys)
       //
       // Object.each(keys, function(data, key){
       //   if(
@@ -177,7 +198,7 @@ export default {
       //     && this.modules_blacklist[path]
       //     && this.modules_blacklist[path].test(key) == true
       //   ){
-      //       // console.log('deleting...', path, key)
+      //       // //console.log('deleting...', path, key)
       //       let whitelisted = false
       //       if( this.modules_whitelist && this.modules_whitelist[path] )
       //         Array.each(this.modules_whitelist[path], function(whitelist){
@@ -192,7 +213,7 @@ export default {
       //
       // // if(register_commit(host, path, keys) != true){
       // //   let interval = setInterval(function(){
-      // //     ////console.log('os_interval', interval, path)
+      // //     //////console.log('os_interval', interval, path)
       // //
       // //     if(register_commit(host, path, keys) == true){
       // //       clearInterval(interval)
@@ -213,15 +234,15 @@ export default {
       //     value: data
       //   })
       //
-      //   // console.log(JSON.flatten(data))
+      //   // //console.log(JSON.flatten(data))
       //   // this.$store.commit('hosts/'+host+'/data', { path: path, key: key, value: data })
       //   // this.$store.commit('hosts/'+host+'/splice', { path: path, key: key, length: this.seconds })
       //
       //   // this.$pouch.post('host', {host: host, path: path, key: key, value: data })
       //
-      //   console.log(sizeof(data))
-      //   // console.log(sizeof(JSON.encode(data)))
-      //   console.log('register_host_store_module',path, key, window.performance.memory)
+      //   //console.log(sizeof(data))
+      //   // //console.log(sizeof(JSON.encode(data)))
+      //   //console.log('register_host_store_module',path, key, window.performance.memory)
       //
       // }.bind(this))
       //
@@ -239,7 +260,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // //////////console.log('seconds to splice', state.app.range)
+        // ////////////console.log('seconds to splice', state.app.range)
 
         let end = new Date().getTime()
         if(state.app.range[1] != null)
@@ -263,24 +284,32 @@ export default {
 
   ),
   mounted: function(){
-    console.log('this.$route',this.$route.params.host)
+    //console.log('this.$route',this.$route.params.host)
     this.create_host_pipelines(this.$store.state.app.paths)
 
-    this.$store.dispatch('stats/get', {
-      host: this.host,
-      path: 'os',
-      key: 'cpus',
-      length: this.seconds,
-    }).then((docs) => {
-      console.log('got stat', docs)
-    })
+    // setInterval(function(){
+    //   console.log('geting stats...')
+    //   this.$store.dispatch('stats/get', {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'cpus',
+    //     length: this.seconds,
+    //   }).then((docs) => {
+    //     console.log('got stat', docs)
+    //     Array.each(docs, function(doc){
+    //       console.log(new Date(doc.metadata.timestamp))
+    //     })
+    //   })
+    // }.bind(this), 1000)
+
+
 
   },
   // beforeUpdate: function(){
-  //   console.log('beforeUpdate')
+  //   //console.log('beforeUpdate')
   // },
   // updated: function(){
-  //   console.log('updated')
+  //   //console.log('updated')
   //   this.create_host_pipelines(this.$store.state.app.paths)
   // },
   beforeDestroy: function(){
@@ -311,7 +340,7 @@ export default {
 
     process_os_doc: function(doc){
       let {keys, path, host} = extract_data_os(doc)
-      console.log('pre register_host_store_module',path, keys)
+      //console.log('pre register_host_store_module',path, keys)
 
       Object.each(keys, function(data, key){
         if(
@@ -319,7 +348,7 @@ export default {
           && this.modules_blacklist[path]
           && this.modules_blacklist[path].test(key) == true
         ){
-            // console.log('deleting...', path, key)
+            // //console.log('deleting...', path, key)
             let whitelisted = false
             if( this.modules_whitelist && this.modules_whitelist[path] )
               Array.each(this.modules_whitelist[path], function(whitelist){
@@ -334,7 +363,7 @@ export default {
 
       // if(register_commit(host, path, keys) != true){
       //   let interval = setInterval(function(){
-      //     ////console.log('os_interval', interval, path)
+      //     //////console.log('os_interval', interval, path)
       //
       //     if(register_commit(host, path, keys) == true){
       //       clearInterval(interval)
@@ -352,7 +381,7 @@ export default {
           host: host,
           path: path,
           key: key,
-          value: data
+          data: data
         })
 
         this.$store.commit('stats/splice', {
@@ -362,22 +391,22 @@ export default {
           length: this.seconds
         })
 
-        // console.log(JSON.flatten(data))
+        // //console.log(JSON.flatten(data))
         // this.$store.commit('hosts/'+host+'/data', { path: path, key: key, value: data })
         // this.$store.commit('hosts/'+host+'/splice', { path: path, key: key, length: this.seconds })
 
         // this.$pouch.post('host', {host: host, path: path, key: key, value: data })
 
-        console.log(sizeof(data))
-        // console.log(sizeof(JSON.encode(data)))
-        console.log('register_host_store_module',path, key,this.seconds, window.performance.memory)
+        //console.log(sizeof(data))
+        // //console.log(sizeof(JSON.encode(data)))
+        //console.log('register_host_store_module',path, key,this.seconds, window.performance.memory)
 
       }.bind(this))
 
     },
     create_host_pipelines (paths) {
       // paths = ['os.procs']
-      console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      //console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$store.state.hosts.current || this.$route.params.host
 
       let range = Object.clone(this.$store.state.app.range)
@@ -403,7 +432,7 @@ export default {
 
               let pipe = new Pipeline(template)
 
-              ////////console.log('$store.state.hosts.all', pipe)
+              //////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -413,17 +442,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                //console.log('create_hosts_pipelines onRangeDoc',doc);
+                ////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  ////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  //////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  //console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -442,7 +471,7 @@ export default {
               pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                //console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
                 pipe.fireEvent('onResume')
               }
             // }
@@ -455,11 +484,11 @@ export default {
     // register_host_store_module (host, path, keys){
     //
     //
-    //   // //////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
+    //   // ////////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
     //
     //   // if(!this.$store.state.hosts[host][path]){
     //   let status = this.check_store_path(path.split('/'), this.$store.state['host.'+host])
-    //   //////////console.log('status', status)
+    //   ////////////console.log('status', status)
     //   if(status == false){
     //
     //     let state_props = (keys) ? Object.clone(keys) : {}
@@ -467,7 +496,7 @@ export default {
     //       state_props[key] = []
     //     })
     //
-    //     console.log('registering....', host, path, keys)
+    //     //console.log('registering....', host, path, keys)
     //
     //     let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
     //       return state_props
@@ -479,7 +508,7 @@ export default {
     //     this.$store.registerModule(new_path, stats)
     //
     //     // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
-    //     // console.log('registering....', host, new_path, this.$store.state.hosts[host])
+    //     // //console.log('registering....', host, new_path, this.$store.state.hosts[host])
     //
     //     return true
     //   }
@@ -491,7 +520,7 @@ export default {
     //   }
     // },
     // check_store_path(path, root){
-    //   // console.log('registering check_store_path', path)
+    //   // //console.log('registering check_store_path', path)
     //   // for(let i = 0; i < path.length; ){
     //     if(root == undefined){
     //       return undefined
