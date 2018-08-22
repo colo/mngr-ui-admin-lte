@@ -14,10 +14,19 @@
 
         <admin-lte-box-solid
           title="CPU"
-          :id="host+'.os.cpu-collapsible'"
+          :id="host+'.os.cpus-collapsible'"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
+          <dygraph-wrapper
+            :id="host+'.os.cpus'"
+            :EventBus="EventBus"
+          >
+          <!-- :chart="chart"
+          :stat="stats[name]" -->
+          </dygraph-wrapper>
+          <div class="netdata-chart-legend">
+          </div>
         </admin-lte-box-solid>
       </section>
     </div>
@@ -100,16 +109,20 @@ let host_pipelines_templates = [
 import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
 import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
 
+import chart from 'components/mixins/chart'
 import dashboard from 'components/mixins/dashboard'
 
+import dygraphWrapper from 'components/charts/wrappers/dygraph'
+
 export default {
-  mixins: [dashboard],
+  mixins: [chart, dashboard],
 
   name: 'admin-lte-dashboard-host',
 
   components: {
     AdminLteBoxSolid,
-    AdminLteDashboardHostSummary
+    AdminLteDashboardHostSummary,
+    dygraphWrapper
   },
 
   // visible_paths:['os', 'os.procs'],
@@ -124,6 +137,7 @@ export default {
     return {
       // title: 'title',
       // parent: 'Dashboard'
+      EventBus: EventBus
     }
   },
   // pouch: {
@@ -135,21 +149,23 @@ export default {
     //   //console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
-    '$store.state.stats.colo.os.cpus': function(oldVal, newVal){
-      console.log('$store.state.stats.colo.os/cpus',newVal)
-      console.log('geting stats...')
-      this.$store.dispatch('stats/get', {
-        host: this.host,
-        path: 'os',
-        key: 'cpus',
-        length: this.seconds,
-      }).then((docs) => {
-        console.log('got stat', docs)
-        Array.each(docs, function(doc){
-          console.log(new Date(doc.metadata.timestamp))
-        })
-      })
-    },
+
+    //testing
+    // '$store.state.stats.colo.os.cpus': function(oldVal, newVal){
+    //   console.log('$store.state.stats.colo.os/cpus',newVal)
+    //   console.log('geting stats...')
+    //   this.$store.dispatch('stats/get', {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'cpus',
+    //     length: this.seconds,
+    //   }).then((docs) => {
+    //     console.log('got stat', docs)
+    //     Array.each(docs, function(doc){
+    //       console.log(new Date(doc.metadata.timestamp))
+    //     })
+    //   })
+    // },
     '$store.state.app.paths': function(oldVal, newVal){ this.create_host_pipelines(newVal) }
   },
 
@@ -171,6 +187,7 @@ export default {
       else{
         this.process_os_doc(doc)
       }
+
 
       //
       // // let register_commit = function(host, path, keys){
@@ -249,6 +266,7 @@ export default {
 		})
 
 
+
   },
 
   computed: Object.merge(
@@ -278,14 +296,30 @@ export default {
     }),
     {
       host: function(){
-        return this.$route.params.host
+        return this.$store.state.hosts.current || this.$route.params.host
       }
     }
 
   ),
   mounted: function(){
+
     //console.log('this.$route',this.$route.params.host)
     this.create_host_pipelines(this.$store.state.app.paths)
+
+    let self = this
+    let unwatch = this.$watch(function(){
+      console.log('HOST', self.host, self.$store.state.stats)
+
+      return self.$store.state.stats[self.host].os.cpus
+    }, function (oldVal, val) {
+
+      if(val.length > 1){
+        self.process_chart(val, 'os.cpus', undefined)
+
+        unwatch()
+      }
+
+    })
 
     // setInterval(function(){
     //   console.log('geting stats...')
@@ -384,12 +418,12 @@ export default {
           data: data
         })
 
-        this.$store.commit('stats/splice', {
-          host: host,
-          path: path,
-          key: key,
-          length: this.seconds
-        })
+        // this.$store.dispatch('stats/splice', {
+        //   host: host,
+        //   path: path,
+        //   key: key,
+        //   length: this.seconds
+        // })
 
         // //console.log(JSON.flatten(data))
         // this.$store.commit('hosts/'+host+'/data', { path: path, key: key, value: data })

@@ -4,6 +4,8 @@ export default {
 
   data () {
     return {
+      charts: {},
+      stats: {}
     }
   },
 
@@ -24,6 +26,92 @@ export default {
       // // this.$set(this.stats[name], 'data', [])
 
     },
+    add_chart (name, chart){
+      this._add_chart(name, chart)
+    },
+    _add_chart (name, chart){
+      let data = [[]]
+      if(chart.options && chart.options.labels)//dygraph code, should be would
+        Array.each(chart.options.labels, function(label, index){
+          if(index == 0){
+            data[0].push(Date.now())
+          }
+          else{
+            // data[0].push(0)
+            data[0].push(null)
+          }
+
+        })
+
+      //console.log('adding chart...', name)
+      if(!chart.icon){
+        Object.each(this.$store.state.app.icons, function(rgexp, icon){
+            if(rgexp.test(name))
+              chart.icon = icon
+        })
+
+        if(!chart.icon)
+          chart.icon = this.$store.state.app.default_chart_icon
+      }
+
+      this.$set(this.charts, name, chart)
+      this.$set(this.stats, name, {lastupdate: 0, 'data': data })
+
+      // this.expanded.push(name)
+    },
+    //os.dashboard
+    process_chart (chart, name, stat){
+
+      // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
+
+      if(name.indexOf('os.') < 0)
+        name = this.host+'_os.'+name
+
+      let {path, list} = this.name_to_module(name)
+      // if(path == "")
+      //   path == 'os'
+
+      console.log('process_chart', name, path, list)
+      this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
+
+      // if(chart.watch && chart.watch.managed == true)
+      //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
+
+      if(!chart.watch || chart.watch.managed != true){
+
+        this.add_chart(name, chart)
+      }
+
+      this._process_chart(chart, name, stat)
+
+
+    },
+    //dashboard mixin
+    // process_chart (chart, name, stat){
+    //
+    //   if(!chart.watch || chart.watch.managed != true){
+    //
+    //     this.add_chart(name, chart)
+    //   }
+    //
+    //   this._process_chart(chart, name, stat)
+    // },
+    // //chart
+    // process_chart (chart, name, stat){
+    //   this._process_chart(chart, name)
+    // },
+    
+    //chart mixin
+    _process_chart (chart, name, stat){
+
+      if(chart.init && typeOf(chart.init) == 'function')
+        chart.init(this, chart, name, stat, 'chart')
+
+      this.create_watcher(name, chart)
+
+    },
+
+
   }
 }
 </script>

@@ -134,6 +134,8 @@ export const add = ({ commit, dispatch }, payload) => {
     dispatch('flush', payload)
 
   if(Array.isArray(payload.data)){
+    //firts soft data by timestamp
+    payload.data.sort(function(a,b) {return (a.data.timestamp > b.data.timestamp) ? 1 : ((b.data.timestamp > a.data.timestamp) ? -1 : 0);} );
 
     let docs = []
     Array.each(payload.data, function(data){
@@ -150,18 +152,24 @@ export const add = ({ commit, dispatch }, payload) => {
       deque.push(doc)
     })
 
-    let commit_docs = []
-    Array.each(docs, function(doc){
-      let commit_doc = new Object()
-      commit_doc.host = payload.host
-      commit_doc.path = payload.path
-      commit_doc.key = payload.key
-      commit_doc.value = doc._id
-      commit_docs.push(commit_doc)
+    // let commit_docs = []
+    // Array.each(docs, function(doc){
+    //   let commit_doc = new Object()
+    //   commit_doc.host = payload.host
+    //   commit_doc.path = payload.path
+    //   commit_doc.key = payload.key
+    //   commit_doc.value = doc._id
+    //   commit_docs.push(commit_doc)
+    // })
+    commit('add', {
+      host: payload.host,
+      path:payload.path,
+      key:payload.key,
+      data: {
+        timestamp: doc.metadata.timestamp,
+        value: doc
+      }
     })
-
-
-    commit('add', commit_docs)
   }
   else{
     let doc = new Object()
@@ -175,13 +183,24 @@ export const add = ({ commit, dispatch }, payload) => {
     doc.metadata.type = 'periodical'
 
     deque.push(doc)
+    // commit('add', doc)
+    commit('add', {
+      host: payload.host,
+      path:payload.path,
+      key:payload.key,
+      data: {
+        timestamp: doc.metadata.timestamp,
+        value: doc
+      }
+    })
 
-    let commit_doc = new Object()
-    commit_doc.host = payload.host
-    commit_doc.path = payload.path
-    commit_doc.key = payload.key
-    commit_doc.value = doc._id
-    commit('add', commit_doc)
+    // let commit_doc = new Object()
+    // commit_doc.host = payload.host
+    // commit_doc.path = payload.path
+    // commit_doc.key = payload.key
+    // commit_doc.value = doc._id
+    // commit('add', commit_doc)
+
   }
 
   //console.log('length', deque.length)
@@ -208,7 +227,7 @@ export const flush = ({ commit, state }, payload) => {
 }
 
 export const splice = ({ commit, state }, payload) => {
-  commit('splice', payload)
+  // commit('splice', payload)
   let spliced = state[payload.host][payload.path][payload.key][0]
 
   //console.log('splice', state[payload.host][payload.path][payload.key].length)

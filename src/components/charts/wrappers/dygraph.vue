@@ -3,12 +3,12 @@
     :id="id+'-container'"
     class="netdata-container-with-legend"
     v-bind:class="container_class_helper"
-    :style="options.style"
+    :style="chart.style"
   >
      <div
        :ref="id"
        :id="id"
-       :class="options.class"
+       :class="chart.class"
      >
 
     </div>
@@ -30,7 +30,7 @@ import 'dygraphs/dist/dygraph.css'
 export default {
   name: 'dygraph-wrapper',
 
-  // chart: null,
+  graph: null,
   freezed: false,
 
   props: {
@@ -42,7 +42,7 @@ export default {
       type: [String],
       default: () => ('')
     },
-    options: {
+    chart: {
       type: [Object],
       default: () => ({})
     },
@@ -64,7 +64,7 @@ export default {
   data () {
     return {
       container_class_helper: '',
-      chart: null,
+      // graph: null,
       highlighted: false,
       ready: false,
       // to_suspend: false,
@@ -80,15 +80,16 @@ export default {
   created () {
     // //console.log('created', this.id, this.visible)
 
-    this.EventBus.$on('highlightCallback', params => {
-      this.highlighted = true
-      // ////console.log('event highlightCallback', params)
-		})
-    this.EventBus.$on('unhighlightCallback', event => {
-      this.highlighted = false
-      // ////console.log('event unhighlightCallback', event)
-		})
-
+    if(EventBus && typeof(EventBus.$on) == 'function'){
+      EventBus.$on('highlightCallback', params => {
+        this.highlighted = true
+        // ////console.log('event highlightCallback', params)
+  		})
+      EventBus.$on('unhighlightCallback', event => {
+        this.highlighted = false
+        // ////console.log('event unhighlightCallback', event)
+  		})
+    }
     // keypath
     let unwatch = this.$watch('stat.data', function (val, oldVal) {
 
@@ -108,7 +109,7 @@ export default {
   },
   mounted () {
 
-    if(this.chart == null){
+    if(this.$options.graph == null){
 
       this._create_dygraph()
 
@@ -117,38 +118,38 @@ export default {
   },
 
   destroyed (){
-    if(this.chart){
+    if(this.$options.graph){
       // console.log('destroying ...', this.id)
-      this.chart.destroy()
-      this.chart = null
+      this.$options.graph.destroy()
+      this.$options.graph = null
     }
     this.$off()
   },
   methods: {
 
     _create_dygraph (){
-      let options = Object.clone(this.options.options)
+      let options = Object.clone(this.chart.options)
 
       if(options.labelsDiv)
         options.labelsDiv = this.id+'-'+options.labelsDiv
 
-      this.chart = new Dygraph(
+      this.$options.graph = new Dygraph(
         document.getElementById(this.id),  // containing div
         this.stat.data,
         options
       )
 
-      this.chart.ready(function(){
+      this.$options.graph.ready(function(){
         // ////console.log('chart '+this.id+' ready')
         this.ready = true
       }.bind(this))
 
-      if(this.options.init)
-        this.options.init(this, this.chart, 'dygraph')
+      if(this.chart.init)
+        this.chart.init(this, this.$options.graph, 'dygraph')
     },
     update (){
       this.updateOptions(
-        { 'dateWindow': this.chart.xAxisExtremes() },
+        { 'dateWindow': this.$options.graph.xAxisExtremes() },
         false
       )
     },
@@ -165,7 +166,7 @@ export default {
         // && this.freezed == false
       ){
 
-          this.chart.updateOptions(
+          this.$options.graph.updateOptions(
             Object.merge(
               {
                 'file': self.stat.data
@@ -175,7 +176,7 @@ export default {
             block_redraw
           );
 
-          this.chart.setSelection(this.chart.numRows() - 1, {}, false)
+          this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)
 
 
       }
