@@ -94,7 +94,7 @@ export default {
     let unwatch = this.$watch('stat.data', function (val, oldVal) {
 
 
-      ////console.log('created', this.id, this.stat.data)
+      console.log('created', this.id, this.stat.data)
 
       // if(val.length > 1 && this.chart == null){
       if(val.length > 1){
@@ -107,15 +107,15 @@ export default {
 
     })
   },
-  mounted () {
-
-    if(this.$options.graph == null){
-
-      this._create_dygraph()
-
-    }
-
-  },
+  // mounted () {
+  //
+  //   if(this.$options.graph == null){
+  //
+  //     this._create_dygraph()
+  //
+  //   }
+  //
+  // },
 
   destroyed (){
     if(this.$options.graph){

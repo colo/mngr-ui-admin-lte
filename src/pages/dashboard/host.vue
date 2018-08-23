@@ -114,6 +114,8 @@ import dashboard from 'components/mixins/dashboard'
 
 import dygraphWrapper from 'components/charts/wrappers/dygraph'
 
+import cpus_times_chart from 'components/charts/cpus_times'
+
 export default {
   mixins: [chart, dashboard],
 
@@ -307,34 +309,44 @@ export default {
     this.create_host_pipelines(this.$store.state.app.paths)
 
     let self = this
-    let unwatch = this.$watch(function(){
-      console.log('HOST', self.host, self.$store.state.stats)
 
-      return self.$store.state.stats[self.host].os.cpus
-    }, function (oldVal, val) {
-
-      if(val.length > 1){
-        self.process_chart(val, 'os.cpus', undefined)
-
-        unwatch()
-      }
-
+    let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
+      console.log('$store.state.stats', val)
+      // if(val.length > 1){
+        if(val[this.host]){
+          let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
+          self.process_chart(cpus_times_chart, 'cpus', data)
+        }
+      //
+      //   unwatch()
+      // }
+      //
     })
 
-    // setInterval(function(){
-    //   console.log('geting stats...')
-    //   this.$store.dispatch('stats/get', {
-    //     host: this.host,
-    //     path: 'os',
-    //     key: 'cpus',
-    //     length: this.seconds,
-    //   }).then((docs) => {
-    //     console.log('got stat', docs)
-    //     Array.each(docs, function(doc){
-    //       console.log(new Date(doc.metadata.timestamp))
-    //     })
-    //   })
-    // }.bind(this), 1000)
+    this.$watch('charts', function (oldVal, val) {
+      console.log('charts', val)
+    })
+
+    this.$watch('stats', function (oldVal, val) {
+      console.log('stats', val)
+    })
+
+    setInterval(function(){
+      console.log('geting stats...')
+      this.$store.dispatch('stats/get', {
+        host: this.host,
+        path: 'os',
+        key: 'cpus',
+        length: this.seconds,
+      }).then((docs) => {
+        console.log('got stat', docs)
+        Array.each(docs, function(doc){
+          let data = { timestamp: doc.timestamp, value: doc.data }
+          this.stats[this.host+'_os.cpus'].data.push(data)
+          // console.log(new Date(doc.metadata.timestamp))
+        }.bind(this))
+      })
+    }.bind(this), 10000)
 
 
 

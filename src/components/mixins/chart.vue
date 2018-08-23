@@ -210,10 +210,11 @@ export default {
       // if(found_watcher == false){
 
         let generic_data_watcher = function(current){
+          console.log('generic_data_watcher')
           this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
         }
 
-        // console.log('gonna watch...', name, path)
+        console.log('gonna watch...', name, path)
         // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
         this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
 
