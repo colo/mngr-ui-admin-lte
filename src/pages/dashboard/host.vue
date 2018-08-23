@@ -100,6 +100,9 @@ import HostTemplatePipeline from '@libs/pipelines/host.template'
 import HostHistoricalTemplatePipeline from '@libs/pipelines/host.historical.template'
 import HostMuninTemplatePipeline from '@libs/pipelines/host.munin.template'
 
+import DygraphVuePipeline from '@libs/pipelines/dygraph.vue'
+let test = new Pipeline(DygraphVuePipeline)
+
 let host_pipelines_templates = [
   HostTemplatePipeline,
   // HostMuninTemplatePipeline,
@@ -310,18 +313,18 @@ export default {
 
     let self = this
 
-    let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
-      console.log('$store.state.stats', val)
-      // if(val.length > 1){
-        if(val[this.host]){
-          let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
-          self.process_chart(cpus_times_chart, 'cpus', data)
-        }
-      //
-      //   unwatch()
-      // }
-      //
-    })
+    // let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
+    //   console.log('$store.state.stats', val)
+    //   // if(val.length > 1){
+    //     if(val[this.host]){
+    //       let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
+    //       self.process_chart(cpus_times_chart, 'cpus', data)
+    //     }
+    //   //
+    //   //   unwatch()
+    //   // }
+    //   //
+    // })
 
     this.$watch('charts', function (oldVal, val) {
       console.log('charts', val)
