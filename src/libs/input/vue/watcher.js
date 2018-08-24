@@ -44,7 +44,16 @@ export default new Class({
 		this.setOptions(options);
 
 	},
+	install: function (Vue, options) {
+		console.log('installing....', Vue)
+
+	},
 	connect: function(){
+		console.log('connect')
+		// Vue.use(this)
+		// Vue.$watch('$store.state.stats.colo.os.cpu', function(old, val){
+		// 	console.log('$store.state.stats.colo.os.cpu', val)
+		// })
 		Vue.component('input-vue-watcher', {
 		  data: function () {
 		    return {
@@ -54,7 +63,7 @@ export default new Class({
 			beforeCreate: function(){
 				console.log('input-vue-watcher')
 			},
-		  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>'
+		  template: '<div></div>'
 		})
 	},
 

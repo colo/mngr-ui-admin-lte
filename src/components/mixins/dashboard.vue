@@ -63,8 +63,8 @@ export default {
       console.log('process_chart', chart, name, stat)
       // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
 
-      if(name.indexOf('os.') < 0)
-        name = this.host+'_os.'+name
+      if(name.indexOf('os_') < 0)
+        name = this.host+'_os_'+name
 
       // let {path, list} = this.name_to_module(name)
       //
@@ -118,9 +118,9 @@ export default {
       let replace_host = new RegExp(this.host+'_', 'g')
       watch_name = watch_name.replace(replace_host, '')
 
-      if(watch_name.indexOf('_') > 0 ){//removes host_ & indixes, ex: cpu.0
-        watch_name = watch_name.substring(0, watch_name.indexOf('_'))
-      }
+      // if(watch_name.indexOf('_') > 0 ){//removes host_ & indixes, ex: cpu.0
+      //   watch_name = watch_name.substring(0, watch_name.indexOf('_'))
+      // }
 
       // ////console.log('create_watcher ', watch_name, name)
 
@@ -130,7 +130,7 @@ export default {
 
 
       // this._create_watcher('$store.state.stats.'+this.host+'.os.'+watch_name, name, chart)
-      this._create_watcher('this.stats.'+this.host+'_os.'+watch_name+'.data', name, chart)
+      this._create_watcher('stats.'+this.host+'_'+watch_name+'.data', name, chart)
     },
     /**
     * @override chart [mixin]
@@ -181,7 +181,7 @@ export default {
         // }
       }
 
-      console.log('gonna watch...', name, path)
+      console.log('gonna watch2...', name, path)
       // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
       this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
 

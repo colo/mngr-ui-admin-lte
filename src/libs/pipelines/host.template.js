@@ -87,39 +87,40 @@ export default {
 			}
 
 			Array.each(docs, function(row){
-				switch (row.doc.metadata.path) {
-					case 'os.mounts':
-						mount_filter(
-							row.doc,
-							opts,
-							pipeline.output.bind(pipeline),
-							pipeline
-						)
-						break;
+				if(row.doc && row.doc.metadata && row.doc.metadata.path)
+					switch (row.doc.metadata.path) {
+						case 'os.mounts':
+							mount_filter(
+								row.doc,
+								opts,
+								pipeline.output.bind(pipeline),
+								pipeline
+							)
+							break;
 
-					case 'os.blockdevices':
-						blockdevices_filter(
-							row.doc,
-							opts,
-							pipeline.output.bind(pipeline),
-							pipeline
-						)
-						break;
+						case 'os.blockdevices':
+							blockdevices_filter(
+								row.doc,
+								opts,
+								pipeline.output.bind(pipeline),
+								pipeline
+							)
+							break;
 
-					case 'os.blockdevices':
-						os_filter(
-							row.doc,
-							opts,
-							pipeline.output.bind(pipeline),
-							pipeline
-						)
-						break;
+						case 'os.blockdevices':
+							os_filter(
+								row.doc,
+								opts,
+								pipeline.output.bind(pipeline),
+								pipeline
+							)
+							break;
 
-					default:
-						pipeline.output(row.doc)
+						default:
+							pipeline.output(row.doc)
 
 
-				}
+					}
 			})
 
 		},

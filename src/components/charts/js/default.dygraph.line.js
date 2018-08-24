@@ -12,7 +12,6 @@ export default {
     // },
     pre_process: function(chart, name, stat){
 
-
       if(!chart.options || !chart.options.labels){
         if(!chart.options)
           chart.options = {}
@@ -152,7 +151,7 @@ export default {
         }
       }
 
-      // console.log('pre_process)', name, chart)
+      console.log('pre_process)', name, chart)
 
       return chart
     },

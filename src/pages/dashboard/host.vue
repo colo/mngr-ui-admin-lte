@@ -21,6 +21,8 @@
           <dygraph-wrapper
             :id="host+'.os.cpus'"
             :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus']"
+            :stat="stats[host+'_os_cpus']"
           >
           <!-- :chart="chart"
           :stat="stats[name]" -->
@@ -30,7 +32,7 @@
         </admin-lte-box-solid>
       </section>
     </div>
-
+    <!-- <input-vue-watcher></input-vue-watcher> -->
   </section>
 </template>
 
@@ -100,8 +102,8 @@ import HostTemplatePipeline from '@libs/pipelines/host.template'
 import HostHistoricalTemplatePipeline from '@libs/pipelines/host.historical.template'
 import HostMuninTemplatePipeline from '@libs/pipelines/host.munin.template'
 
-import DygraphVuePipeline from '@libs/pipelines/dygraph.vue'
-let test = new Pipeline(DygraphVuePipeline)
+// import DygraphVuePipeline from '@libs/pipelines/dygraph.vue'
+// let test = new Pipeline(DygraphVuePipeline)
 
 let host_pipelines_templates = [
   HostTemplatePipeline,
@@ -313,25 +315,35 @@ export default {
 
     let self = this
 
-    // let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
-    //   console.log('$store.state.stats', val)
-    //   // if(val.length > 1){
-    //     if(val[this.host]){
-    //       let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
-    //       self.process_chart(cpus_times_chart, 'cpus', data)
-    //     }
-    //   //
-    //   //   unwatch()
-    //   // }
-    //   //
-    // })
+    let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
+      console.log('$store.state.stats', val)
+      // if(val.length > 1){
+        if(val[this.host]){
+          let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
+          // self.process_chart(cpus_times_chart, 'cpus', data)
+          self.process_chart(
+            cpus_times_chart.pre_process(cpus_times_chart, 'cpus', [data]),
+            'cpus',
+            [data]
+          )
+        }
+      //
+      //   unwatch()
+      // }
+      //
+    })
 
     this.$watch('charts', function (oldVal, val) {
       console.log('charts', val)
     })
 
-    this.$watch('stats', function (oldVal, val) {
+    let unwatch2 = this.$watch('stats', function (oldVal, val) {
+      this.$watch('stats.colo_os_cpus.data', function (oldVal, val) {
+
+        console.log('stats.colo_os_cpus.data', val)
+      })
       console.log('stats', val)
+      unwatch2()
     })
 
     setInterval(function(){
@@ -345,11 +357,11 @@ export default {
         console.log('got stat', docs)
         Array.each(docs, function(doc){
           let data = { timestamp: doc.timestamp, value: doc.data }
-          this.stats[this.host+'_os.cpus'].data.push(data)
+          this.stats[this.host+'_os_cpus'].data.push(data)
           // console.log(new Date(doc.metadata.timestamp))
         }.bind(this))
       })
-    }.bind(this), 10000)
+    }.bind(this), 1000)
 
 
 

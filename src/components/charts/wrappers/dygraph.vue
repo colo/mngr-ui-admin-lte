@@ -128,6 +128,8 @@ export default {
   methods: {
 
     _create_dygraph (){
+      console.log('_create_dygraph', this.stat.data)
+
       let options = Object.clone(this.chart.options)
 
       if(options.labelsDiv)
