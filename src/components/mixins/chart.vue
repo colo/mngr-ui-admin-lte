@@ -84,7 +84,25 @@ export default {
 
 
     },
+    /**
+    * chart attributes
+    **/
+    process_chart_label (chart, name, stat) {
+      if(chart.labeling && typeOf(chart.labeling) == 'function'){
 
+        return chart.labeling(this, chart, name, stat)
+      }
+      else if(chart.label){
+        return chart.label
+      }
+      else{
+        return this.process_chart_name(chart, stat)
+      }
+    },
+    process_chart_name (chart, stat){
+      if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
+      else if(chart.name) return chart.name
+    },
     process_dynamic_chart (chart, name, stat){
 
       if(Array.isArray(stat[0].value)){//like 'cpus'

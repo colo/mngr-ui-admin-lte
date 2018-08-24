@@ -19,10 +19,11 @@
           v-on:hide="el => hideCollapsible(el)"
         >
           <dygraph-wrapper
-            :id="host+'.os.cpus'"
+            :ref="host+'_os_cpus_times'"
+            :id="host+'_os_cpus_times'"
             :EventBus="EventBus"
-            :chart="charts[host+'_os_cpus']"
-            :stat="stats[host+'_os_cpus']"
+            :chart="charts[host+'_os_cpus_times']"
+            :stat="stats_tabular[host+'_os_cpus_times']"
           >
           <!-- :chart="chart"
           :stat="stats[name]" -->
@@ -40,6 +41,14 @@
 </style>
 
 <script>
+
+/**
+* charting
+**/
+let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
+let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
+let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
+let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
 let extract_data_os = require( 'node-mngr-docs' ).extract_data_os
 let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_historical
@@ -122,7 +131,7 @@ import dygraphWrapper from 'components/charts/wrappers/dygraph'
 import cpus_times_chart from 'components/charts/cpus_times'
 
 export default {
-  mixins: [chart, dashboard],
+  // mixins: [chart, dashboard],
 
   name: 'admin-lte-dashboard-host',
 
@@ -140,11 +149,17 @@ export default {
       parent: 'Dashboard'
     }
   },
+
+  unwatchers: {},
+
   data () {
     return {
       // title: 'title',
       // parent: 'Dashboard'
-      EventBus: EventBus
+      EventBus: EventBus,
+      stats: {},
+      stats_tabular: {},
+      charts: {},
     }
   },
   // pouch: {
@@ -318,15 +333,49 @@ export default {
     let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
       console.log('$store.state.stats', val)
       // if(val.length > 1){
-        if(val[this.host]){
+        if(val[this.host] && !this.charts[this.host+'_os_cpus_times']){
           let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
           // self.process_chart(cpus_times_chart, 'cpus', data)
-          self.process_chart(
-            cpus_times_chart.pre_process(cpus_times_chart, 'cpus', [data]),
-            'cpus',
-            [data]
-          )
+          // self.process_chart(
+          //   cpus_times_chart.pre_process(cpus_times_chart, 'cpus', [data]),
+          //   'cpus',
+          //   [data]
+          // )
+          console.log('gonna process_dyn', data)
+          self.process_dynamic_chart(Object.clone(cpus_times_chart), 'cpus', [data])
+          // this.stats[this.host+'_os_cpus_times'].data.shift()
+          // unwatch()
+
+
+          // console.log('gonna watch', val[this.host])
+
+          this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (oldVal, val) {
+            console.log('$store.state.stats.'+this.host+'.os.cpus')
+
+            this.$store.dispatch('stats/get', {
+              host: this.host,
+              path: 'os',
+              key: 'cpus',
+              length: this.seconds,
+            }).then((docs) => {
+              console.log('got stat', docs)
+              Array.each(docs, function(doc){
+                let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+                this.stats[this.host+'_os_cpus_times'].data.push(data)
+                let length = this.stats[this.host+'_os_cpus_times'].data.length
+                this.stats[this.host+'_os_cpus_times'].data.splice(
+                  -300 -1,
+                  length - 300
+                )
+                // console.log(new Date(doc.metadata.timestamp))
+              }.bind(this))
+            })
+          })
+
+
         }
+
+
       //
       //   unwatch()
       // }
@@ -338,30 +387,35 @@ export default {
     })
 
     let unwatch2 = this.$watch('stats', function (oldVal, val) {
-      this.$watch('stats.colo_os_cpus.data', function (oldVal, val) {
+      this.$watch('stats._os_cpus_times.data', function (oldVal, val) {
 
-        console.log('stats.colo_os_cpus.data', val)
+        console.log('stats._os_cpus_times.data', val)
       })
       console.log('stats', val)
       unwatch2()
     })
 
-    setInterval(function(){
-      console.log('geting stats...')
-      this.$store.dispatch('stats/get', {
-        host: this.host,
-        path: 'os',
-        key: 'cpus',
-        length: this.seconds,
-      }).then((docs) => {
-        console.log('got stat', docs)
-        Array.each(docs, function(doc){
-          let data = { timestamp: doc.timestamp, value: doc.data }
-          this.stats[this.host+'_os_cpus'].data.push(data)
-          // console.log(new Date(doc.metadata.timestamp))
-        }.bind(this))
-      })
-    }.bind(this), 1000)
+    // setInterval(function(){
+    //   console.log('geting stats...')
+    //   this.$store.dispatch('stats/get', {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'cpus',
+    //     length: this.seconds,
+    //   }).then((docs) => {
+    //     console.log('got stat', docs)
+    //     Array.each(docs, function(doc){
+    //       let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+    //       this.stats[this.host+'_os_cpus_times'].data.push(data)
+    //       let length = this.stats[this.host+'_os_cpus_times'].data.length
+    //       this.stats[this.host+'_os_cpus_times'].data.splice(
+    //         -300 -1,
+    //         length - 300
+    //       )
+    //       // console.log(new Date(doc.metadata.timestamp))
+    //     }.bind(this))
+    //   })
+    // }.bind(this), 1000)
 
 
 
@@ -377,6 +431,328 @@ export default {
     this.destroy_host_pipelines()
   },
   methods: {
+    /**
+    * charting
+    **/
+    name_to_module(name){
+      let module = name.replace(this.host+'_', '')
+      if(module.indexOf('_') > -1)
+        module = module.substring(0, module.indexOf('_'))
+
+      let second_indexOf = module.indexOf('.', module.indexOf('.') + 1)
+      let path = module.substring(0, second_indexOf).replace('.', '/')
+
+
+      let list = ''
+      // if(second_indexOf == -1){
+        list = module.substring(module.lastIndexOf('.') + 1, module.length)
+      // }
+      // else{
+      //   list = module.substring(second_indexOf + 1, module.indexOf('.', second_indexOf+1) )
+      // }
+
+      console.log('name_to_module', name, path, list)
+
+      return {path, list}
+    },
+    process_dynamic_chart (chart, name, stat){
+
+      if(Array.isArray(stat[0].value)){//like 'cpus'
+
+        Array.each(stat[0].value, function(val, index){
+
+          let arr_chart = Object.clone(chart)
+
+          arr_chart.label = this.process_chart_label(chart, name, stat) || name
+          let chart_name = this.process_chart_name(chart, stat) || name
+
+          if(chart.watch.merge != true){
+            chart_name += '_'+index
+          }
+
+          if(chart.watch.merge != true || index == 0){//merge creates only once instance
+
+            this.process_chart(
+              arr_chart.pre_process(arr_chart, chart_name, stat),
+              chart_name,
+              stat
+            )
+
+          }
+
+        }.bind(this))
+
+      }
+      else if(isNaN(stat[0].value)){
+        //sdX.stats.
+
+        let filtered = false
+        if(chart.watch && chart.watch.filters){
+          Array.each(chart.watch.filters, function(filter){
+            let prop_to_filter = Object.keys(filter)[0]
+            let value_to_filter = filter[prop_to_filter]
+
+            if(
+              stat[0].value[prop_to_filter]
+              && value_to_filter.test(stat[0].value[prop_to_filter]) == true
+            ){
+              filtered = true
+            }
+
+          })
+        }
+        else{
+          filtered = true
+        }
+
+        if(filtered == true){
+
+          chart = chart.pre_process(chart, name, stat)
+
+          chart.label = this.process_chart_label(chart, name, stat) || name
+          let chart_name = this.process_chart_name(chart, stat) || name
+
+          this.process_chart(chart, chart_name, stat)
+        }
+
+      }
+      else{
+
+        chart.label = this.process_chart_label(chart, name, stat) || name
+        let chart_name = this.process_chart_name(chart, stat) || name
+
+        this.process_chart(
+          chart.pre_process(chart, chart_name, stat),
+          name,
+          stat
+        )
+      }
+
+    },
+    process_chart (chart, name, stat){
+
+      // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
+
+      if(name.indexOf('os_') < 0)
+        name = this.host+'_os_'+name
+
+      // let {path, list} = this.name_to_module(name)
+      // if(path == "")
+      //   path == 'os'
+
+      // console.log('process_chart', name, path, list)
+      // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
+
+      // if(chart.watch && chart.watch.managed == true)
+      //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
+
+      if(!chart.watch || chart.watch.managed != true){
+
+        this.add_chart(name, chart)
+      }
+
+      this._process_chart(chart, name, stat)
+
+
+    },
+    _process_chart (chart, name, stat){
+
+      if(chart.init && typeOf(chart.init) == 'function')
+        chart.init(this, chart, name, stat, 'chart')
+
+      this.create_watcher(name, chart)
+
+    },
+    add_chart (name, chart){
+      this._add_chart(name, chart)
+    },
+    _add_chart (name, chart){
+      let data = [[]]
+      // if(chart.options && chart.options.labels)//dygraph code, should be would
+      //   Array.each(chart.options.labels, function(label, index){
+      //     if(index == 0){
+      //       data[0].push(Date.now())
+      //     }
+      //     else{
+      //       // data[0].push(0)
+      //       data[0].push(null)
+      //     }
+      //
+      //   })
+
+      //console.log('adding chart...', name)
+      // if(!chart.icon){
+      //   Object.each(this.$store.state.app.icons, function(rgexp, icon){
+      //       if(rgexp.test(name))
+      //         chart.icon = icon
+      //   })
+      //
+      //   if(!chart.icon)
+      //     chart.icon = this.$store.state.app.default_chart_icon
+      // }
+
+      this.$set(this.charts, name, chart)
+      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+      this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
+
+      // this.expanded.push(name)
+    },
+    create_watcher(name, chart){
+      let watcher = chart.watch || {}
+      let watch_name = name
+      let replace_host = new RegExp(this.host+'_', 'g')
+      watch_name = watch_name.replace(replace_host, '')
+
+      // if(watch_name.indexOf('_') > 0 ){//removes host_ & indixes, ex: cpu.0
+      //   watch_name = watch_name.substring(0, watch_name.indexOf('_'))
+      // }
+
+      // watch_name = watch_name.replace(/os\./, '', 'g')
+
+      console.log('create_watcher ', watch_name, name)
+
+      // this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, chart)
+      this._create_watcher('stats.'+this.host+'_'+watch_name+'.data', name, chart)
+    },
+    /**
+    * @override chart [mixin]
+    **/
+    _create_watcher(path, name, chart){
+      let watcher = chart.watch || {}
+      path = path || ''
+
+      watcher = watcher || {}
+      watcher.value = watcher.value || ''
+      watcher.transform = watcher.transform || ''
+
+      if(this.$options.unwatchers[path+name]){
+        this.$options.unwatchers[path+name]()
+        delete this.$options.unwatchers[path+name]
+      }
+
+      /**
+      * process only if it's visible
+      * saves CPU
+      **/
+      let generic_data_watcher = function(current){
+
+        /**
+        * managed charts doens't match (==) visibles[name]
+        * so use it as a regexp
+        */
+        // let visible_found = false
+        // if(chart.watch && chart.watch.managed == true){ //managed stats must run always
+        //   let rg = new RegExp(name, 'ig')
+        //   Object.each(this.visibles, function(bool, namaged){
+        //     if(rg.test(namaged) == true && bool == true)
+        //       visible_found = true
+        //   })
+        // }
+        //
+        // if(
+        //   (this.visibles[name] == true || visible_found == true)
+        //   && this.freezed == false
+        //   && this.highlighted == false
+        //   && this.paused == false
+        //   // || (chart.watch && chart.watch.managed == true) //managed stats must run always
+        // ){
+
+          console.log('generic_data_watcher', name, current)
+
+          this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
+        // }
+      }
+
+      console.log('gonna watch...', name, path)
+      // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
+      this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
+
+    },
+    generic_data_watcher: data_to_tabular,
+    update_chart_stat (name, data){
+
+      // if(this.hide[name] != true){
+      //
+      //   let has_data = true
+      //   Array.each(data, function(columns){
+      //      has_data = columns.some(function(column, index){
+      //        if(index == 0) return false//timestamp column
+      //        return column != 0;
+      //     });
+      //   })
+      //
+      //
+      //   if(!this.$options.has_no_data[name])
+      //     this.$options.has_no_data[name] = 0
+      //
+      //   this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
+      //
+      //   if(this.$options.has_no_data[name] > 60){//60 = a minute, once hidden, user should unhide it
+      //     // this.$set(this.hide, name, true)
+      //     let hide = Object.clone(this.hide)
+      //     hide[name] = true
+      //     this.$set(this, 'hide', hide)//or won't work the watch.hide
+      //   }
+      //
+      //   if(
+      //     this.stats[name].lastupdate < Date.now() - this.charts[name].interval
+      //     && (this.$refs[name]
+      //       && this.$refs[name][0]
+      //       && this.$refs[name][0].chart != null
+      //     )
+      //     && ( this.visibles[name] != false || this.freezed == true )
+      //     && this.highlighted == false
+      //     && this.paused == false
+      //     && this.stats[name].data.length > 0 && this.stats[name].data[0].length > 0
+      //   ){
+
+          /**
+          * @start
+          * moved from outside this 'if'
+          **/
+          console.log('update_chart_stat', name)
+
+
+
+          /**
+          * always update data, allow a hidden chart to update graphs on visibility change
+          **/
+          this.$set(this.stats_tabular[name], 'data', data)
+          /**
+          * @end
+          * moved from outside this 'if'
+          **/
+
+          // this.$refs[name][0].update()//default update
+
+          this.stats_tabular[name].lastupdate = Date.now()
+
+          console.log('update_chart_stat',name, window.performance.memory)
+
+          // this.$forceUpdate()
+        // }
+
+      // }
+    },
+    process_chart_label (chart, name, stat) {
+      if(chart.labeling && typeOf(chart.labeling) == 'function'){
+
+        return chart.labeling(this, chart, name, stat)
+      }
+      else if(chart.label){
+        return chart.label
+      }
+      else{
+        return this.process_chart_name(chart, stat)
+      }
+    },
+    process_chart_name (chart, stat){
+      if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
+      else if(chart.name) return chart.name
+    },
+    /**
+    * charting
+    **/
     destroy_host_pipelines: function(){
       let host = this.$store.state.hosts.current || this.$route.params.host
 

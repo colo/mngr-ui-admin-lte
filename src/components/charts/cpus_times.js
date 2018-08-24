@@ -3,7 +3,7 @@ import DefaultDygraphLine from './js/default.dygraph.line'
 export default Object.merge(Object.clone(DefaultDygraphLine),{
   // name: 'os.cpus_times',
   name: function(vm, chart, stats){
-    return vm.host+'_os.cpus_times'
+    return vm.host+'_os_cpus_times'
   },
   match: /^cpus/,
   watch: {

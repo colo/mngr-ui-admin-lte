@@ -177,7 +177,7 @@ export default {
         //
           console.log('generic_data_watcher', current, chart, name)
 
-          this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
+          this.generic_data_watcher(Array.clone(current), chart, name, this.update_chart_stat.bind(this))
         // }
       }
 
@@ -189,40 +189,40 @@ export default {
 
     update_chart_stat (name, data){
 
-      if(this.hide[name] != true){
+      // if(this.hide[name] != true){
 
-        let has_data = true
-        Array.each(data, function(columns){
-           has_data = columns.some(function(column, index){
-             if(index == 0) return false//timestamp column
-             return column != 0;
-          });
-        })
+        // let has_data = true
+        // Array.each(data, function(columns){
+        //    has_data = columns.some(function(column, index){
+        //      if(index == 0) return false//timestamp column
+        //      return column != 0;
+        //   });
+        // })
+        //
+        //
+        // if(!this.$options.has_no_data[name])
+        //   this.$options.has_no_data[name] = 0
+        //
+        // this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
+        //
+        // if(this.$options.has_no_data[name] > 60){//60 = a minute, once hidden, user should unhide it
+        //   // this.$set(this.hide, name, true)
+        //   let hide = Object.clone(this.hide)
+        //   hide[name] = true
+        //   this.$set(this, 'hide', hide)//or won't work the watch.hide
+        // }
 
-
-        if(!this.$options.has_no_data[name])
-          this.$options.has_no_data[name] = 0
-
-        this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
-
-        if(this.$options.has_no_data[name] > 60){//60 = a minute, once hidden, user should unhide it
-          // this.$set(this.hide, name, true)
-          let hide = Object.clone(this.hide)
-          hide[name] = true
-          this.$set(this, 'hide', hide)//or won't work the watch.hide
-        }
-
-        if(
-          this.stats[name].lastupdate < Date.now() - this.charts[name].interval
-          && (this.$refs[name]
-            && this.$refs[name][0]
-            && this.$refs[name][0].chart != null
-          )
-          && ( this.visibles[name] != false || this.freezed == true )
-          && this.highlighted == false
-          && this.paused == false
-          && this.stats[name].data.length > 0 && this.stats[name].data[0].length > 0
-        ){
+        // if(
+        //   this.stats[name].lastupdate < Date.now() - this.charts[name].interval
+        //   && (this.$refs[name]
+        //     && this.$refs[name][0]
+        //     && this.$refs[name][0].chart != null
+        //   )
+        //   && ( this.visibles[name] != false || this.freezed == true )
+        //   && this.highlighted == false
+        //   && this.paused == false
+        //   && this.stats[name].data.length > 0 && this.stats[name].data[0].length > 0
+        // ){
 
           /**
           * @start
@@ -240,14 +240,14 @@ export default {
           * @end
           * moved from outside this 'if'
           **/
-
-          this.$refs[name][0].update()//default update
+          // console.log('ref', this.$refs[name])
+          // this.$refs[name][0].update()//default update
 
           this.stats[name].lastupdate = Date.now()
           // this.$forceUpdate()
-        }
+        // }
 
-      }
+      // }
     },
 
 

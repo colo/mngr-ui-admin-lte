@@ -94,28 +94,33 @@ export default {
     let unwatch = this.$watch('stat.data', function (val, oldVal) {
 
 
-      console.log('created', this.id, this.stat.data)
+      console.log('updated data dygraph', this.id, this.stat.data)
 
       // if(val.length > 1 && this.chart == null){
       if(val.length > 1){
 
+        if(this.$options.graph == null){
 
-        this._create_dygraph()
+          this._create_dygraph()
 
-        unwatch()
+        }
+        // this._create_dygraph()
+        //
+        // unwatch()
+        this.update()
       }
 
     })
   },
-  // mounted () {
-  //
-  //   if(this.$options.graph == null){
-  //
-  //     this._create_dygraph()
-  //
-  //   }
-  //
-  // },
+  mounted () {
+
+    if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
+
+      this._create_dygraph()
+
+    }
+
+  },
 
   destroyed (){
     if(this.$options.graph){
@@ -167,6 +172,18 @@ export default {
         // && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
         // && this.freezed == false
       ){
+
+        // if(self.stat.data[0][0] == undefined && self.chart.options && self.chart.options.labels)//dygraph code, should be would
+        //   Array.each(self.chart.options.labels, function(label, index){
+        //     if(index == 0){
+        //       self.stat.data[0].push(Date.now())
+        //     }
+        //     else{
+        //       // data[0].push(0)
+        //       self.stat.data[0].push(null)
+        //     }
+        //
+        //   })
 
           this.$options.graph.updateOptions(
             Object.merge(
