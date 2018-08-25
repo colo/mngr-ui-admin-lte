@@ -13,7 +13,7 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
     * @trasnform: diff between each value against its prev one
     */
     transform: function(values){
-      console.log('transform: ', values)
+      // console.log('transform: ', values)
 
       let transformed = []
       let prev = null

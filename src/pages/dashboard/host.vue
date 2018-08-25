@@ -25,11 +25,8 @@
             :chart="charts[host+'_os_cpus_times']"
             :stat="stats_tabular[host+'_os_cpus_times']"
           >
-          <!-- :chart="chart"
-          :stat="stats[name]" -->
           </dygraph-wrapper>
-          <div class="netdata-chart-legend">
-          </div>
+
         </admin-lte-box-solid>
       </section>
     </div>
@@ -58,52 +55,6 @@ import { mapState } from 'vuex'
 
 import sizeof from 'object-sizeof'
 
-/**
-* to registerModule 'hosts/'+host+'/stats'
-**/
-// let hostStats = {
-//   namespaced: true,
-//   state: {},
-//   getters: {},
-//   actions: {},
-//   mutations: {
-//     data: function(state, payload) {//generic mutation
-//       if(Array.isArray(payload.value)){
-//         // state.networkInterfaces = payload
-//         Vue.set(state, payload.key, payload.value)
-//         // let len = state[payload.key].length;
-//         // while (len--) {
-//         //   state[payload.key].pop()
-//         // }
-//         // len = payload.value.length;
-//         // let index = 0
-//         // while (index<len) {
-//         //   state[payload.key].push(payload.value[index])
-//         // }
-//
-//
-//       }
-//       else {
-//
-//         // if(payload.key == 'loadavg'){
-//         //   //////////console.log('data', state, payload)
-//         // }
-//
-//         state[payload.key].push(payload.value)
-//       }
-//     },
-//     splice: (state, payload) => {
-//
-//       let length = state[payload.key].length
-//       state[payload.key].splice(
-//         -payload.length -1,
-//         length - payload.length
-//       )
-//     }
-//   }
-// }
-
-// import AdminLteBoxSolid from 'components/admin-lte/dashboard/boxSolid'
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 
 
@@ -111,8 +62,6 @@ import HostTemplatePipeline from '@libs/pipelines/host.template'
 import HostHistoricalTemplatePipeline from '@libs/pipelines/host.historical.template'
 import HostMuninTemplatePipeline from '@libs/pipelines/host.munin.template'
 
-// import DygraphVuePipeline from '@libs/pipelines/dygraph.vue'
-// let test = new Pipeline(DygraphVuePipeline)
 
 let host_pipelines_templates = [
   HostTemplatePipeline,
@@ -168,124 +117,29 @@ export default {
 
   watch: {
     // '$store.state.app.docs.os': function(oldVal, newVal){
-    //   //console.log('recived doc via Event os', newVal)
+    //   console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
 
-    //testing
-    // '$store.state.stats.colo.os.cpus': function(oldVal, newVal){
-    //   console.log('$store.state.stats.colo.os/cpus',newVal)
-    //   console.log('geting stats...')
-    //   this.$store.dispatch('stats/get', {
-    //     host: this.host,
-    //     path: 'os',
-    //     key: 'cpus',
-    //     length: this.seconds,
-    //   }).then((docs) => {
-    //     console.log('got stat', docs)
-    //     Array.each(docs, function(doc){
-    //       console.log(new Date(doc.metadata.timestamp))
-    //     })
-    //   })
-    // },
     '$store.state.app.paths': function(oldVal, newVal){ this.create_host_pipelines(newVal) }
   },
 
 
   created: function(){
-    // this.$watch(function(){
-    //   return "$store.state.stats.colo.os.cpus"
-    // },function(oldVal, newVal){
-    //   console.log('$store.state.stats.colo.os/cpus',newVal)
-    // })
 
-    EventBus.$on('os', doc => {
-      //console.log('recived doc via Event os', doc, this.seconds)
-      if(Array.isArray(doc)){
-        Array.each(doc, function(val){
-          this.process_os_doc(val.doc)
-        }.bind(this))
-      }
-      else{
-        this.process_os_doc(doc)
-      }
-
-
-      //
-      // // let register_commit = function(host, path, keys){
-      // //   let register = this.register_host_store_module(host, path, keys)
-      // //   if(register == true){
-      // //     Object.each(keys, function(data, key){
-      // //
-      // //       //console.log('register_host_store_module',path, key)
-      // //
-      // //       this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
-      // //       this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
-      // //
-      // //     }.bind(this))
-      // //   }
-      // //
-      // //   return register
-      // // }.bind(this)
-      //
-      // let {keys, path, host} = extract_data_os(doc)
-      // // //console.log('pre register_host_store_module',path, keys)
-      //
-      // Object.each(keys, function(data, key){
-      //   if(
-      //     this.modules_blacklist
-      //     && this.modules_blacklist[path]
-      //     && this.modules_blacklist[path].test(key) == true
-      //   ){
-      //       // //console.log('deleting...', path, key)
-      //       let whitelisted = false
-      //       if( this.modules_whitelist && this.modules_whitelist[path] )
-      //         Array.each(this.modules_whitelist[path], function(whitelist){
-      //           if(whitelist.test(key) == true)
-      //             whitelisted = true
-      //         })
-      //
-      //       if(whitelisted == false)
-      //         delete keys[key]
-      //   }
-      // }.bind(this))
-      //
-      // // if(register_commit(host, path, keys) != true){
-      // //   let interval = setInterval(function(){
-      // //     //////console.log('os_interval', interval, path)
-      // //
-      // //     if(register_commit(host, path, keys) == true){
-      // //       clearInterval(interval)
-      // //     }
-      // //
-      // //
-      // //   }.bind(this), 1000)
-      // // }
-      //
-      // /**
-      // * don't register a module for each path
-      // **/
-      // Object.each(keys, function(data, key){
-      //   this.$store.dispatch('stats/add', {
-      //     host: host,
-      //     path: path,
-      //     key: key,
-      //     value: data
-      //   })
-      //
-      //   // //console.log(JSON.flatten(data))
-      //   // this.$store.commit('hosts/'+host+'/data', { path: path, key: key, value: data })
-      //   // this.$store.commit('hosts/'+host+'/splice', { path: path, key: key, length: this.seconds })
-      //
-      //   // this.$pouch.post('host', {host: host, path: path, key: key, value: data })
-      //
-      //   //console.log(sizeof(data))
-      //   // //console.log(sizeof(JSON.encode(data)))
-      //   //console.log('register_host_store_module',path, key, window.performance.memory)
-      //
-      // }.bind(this))
-      //
-		})
+    // EventBus.$on('os', doc => {
+    //   // console.log('recived doc via Event os', doc, this.seconds)
+    //
+    //   if(Array.isArray(doc)){
+    //     Array.each(doc, function(val){
+    //       this.process_os_doc(val.doc)
+    //     }.bind(this))
+    //   }
+    //   else{
+    //     this.process_os_doc(doc)
+    //   }
+    //
+		// })
 
 
 
@@ -312,7 +166,7 @@ export default {
         // return seconds
         return 300
       },
-      // hosts: state => state.hosts.all,
+      hosts: state => state.hosts.all,
       // currentHost: state => state.hosts.current,
 
     }),
@@ -324,6 +178,19 @@ export default {
 
   ),
   mounted: function(){
+    EventBus.$on('os', doc => {
+      // console.log('recived doc via Event os', doc, this.seconds)
+
+      if(Array.isArray(doc)){
+        Array.each(doc, function(val){
+          this.process_os_doc(val.doc)
+        }.bind(this))
+      }
+      else{
+        this.process_os_doc(doc)
+      }
+
+		})
 
     //console.log('this.$route',this.$route.params.host)
     this.create_host_pipelines(this.$store.state.app.paths)
@@ -341,35 +208,51 @@ export default {
           //   'cpus',
           //   [data]
           // )
-          console.log('gonna process_dyn', data)
+          // console.log('gonna process_dyn', data)
           self.process_dynamic_chart(Object.clone(cpus_times_chart), 'cpus', [data])
           // this.stats[this.host+'_os_cpus_times'].data.shift()
           // unwatch()
 
+          this.$store.dispatch('stats/get', {
+            host: this.host,
+            path: 'os',
+            key: 'cpus',
+            length: this.seconds,
+          }).then((docs) => {
+            console.log('got stat', docs)
+            Array.each(docs, function(doc){
+              let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+              this.stats[this.host+'_os_cpus_times'].data.push(data)
+              let length = this.stats[this.host+'_os_cpus_times'].data.length
+              this.stats[this.host+'_os_cpus_times'].data.splice(
+                -300 -1,
+                length - 300
+              )
+              this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+                -300 -1,
+                length - 300
+              )
+              // console.log(new Date(doc.metadata.timestamp))
+            }.bind(this))
+          })
 
           // console.log('gonna watch', val[this.host])
 
-          this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (oldVal, val) {
-            console.log('$store.state.stats.'+this.host+'.os.cpus')
+          this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (oldVal, newVal) {
+            let doc = JSON.parse(JSON.stringify(newVal))
+            console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
+            let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
+            this.stats[this.host+'_os_cpus_times'].data.push(data)
 
-            this.$store.dispatch('stats/get', {
-              host: this.host,
-              path: 'os',
-              key: 'cpus',
-              length: this.seconds,
-            }).then((docs) => {
-              console.log('got stat', docs)
-              Array.each(docs, function(doc){
-                let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-                this.stats[this.host+'_os_cpus_times'].data.push(data)
-                let length = this.stats[this.host+'_os_cpus_times'].data.length
-                this.stats[this.host+'_os_cpus_times'].data.splice(
-                  -300 -1,
-                  length - 300
-                )
-                // console.log(new Date(doc.metadata.timestamp))
-              }.bind(this))
-            })
+            let length = this.stats[this.host+'_os_cpus_times'].data.length
+            this.stats[this.host+'_os_cpus_times'].data.splice(
+              -300 -1,
+              length - 300
+            )
+            this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+              -300 -1,
+              length - 300
+            )
           })
 
 
@@ -382,40 +265,6 @@ export default {
       //
     })
 
-    this.$watch('charts', function (oldVal, val) {
-      console.log('charts', val)
-    })
-
-    let unwatch2 = this.$watch('stats', function (oldVal, val) {
-      this.$watch('stats._os_cpus_times.data', function (oldVal, val) {
-
-        console.log('stats._os_cpus_times.data', val)
-      })
-      console.log('stats', val)
-      unwatch2()
-    })
-
-    // setInterval(function(){
-    //   console.log('geting stats...')
-    //   this.$store.dispatch('stats/get', {
-    //     host: this.host,
-    //     path: 'os',
-    //     key: 'cpus',
-    //     length: this.seconds,
-    //   }).then((docs) => {
-    //     console.log('got stat', docs)
-    //     Array.each(docs, function(doc){
-    //       let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-    //       this.stats[this.host+'_os_cpus_times'].data.push(data)
-    //       let length = this.stats[this.host+'_os_cpus_times'].data.length
-    //       this.stats[this.host+'_os_cpus_times'].data.splice(
-    //         -300 -1,
-    //         length - 300
-    //       )
-    //       // console.log(new Date(doc.metadata.timestamp))
-    //     }.bind(this))
-    //   })
-    // }.bind(this), 1000)
 
 
 
@@ -533,8 +382,8 @@ export default {
 
       // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
 
-      if(name.indexOf('os_') < 0)
-        name = this.host+'_os_'+name
+      // if(name.indexOf('os_') < 0)
+      //   name = this.host+'_os_'+name
 
       // let {path, list} = this.name_to_module(name)
       // if(path == "")
@@ -551,188 +400,53 @@ export default {
         this.add_chart(name, chart)
       }
 
-      this._process_chart(chart, name, stat)
-
-
-    },
-    _process_chart (chart, name, stat){
-
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
 
       this.create_watcher(name, chart)
 
     },
+
     add_chart (name, chart){
-      this._add_chart(name, chart)
-    },
-    _add_chart (name, chart){
-      let data = [[]]
-      // if(chart.options && chart.options.labels)//dygraph code, should be would
-      //   Array.each(chart.options.labels, function(label, index){
-      //     if(index == 0){
-      //       data[0].push(Date.now())
-      //     }
-      //     else{
-      //       // data[0].push(0)
-      //       data[0].push(null)
-      //     }
-      //
-      //   })
-
-      //console.log('adding chart...', name)
-      // if(!chart.icon){
-      //   Object.each(this.$store.state.app.icons, function(rgexp, icon){
-      //       if(rgexp.test(name))
-      //         chart.icon = icon
-      //   })
-      //
-      //   if(!chart.icon)
-      //     chart.icon = this.$store.state.app.default_chart_icon
-      // }
-
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
       this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
-
-      // this.expanded.push(name)
     },
+
     create_watcher(name, chart){
       let watcher = chart.watch || {}
-      let watch_name = name
-      let replace_host = new RegExp(this.host+'_', 'g')
-      watch_name = watch_name.replace(replace_host, '')
+      let path = 'stats.'+name+'.data'
+      // this._create_watcher('stats.'+name+'.data', name, chart)
+      // watcher = watcher || {}
 
-      // if(watch_name.indexOf('_') > 0 ){//removes host_ & indixes, ex: cpu.0
-      //   watch_name = watch_name.substring(0, watch_name.indexOf('_'))
-      // }
-
-      // watch_name = watch_name.replace(/os\./, '', 'g')
-
-      console.log('create_watcher ', watch_name, name)
-
-      // this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, chart)
-      this._create_watcher('stats.'+this.host+'_'+watch_name+'.data', name, chart)
-    },
-    /**
-    * @override chart [mixin]
-    **/
-    _create_watcher(path, name, chart){
-      let watcher = chart.watch || {}
-      path = path || ''
-
-      watcher = watcher || {}
       watcher.value = watcher.value || ''
       watcher.transform = watcher.transform || ''
 
-      if(this.$options.unwatchers[path+name]){
-        this.$options.unwatchers[path+name]()
-        delete this.$options.unwatchers[path+name]
+      if(this.$options.unwatchers[path]){
+        this.$options.unwatchers[path]()
+        delete this.$options.unwatchers[path]
       }
 
-      /**
-      * process only if it's visible
-      * saves CPU
-      **/
       let generic_data_watcher = function(current){
-
-        /**
-        * managed charts doens't match (==) visibles[name]
-        * so use it as a regexp
-        */
-        // let visible_found = false
-        // if(chart.watch && chart.watch.managed == true){ //managed stats must run always
-        //   let rg = new RegExp(name, 'ig')
-        //   Object.each(this.visibles, function(bool, namaged){
-        //     if(rg.test(namaged) == true && bool == true)
-        //       visible_found = true
-        //   })
-        // }
-        //
-        // if(
-        //   (this.visibles[name] == true || visible_found == true)
-        //   && this.freezed == false
-        //   && this.highlighted == false
-        //   && this.paused == false
-        //   // || (chart.watch && chart.watch.managed == true) //managed stats must run always
-        // ){
-
-          console.log('generic_data_watcher', name, current)
-
-          this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
-        // }
+        // console.log('generic_data_watcher', name, current)
+        this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
       }
 
       console.log('gonna watch...', name, path)
-      // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
-      this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
+
+      this.$options.unwatchers[path] = this.$watch(path, generic_data_watcher)
 
     },
+
     generic_data_watcher: data_to_tabular,
+
     update_chart_stat (name, data){
 
-      // if(this.hide[name] != true){
-      //
-      //   let has_data = true
-      //   Array.each(data, function(columns){
-      //      has_data = columns.some(function(column, index){
-      //        if(index == 0) return false//timestamp column
-      //        return column != 0;
-      //     });
-      //   })
-      //
-      //
-      //   if(!this.$options.has_no_data[name])
-      //     this.$options.has_no_data[name] = 0
-      //
-      //   this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
-      //
-      //   if(this.$options.has_no_data[name] > 60){//60 = a minute, once hidden, user should unhide it
-      //     // this.$set(this.hide, name, true)
-      //     let hide = Object.clone(this.hide)
-      //     hide[name] = true
-      //     this.$set(this, 'hide', hide)//or won't work the watch.hide
-      //   }
-      //
-      //   if(
-      //     this.stats[name].lastupdate < Date.now() - this.charts[name].interval
-      //     && (this.$refs[name]
-      //       && this.$refs[name][0]
-      //       && this.$refs[name][0].chart != null
-      //     )
-      //     && ( this.visibles[name] != false || this.freezed == true )
-      //     && this.highlighted == false
-      //     && this.paused == false
-      //     && this.stats[name].data.length > 0 && this.stats[name].data[0].length > 0
-      //   ){
+        this.$set(this.stats_tabular[name], 'data', data)
+        this.stats_tabular[name].lastupdate = Date.now()
 
-          /**
-          * @start
-          * moved from outside this 'if'
-          **/
-          console.log('update_chart_stat', name)
+        console.log('update_chart_stat',name, window.performance.memory)
 
-
-
-          /**
-          * always update data, allow a hidden chart to update graphs on visibility change
-          **/
-          this.$set(this.stats_tabular[name], 'data', data)
-          /**
-          * @end
-          * moved from outside this 'if'
-          **/
-
-          // this.$refs[name][0].update()//default update
-
-          this.stats_tabular[name].lastupdate = Date.now()
-
-          console.log('update_chart_stat',name, window.performance.memory)
-
-          // this.$forceUpdate()
-        // }
-
-      // }
     },
     process_chart_label (chart, name, stat) {
       if(chart.labeling && typeOf(chart.labeling) == 'function'){

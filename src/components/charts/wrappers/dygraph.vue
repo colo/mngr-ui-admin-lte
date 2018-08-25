@@ -90,38 +90,50 @@ export default {
         // ////console.log('event unhighlightCallback', event)
   		})
     }
+
+    this.__watcher()
     // keypath
-    let unwatch = this.$watch('stat.data', function (val, oldVal) {
-
-
-      console.log('updated data dygraph', this.id, this.stat.data)
-
-      // if(val.length > 1 && this.chart == null){
-      if(val.length > 1){
-
-        if(this.$options.graph == null){
-
-          this._create_dygraph()
-
-        }
-        // this._create_dygraph()
-        //
-        // unwatch()
-        this.update()
-      }
-
-    })
+    // let unwatch = this.$watch('stat.data', function (val, oldVal) {
+    //
+    //
+    //   console.log('updated data dygraph', this.id, this.stat.data)
+    //
+    //   // if(val.length > 1 && this.chart == null){
+    //   if(val.length > 1){
+    //
+    //     if(this.$options.graph == null){
+    //
+    //       this.__create_dygraph()
+    //
+    //     }
+    //     // this.__create_dygraph()
+    //     //
+    //     // unwatch()
+    //     this.update()
+    //   }
+    //
+    // })
   },
   mounted () {
 
-    if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
-
-      this._create_dygraph()
-
-    }
+    // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
+    //
+    //   this.__create_dygraph()
+    //
+    // }
+    this.__watcher()
 
   },
+  updated () {
 
+    // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
+    //
+    //   this.__create_dygraph()
+    //
+    // }
+    this.__watcher()
+
+  },
   destroyed (){
     if(this.$options.graph){
       // console.log('destroying ...', this.id)
@@ -131,9 +143,30 @@ export default {
     this.$off()
   },
   methods: {
+    __watcher (){
+      this.$watch('stat.data', function (val, oldVal) {
 
-    _create_dygraph (){
-      console.log('_create_dygraph', this.stat.data)
+
+        console.log('updated data dygraph', this.id, this.stat.data)
+
+        // if(val.length > 1 && this.chart == null){
+        if(val.length > 1){
+
+          if(this.$options.graph == null){
+
+            this.__create_dygraph()
+
+          }
+          // this.__create_dygraph()
+          //
+          // unwatch()
+          this.update()
+        }
+
+      })
+    },
+    __create_dygraph (){
+      console.log('__create_dygraph', this.stat.data)
 
       let options = Object.clone(this.chart.options)
 
