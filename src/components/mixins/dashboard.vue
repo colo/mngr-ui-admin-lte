@@ -1,15 +1,29 @@
 <script>
 
+import chart from 'components/chart'
+
 export default {
+
+  components: {
+    chart
+  },
+
+  unwatchers: {},
 
   data () {
     return {
       charts: {},
-      stats: {}
+      stats: {},
+      stats_tabular: {}
     }
   },
 
   methods: {
+    // add_chart (name, chart){
+    //   this.$set(this.charts, name, chart)
+    //   this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+    //   this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
+    // },
     showCollapsible (collapsible){
       console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0

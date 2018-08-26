@@ -18,14 +18,24 @@
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
-          <dygraph-wrapper
+          <!-- <dygraph-wrapper
             :ref="host+'_os_cpus_times'"
             :id="host+'_os_cpus_times'"
             :EventBus="EventBus"
             :chart="charts[host+'_os_cpus_times']"
             :stat="stats_tabular[host+'_os_cpus_times']"
           >
-          </dygraph-wrapper>
+          </dygraph-wrapper> -->
+          <chart
+            :type="'dygraph'"
+            :ref="host+'_os_cpus_times'"
+            :id="host+'_os_cpus_times'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus_times']"
+            :stat="stats_tabular[host+'_os_cpus_times']"
+          >
+          </chart>
+
 
         </admin-lte-box-solid>
       </section>
@@ -72,22 +82,21 @@ let host_pipelines_templates = [
 import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
 import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
 
-import chart from 'components/mixins/chart'
 import dashboard from 'components/mixins/dashboard'
 
-import dygraphWrapper from 'components/charts/wrappers/dygraph'
+// import dygraphWrapper from 'components/charts/wrappers/dygraph'
 
 import cpus_times_chart from 'components/charts/cpus_times'
 
 export default {
-  // mixins: [chart, dashboard],
+  mixins: [dashboard],
 
   name: 'admin-lte-dashboard-host',
 
   components: {
     AdminLteBoxSolid,
     AdminLteDashboardHostSummary,
-    dygraphWrapper
+    // dygraphWrapper
   },
 
   // visible_paths:['os', 'os.procs'],
@@ -209,7 +218,7 @@ export default {
           //   [data]
           // )
           // console.log('gonna process_dyn', data)
-          self.process_dynamic_chart(Object.clone(cpus_times_chart), 'cpus', [data])
+          self.process_dynamic_chart(Object.clone(cpus_times_chart), 'cpus', data)
           // this.stats[this.host+'_os_cpus_times'].data.shift()
           // unwatch()
 
@@ -283,28 +292,36 @@ export default {
     /**
     * charting
     **/
-    name_to_module(name){
-      let module = name.replace(this.host+'_', '')
-      if(module.indexOf('_') > -1)
-        module = module.substring(0, module.indexOf('_'))
-
-      let second_indexOf = module.indexOf('.', module.indexOf('.') + 1)
-      let path = module.substring(0, second_indexOf).replace('.', '/')
-
-
-      let list = ''
-      // if(second_indexOf == -1){
-        list = module.substring(module.lastIndexOf('.') + 1, module.length)
-      // }
-      // else{
-      //   list = module.substring(second_indexOf + 1, module.indexOf('.', second_indexOf+1) )
-      // }
-
-      console.log('name_to_module', name, path, list)
-
-      return {path, list}
+    // name_to_module(name){
+    //   let module = name.replace(this.host+'_', '')
+    //   if(module.indexOf('_') > -1)
+    //     module = module.substring(0, module.indexOf('_'))
+    //
+    //   let second_indexOf = module.indexOf('.', module.indexOf('.') + 1)
+    //   let path = module.substring(0, second_indexOf).replace('.', '/')
+    //
+    //
+    //   let list = ''
+    //   // if(second_indexOf == -1){
+    //     list = module.substring(module.lastIndexOf('.') + 1, module.length)
+    //   // }
+    //   // else{
+    //   //   list = module.substring(second_indexOf + 1, module.indexOf('.', second_indexOf+1) )
+    //   // }
+    //
+    //   console.log('name_to_module', name, path, list)
+    //
+    //   return {path, list}
+    // },
+    add_chart (name, chart){
+      this.$set(this.charts, name, chart)
+      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+      this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
     },
     process_dynamic_chart (chart, name, stat){
+      if(!Array.isArray(stat))
+        stat = [stat]
+
 
       if(Array.isArray(stat[0].value)){//like 'cpus'
 
@@ -407,11 +424,7 @@ export default {
 
     },
 
-    add_chart (name, chart){
-      this.$set(this.charts, name, chart)
-      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-      this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
-    },
+
 
     create_watcher(name, chart){
       let watcher = chart.watch || {}

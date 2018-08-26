@@ -7,13 +7,13 @@ let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
 export default {
 
-  unwatchers: {},
+  // unwatchers: {},
 
-  dynamic_blacklist: null, //regexp
-  dynamic_whitelist: null, //regexp
-
-  static_charts: null,
-  dynamic_charts: null,
+  // dynamic_blacklist: null, //regexp
+  // dynamic_whitelist: null, //regexp
+  //
+  // static_charts: null,
+  // dynamic_charts: null,
 
   data () {
     return {

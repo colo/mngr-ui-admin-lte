@@ -144,7 +144,7 @@ export default {
   },
   methods: {
     __watcher (){
-      this.$watch('stat.data', function (val, oldVal) {
+      this.$watch('stat.data', function (val, old) {
 
 
         console.log('updated data dygraph', this.id, this.stat.data)
