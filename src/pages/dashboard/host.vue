@@ -210,19 +210,19 @@ export default {
   ),
   mounted: function(){
     EventBus.$on('os', doc => {
-      console.log('recived doc via Event os', doc, this.seconds)
+      console.log('recived doc via Event os', doc.length, this.seconds)
 
-      if(Array.isArray(doc)){
-        Array.each(doc, function(val){
-          console.log('VAL', val)
-          if(val.doc.metadata.host == this.host)
-            this.process_os_doc(val.doc)
-
-        }.bind(this))
-      }
-      else if(doc.metadata.host == this.host){
+      // if(Array.isArray(doc)){
+      //   Array.each(doc, function(val){
+      //     console.log('VAL', val)
+      //     if(val.doc.metadata.host == this.host)
+      //       this.process_os_doc(val.doc)
+      //
+      //   }.bind(this))
+      // }
+      // else if(doc.metadata.host == this.host){
         this.process_os_doc(doc)
-      }
+      // }
 
 		})
 
@@ -330,7 +330,24 @@ export default {
     },
 
     process_os_doc: function(doc){
-      let {keys, path, host} = extract_data_os(doc)
+      let paths = {}
+      let keys, path, host = undefined
+      if(Array.isArray(doc)){
+        Array.each(doc, function(d){
+          let {keys, path, host} = extract_data_os(doc)
+          if(!paths[path])
+            paths[path] = {}
+
+          // paths[path].push(keys)
+          paths[path] = Object.merge(paths[path], keys)
+        })
+      }
+      else if(doc.metadata.host == this.host){
+        let {keys, path, host} = extract_data_os(doc)
+        paths[path] = keys
+        // paths[path].push(keys)
+      }
+      // let {keys, path, host} = extract_data_os(doc)
       ////console.log('pre register_host_store_module',path, keys)
 
       // Object.each(keys, function(data, key){
@@ -352,13 +369,19 @@ export default {
       //   }
       // }.bind(this))
 
-      Object.each(keys, function(data, key){
-        this.$store.dispatch('stats/add', {
-          host: host,
-          path: path,
-          key: key,
-          data: data
-        })
+      Object.each(paths, function(keys, path){
+        // console.log('process_os_doc', path, keys)
+
+        Object.each(keys, function(data, key){
+          // console.log('process_os_doc', data, key)
+          this.$store.dispatch('stats/add', {
+            host: this.host,
+            path: path,
+            key: key,
+            data: data
+          })
+
+        }.bind(this))
 
       }.bind(this))
 
@@ -383,7 +406,7 @@ export default {
               let template = Object.clone(pipeline_template)
 
               template.input[0].poll.conn[0].stat_host = host
-              // template.input[0].poll.conn[0].paths = paths
+              template.input[0].poll.conn[0].paths = paths
               // template.input[0].poll.conn[0].paths = [path]
 
               template.input[0].poll.id += '-'+host

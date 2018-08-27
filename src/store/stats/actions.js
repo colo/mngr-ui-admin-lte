@@ -135,10 +135,10 @@ export const add = ({ commit, dispatch }, payload) => {
 
   if(Array.isArray(payload.data)){
     //firts soft data by timestamp
-    payload.data.sort(function(a,b) {return (a.data.timestamp > b.data.timestamp) ? 1 : ((b.data.timestamp > a.data.timestamp) ? -1 : 0);} );
+    payload.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} );
 
     let docs = []
-    Array.each(payload.data, function(data){
+    Array.each(payload.data, function(data, index){
       let doc = new Object()
       doc._id = payload.host+'/'+payload.path+'/'+payload.key+'@'+data.timestamp
       doc.data = data.value
@@ -150,6 +150,17 @@ export const add = ({ commit, dispatch }, payload) => {
       doc.metadata.type = 'periodical'
       docs.push(doc)
       deque.push(doc)
+
+      // if(index == payload.data.length -1)
+      //   commit('add', {
+      //     host: payload.host,
+      //     path:payload.path,
+      //     key:payload.key,
+      //     data: {
+      //       timestamp: doc.metadata.timestamp,
+      //       value: doc
+      //     }
+      //   })
     })
 
     // let commit_docs = []
@@ -166,8 +177,8 @@ export const add = ({ commit, dispatch }, payload) => {
       path:payload.path,
       key:payload.key,
       data: {
-        timestamp: doc.metadata.timestamp,
-        value: doc
+        timestamp: docs[docs.length - 1].metadata.timestamp,
+        value: docs[docs.length - 1]
       }
     })
   }

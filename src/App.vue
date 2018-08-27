@@ -11,7 +11,7 @@
 * vue events as message bus
 */
 import Vue from 'vue'
-export const EventBus = new Vue();
+export const EventBus = new Vue()
 
 /**
 * needed for pipelines and libs (dygraph) as a way to comunicate with Vue (emit events)
