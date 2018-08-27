@@ -147,7 +147,7 @@ export default {
       this.$watch('stat.data', function (val, old) {
 
 
-        console.log('updated data dygraph', this.id, this.stat.data)
+        // console.log('updated data dygraph', this.id, this.stat.data)
 
         // if(val.length > 1 && this.chart == null){
         if(val.length > 1){
@@ -166,7 +166,7 @@ export default {
       })
     },
     __create_dygraph (){
-      console.log('__create_dygraph', this.stat.data)
+      // console.log('__create_dygraph', this.stat.data)
 
       let options = Object.clone(this.chart.options)
 

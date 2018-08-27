@@ -26,6 +26,50 @@ export default new Class({
 
 		requests : {
       range: [
+        {
+					sort_by_host: function(req, next, app){
+
+
+            if(app.options.stat_host){
+              // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+              // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+
+              /**
+              * limit for 'os',
+              * unlimit for 'munin'
+              */
+
+              // Array.each(app.options.paths, function(path){
+
+                // if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
+                //   console.log('couchdb.os path', path)
+                let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
+                console.log('sort_by_host range',req.opt.range.start, end)
+
+                  app.view({
+      							uri: app.options.db,
+                    args: [
+                      'sort',
+                      'by_host',
+                      {
+        								// startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
+        								// endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
+                        startkey: [app.options.stat_host, "periodical",end],
+        								endkey: [app.options.stat_host, "periodical", req.opt.range.start],
+                        // limit: 1,
+        								descending: true,
+        								inclusive_end: true,
+        								include_docs: true
+        							}
+
+                    ]
+      						})
+                // }
+              // })
+            }
+
+					}
+				}
 				// {
 				// 	sort_by_path: function(req, next, app){
         //
@@ -201,6 +245,12 @@ export default new Class({
         if(view.options.args[0] == 'sort' && view.options.args[1] == 'by_host'){
           this.fireEvent('onPeriodicalDoc', [resp.rows, {type: 'periodical', input_type: this, app: null}]);
         }
+        // else if(resp.rows.length > 1){//range docs
+        //   //////console.log('range docs', resp)
+        //   this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
+        //
+        //
+        // }
         // else if(view.options.args[2].limit == 1 && resp.rows[0]){
   			// 	this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
   			// }

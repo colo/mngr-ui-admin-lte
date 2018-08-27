@@ -32,10 +32,10 @@
             :id="host+'_os_cpus_times'"
             :EventBus="EventBus"
             :chart="charts[host+'_os_cpus_times']"
-            :stat="stats_tabular[host+'_os_cpus_times']"
+            :stat="stats[host+'_os_cpus_times']"
           >
           </chart>
-
+          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
 
         </admin-lte-box-solid>
       </section>
@@ -49,13 +49,6 @@
 
 <script>
 
-/**
-* charting
-**/
-let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
-let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
-let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
-let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
 let extract_data_os = require( 'node-mngr-docs' ).extract_data_os
 let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_historical
@@ -116,7 +109,7 @@ export default {
       // parent: 'Dashboard'
       EventBus: EventBus,
       stats: {},
-      stats_tabular: {},
+      // stats_tabular: {},
       charts: {},
     }
   },
@@ -126,7 +119,7 @@ export default {
 
   watch: {
     // '$store.state.app.docs.os': function(oldVal, newVal){
-    //   console.log('recived doc via Event os', newVal)
+    //   //console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
 
@@ -135,23 +128,52 @@ export default {
 
 
   created: function(){
+    this.add_chart (this.host+'_os_cpus_times', Object.clone(cpus_times_chart))
 
-    // EventBus.$on('os', doc => {
-    //   // console.log('recived doc via Event os', doc, this.seconds)
-    //
-    //   if(Array.isArray(doc)){
-    //     Array.each(doc, function(val){
-    //       this.process_os_doc(val.doc)
-    //     }.bind(this))
-    //   }
-    //   else{
-    //     this.process_os_doc(doc)
-    //   }
-    //
-		// })
+    this.$store.dispatch('stats/get', {
+      host: this.host,
+      path: 'os',
+      key: 'cpus',
+      length: this.seconds,
+    }).then((docs) => {
+      //console.log('got stat', docs)
 
+      Array.each(docs, function(doc){
+        let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+        this.stats[this.host+'_os_cpus_times'].data.push(data)
 
+        let length = this.stats[this.host+'_os_cpus_times'].data.length
 
+        this.stats[this.host+'_os_cpus_times'].data.splice(
+          -300 -1,
+          length - 300
+        )
+
+        this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
+
+      }.bind(this))
+    })
+
+    this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (doc, old) {
+      // let doc = JSON.parse(JSON.stringify(newVal))
+      //console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
+      if(this.stats[this.host+'_os_cpus_times'].lastupdate > 0){
+        let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
+        this.stats[this.host+'_os_cpus_times'].data.push(data)
+
+        let length = this.stats[this.host+'_os_cpus_times'].data.length
+        this.stats[this.host+'_os_cpus_times'].data.splice(
+          -300 -1,
+          length - 300
+        )
+
+        this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
+        // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+        //   -300 -1,
+        //   length - 300
+        // )
+      }
+    })
   },
 
   computed: Object.merge(
@@ -163,7 +185,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // ////////////console.log('seconds to splice', state.app.range)
+        // //////////////console.log('seconds to splice', state.app.range)
 
         let end = new Date().getTime()
         if(state.app.range[1] != null)
@@ -188,298 +210,103 @@ export default {
   ),
   mounted: function(){
     EventBus.$on('os', doc => {
-      // console.log('recived doc via Event os', doc, this.seconds)
+      console.log('recived doc via Event os', doc, this.seconds)
 
       if(Array.isArray(doc)){
         Array.each(doc, function(val){
-          this.process_os_doc(val.doc)
+          console.log('VAL', val)
+          if(val.doc.metadata.host == this.host)
+            this.process_os_doc(val.doc)
+
         }.bind(this))
       }
-      else{
+      else if(doc.metadata.host == this.host){
         this.process_os_doc(doc)
       }
 
 		})
 
-    //console.log('this.$route',this.$route.params.host)
+    ////console.log('this.$route',this.$route.params.host)
     this.create_host_pipelines(this.$store.state.app.paths)
 
-    let self = this
-
-    let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
-      console.log('$store.state.stats', val)
-      // if(val.length > 1){
-        if(val[this.host] && !this.charts[this.host+'_os_cpus_times']){
-          let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
-          // self.process_chart(cpus_times_chart, 'cpus', data)
-          // self.process_chart(
-          //   cpus_times_chart.pre_process(cpus_times_chart, 'cpus', [data]),
-          //   'cpus',
-          //   [data]
-          // )
-          // console.log('gonna process_dyn', data)
-          self.process_dynamic_chart(Object.clone(cpus_times_chart), 'cpus', data)
-          // this.stats[this.host+'_os_cpus_times'].data.shift()
-          // unwatch()
-
-          this.$store.dispatch('stats/get', {
-            host: this.host,
-            path: 'os',
-            key: 'cpus',
-            length: this.seconds,
-          }).then((docs) => {
-            console.log('got stat', docs)
-            Array.each(docs, function(doc){
-              let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-              this.stats[this.host+'_os_cpus_times'].data.push(data)
-              let length = this.stats[this.host+'_os_cpus_times'].data.length
-              this.stats[this.host+'_os_cpus_times'].data.splice(
-                -300 -1,
-                length - 300
-              )
-              this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-                -300 -1,
-                length - 300
-              )
-              // console.log(new Date(doc.metadata.timestamp))
-            }.bind(this))
-          })
-
-          // console.log('gonna watch', val[this.host])
-
-          this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (oldVal, newVal) {
-            let doc = JSON.parse(JSON.stringify(newVal))
-            console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
-            let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
-            this.stats[this.host+'_os_cpus_times'].data.push(data)
-
-            let length = this.stats[this.host+'_os_cpus_times'].data.length
-            this.stats[this.host+'_os_cpus_times'].data.splice(
-              -300 -1,
-              length - 300
-            )
-            this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-              -300 -1,
-              length - 300
-            )
-          })
-
-
-        }
-
-
-      //
-      //   unwatch()
-      // }
-      //
-    })
+    // let self = this
+    //
+    // let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
+    //   //console.log('$store.state.stats', val)
+    //
+    //     if(val[this.host]){
+    //       // let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
+    //
+    //       this.$store.dispatch('stats/get', {
+    //         host: this.host,
+    //         path: 'os',
+    //         key: 'cpus',
+    //         length: this.seconds,
+    //       }).then((docs) => {
+    //         //console.log('got stat', docs)
+    //
+    //         // Array.each(docs, function(doc){
+    //         //   let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+    //         //   this.stats[this.host+'_os_cpus_times'].data.push(data)
+    //         //
+    //         //   let length = this.stats[this.host+'_os_cpus_times'].data.length
+    //         //
+    //         //   this.stats[this.host+'_os_cpus_times'].data.splice(
+    //         //     -300 -1,
+    //         //     length - 300
+    //         //   )
+    //         //
+    //         // }.bind(this))
+    //       })
+    //
+    //       // //console.log('gonna watch', val[this.host])
+    //
+    //       // this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (oldVal, newVal) {
+    //       //   let doc = JSON.parse(JSON.stringify(newVal))
+    //       //   //console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
+    //       //
+    //       //   let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
+    //       //   this.stats[this.host+'_os_cpus_times'].data.push(data)
+    //       //
+    //       //   let length = this.stats[this.host+'_os_cpus_times'].data.length
+    //       //   this.stats[this.host+'_os_cpus_times'].data.splice(
+    //       //     -300 -1,
+    //       //     length - 300
+    //       //   )
+    //       //
+    //       //   this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
+    //       //   // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+    //       //   //   -300 -1,
+    //       //   //   length - 300
+    //       //   // )
+    //       // })
+    //
+    //
+    //     }
+    //
+    //
+    // })
 
 
 
 
   },
   // beforeUpdate: function(){
-  //   //console.log('beforeUpdate')
+  //   ////console.log('beforeUpdate')
   // },
   // updated: function(){
-  //   //console.log('updated')
+  //   ////console.log('updated')
   //   this.create_host_pipelines(this.$store.state.app.paths)
   // },
   beforeDestroy: function(){
     this.destroy_host_pipelines()
   },
   methods: {
-    /**
-    * charting
-    **/
-    // name_to_module(name){
-    //   let module = name.replace(this.host+'_', '')
-    //   if(module.indexOf('_') > -1)
-    //     module = module.substring(0, module.indexOf('_'))
-    //
-    //   let second_indexOf = module.indexOf('.', module.indexOf('.') + 1)
-    //   let path = module.substring(0, second_indexOf).replace('.', '/')
-    //
-    //
-    //   let list = ''
-    //   // if(second_indexOf == -1){
-    //     list = module.substring(module.lastIndexOf('.') + 1, module.length)
-    //   // }
-    //   // else{
-    //   //   list = module.substring(second_indexOf + 1, module.indexOf('.', second_indexOf+1) )
-    //   // }
-    //
-    //   console.log('name_to_module', name, path, list)
-    //
-    //   return {path, list}
-    // },
     add_chart (name, chart){
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-      this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
-    },
-    process_dynamic_chart (chart, name, stat){
-      if(!Array.isArray(stat))
-        stat = [stat]
-
-
-      if(Array.isArray(stat[0].value)){//like 'cpus'
-
-        Array.each(stat[0].value, function(val, index){
-
-          let arr_chart = Object.clone(chart)
-
-          arr_chart.label = this.process_chart_label(chart, name, stat) || name
-          let chart_name = this.process_chart_name(chart, stat) || name
-
-          if(chart.watch.merge != true){
-            chart_name += '_'+index
-          }
-
-          if(chart.watch.merge != true || index == 0){//merge creates only once instance
-
-            this.process_chart(
-              arr_chart.pre_process(arr_chart, chart_name, stat),
-              chart_name,
-              stat
-            )
-
-          }
-
-        }.bind(this))
-
-      }
-      else if(isNaN(stat[0].value)){
-        //sdX.stats.
-
-        let filtered = false
-        if(chart.watch && chart.watch.filters){
-          Array.each(chart.watch.filters, function(filter){
-            let prop_to_filter = Object.keys(filter)[0]
-            let value_to_filter = filter[prop_to_filter]
-
-            if(
-              stat[0].value[prop_to_filter]
-              && value_to_filter.test(stat[0].value[prop_to_filter]) == true
-            ){
-              filtered = true
-            }
-
-          })
-        }
-        else{
-          filtered = true
-        }
-
-        if(filtered == true){
-
-          chart = chart.pre_process(chart, name, stat)
-
-          chart.label = this.process_chart_label(chart, name, stat) || name
-          let chart_name = this.process_chart_name(chart, stat) || name
-
-          this.process_chart(chart, chart_name, stat)
-        }
-
-      }
-      else{
-
-        chart.label = this.process_chart_label(chart, name, stat) || name
-        let chart_name = this.process_chart_name(chart, stat) || name
-
-        this.process_chart(
-          chart.pre_process(chart, chart_name, stat),
-          name,
-          stat
-        )
-      }
-
-    },
-    process_chart (chart, name, stat){
-
-      // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
-
-      // if(name.indexOf('os_') < 0)
-      //   name = this.host+'_os_'+name
-
-      // let {path, list} = this.name_to_module(name)
-      // if(path == "")
-      //   path == 'os'
-
-      // console.log('process_chart', name, path, list)
-      // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
-
-      // if(chart.watch && chart.watch.managed == true)
-      //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
-
-      if(!chart.watch || chart.watch.managed != true){
-
-        this.add_chart(name, chart)
-      }
-
-      if(chart.init && typeOf(chart.init) == 'function')
-        chart.init(this, chart, name, stat, 'chart')
-
-      this.create_watcher(name, chart)
-
     },
 
-
-
-    create_watcher(name, chart){
-      let watcher = chart.watch || {}
-      let path = 'stats.'+name+'.data'
-      // this._create_watcher('stats.'+name+'.data', name, chart)
-      // watcher = watcher || {}
-
-      watcher.value = watcher.value || ''
-      watcher.transform = watcher.transform || ''
-
-      if(this.$options.unwatchers[path]){
-        this.$options.unwatchers[path]()
-        delete this.$options.unwatchers[path]
-      }
-
-      let generic_data_watcher = function(current){
-        // console.log('generic_data_watcher', name, current)
-        this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
-      }
-
-      console.log('gonna watch...', name, path)
-
-      this.$options.unwatchers[path] = this.$watch(path, generic_data_watcher)
-
-    },
-
-    generic_data_watcher: data_to_tabular,
-
-    update_chart_stat (name, data){
-
-        this.$set(this.stats_tabular[name], 'data', data)
-        this.stats_tabular[name].lastupdate = Date.now()
-
-        console.log('update_chart_stat',name, window.performance.memory)
-
-    },
-    process_chart_label (chart, name, stat) {
-      if(chart.labeling && typeOf(chart.labeling) == 'function'){
-
-        return chart.labeling(this, chart, name, stat)
-      }
-      else if(chart.label){
-        return chart.label
-      }
-      else{
-        return this.process_chart_name(chart, stat)
-      }
-    },
-    process_chart_name (chart, stat){
-      if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
-      else if(chart.name) return chart.name
-    },
-    /**
-    * charting
-    **/
     destroy_host_pipelines: function(){
       let host = this.$store.state.hosts.current || this.$route.params.host
 
@@ -504,42 +331,27 @@ export default {
 
     process_os_doc: function(doc){
       let {keys, path, host} = extract_data_os(doc)
-      //console.log('pre register_host_store_module',path, keys)
+      ////console.log('pre register_host_store_module',path, keys)
 
-      Object.each(keys, function(data, key){
-        if(
-          this.modules_blacklist
-          && this.modules_blacklist[path]
-          && this.modules_blacklist[path].test(key) == true
-        ){
-            // //console.log('deleting...', path, key)
-            let whitelisted = false
-            if( this.modules_whitelist && this.modules_whitelist[path] )
-              Array.each(this.modules_whitelist[path], function(whitelist){
-                if(whitelist.test(key) == true)
-                  whitelisted = true
-              })
-
-            if(whitelisted == false)
-              delete keys[key]
-        }
-      }.bind(this))
-
-      // if(register_commit(host, path, keys) != true){
-      //   let interval = setInterval(function(){
-      //     //////console.log('os_interval', interval, path)
+      // Object.each(keys, function(data, key){
+      //   if(
+      //     this.modules_blacklist
+      //     && this.modules_blacklist[path]
+      //     && this.modules_blacklist[path].test(key) == true
+      //   ){
+      //       // ////console.log('deleting...', path, key)
+      //       let whitelisted = false
+      //       if( this.modules_whitelist && this.modules_whitelist[path] )
+      //         Array.each(this.modules_whitelist[path], function(whitelist){
+      //           if(whitelist.test(key) == true)
+      //             whitelisted = true
+      //         })
       //
-      //     if(register_commit(host, path, keys) == true){
-      //       clearInterval(interval)
-      //     }
-      //
-      //
-      //   }.bind(this), 1000)
-      // }
+      //       if(whitelisted == false)
+      //         delete keys[key]
+      //   }
+      // }.bind(this))
 
-      /**
-      * don't register a module for each path
-      **/
       Object.each(keys, function(data, key){
         this.$store.dispatch('stats/add', {
           host: host,
@@ -548,29 +360,12 @@ export default {
           data: data
         })
 
-        // this.$store.dispatch('stats/splice', {
-        //   host: host,
-        //   path: path,
-        //   key: key,
-        //   length: this.seconds
-        // })
-
-        // //console.log(JSON.flatten(data))
-        // this.$store.commit('hosts/'+host+'/data', { path: path, key: key, value: data })
-        // this.$store.commit('hosts/'+host+'/splice', { path: path, key: key, length: this.seconds })
-
-        // this.$pouch.post('host', {host: host, path: path, key: key, value: data })
-
-        //console.log(sizeof(data))
-        // //console.log(sizeof(JSON.encode(data)))
-        //console.log('register_host_store_module',path, key,this.seconds, window.performance.memory)
-
       }.bind(this))
 
     },
     create_host_pipelines (paths) {
       // paths = ['os.procs']
-      //console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      ////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$store.state.hosts.current || this.$route.params.host
 
       let range = Object.clone(this.$store.state.app.range)
@@ -596,7 +391,7 @@ export default {
 
               let pipe = new Pipeline(template)
 
-              //////////console.log('$store.state.hosts.all', pipe)
+              ////////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -606,17 +401,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                ////console.log('create_hosts_pipelines onRangeDoc',doc);
+                //////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  //////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  ////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  //console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  ////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -635,7 +430,7 @@ export default {
               pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                //console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                ////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
                 pipe.fireEvent('onResume')
               }
             // }
@@ -645,65 +440,7 @@ export default {
         // }.bind(this))
       }
     },
-    // register_host_store_module (host, path, keys){
-    //
-    //
-    //   // ////////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
-    //
-    //   // if(!this.$store.state.hosts[host][path]){
-    //   let status = this.check_store_path(path.split('/'), this.$store.state['host.'+host])
-    //   ////////////console.log('status', status)
-    //   if(status == false){
-    //
-    //     let state_props = (keys) ? Object.clone(keys) : {}
-    //     Object.each(state_props, function(data, key){
-    //       state_props[key] = []
-    //     })
-    //
-    //     //console.log('registering....', host, path, keys)
-    //
-    //     let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
-    //       return state_props
-    //     }}))
-    //
-    //     // let new_path = ['hosts', host]
-    //     new_path = 'host.'+host
-    //     new_path = new_path.append(path.split('/'))
-    //     this.$store.registerModule(new_path, stats)
-    //
-    //     // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
-    //     // //console.log('registering....', host, new_path, this.$store.state.hosts[host])
-    //
-    //     return true
-    //   }
-    //   else if(status == undefined){
-    //     return false
-    //   }
-    //   else{
-    //     return true
-    //   }
-    // },
-    // check_store_path(path, root){
-    //   // //console.log('registering check_store_path', path)
-    //   // for(let i = 0; i < path.length; ){
-    //     if(root == undefined){
-    //       return undefined
-    //     }
-    //     else if(root[path[0]] == undefined && path.length == 1){//last path item
-    //       return false
-    //     }
-    //     // else if(i < path.length - 1){
-    //     else if(path.length > 1){
-    //       let tmp_root = root[path[0]]
-    //       // return this.check_store_path([path[++i]], tmp_root)
-    //       path.shift()
-    //       return this.check_store_path(path, tmp_root)
-    //     }
-    //     else{
-    //       return true
-    //     }
-    //   // }
-    // },
+
   },
 }
 

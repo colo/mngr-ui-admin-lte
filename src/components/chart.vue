@@ -4,12 +4,16 @@
     :id="id"
     :EventBus="EventBus"
     :chart="chart"
-    :stat="stat"
+    :stat="tabular"
   />
   </component>
 </template>
 
 <script>
+// let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
+// let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
+// let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
+let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
 import dygraphWrapper from 'components/charts/wrappers/dygraph'
 
@@ -23,6 +27,10 @@ export default {
   components: {
     dygraphWrapper
   },
+
+  // __chart: undefined,
+  __unwatcher: undefined,
+  __chart_init: false,
 
   props: {
     EventBus: {
@@ -53,31 +61,134 @@ export default {
     }
   },
 
-  // created () {
-  //   this.__watcher()
-  // },
-  // mounted () {
-  //   this.__watcher()
-  // },
-  // methods: {
-  //   __watcher (){
-  //     this.$watch('stat.data', function (val, old) {
-  //       if(val.length > 1){
-  //
-  //         if(this.$options.graph == null){
-  //
-  //           this.__create_dygraph()
-  //
-  //         }
-  //         // this.__create_dygraph()
-  //         //
-  //         // unwatch()
-  //         this.update()
-  //       }
-  //
-  //     })
-  //   },
-  //
-  // }
+  created () {
+    this.__watcher()
+  },
+  mounted () {
+    this.__watcher()
+  },
+  methods: {
+    __process_stat (chart, name, stat){
+      //console.log('__process_stat', stat)
+      if(!Array.isArray(stat))
+        stat = [stat]
+
+
+      // if(Array.isArray(stat[0].value)){//like 'cpus'
+      //
+      //   this.__process_chart(
+      //     chart.pre_process(chart, name, stat),
+      //     name,
+      //     stat
+      //   )
+      //
+      // }
+      // else
+      if(isNaN(stat[0].value)){
+        //sdX.stats.
+
+        let filtered = false
+        if(chart.watch && chart.watch.filters){
+          Array.each(chart.watch.filters, function(filter){
+            let prop_to_filter = Object.keys(filter)[0]
+            let value_to_filter = filter[prop_to_filter]
+
+            if(
+              stat[0].value[prop_to_filter]
+              && value_to_filter.test(stat[0].value[prop_to_filter]) == true
+            ){
+              filtered = true
+            }
+
+          })
+        }
+        else{
+          filtered = true
+        }
+
+        if(filtered == true){
+
+          chart = chart.pre_process(chart, name, stat)
+
+          // chart.label = this.__process_chart_label(chart, name, stat) || name
+          // let chart_name = this.__process_chart_name(chart, stat) || name
+
+          this.__process_chart(chart, name, stat)
+        }
+
+      }
+      else{
+
+        // chart.label = this.__process_chart_label(chart, name, stat) || name
+        // let chart_name = this.__process_chart_name(chart, stat) || name
+
+        this.__process_chart(
+          chart.pre_process(chart, name, stat),
+          name,
+          stat
+        )
+      }
+
+    },
+    __process_chart (chart, name, stat){
+
+      if(chart.init && typeOf(chart.init) == 'function')
+        chart.init(this, chart, name, stat, 'chart')
+
+      this.__create_watcher(name, chart)
+
+    },
+
+    __create_watcher(name, chart){
+      let watcher = chart.watch || {}
+
+      watcher.value = watcher.value || ''
+      watcher.transform = watcher.transform || ''
+
+      if(this.$options.__unwatcher){
+        this.$options.__unwatcher()
+        this.$options.__unwatcher == undefined
+      }
+
+      let generic_data_watcher = function(current){
+        //console.log('generic_data_watcher', name, current)
+        data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+      }
+
+      //console.log('gonna watch...', name)
+
+      this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
+
+    },
+
+    // generic_data_watcher: data_to_tabular,
+
+    update_chart_stat (name, data){
+      let length = this.stat.data.length
+      data.splice(
+        -length -1,
+        data.length - length
+      )
+
+      this.$set(this.tabular, 'data', data)
+      this.tabular.lastupdate = Date.now()
+      console.log('update_chart_stat',name, window.performance.memory)
+    },
+    __watcher (){
+      this.$watch('stat.data', function (val, old) {
+
+        if(val.length > 1){
+
+          if(this.$options.__chart_init == false){
+            this.__process_stat(this.chart, this.id, val)
+            this.$options.__chart_init = true
+          }
+
+        }
+
+      })
+    },
+
+  }
 }
 </script>

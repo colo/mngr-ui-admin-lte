@@ -25,7 +25,8 @@ let mount_filter = function(doc, opts, next, pipeline){
 		return os.mounts.type.test(item.type);
 	});
 
-	next(doc, opts, next, pipeline)
+	// next(doc, opts, next, pipeline)
+	return doc
 }
 
 let blockdevices_filter = function(doc, opts, next, pipeline){
@@ -33,7 +34,8 @@ let blockdevices_filter = function(doc, opts, next, pipeline){
 		delete doc.data[item].partitions
 	})
 
-	next(doc, opts, next, pipeline)
+	// next(doc, opts, next, pipeline)
+	return doc
 }
 
 let os_filter = function(doc, opts, next, pipeline){
@@ -41,7 +43,8 @@ let os_filter = function(doc, opts, next, pipeline){
 		delete doc.data.networkInterfaces[item].if
 	})
 
-	next(doc, opts, next, pipeline)
+	// next(doc, opts, next, pipeline)
+	return doc
 }
 
 export default {
@@ -77,7 +80,8 @@ export default {
 		// decompress,
 		function(docs, opts, next, pipeline){
       let { type, input, input_type, app } = opts
-			// //console.log('sizeof', sizeof(docs))
+			// console.log('sizeof', sizeof(docs), docs)
+
 			// //console.log('host.template.filter', docs)
       //
 			// let paths = /^os.*/
@@ -86,41 +90,66 @@ export default {
 				docs = [docs]
 			}
 
-			Array.each(docs, function(row){
+			// Array.each(docs, function(row){
+			// 	if(row.doc && row.doc.metadata && row.doc.metadata.path)
+			// 		switch (row.doc.metadata.path) {
+			// 			case 'os.mounts':
+			// 				mount_filter(
+			// 					row.doc,
+			// 					opts,
+			// 					pipeline.output.bind(pipeline),
+			// 					pipeline
+			// 				)
+			// 				break;
+      //
+			// 			case 'os.blockdevices':
+			// 				blockdevices_filter(
+			// 					row.doc,
+			// 					opts,
+			// 					pipeline.output.bind(pipeline),
+			// 					pipeline
+			// 				)
+			// 				break;
+      //
+			// 			case 'os.blockdevices':
+			// 				os_filter(
+			// 					row.doc,
+			// 					opts,
+			// 					pipeline.output.bind(pipeline),
+			// 					pipeline
+			// 				)
+			// 				break;
+      //
+			// 			default:
+			// 				pipeline.output(row.doc)
+      //
+      //
+			// 		}
+			// })
+
+			Array.each(docs, function(row, index){
 				if(row.doc && row.doc.metadata && row.doc.metadata.path)
 					switch (row.doc.metadata.path) {
 						case 'os.mounts':
-							mount_filter(
-								row.doc,
-								opts,
-								pipeline.output.bind(pipeline),
-								pipeline
-							)
+							row.doc = mount_filter(row.doc)
 							break;
 
 						case 'os.blockdevices':
-							blockdevices_filter(
-								row.doc,
-								opts,
-								pipeline.output.bind(pipeline),
-								pipeline
-							)
+							row.doc = blockdevices_filter(row.doc)
 							break;
 
 						case 'os.blockdevices':
-							os_filter(
-								row.doc,
-								opts,
-								pipeline.output.bind(pipeline),
-								pipeline
-							)
+							row.doc = os_filter(row.doc)
 							break;
 
-						default:
-							pipeline.output(row.doc)
+						// default:
+						// 	pipeline.output(row.doc)
 
 
 					}
+
+					if(index == docs.length -1 )
+						pipeline.output(docs)
 			})
 
 		},
@@ -128,7 +157,7 @@ export default {
 	],
 	output: [
 		function(doc){
-			//console.log('output sizeof', sizeof(doc))
+			// console.log('output sizeof', sizeof(doc, doc))
 
       // doc = JSON.decode(doc)
 			// store.commit('app/doc', {type: 'os', 'value': doc})
