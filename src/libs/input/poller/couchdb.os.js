@@ -70,59 +70,60 @@ export default new Class({
         //
 				// 	}
 				// }
-        
-				// {
-				// 	sort_by_path: function(req, next, app){
-        //
-        //     if(app.options.stat_host){
-        //       // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
-        //       // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
-        //
-        //
-        //       let CHUNK = 60000
-        //       let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
-        //       let start = ((end - CHUNK) < req.opt.range.start) ? req.opt.range.start : end - CHUNK
-        //
-        //       do {
-        //
-        //         Array.each(app.options.paths, function(path){
-        //           if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
-        //
-        //             console.log('couchdb.os range', path)
-        //
-        //               // next(
-        //               app.view({
-        //   							uri: app.options.db,
-        //                 args: [
-        //                   'sort',
-        //                   'by_path',
-        //                   {
-        //     								// startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
-        //     								// endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
-        //                     // startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
-        //                     startkey: [path, app.options.stat_host, "periodical", start],
-        //     								endkey: [path, app.options.stat_host, "periodical",end],
-        //
-        //     								inclusive_end: true,
-        //     								include_docs: true
-        //     							}
-        //                 ]
-        //   						})
-        //           }
-        //
-        //         }.bind(app))
-        //
-        //         start -= CHUNK
-        //         end -= CHUNK
-        //       }
-        //       while(start > req.opt.range.start)
-        //
-        //     }
-        //
-        //
-        //
-				// 	}
-				// },
+
+				{
+					sort_by_path: function(req, next, app){
+
+            if(app.options.stat_host){
+              // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+              // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+
+
+              // let CHUNK = 60000
+              let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
+              // let start = ((end - CHUNK) < req.opt.range.start) ? req.opt.range.start : end - CHUNK
+              let start = req.opt.range.start
+
+              // do {
+
+                Array.each(app.options.paths, function(path){
+                  if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
+
+                    // console.log('couchdb.os range', path)
+
+                      // next(
+                      app.view({
+          							uri: app.options.db,
+                        args: [
+                          'sort',
+                          'by_path',
+                          {
+            								// startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
+            								// endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
+                            // startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
+                            startkey: [path, app.options.stat_host, "periodical", start],
+            								endkey: [path, app.options.stat_host, "periodical",end],
+
+            								inclusive_end: true,
+            								include_docs: true
+            							}
+                        ]
+          						})
+                  }
+
+                }.bind(app))
+              //
+              //   start -= CHUNK
+              //   end -= CHUNK
+              // }
+              // while(start > req.opt.range.start)
+
+            }
+
+
+
+					}
+				},
 
 			],
 			periodical: [

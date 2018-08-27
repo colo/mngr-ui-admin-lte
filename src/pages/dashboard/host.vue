@@ -135,8 +135,9 @@ export default {
       path: 'os',
       key: 'cpus',
       length: this.seconds,
+      range: [Date.now() - this.seconds * 1000, Date.now()]
     }).then((docs) => {
-      //console.log('got stat', docs)
+      console.log('got stat', docs)
 
       Array.each(docs, function(doc){
         let data = { timestamp: doc.metadata.timestamp, value: doc.data }
@@ -156,7 +157,8 @@ export default {
 
     this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (doc, old) {
       // let doc = JSON.parse(JSON.stringify(newVal))
-      //console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
+      console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
+
       if(this.stats[this.host+'_os_cpus_times'].lastupdate > 0){
         let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
         this.stats[this.host+'_os_cpus_times'].data.push(data)
@@ -330,17 +332,21 @@ export default {
     },
 
     process_os_doc: function(doc){
+      // let self = this
       let paths = {}
       let keys, path, host = undefined
       if(Array.isArray(doc)){
-        Array.each(doc, function(d){
-          let {keys, path, host} = extract_data_os(doc)
-          if(!paths[path])
-            paths[path] = {}
+        Array.each(doc, function(row){
+          // console.log('ROW', row.doc)
+          if(row.doc.metadata.host == this.host){
+            let {keys, path, host} = extract_data_os(row.doc)
+            if(!paths[path])
+              paths[path] = {}
 
-          // paths[path].push(keys)
-          paths[path] = Object.merge(paths[path], keys)
-        })
+            // paths[path].push(keys)
+            paths[path] = Object.merge(paths[path], keys)
+          }
+        }.bind(this))
       }
       else if(doc.metadata.host == this.host){
         let {keys, path, host} = extract_data_os(doc)
@@ -370,7 +376,7 @@ export default {
       // }.bind(this))
 
       Object.each(paths, function(keys, path){
-        // console.log('process_os_doc', path, keys)
+        // console.log('process_os_doc', path)
 
         Object.each(keys, function(data, key){
           // console.log('process_os_doc', data, key)
@@ -450,7 +456,7 @@ export default {
                 range[1] = new Date().getTime()
               }
 
-              pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+              // pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
                 ////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);

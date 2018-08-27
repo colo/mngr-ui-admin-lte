@@ -48,7 +48,8 @@ let compacted = false
 
 export const get = ({ commit, dispatch }, payload) => {
   return new Promise((resolve, reject) => {
-    let length = payload.length
+    let length = payload.length || deque.length
+    let range = payload.range || []
     let docs = []
 
 
@@ -62,45 +63,49 @@ export const get = ({ commit, dispatch }, payload) => {
         let doc = arr.pop()
         // delete doc._rev
         if(doc._id.indexOf(payload.host+'/'+payload.path+'/'+payload.key) > -1){
-          docs[length - 1] = doc
-          length--
+          console.log('DOC', doc, (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1]))
+          if(
+            payload.range && (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1])
+            || !payload.range
+          ){
+
+            // if(doc.metadata.timestamp > range[0])
+            //   range[0] = doc.metadata.timestamp
+
+            docs[length - 1] = doc
+            length--
+          }
+
         }
       }
     }
 
-    //console.log('fetching doc', docs)
+    console.log('fetching doc', docs, range)
 
-    if(length > 0){//from db
-      //console.log('fetching from db', length)
-
-      // db.query('sort/by_path', {
-      //   startkey:[payload.path+'/'+payload.key, payload.host+'\ufff0'],
-      //   endkey:[payload.path+'/'+payload.key, payload.host],
-      //   inclusive_end: true,
-      //   descending: true,
-      //   limit: length,
-      //   include_docs: true
-      // }).then(function (res) {
-      //   //console.log('fetching from db', res)
-      //   while (length > 0 && res.rows.length > 0){
-      //     //console.log('fetching while...', length)
-      //     docs[length - 1] = res.rows.pop().doc
-      //     length--
-      //   }
-      //
-      //   resolve(Array.clean(docs))
-      // }).catch(function (err) {
-      //   //console.log('fetching from db err', err)
-      // })
-      db.allDocs({
+    if(length > 0 || payload.range){//from db
+      let options = {
         startkey: payload.host+'/'+payload.path+'/'+payload.key+'\ufff0',
         endkey: payload.host+'/'+payload.path+'/'+payload.key,
         inclusive_end: true,
         descending: true,
-        limit: length,
         include_docs: true
-      }).then(function (res) {
-        //console.log('fetching from db', res)
+      }
+
+      if(payload.length){
+        options.limit = length
+      }
+
+      if(payload.range){
+        // let range = payload.range
+        options.startkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
+        options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
+      }
+
+      console.log('OPTIONS', options)
+
+      db.allDocs(options).then(function (res) {
+        console.log('fetching from db', res)
+
         res.rows.reverse()
         while (length > 0 && res.rows.length > 0){
           //console.log('fetching while...', length)
@@ -136,6 +141,8 @@ export const add = ({ commit, dispatch }, payload) => {
   if(Array.isArray(payload.data)){
     //firts soft data by timestamp
     payload.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} );
+
+    // console.log('ACTION', payload.data)
 
     let docs = []
     Array.each(payload.data, function(data, index){

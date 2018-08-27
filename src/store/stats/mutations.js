@@ -1,6 +1,8 @@
 import Vue from 'vue'
 
 export const add = function(state, payload) {//generic mutation
+  // console.log('MUTATION', payload.data)
+
   if(!state[payload.host])
     Vue.set(state, payload.host, {})
 
