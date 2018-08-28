@@ -73,6 +73,7 @@ export default new Class({
 
 				{
 					sort_by_path: function(req, next, app){
+            console.log('SORT_BY_PATH RANGE', app.options.paths)
 
             if(app.options.stat_host){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
@@ -255,6 +256,8 @@ export default new Class({
           this.fireEvent('onPeriodicalDoc', [resp.rows, {type: 'periodical', input_type: this, app: null}]);
         }
         else if(resp.rows.length > 0){
+          console.log('this.view ', resp.rows, view.options.args);
+
            this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
         }
         // else if(resp.rows.length > 1){//range docs

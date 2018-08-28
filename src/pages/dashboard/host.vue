@@ -130,52 +130,9 @@ export default {
   created: function(){
     this.add_chart (this.host+'_os_cpus_times', Object.clone(cpus_times_chart))
 
-    this.$store.dispatch('stats/get', {
-      host: this.host,
-      path: 'os',
-      key: 'cpus',
-      length: this.seconds,
-      range: [Date.now() - this.seconds * 1000, Date.now()]
-    }).then((docs) => {
-      console.log('got stat', docs)
 
-      Array.each(docs, function(doc){
-        let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-        this.stats[this.host+'_os_cpus_times'].data.push(data)
 
-        let length = this.stats[this.host+'_os_cpus_times'].data.length
 
-        this.stats[this.host+'_os_cpus_times'].data.splice(
-          -300 -1,
-          length - 300
-        )
-
-        this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
-
-      }.bind(this))
-    })
-
-    this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (doc, old) {
-      // let doc = JSON.parse(JSON.stringify(newVal))
-      console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
-
-      if(this.stats[this.host+'_os_cpus_times'].lastupdate > 0){
-        let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
-        this.stats[this.host+'_os_cpus_times'].data.push(data)
-
-        let length = this.stats[this.host+'_os_cpus_times'].data.length
-        this.stats[this.host+'_os_cpus_times'].data.splice(
-          -300 -1,
-          length - 300
-        )
-
-        this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
-        // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-        //   -300 -1,
-        //   length - 300
-        // )
-      }
-    })
   },
 
   computed: Object.merge(
@@ -211,6 +168,48 @@ export default {
 
   ),
   mounted: function(){
+
+    let range = [Date.now() - this.seconds * 1000, Date.now()]
+    this.$store.dispatch('stats/get', {
+      host: this.host,
+      path: 'os',
+      key: 'cpus',
+      length: this.seconds,
+      range: range
+    }).then((docs) => {
+      console.log('got stat', docs)
+
+      let pipeline = this.$store.state['host.'+this.host].pipelines[0]
+      if(docs.length == 0){
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+        pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+        this.__watcher()
+      }
+
+      Array.each(docs, function(doc, index){
+        let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+        this.stats[this.host+'_os_cpus_times'].data.push(data)
+
+        let length = this.stats[this.host+'_os_cpus_times'].data.length
+
+        this.stats[this.host+'_os_cpus_times'].data.splice(
+          -300 -1,
+          length - 300
+        )
+
+        this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
+
+        if(index == docs.length -1){
+          pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+          // console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
+          range[0] = doc.metadata.timestamp
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          this.__watcher()
+        }
+      }.bind(this))
+    })
+
     EventBus.$on('os', doc => {
       console.log('recived doc via Event os', doc.length, this.seconds)
 
@@ -231,64 +230,6 @@ export default {
     ////console.log('this.$route',this.$route.params.host)
     this.create_host_pipelines(this.$store.state.app.paths)
 
-    // let self = this
-    //
-    // let unwatch = this.$watch('$store.state.stats', function (oldVal, val) {
-    //   //console.log('$store.state.stats', val)
-    //
-    //     if(val[this.host]){
-    //       // let data = { timestamp: val[this.host].os.cpus.timestamp, value: val[this.host].os.cpus.value.data }
-    //
-    //       this.$store.dispatch('stats/get', {
-    //         host: this.host,
-    //         path: 'os',
-    //         key: 'cpus',
-    //         length: this.seconds,
-    //       }).then((docs) => {
-    //         //console.log('got stat', docs)
-    //
-    //         // Array.each(docs, function(doc){
-    //         //   let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-    //         //   this.stats[this.host+'_os_cpus_times'].data.push(data)
-    //         //
-    //         //   let length = this.stats[this.host+'_os_cpus_times'].data.length
-    //         //
-    //         //   this.stats[this.host+'_os_cpus_times'].data.splice(
-    //         //     -300 -1,
-    //         //     length - 300
-    //         //   )
-    //         //
-    //         // }.bind(this))
-    //       })
-    //
-    //       // //console.log('gonna watch', val[this.host])
-    //
-    //       // this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (oldVal, newVal) {
-    //       //   let doc = JSON.parse(JSON.stringify(newVal))
-    //       //   //console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
-    //       //
-    //       //   let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
-    //       //   this.stats[this.host+'_os_cpus_times'].data.push(data)
-    //       //
-    //       //   let length = this.stats[this.host+'_os_cpus_times'].data.length
-    //       //   this.stats[this.host+'_os_cpus_times'].data.splice(
-    //       //     -300 -1,
-    //       //     length - 300
-    //       //   )
-    //       //
-    //       //   this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
-    //       //   // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-    //       //   //   -300 -1,
-    //       //   //   length - 300
-    //       //   // )
-    //       // })
-    //
-    //
-    //     }
-    //
-    //
-    // })
-
 
 
 
@@ -296,14 +237,45 @@ export default {
   // beforeUpdate: function(){
   //   ////console.log('beforeUpdate')
   // },
-  // updated: function(){
-  //   ////console.log('updated')
+  updated: function(){
+    console.log('updated')
   //   this.create_host_pipelines(this.$store.state.app.paths)
-  // },
+  },
   beforeDestroy: function(){
+    console.log('beforeDestroy')
     this.destroy_host_pipelines()
+    Object.each(this.$options.unwatchers, function(unwatcher){
+      unwatcher()
+    })
   },
   methods: {
+    __watcher(){
+      this.$options.unwatchers['$store.state.stats.'+this.host+'.os.cpus'] = this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (doc, old) {
+        // let doc = JSON.parse(JSON.stringify(newVal))
+        console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
+
+        if(this.stats[this.host+'_os_cpus_times'].lastupdate > 0){
+          let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
+          this.stats[this.host+'_os_cpus_times'].data.push(data)
+
+          let length = this.stats[this.host+'_os_cpus_times'].data.length
+          this.stats[this.host+'_os_cpus_times'].data.splice(
+            -300 -1,
+            length - 300
+          )
+
+          this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
+
+          /** manually resume **/
+          this.$store.state['host.'+this.host].pipelines[0].fireEvent('onResume')
+
+          // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+          //   -300 -1,
+          //   length - 300
+          // )
+        }
+      })
+    },
     add_chart (name, chart){
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
@@ -332,13 +304,14 @@ export default {
     },
 
     process_os_doc: function(doc){
+      console.log('process_os_doc', doc)
       // let self = this
       let paths = {}
-      let keys, path, host = undefined
+      // let keys, path, host = undefined
       if(Array.isArray(doc)){
         Array.each(doc, function(row){
-          // console.log('ROW', row.doc)
-          if(row.doc.metadata.host == this.host){
+          console.log('ROW', row.doc)
+          if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
             if(!paths[path])
               paths[path] = {}
@@ -412,7 +385,7 @@ export default {
               let template = Object.clone(pipeline_template)
 
               template.input[0].poll.conn[0].stat_host = host
-              template.input[0].poll.conn[0].paths = paths
+              // template.input[0].poll.conn[0].paths = paths
               // template.input[0].poll.conn[0].paths = [path]
 
               template.input[0].poll.id += '-'+host
@@ -444,7 +417,9 @@ export default {
 
                   this.$store.commit('app/suspend', false)//
 
-                  pipe.fireEvent('onResume')
+                  /** manually resume **/
+                  // pipe.fireEvent('onResume')
+
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', false)
                 }
@@ -460,7 +435,9 @@ export default {
 
               if(this.$store.state.app.suspend != true){
                 ////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
-                pipe.fireEvent('onResume')
+
+                /** manually resume **/
+                // pipe.fireEvent('onResume')
               }
             // }
           // }.bind(this))

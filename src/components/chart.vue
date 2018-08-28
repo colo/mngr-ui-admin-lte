@@ -67,6 +67,12 @@ export default {
   mounted () {
     this.__watcher()
   },
+  destroyed (){
+    if(this.$options.__unwatcher)
+      this.$options.__unwatcher()
+
+    this.$set(this.tabular, 'data', [[]])
+  },
   methods: {
     __process_stat (chart, name, stat){
       //console.log('__process_stat', stat)
@@ -151,7 +157,7 @@ export default {
       }
 
       let generic_data_watcher = function(current){
-        //console.log('generic_data_watcher', name, current)
+        console.log('generic_data_watcher', name, current)
         data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
       }
 
@@ -164,6 +170,8 @@ export default {
     // generic_data_watcher: data_to_tabular,
 
     update_chart_stat (name, data){
+      console.log('update_chart_stat',name)
+
       let length = this.stat.data.length
       data.splice(
         -length -1,
@@ -172,7 +180,7 @@ export default {
 
       this.$set(this.tabular, 'data', data)
       this.tabular.lastupdate = Date.now()
-      console.log('update_chart_stat',name, window.performance.memory)
+      console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
     },
     __watcher (){
       this.$watch('stat.data', function (val, old) {
