@@ -20,6 +20,7 @@
     </div>
 
   </section>
+  <!-- <router-view v-else :host="$route.params.host"></router-view> -->
   <router-view v-else></router-view>
 
 
@@ -30,8 +31,8 @@
 
 <script>
 
-import chart from 'components/mixins/chart'
-import dashboard from 'components/mixins/dashboard'
+// import chart from 'components/mixins/chart'
+// import dashboard from 'components/mixins/dashboard'
 
 import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
 import AdminLteDashboardSummary from 'components/admin-lte/dashboard/summary'
@@ -39,7 +40,7 @@ import AdminLteDashboardSummary from 'components/admin-lte/dashboard/summary'
 import { mapState } from 'vuex'
 
 export default {
-  mixins: [chart, dashboard],
+  // mixins: [chart, dashboard],
 
   name: 'admin-lte-dashboard',
 

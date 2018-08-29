@@ -8,22 +8,63 @@ export default {
     chart
   },
 
-  unwatchers: {},
+  __unwatchers__: {},
 
   data () {
     return {
-      charts: {},
+      EventBus: EventBus,
       stats: {},
-      stats_tabular: {}
+      charts: {},
     }
   },
 
   methods: {
-    // add_chart (name, chart){
-    //   this.$set(this.charts, name, chart)
-    //   this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-    //   this.$set(this.stats_tabular, name, {lastupdate: 0, 'data': [[]] })
-    // },
+    /**
+    * @start -charting
+    **/
+    add_chart (payload){
+      // console.log('add_chart')
+      let {name, chart} = payload
+      this.$set(this.charts, name, chart)
+      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+      this.__watcher(payload)
+    },
+    __watcher: function(payload){
+      let {name, watch} = payload
+      // console.log('__watcher create', watch)
+      if(this.$options.__unwatchers__[name]){
+        this.$options.__unwatchers__[name]()//unwatch
+        delete this.$options.__unwatchers__[name]
+      }
+
+      this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
+        // console.log('__watcher', this.stats[name].lastupdate)
+        if(watch.cb)
+          watch.cb(doc, old, payload)
+
+      }.bind(this),{
+        deep: watch.deep || false
+      })
+    },
+    __get_stat: function(payload, cb){
+
+      this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
+    },
+    __update_stat: function(name, doc){
+      let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+      this.stats[name].data.push(data)
+
+      let length = this.stats[name].data.length
+      this.stats[name].data.splice(
+        (this.seconds * -1) -1,
+        length - this.seconds
+      )
+
+      this.stats[name].lastupdate = Date.now()
+    },
+    /**
+    * @end - charting
+    **/
     showCollapsible (collapsible){
       console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0

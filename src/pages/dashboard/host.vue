@@ -13,8 +13,8 @@
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
-          title="CPU"
-          :id="host+'.os.cpus-collapsible'"
+          title="CPU Times"
+          :id="host+'.os.cpus_times-collapsible'"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -38,6 +38,70 @@
           <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
 
         </admin-lte-box-solid>
+
+        <admin-lte-box-solid
+          title="CPU Percentage"
+          :id="host+'.os.cpus_percentage-collapsible'"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+
+          <chart
+            :type="'dygraph'"
+            :ref="host+'_os_cpus_percentage'"
+            :id="host+'_os_cpus_percentage'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus_percentage']"
+            :stat="stats[host+'_os_cpus_percentage']"
+          >
+          </chart>
+          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+
+        </admin-lte-box-solid>
+
+        <admin-lte-box-solid
+          title="Freemem Percetange"
+          :id="host+'.os.freemem-collapsible'"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+
+          <chart
+            :type="'dygraph'"
+            :ref="host+'_os_freemem'"
+            :id="host+'_os_freemem'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_freemem']"
+            :stat="stats[host+'_os_freemem']"
+          >
+          </chart>
+          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+
+        </admin-lte-box-solid>
+
+        <template v-for="(mount, index) in mounts">
+          <admin-lte-box-solid
+            :key="'mount_'+index"
+            :title="'Mounts Percetange usage '+index"
+            :id="host+'.os.mounts_percentage_'+index+'-collapsible'"
+            v-on:show="el => showCollapsible(el)"
+            v-on:hide="el => hideCollapsible(el)"
+          >
+
+            <chart
+              :type="'dygraph'"
+              :ref="host+'_os_mounts_percentage_'+index"
+              :id="host+'_os_mounts_percentage_'+index"
+              :EventBus="EventBus"
+              :chart="charts[host+'_os_mounts_percentage_'+index]"
+              :stat="stats[host+'_os_mounts_percentage_'+index]"
+            >
+            </chart>
+            <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+
+          </admin-lte-box-solid>
+        </template>
+
       </section>
     </div>
     <!-- <input-vue-watcher></input-vue-watcher> -->
@@ -80,11 +144,21 @@ import dashboard from 'components/mixins/dashboard'
 // import dygraphWrapper from 'components/charts/wrappers/dygraph'
 
 import cpus_times_chart from 'components/charts/cpus_times'
+import cpus_percentage_chart from 'components/charts/cpus_percentage'
+import freemem_chart from 'components/charts/freemem'
+import mounts_percentage_chart from 'components/charts/mounts_percentage'
 
 export default {
   mixins: [dashboard],
 
   name: 'admin-lte-dashboard-host',
+
+  // props: {
+  //   host: {
+  //     type: [String],
+  //     default: () => ('')
+  //   }
+  // },
 
   components: {
     AdminLteBoxSolid,
@@ -101,16 +175,11 @@ export default {
     }
   },
 
-  __unwatchers__: {},
+
 
   data () {
     return {
-      // title: 'title',
-      // parent: 'Dashboard'
-      EventBus: EventBus,
-      stats: {},
-      // stats_tabular: {},
-      charts: {},
+
     }
   },
   // pouch: {
@@ -122,7 +191,6 @@ export default {
     //   ////console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
-
     '$store.state.app.paths': function(oldVal, newVal){ this.create_host_pipelines(newVal) }
   },
   computed: Object.merge(
@@ -148,17 +216,94 @@ export default {
       },
       hosts: state => state.hosts.all,
       // currentHost: state => state.hosts.current,
-
+      // mounts: function(state){
+      //   let host = state.hosts.current || this.$route.params.host
+      //   return state.stats[host].os_mounts
+      // }
     }),
     {
       host: function(){
         return this.$store.state.hosts.current || this.$route.params.host
+      },
+      mounts: function(){
+        // let host = this.$route.params.host || this.$store.state.hosts.current
+        if(this.$store.state.stats && this.$store.state.stats[this.host]){
+          return this.$store.state.stats[this.host].os_mounts
+        }
+        else{
+          return {}
+        }
       }
     }
 
   ),
 
   created: function(){
+    let unwatch_mounts = this.$watch('mounts', function(val, old){
+      let range = [Date.now() - this.seconds * 1000, Date.now()]
+
+      console.log('$watch mounts '+val)
+
+      if(val && Object.getLength(val) > 0){
+
+        Object.each(val, function(mount, key){
+          console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+          this.add_chart ({
+            name: this.host+'_os_mounts_percentage_'+key,
+            chart: Object.clone(mounts_percentage_chart),
+            watch: {
+              name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
+              deep:true,
+              cb: this.__watcher_callback.bind(this)
+            },
+            stat: {
+              host: this.host,
+              path: 'os_mounts',
+              key: key,
+              length: this.seconds,
+              range: range
+            }
+          })
+
+          this.__get_stat({
+            host: this.host,
+            path: 'os_mounts',
+            key: key,
+            length: this.seconds,
+            range: range
+          }, function(docs){
+            console.log('got mounts '+key+' stat', docs)
+
+            let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+            if(docs.length == 0 && key == 0){//fireEvent only on one mount
+              pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
+              pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+              // this.__watcher()
+            }
+            Array.each(docs, function(doc, index){
+
+              this.__update_stat(this.host+'_os_mounts_percentage_'+key, doc)
+
+              if(index == docs.length -1 && key == 0){//fireEvent only on one mount
+                pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
+                // //console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
+                range[0] = doc.metadata.timestamp
+                pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+                // this.__watcher()
+              }
+            }.bind(this))
+
+          }.bind(this))
+
+        }.bind(this))
+
+        unwatch_mounts()
+      }
+    }.bind(this),{
+      deep:true
+    })
+
     this.create_host_pipelines(this.$store.state.app.paths)
 
     EventBus.$on('os', doc => {
@@ -166,19 +311,86 @@ export default {
         this.process_os_doc(doc)
     })
 
+    // let self = this
     this.add_chart ({
-      watch: '$store.state.stats.'+this.host+'.os.cpus',
       name: this.host+'_os_cpus_times',
-      chart: Object.clone(cpus_times_chart)
+      chart: Object.clone(cpus_times_chart),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.cpus',
+        cb: this.__watcher_callback.bind(this)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'cpus',
+        length: this.seconds,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
     })
 
+    this.add_chart ({
+      name: this.host+'_os_cpus_percentage',
+      chart: Object.clone(cpus_percentage_chart),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.cpus',
+        cb: this.__watcher_callback.bind(this)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'cpus',
+        length: this.seconds,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    })
+
+    this.add_chart ({
+      name: this.host+'_os_freemem',
+      chart: Object.clone(freemem_chart),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.freemem',
+        cb: this.__watcher_callback.bind(this)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'freemem',
+        length: this.seconds,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    })
+
+    // Array.each(this.mounts, function(mount, index){
+
+      // this.add_chart ({
+      //   name: this.host+'_os_mounts_percentage_'+index,
+      //   chart: Object.clone(mounts_percentage_chart),
+      //   watch: {
+      //     name: '$store.state.stats.'+this.host+'.os_mounts.'+index,
+      //     cb: this.__watcher_callback.bind(this)
+      //   },
+      //   stat: {
+      //     host: this.host,
+      //     path: 'os_mounts',
+      //     key: index,
+      //     length: this.seconds,
+      //     range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   }
+      // })
+
+    // }.bind(this))
+
   },
+
 
 
   mounted: function(){
 
     let range = [Date.now() - this.seconds * 1000, Date.now()]
 
+    /**
+    * cpus_*
+    **/
     this.__get_stat({
       host: this.host,
       path: 'os',
@@ -186,7 +398,7 @@ export default {
       length: this.seconds,
       range: range
     }, function(docs){
-      console.log('got stat', docs)
+      console.log('got cpus stat', docs)
 
       let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
       if(docs.length == 0){
@@ -198,6 +410,7 @@ export default {
       Array.each(docs, function(doc, index){
 
         this.__update_stat(this.host+'_os_cpus_times', doc)
+        this.__update_stat(this.host+'_os_cpus_percentage', doc)
 
         if(index == docs.length -1){
           pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
@@ -210,6 +423,33 @@ export default {
       }.bind(this))
 
     }.bind(this))
+
+    /**
+    * cpus_*
+    **/
+
+    this.__get_stat({
+      host: this.host,
+      path: 'os',
+      key: 'freemem',
+      length: this.seconds,
+      range: range
+    }, function(docs){
+      console.log('got freemem stat', docs)
+
+      /**
+      * don't fireEvent as it's been fired already by CPUS_*
+      **/
+
+
+      Array.each(docs, function(doc, index){
+
+        this.__update_stat(this.host+'_os_freemem', doc)
+
+      }.bind(this))
+
+    }.bind(this))
+
 
 
   },
@@ -235,69 +475,32 @@ export default {
     })
   },
   methods: {
-    add_chart (payload){
-      // console.log('add_chart')
-      let {name, chart} = payload
-      this.$set(this.charts, name, chart)
-      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-      this.__watcher(payload)
-    },
-    __watcher(payload){
+    __watcher_callback: function(doc, old, payload){
       let {name, watch} = payload
-      console.log('__watcher create', watch)
-      if(this.$options.__unwatchers__[name]){
-        this.$options.__unwatchers__[name]()//unwatch
-        delete this.$options.__unwatchers__[name]
+      // console.log('THIS', this)
+
+      if(this.stats[name] && this.stats[name].lastupdate == 0){
+        //avoid a race condition, as another watcher iteration may reach this point before __get_stat run (async func)
+        this.stats[name].lastupdate = Date.now()
+
+        this.__get_stat(watch.stat,
+          (docs) => Array.each(docs, (doc) => this.__update_stat(name, doc))
+        )
+
+
+      }
+      else{
+        this.__update_stat(name, doc.value)
       }
 
-      this.$options.__unwatchers__[name] = this.$watch(watch, function (doc, old) {
-        console.log('__watcher', this.stats[name].lastupdate)
+      /** manually resume **/
+      this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
-        if(this.stats[name].lastupdate == 0){
-          //avoid a race condition, as another watcher iteration may reach this point before __get_stat run (async func)
-          this.stats[name].lastupdate = Date.now()
+      // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+      //   -300 -1,
+      //   length - 300
+      // )
 
-          this.__get_stat({
-            host: this.host,
-            path: 'os',
-            key: 'cpus',
-            length: this.seconds,
-            range: [Date.now() - this.seconds * 1000, Date.now()]
-          },
-            (docs) => Array.each(docs, (doc) => this.__update_stat(name, doc))
-          )
-
-
-        }
-        else{
-          this.__update_stat(name, doc.value)
-        }
-
-        /** manually resume **/
-        this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
-
-        // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-        //   -300 -1,
-        //   length - 300
-        // )
-
-      })
-    },
-    __get_stat: function(payload, cb){
-
-      this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
-    },
-    __update_stat: function(name, doc){
-      let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-      this.stats[name].data.push(data)
-
-      let length = this.stats[name].data.length
-      this.stats[name].data.splice(
-        (this.seconds * -1) -1,
-        length - this.seconds
-      )
-
-      this.stats[name].lastupdate = Date.now()
     },
 
     destroy_host_pipelines: function(){
@@ -328,9 +531,12 @@ export default {
 
       if(Array.isArray(doc)){
         Array.each(doc, function(row){
-          // console.log('ROW', row.doc)
+
           if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
+
+            // console.log('ROW', keys, path)
+
             if(!paths[path])
               paths[path] = {}
 
@@ -358,7 +564,7 @@ export default {
         // console.log('stat process_os_doc', path)
 
         Object.each(keys, function(data, key){
-          // console.log('stat process_os_doc', data, key)
+          // console.log('stat process_os_doc', path, key, data)
           this.$store.dispatch('stats/add', {
             host: this.host,
             path: path,

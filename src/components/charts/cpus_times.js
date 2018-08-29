@@ -24,7 +24,11 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
       Array.each(values, function(val, index){
 
-        if(chart.prev.timestamp == 0){
+        if(
+          chart.prev.timestamp == 0
+          || chart.prev.timestamp < val.timestamp - 1100
+          || chart.prev.timestamp > val.timestamp + 1100
+        ){
           // let transform = {timestamp: val.timestamp, value: { times: {} } }
 
           chart.prev.timestamp = val.timestamp
