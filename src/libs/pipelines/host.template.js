@@ -69,7 +69,7 @@ export default {
 				// },
 				requests: {
     			periodical: function(dispatch){
-						// //////console.log('host periodical running')
+						// ////////console.log('host periodical running')
     				return cron.schedule('* * * * * *', dispatch);//every second
     			}
     		},
@@ -80,9 +80,9 @@ export default {
 		// decompress,
 		function(docs, opts, next, pipeline){
       let { type, input, input_type, app } = opts
-			// console.log('sizeof', sizeof(docs), docs)
+			// //console.log('sizeof', sizeof(docs), docs)
 
-			// //console.log('host.template.filter', docs)
+			// ////console.log('host.template.filter', docs)
       //
 			// let paths = /^os.*/
 
@@ -157,12 +157,12 @@ export default {
 	],
 	output: [
 		function(doc){
-			// console.log('output sizeof', sizeof(doc, doc))
+			// //console.log('output sizeof', sizeof(doc, doc))
 
       // doc = JSON.decode(doc)
 			// store.commit('app/doc', {type: 'os', 'value': doc})
 
-			// //////console.log('InputPollerCouchDBOS output', doc)
+			// ////////console.log('InputPollerCouchDBOS output', doc)
 
       // let type = doc.type
       // EventBus.$emit(type, doc)

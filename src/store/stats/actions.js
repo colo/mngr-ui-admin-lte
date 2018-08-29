@@ -12,23 +12,23 @@ const db = new PouchDB('live')
 //
 // Array.each(ddocs, function(ddoc){
 //   db.put(ddoc).then(function (info) {
-//     //console.log('sortView info', info)
+//     //////console.log('sortView info', info)
 //
 //   }).catch(function (err) {
-//     //console.log('sortView err', err)
+//     //////console.log('sortView err', err)
 //   });
 //
 //   let keys = Object.keys(ddoc.views)
 //
 //   Array.each(keys, function(key){
 //     let doc = ddoc._id.replace('_design/', '')+'/'+key
-//     //console.log('quering', doc)
+//     //////console.log('quering', doc)
 //     db.query(doc, {
 //       limit: 0 // don't return any results
 //     }).then(function (res) {
-//       //console.log('build index res', res)
+//       //////console.log('build index res', res)
 //     }).catch(function (err) {
-//       //console.log('build index err', err)
+//       //////console.log('build index err', err)
 //     });
 //
 //   })
@@ -47,6 +47,9 @@ let deque = new Deque(QUEUE_SIZE)
 let compacted = false
 
 export const get = ({ commit, dispatch }, payload) => {
+
+  //console.log('action get...')
+
   return new Promise((resolve, reject) => {
     let length = payload.length || deque.length
     let range = payload.range || []
@@ -56,14 +59,14 @@ export const get = ({ commit, dispatch }, payload) => {
 
     if(deque.length > 0){
       let arr = deque.toArray()
-      //console.log('fetching deque.length', deque.length, arr)
+      //////console.log('fetching deque.length', deque.length, arr)
       // let reg = new RegExp(payload.path+'\/'+payload.host)
       while (length > 0 && arr.length > 0){
-        // //console.log('fetching while...', length)
+        // //////console.log('fetching while...', length)
         let doc = arr.pop()
         // delete doc._rev
         if(doc._id.indexOf(payload.host+'/'+payload.path+'/'+payload.key) > -1){
-          console.log('DOC', doc, (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1]))
+          ////console.log('DOC', doc, (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1]))
           if(
             payload.range && (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1])
             || !payload.range
@@ -80,7 +83,7 @@ export const get = ({ commit, dispatch }, payload) => {
       }
     }
 
-    console.log('fetching doc', docs, range)
+    ////console.log('fetching doc', docs, range)
 
     if(length > 0 || payload.range){//from db
       let options = {
@@ -101,21 +104,21 @@ export const get = ({ commit, dispatch }, payload) => {
         options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
       }
 
-      console.log('OPTIONS', options)
+      ////console.log('OPTIONS', options)
 
       db.allDocs(options).then(function (res) {
-        console.log('fetching from db', res)
+        ////console.log('fetching from db', res)
 
         res.rows.reverse()
         while (length > 0 && res.rows.length > 0){
-          //console.log('fetching while...', length)
+          //////console.log('fetching while...', length)
           docs[length - 1] = res.rows.pop().doc
           length--
         }
 
         resolve(Array.clean(docs))
       }).catch(function (err) {
-        //console.log('fetching from db err', err)
+        //////console.log('fetching from db err', err)
         resolve(Array.clean(docs))
       })
     }
@@ -125,15 +128,15 @@ export const get = ({ commit, dispatch }, payload) => {
 
     // setTimeout(() => {
     //   // commit('someMutation')
-    //   //console.log('stats get')
+    //   //////console.log('stats get')
     //   resolve()
     // }, 1000)
   })
 }
 
 export const add = ({ commit, dispatch }, payload) => {
-
-  // //console.log('length', deque.length)
+  //console.log('action add...')
+  // //////console.log('length', deque.length)
 
   if(deque.length >= QUEUE_SIZE)
     dispatch('flush', payload)
@@ -142,7 +145,7 @@ export const add = ({ commit, dispatch }, payload) => {
     //firts soft data by timestamp
     payload.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} );
 
-    // console.log('ACTION', payload.data)
+    // //console.log('ACTION', payload.data)
 
     let docs = []
     Array.each(payload.data, function(data, index){
@@ -221,48 +224,51 @@ export const add = ({ commit, dispatch }, payload) => {
 
   }
 
-  //console.log('length', deque.length)
+  //////console.log('length', deque.length)
 
 }
 
 export const flush = ({ commit, state }, payload) => {
-  //console.log('flushing...')
+  //console.log('action flushing...')
 
   if(deque.isEmpty() !== true){
-    let docs = Array.clone(deque.toArray())
+    let docs = deque.toArray()
     deque.clear()
 
     db.bulkDocs(docs)
     .then(function (status) {
-      //console.log('bulkDocs status', status)
-      commit('clear', payload)
+
+      // commit('clear', payload)
 
     }).catch(function (err) {
-      //console.log('bulkDocs err', err)
+      //////console.log('bulkDocs err', err)
     });
   }
 
 }
 
 export const splice = ({ commit, state }, payload) => {
-  // commit('splice', payload)
-  let spliced = state[payload.host][payload.path][payload.key][0]
+  //console.log('action splice', payload)
+  // let spliced = state[payload.host][payload.path][payload.key]
+  let _id = payload.host+'/'+payload.path+'/'+payload.key
 
-  //console.log('splice', state[payload.host][payload.path][payload.key].length)
+  //////console.log('splice', state[payload.host][payload.path][payload.key].length)
 
   db.allDocs({
-    startkey: spliced.split('@')[0],
-    endkey: spliced.split('@')[0]+'\ufff0'
+    // startkey: spliced.split('@')[0],
+    // endkey: spliced.split('@')[0]+'\ufff0'
+    startkey: _id,
+    endkey: _id+'\ufff0'
   }).then(function (result) {
-    //console.log('allDocs result', result);
+    //////console.log('allDocs result', result);
     // // handle result
 
     let deleted = []
 
     Array.each(result.rows, function(row){
-      // //console.log('result', row);
+      // //////console.log('result', row);
       let doc = {}
-      if(!spliced.contains(row.id)){
+      if(!_id.contains(row.id)){
         doc['_deleted'] = true
         doc['_id'] = row.id
         doc['_rev'] = row.value.rev
@@ -271,45 +277,45 @@ export const splice = ({ commit, state }, payload) => {
 
     })
 
-    //console.log('to delete', deleted)
+    //////console.log('to delete', deleted)
     if(deleted.length > 0){
       db.bulkDocs(deleted).then(function (result) {
-        //console.log('bulkDocs delete result', result);
+        //console.log('action bulkDocs delete result', result);
 
         if(compacted === false){
           compacted = true
           db.compact().then(function (result) {
-            //console.log('compact result ',result);
+            //console.log('action compact result ',result);
             compacted = false
           }).catch(function (err) {
-            //console.log('compact err ',err);
+            //console.log('action  compact err ',err);
           });
         }
 
       }).catch(function (err) {
-        //console.log('bulkDocs delete err', err);
+        //console.log('action  bulkDocs delete err', err);
       });
     }
   }).catch(function (err) {
-    //console.log('allDocs', err);
+    //console.log('action allDocs', err);
   });
 
 //   commit('splice', payload)
 //   let spliced = state[payload.host][payload.path][payload.key]
 //
-//   //console.log('splice', state[payload.host][payload.path][payload.key].length)
+//   //////console.log('splice', state[payload.host][payload.path][payload.key].length)
 //
 //   disk.allDocs({
 //     startkey: spliced[0].split('@')[0],
 //     endkey: spliced[0].split('@')[0]+'\ufff0'
 //   }).then(function (result) {
-//     // //console.log('result', result);
+//     // //////console.log('result', result);
 //     // // handle result
 //
 //     let deleted = []
 //
 //     Array.each(result.rows, function(row){
-//       // //console.log('result', row);
+//       // //////console.log('result', row);
 //       let doc = {}
 //       if(!spliced.contains(row.id)){
 //         doc['_deleted'] = true
@@ -320,22 +326,22 @@ export const splice = ({ commit, state }, payload) => {
 //
 //     })
 //
-//     // //console.log('to delete', deleted)
+//     // //////console.log('to delete', deleted)
 //     if(deleted.length > 0){
 //       disk.bulkDocs(deleted).then(function (result) {
-//         //console.log('bulkDocs result', result);
+//         //////console.log('bulkDocs result', result);
 //
 //         disk.compact().then(function (result) {
-//           //console.log('compact result ',result);
+//           //////console.log('compact result ',result);
 //         }).catch(function (err) {
-//           //console.log('compact err ',err);
+//           //////console.log('compact err ',err);
 //         });
 //
 //       }).catch(function (err) {
-//         //console.log('bulkDocs delete', err);
+//         //////console.log('bulkDocs delete', err);
 //       });
 //     }
 //   }).catch(function (err) {
-//     //console.log('allDocs', err);
+//     //////console.log('allDocs', err);
 //   });
 }

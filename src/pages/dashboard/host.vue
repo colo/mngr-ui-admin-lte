@@ -101,7 +101,7 @@ export default {
     }
   },
 
-  unwatchers: {},
+  __unwatchers__: {},
 
   data () {
     return {
@@ -119,22 +119,12 @@ export default {
 
   watch: {
     // '$store.state.app.docs.os': function(oldVal, newVal){
-    //   //console.log('recived doc via Event os', newVal)
+    //   ////console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
 
     '$store.state.app.paths': function(oldVal, newVal){ this.create_host_pipelines(newVal) }
   },
-
-
-  created: function(){
-    this.add_chart (this.host+'_os_cpus_times', Object.clone(cpus_times_chart))
-
-
-
-
-  },
-
   computed: Object.merge(
     mapState({
       // modules_blacklist: state => state.hosts.modules_blacklist,
@@ -144,7 +134,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // //////////////console.log('seconds to splice', state.app.range)
+        // ////////////////console.log('seconds to splice', state.app.range)
 
         let end = new Date().getTime()
         if(state.app.range[1] != null)
@@ -167,118 +157,147 @@ export default {
     }
 
   ),
+
+  created: function(){
+    this.create_host_pipelines(this.$store.state.app.paths)
+
+    EventBus.$on('os', doc => {
+      // console.log('recived doc via Event os', doc.length, this.seconds)
+        this.process_os_doc(doc)
+    })
+
+    this.add_chart ({
+      watch: '$store.state.stats.'+this.host+'.os.cpus',
+      name: this.host+'_os_cpus_times',
+      chart: Object.clone(cpus_times_chart)
+    })
+
+  },
+
+
   mounted: function(){
 
     let range = [Date.now() - this.seconds * 1000, Date.now()]
-    this.$store.dispatch('stats/get', {
+
+    this.__get_stat({
       host: this.host,
       path: 'os',
       key: 'cpus',
       length: this.seconds,
       range: range
-    }).then((docs) => {
+    }, function(docs){
       console.log('got stat', docs)
 
-      let pipeline = this.$store.state['host.'+this.host].pipelines[0]
+      let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
       if(docs.length == 0){
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
         pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-        this.__watcher()
+        // this.__watcher()
       }
 
       Array.each(docs, function(doc, index){
-        let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-        this.stats[this.host+'_os_cpus_times'].data.push(data)
 
-        let length = this.stats[this.host+'_os_cpus_times'].data.length
-
-        this.stats[this.host+'_os_cpus_times'].data.splice(
-          -300 -1,
-          length - 300
-        )
-
-        this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
+        this.__update_stat(this.host+'_os_cpus_times', doc)
 
         if(index == docs.length -1){
           pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
-          // console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
+          // //console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
           range[0] = doc.metadata.timestamp
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          this.__watcher()
+          // this.__watcher()
         }
       }.bind(this))
-    })
 
-    EventBus.$on('os', doc => {
-      console.log('recived doc via Event os', doc.length, this.seconds)
-
-      // if(Array.isArray(doc)){
-      //   Array.each(doc, function(val){
-      //     console.log('VAL', val)
-      //     if(val.doc.metadata.host == this.host)
-      //       this.process_os_doc(val.doc)
-      //
-      //   }.bind(this))
-      // }
-      // else if(doc.metadata.host == this.host){
-        this.process_os_doc(doc)
-      // }
-
-		})
-
-    ////console.log('this.$route',this.$route.params.host)
-    this.create_host_pipelines(this.$store.state.app.paths)
-
-
+    }.bind(this))
 
 
   },
   // beforeUpdate: function(){
-  //   ////console.log('beforeUpdate')
+  //   //////console.log('beforeUpdate')
   // },
   updated: function(){
-    console.log('updated')
+    //console.log('updated')
   //   this.create_host_pipelines(this.$store.state.app.paths)
   },
   beforeDestroy: function(){
-    console.log('beforeDestroy')
+    //console.log('beforeDestroy')
+
+    // this.$store.dispatch('stats/splice', {
+    //   host: this.host,
+    //   path: 'os',
+    //   key: 'cpus'
+    // })
+
     this.destroy_host_pipelines()
-    Object.each(this.$options.unwatchers, function(unwatcher){
+    Object.each(this.$options.__unwatchers__, function(unwatcher){
       unwatcher()
     })
   },
   methods: {
-    __watcher(){
-      this.$options.unwatchers['$store.state.stats.'+this.host+'.os.cpus'] = this.$watch('$store.state.stats.'+this.host+'.os.cpus', function (doc, old) {
-        // let doc = JSON.parse(JSON.stringify(newVal))
-        console.log('$store.state.stats.'+this.host+'.os.cpus', doc)
-
-        if(this.stats[this.host+'_os_cpus_times'].lastupdate > 0){
-          let data = { timestamp: doc.value.metadata.timestamp, value: doc.value.data }
-          this.stats[this.host+'_os_cpus_times'].data.push(data)
-
-          let length = this.stats[this.host+'_os_cpus_times'].data.length
-          this.stats[this.host+'_os_cpus_times'].data.splice(
-            -300 -1,
-            length - 300
-          )
-
-          this.stats[this.host+'_os_cpus_times'].lastupdate = Date.now()
-
-          /** manually resume **/
-          this.$store.state['host.'+this.host].pipelines[0].fireEvent('onResume')
-
-          // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-          //   -300 -1,
-          //   length - 300
-          // )
-        }
-      })
-    },
-    add_chart (name, chart){
+    add_chart (payload){
+      // console.log('add_chart')
+      let {name, chart} = payload
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+      this.__watcher(payload)
+    },
+    __watcher(payload){
+      let {name, watch} = payload
+      console.log('__watcher create', watch)
+      if(this.$options.__unwatchers__[name]){
+        this.$options.__unwatchers__[name]()//unwatch
+        delete this.$options.__unwatchers__[name]
+      }
+
+      this.$options.__unwatchers__[name] = this.$watch(watch, function (doc, old) {
+        console.log('__watcher', this.stats[name].lastupdate)
+
+        if(this.stats[name].lastupdate == 0){
+          //avoid a race condition, as another watcher iteration may reach this point before __get_stat run (async func)
+          this.stats[name].lastupdate = Date.now()
+
+          this.__get_stat({
+            host: this.host,
+            path: 'os',
+            key: 'cpus',
+            length: this.seconds,
+            range: [Date.now() - this.seconds * 1000, Date.now()]
+          },
+            (docs) => Array.each(docs, (doc) => this.__update_stat(name, doc))
+          )
+
+
+        }
+        else{
+          this.__update_stat(name, doc.value)
+        }
+
+        /** manually resume **/
+        this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+
+        // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
+        //   -300 -1,
+        //   length - 300
+        // )
+
+      })
+    },
+    __get_stat: function(payload, cb){
+
+      this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
+    },
+    __update_stat: function(name, doc){
+      let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+      this.stats[name].data.push(data)
+
+      let length = this.stats[name].data.length
+      this.stats[name].data.splice(
+        (this.seconds * -1) -1,
+        length - this.seconds
+      )
+
+      this.stats[name].lastupdate = Date.now()
     },
 
     destroy_host_pipelines: function(){
@@ -286,10 +305,10 @@ export default {
 
       if(
         host
-        && this.$store.state['host.'+host]
-        && this.$store.state['host.'+host].pipelines.length > 0
+        && this.$store.state['host_'+host]
+        && Object.getLength(this.$store.state['host_'+host].pipelines) > 0
       ){
-        Array.each(this.$store.state['host.'+host].pipelines, function(pipe, index){//destroy old ones
+        Object.each(this.$store.state['host_'+host].pipelines, function(pipe, id){//destroy old ones
           pipe.fireEvent('onSuspend')
           pipe.fireEvent('onExit')
           pipe.removeEvents()
@@ -299,60 +318,47 @@ export default {
         }.bind(this))
 
         // this.$set(this.hosts_pipelines, [])
-        this.$store.commit('host.'+host+'/clear')
+        this.$store.commit('host_'+host+'/clear')
       }
     },
 
     process_os_doc: function(doc){
-      console.log('process_os_doc', doc)
-      // let self = this
+
       let paths = {}
-      // let keys, path, host = undefined
+
       if(Array.isArray(doc)){
         Array.each(doc, function(row){
-          console.log('ROW', row.doc)
+          // console.log('ROW', row.doc)
           if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
             if(!paths[path])
               paths[path] = {}
 
-            // paths[path].push(keys)
-            paths[path] = Object.merge(paths[path], keys)
+
+            Object.each(keys, function(data, key){
+              // console.log('ROW', key, data)
+              if(!paths[path][key])
+                paths[path][key] = []
+
+              paths[path][key].push(data)
+            })
           }
         }.bind(this))
       }
       else if(doc.metadata.host == this.host){
         let {keys, path, host} = extract_data_os(doc)
-        paths[path] = keys
-        // paths[path].push(keys)
-      }
-      // let {keys, path, host} = extract_data_os(doc)
-      ////console.log('pre register_host_store_module',path, keys)
+        if(!paths[path])
+          paths[path] = {}
 
-      // Object.each(keys, function(data, key){
-      //   if(
-      //     this.modules_blacklist
-      //     && this.modules_blacklist[path]
-      //     && this.modules_blacklist[path].test(key) == true
-      //   ){
-      //       // ////console.log('deleting...', path, key)
-      //       let whitelisted = false
-      //       if( this.modules_whitelist && this.modules_whitelist[path] )
-      //         Array.each(this.modules_whitelist[path], function(whitelist){
-      //           if(whitelist.test(key) == true)
-      //             whitelisted = true
-      //         })
-      //
-      //       if(whitelisted == false)
-      //         delete keys[key]
-      //   }
-      // }.bind(this))
+        paths[path] = keys
+      }
+
 
       Object.each(paths, function(keys, path){
-        // console.log('process_os_doc', path)
+        // console.log('stat process_os_doc', path)
 
         Object.each(keys, function(data, key){
-          // console.log('process_os_doc', data, key)
+          // console.log('stat process_os_doc', data, key)
           this.$store.dispatch('stats/add', {
             host: this.host,
             path: path,
@@ -367,13 +373,13 @@ export default {
     },
     create_host_pipelines (paths) {
       // paths = ['os.procs']
-      ////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      //////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$store.state.hosts.current || this.$route.params.host
 
       let range = Object.clone(this.$store.state.app.range)
 
 
-      if(paths.length > 0 && this.$store.state['host.'+host]){
+      if(paths.length > 0 && this.$store.state['host_'+host]){
         this.destroy_host_pipelines()
 
         // Array.each(hosts, function(host){
@@ -387,13 +393,13 @@ export default {
               template.input[0].poll.conn[0].stat_host = host
               // template.input[0].poll.conn[0].paths = paths
               // template.input[0].poll.conn[0].paths = [path]
-
+              let pipeline_id = template.input[0].poll.id
               template.input[0].poll.id += '-'+host
               template.input[0].poll.conn[0].id = template.input[0].poll.id
 
               let pipe = new Pipeline(template)
 
-              ////////////console.log('$store.state.hosts.all', pipe)
+              //////////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -403,17 +409,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                //////console.log('create_hosts_pipelines onRangeDoc',doc);
+                ////////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  ////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  //////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  ////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  //////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -426,7 +432,7 @@ export default {
               }.bind(this))
 
               // this.hosts_pipelines.push(pipe)
-              this.$store.commit('host.'+host+'/add', pipe)
+              this.$store.commit('host_'+host+'/add', {id: pipeline_id, pipeline: pipe})
               if(range[1] == null){
                 range[1] = new Date().getTime()
               }
@@ -434,7 +440,7 @@ export default {
               // pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                ////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                //////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
 
                 /** manually resume **/
                 // pipe.fireEvent('onResume')

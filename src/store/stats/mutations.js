@@ -29,7 +29,7 @@ export const add = function(state, payload) {//generic mutation
 }
 
 export const clear = (state, payload) => {
-  console.log('clear mutation')
+  //console.log('clear mutation')
 
   if(!state[payload.host])
     Vue.set(state, payload.host, {})

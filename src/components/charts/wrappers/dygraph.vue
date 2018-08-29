@@ -75,21 +75,21 @@ export default {
   watch: {
     visible: function (val) {
       this.container_class_helper = (val == false) ? 'invisible' : ''
-      // console.log('class visible', val, this.container_class_helper)
+      // //console.log('class visible', val, this.container_class_helper)
     }
   },
 
   created () {
-    console.log('created', this.id, this.stat.data)
+    //console.log('created', this.id, this.stat.data)
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
       EventBus.$on('highlightCallback', params => {
         this.highlighted = true
-        // ////console.log('event highlightCallback', params)
+        // //////console.log('event highlightCallback', params)
   		})
       EventBus.$on('unhighlightCallback', event => {
         this.highlighted = false
-        // ////console.log('event unhighlightCallback', event)
+        // //////console.log('event unhighlightCallback', event)
   		})
     }
 
@@ -98,7 +98,7 @@ export default {
     // let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
     //
     //
-    //   console.log('updated data dygraph', this.id, this.stat.data)
+    //   //console.log('updated data dygraph', this.id, this.stat.data)
     //
     //   // if(val.length > 1 && this.chart == null){
     //   if(val.length > 1){
@@ -138,7 +138,7 @@ export default {
   },
   destroyed (){
     if(this.$options.graph){
-      // console.log('destroying ...', this.id)
+      // //console.log('destroying ...', this.id)
       this.$options.graph.destroy()
       this.$options.graph = undefined
     }
@@ -150,11 +150,16 @@ export default {
   },
   methods: {
     __watcher (){
-      console.log('dygraph __watcher', this.stat.data)
+      // console.log('dygraph __watcher', this.stat.data, this.stat.data.length)
+      if(this.$options.__unwatcher){
+        this.$options.__unwatcher()//unwatch
+        this.$options.__unwatcher = undefined
+      }
+
       this.$options.__unwatcher = this.$watch('stat.data', function (val, old) {
 
 
-        console.log('updated data dygraph', this.id, this.stat.data)
+        console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
 
         // if(val.length > 1 && this.chart == null){
         if(val.length > 1){
@@ -173,7 +178,7 @@ export default {
       })
     },
     __create_dygraph (){
-      console.log('__create_dygraph', this.stat.data)
+      //console.log('__create_dygraph', this.stat.data)
 
       let options = Object.clone(this.chart.options)
 
@@ -187,7 +192,7 @@ export default {
       )
 
       this.$options.graph.ready(function(){
-        // ////console.log('chart '+this.id+' ready')
+        // //////console.log('chart '+this.id+' ready')
         this.ready = true
       }.bind(this))
 

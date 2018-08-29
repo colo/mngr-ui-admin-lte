@@ -33,30 +33,38 @@ import Vue from 'vue'
 //   }
 // }
 
-export const add = (state, pipeline) => {
-  state.pipelines.push(pipeline)
+export const add = (state, payload) => {
+  let {id, pipeline} = payload
+  if(!state.pipelines[id])
+    Vue.set(state.pipelines, id, null)
+
+  state.pipelines[id] = pipeline
 }
 
 export const set = (state, pipelines) => {
-  Array.each(pipelines, function(pipeline){
-    if(!state.pipelines.contains(pipeline))
-      state.pipelines.push(pipeline)
+  Array.each(pipelines, function(payload){
+    // let {id, pipeline} = payload
+    // if(!state.pipelines.contains(pipeline))
+    //   state.pipelines.push(pipeline)
+    add(state, payload)
   })
-  Array.each(state.pipelines, function(pipeline){
-    if(!hosts.contains(pipeline))
-      state.pipelines.erase(pipeline)
+  Object.each(state.pipelines, function(payload){
+    let {id, pipeline} = payload
+    if(!pipelines.contains(payload))
+      erase(state, id)
   })
   // Vue.set(state, 'all', hosts)
 }
 
-export const erase = (state, pipeline) => {
-  if(state.pipelines.contains(pipeline)){
-    let tmp_array = Array.clone(state.pipelines)
-    tmp_array.erase(pipeline)
-    Vue.set(state, 'pipelines', tmp_array)
-  }
+export const erase = (state, id) => {
+  Vue.set(state.pipelines, id, undefined)
+  // if(state.pipelines.contains(pipeline)){
+  //   let tmp_array = Array.clone(state.pipelines)
+  //   tmp_array.erase(pipeline)
+  //   Vue.set(state, 'pipelines', tmp_array)
+  // }
 }
 
 export const clear = (state) => {
-  Vue.set(state, 'pipelines', [])
+  Vue.set(state, 'pipelines', {})
 }

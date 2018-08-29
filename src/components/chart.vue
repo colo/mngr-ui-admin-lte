@@ -75,7 +75,7 @@ export default {
   },
   methods: {
     __process_stat (chart, name, stat){
-      //console.log('__process_stat', stat)
+      //////console.log('__process_stat', stat)
       if(!Array.isArray(stat))
         stat = [stat]
 
@@ -141,6 +141,12 @@ export default {
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
 
+      /**
+      * first update
+      **/
+      if(this.stat.data.length > 0)
+        data_to_tabular(this.stat.data, chart, name, this.update_chart_stat.bind(this))
+
       this.__create_watcher(name, chart)
 
     },
@@ -157,11 +163,15 @@ export default {
       }
 
       let generic_data_watcher = function(current){
-        console.log('generic_data_watcher', name, current)
+        // console.log('generic_data_watcher', name, current)
+        // Array.each(current, function(row, index){
+        //   console.log('generic_data_watcher', row)
+        // })
+
         data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
       }
 
-      //console.log('gonna watch...', name)
+      // console.log('gonna watch...', name, this.stat.data)
 
       this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
 
@@ -170,7 +180,7 @@ export default {
     // generic_data_watcher: data_to_tabular,
 
     update_chart_stat (name, data){
-      console.log('update_chart_stat',name)
+      ////console.log('update_chart_stat',name)
 
       let length = this.stat.data.length
       data.splice(
@@ -180,18 +190,22 @@ export default {
 
       this.$set(this.tabular, 'data', data)
       this.tabular.lastupdate = Date.now()
-      console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
+      ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
     },
     __watcher (){
-      this.$watch('stat.data', function (val, old) {
+      let unwatch = this.$watch('stat.data', function (val, old) {
+        console.log('chart vue', val)
 
         if(val.length > 1){
 
           if(this.$options.__chart_init == false){
+            // console.log('chart vue __watcher', val)
             this.__process_stat(this.chart, this.id, val)
             this.$options.__chart_init = true
+
           }
 
+          unwatch()
         }
 
       })

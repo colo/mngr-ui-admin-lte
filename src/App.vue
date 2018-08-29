@@ -183,9 +183,9 @@ export default {
 
 
         Array.each(doc.hosts, function(host){
-          if(!this.$store.state['host.'+host]){
+          if(!this.$store.state['host_'+host]){
             //console.log('registerModule HOSTS', host)
-            this.$store.registerModule('host.'+host, Object.clone(hostStore))
+            this.$store.registerModule('host_'+host, Object.clone(hostStore))
           }
           // if(!this.$store.state.stats[host]){
           //   //console.log('registerModule HOSTS', host)
@@ -197,9 +197,9 @@ export default {
         * should unregister modules for unset hosts?
         */
         Array.each(this.$store.state, function(host){
-          if(!doc.hosts.contains(host.replace('host.'))){
+          if(!doc.hosts.contains(host.replace('host_'))){
             console.log('UNregisterModule HOSTS', host)
-            this.$store.unregisterModule('host.'+host)
+            this.$store.unregisterModule('host_'+host)
           }
         }.bind(this))
 

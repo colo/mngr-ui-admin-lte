@@ -151,7 +151,7 @@ export default {
         }
       }
 
-      console.log('pre_process)', name, chart)
+      // console.log('pre_process)', name, chart)
 
       return chart
     },
