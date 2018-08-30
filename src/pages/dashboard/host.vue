@@ -247,7 +247,7 @@ export default {
 
         Object.each(val, function(mount, key){
           console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
-          this.add_chart ({
+          this.add_chart (Object.clone({
             name: this.host+'_os_mounts_percentage_'+key,
             chart: Object.clone(mounts_percentage_chart),
             init: this.__mounts_get_stat.bind(this),
@@ -263,7 +263,7 @@ export default {
               length: this.seconds || 300,
               range: [Date.now() - this.seconds * 1000, Date.now()]
             }
-          })
+          }))
 
 
         }.bind(this))
@@ -444,7 +444,7 @@ export default {
 
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
-        }.bind(this), 100)
+        }.bind(this), 500)
 
 
         // Array.each(docs, function(doc, index){
@@ -498,7 +498,7 @@ export default {
 
         setTimeout(function(){
           this.__get_stat(stat, function(docs){
-            console.log('got cpus stat2', docs)
+            console.log('got mounts stat2', docs)
 
             this.__update_stat(name, docs)
 
@@ -506,7 +506,7 @@ export default {
 
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
-        }.bind(this), 500)
+        }.bind(this), 5000)
 
       }.bind(this))
     },
