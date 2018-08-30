@@ -2,6 +2,7 @@
   <component
     :is="type+'-wrapper'"
     :id="id"
+    :ref="id"
     :EventBus="EventBus"
     :chart="chart"
     :stat="tabular"
@@ -74,6 +75,9 @@ export default {
     this.$set(this.tabular, 'data', [[]])
   },
   methods: {
+    // update: function(){
+    //   this.$refs[this.id].update()
+    // },
     __process_stat (chart, name, stat){
       //////console.log('__process_stat', stat)
       if(!Array.isArray(stat))

@@ -24,10 +24,18 @@ export default {
     **/
     add_chart (payload){
       // console.log('add_chart')
-      let {name, chart} = payload
+      let {name, chart, init, finish} = payload
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+
+      if(init && typeof init == 'function')
+        init(payload)
+
       this.__watcher(payload)
+
+      // if(finish && typeof finish == 'function')
+      //   finish(payload)
+
     },
     __watcher: function(payload){
       let {name, watch} = payload
@@ -51,36 +59,38 @@ export default {
       this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
     },
     __update_stat: function(name, doc){
+      console.log('__update_stat', doc, this.stats[name])
 
-      console.log('__update_stat', doc)
+      if(this.stats[name]){
 
-      if(Array.isArray(doc) && doc.length > 0){
-        let data = []
+        if(Array.isArray(doc) && doc.length > 0){
+          let data = []
 
-        doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
-        Array.each(doc, function(d, index){
-          data.push({ timestamp: d.metadata.timestamp, value: d.data })
+          Array.each(doc, function(d, index){
+            data.push({ timestamp: d.metadata.timestamp, value: d.data })
 
-          if(index == doc.length -1){
-            let old_data = JSON.parse(JSON.stringify(this.stats[name].data))
-            data = old_data.combine(data)
-            this.$set(this.stats[name], 'data', data)
-          }
-        }.bind(this))
+            if(index == doc.length -1){
+              let old_data = JSON.parse(JSON.stringify(this.stats[name].data))
+              data = old_data.combine(data)
+              this.$set(this.stats[name], 'data', data)
+            }
+          }.bind(this))
+        }
+        else if(doc && !Array.isArray(doc)){
+          let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+          this.stats[name].data.push(data)
+        }
+
+        let length = this.stats[name].data.length
+        this.stats[name].data.splice(
+          (this.seconds * -1) -1,
+          length - this.seconds
+        )
+
+        this.stats[name].lastupdate = Date.now()
       }
-      else if(!Array.isArray(doc)){
-        let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-        this.stats[name].data.push(data)
-      }
-
-      let length = this.stats[name].data.length
-      this.stats[name].data.splice(
-        (this.seconds * -1) -1,
-        length - this.seconds
-      )
-
-      this.stats[name].lastupdate = Date.now()
     },
     /**
     * @end - charting
