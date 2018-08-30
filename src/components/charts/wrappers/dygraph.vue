@@ -229,7 +229,7 @@ export default {
         //     }
         //
         //   })
-
+          
           this.$options.graph.updateOptions(
             Object.merge(
               {

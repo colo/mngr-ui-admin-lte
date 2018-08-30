@@ -119,10 +119,12 @@ export const get = ({ commit, dispatch }, payload) => {
         resolve(Array.clean(docs))
       }).catch(function (err) {
         //////console.log('fetching from db err', err)
+        docs.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
         resolve(Array.clean(docs))
       })
     }
     else{
+      docs.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
       resolve(docs)
     }
 

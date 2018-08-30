@@ -37,14 +37,19 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
       let transformed = []
       // let prev = {idle: 0, total: 0, timestamp: 0 }
       Array.each(values, function(val, index){
+
         if(
           chart.prev.timestamp == 0
-          || chart.prev.timestamp < val.timestamp - 1100
-          || chart.prev.timestamp > val.timestamp + 1100
+          || chart.prev.timestamp < val.timestamp - 1999
+          || chart.prev.timestamp > val.timestamp + 1999
         ){
           // let transform = {timestamp: val.timestamp, value: { times: {} } }
 
+          // console.log('no prev percentage', chart.prev)
+          console.log('no prev percentage', new Date(chart.prev.timestamp), new Date(val.timestamp), index)
+
           chart.prev = Object.clone(val)
+
 
           // chart.prev.timestamp = val.timestamp
           // Object.each(val.value.times, function(stat, key){
@@ -93,7 +98,13 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
           transform.value.times.usage = (percentage > 100) ? 100 : percentage
 
 
+          // chart.prev = Object.clone(current)
+
           chart.prev = Object.clone(current)
+
+          if(index == values.length -1)
+            chart.prev.timestamp = 0
+
           transformed.push(transform)
         }
 

@@ -51,8 +51,28 @@ export default {
       this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
     },
     __update_stat: function(name, doc){
-      let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-      this.stats[name].data.push(data)
+
+      console.log('__update_stat', doc)
+
+      if(Array.isArray(doc) && doc.length > 0){
+        let data = []
+
+        doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+
+        Array.each(doc, function(d, index){
+          data.push({ timestamp: d.metadata.timestamp, value: d.data })
+
+          if(index == doc.length -1){
+            let old_data = JSON.parse(JSON.stringify(this.stats[name].data))
+            data = old_data.combine(data)
+            this.$set(this.stats[name], 'data', data)
+          }
+        }.bind(this))
+      }
+      else if(!Array.isArray(doc)){
+        let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+        this.stats[name].data.push(data)
+      }
 
       let length = this.stats[name].data.length
       this.stats[name].data.splice(

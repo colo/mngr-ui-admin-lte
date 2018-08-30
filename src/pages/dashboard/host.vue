@@ -242,9 +242,9 @@ export default {
     let unwatch_mounts = this.$watch('mounts', function(val, old){
       let range = [Date.now() - this.seconds * 1000, Date.now()]
 
-      console.log('$watch mounts '+val)
+      // console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
 
-      if(val && Object.getLength(val) > 0){
+      if(val !== undefined && Object.getLength(val) > 0){
 
         Object.each(val, function(mount, key){
           console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
@@ -260,7 +260,7 @@ export default {
               host: this.host,
               path: 'os_mounts',
               key: key,
-              length: this.seconds,
+              length: this.seconds || 300,
               range: range
             }
           })
@@ -269,30 +269,37 @@ export default {
             host: this.host,
             path: 'os_mounts',
             key: key,
-            length: this.seconds,
+            length: this.seconds || 300,
             range: range
           }, function(docs){
             console.log('got mounts '+key+' stat', docs)
 
             let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+            pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
             if(docs.length == 0 && key == 0){//fireEvent only on one mount
-              pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
               pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
               // this.__watcher()
             }
-            Array.each(docs, function(doc, index){
+            else{
+              this.__update_stat(this.host+'_os_mounts_percentage_'+key, docs)
+              range[0] = docs[docs.length -1].metadata.timestamp
+              pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-              this.__update_stat(this.host+'_os_mounts_percentage_'+key, doc)
-
-              if(index == docs.length -1 && key == 0){//fireEvent only on one mount
-                pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
-                // //console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
-                range[0] = doc.metadata.timestamp
-                pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-
-                // this.__watcher()
-              }
-            }.bind(this))
+            }
+            // Array.each(docs, function(doc, index){
+            //
+            //   this.__update_stat(this.host+'_os_mounts_percentage_'+key, doc)
+            //
+            //
+            //   if(index == docs.length -1 && key == 0){//fireEvent only on one mount
+            //     pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
+            //     // //console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
+            //     range[0] = doc.metadata.timestamp
+            //     pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+            //
+            //     // this.__watcher()
+            //   }
+            // }.bind(this))
 
           }.bind(this))
 
@@ -323,7 +330,7 @@ export default {
         host: this.host,
         path: 'os',
         key: 'cpus',
-        length: this.seconds,
+        length: this.seconds || 300,
         range: [Date.now() - this.seconds * 1000, Date.now()]
       }
     })
@@ -339,7 +346,7 @@ export default {
         host: this.host,
         path: 'os',
         key: 'cpus',
-        length: this.seconds,
+        length: this.seconds || 300,
         range: [Date.now() - this.seconds * 1000, Date.now()]
       }
     })
@@ -355,7 +362,7 @@ export default {
         host: this.host,
         path: 'os',
         key: 'freemem',
-        length: this.seconds,
+        length: this.seconds || 300,
         range: [Date.now() - this.seconds * 1000, Date.now()]
       }
     })
@@ -401,26 +408,34 @@ export default {
       console.log('got cpus stat', docs)
 
       let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+      pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
       if(docs.length == 0){
-        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
         pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // this.__watcher()
       }
+      else{
+        this.__update_stat(this.host+'_os_cpus_times', docs)
+        this.__update_stat(this.host+'_os_cpus_percentage', docs)
 
-      Array.each(docs, function(doc, index){
 
-        this.__update_stat(this.host+'_os_cpus_times', doc)
-        this.__update_stat(this.host+'_os_cpus_percentage', doc)
+        range[0] = docs[docs.length -1].metadata.timestamp
+        pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+      }
 
-        if(index == docs.length -1){
-          pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
-          // //console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
-          range[0] = doc.metadata.timestamp
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-
-          // this.__watcher()
-        }
-      }.bind(this))
+      // Array.each(docs, function(doc, index){
+      //
+      //   this.__update_stat(this.host+'_os_cpus_times', doc)
+      //   this.__update_stat(this.host+'_os_cpus_percentage', doc)
+      //
+      //   if(index == docs.length -1){
+      //     pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+      //     // //console.log('PIPELINE', pipeline.inputs[0].options.conn[0].module.paths)
+      //     range[0] = doc.metadata.timestamp
+      //     pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+      //
+      //     // this.__watcher()
+      //   }
+      // }.bind(this))
 
     }.bind(this))
 
@@ -441,12 +456,13 @@ export default {
       * don't fireEvent as it's been fired already by CPUS_*
       **/
 
+      this.__update_stat(this.host+'_os_freemem', docs)
 
-      Array.each(docs, function(doc, index){
-
-        this.__update_stat(this.host+'_os_freemem', doc)
-
-      }.bind(this))
+      // Array.each(docs, function(doc, index){
+      //
+      //   this.__update_stat(this.host+'_os_freemem', doc)
+      //
+      // }.bind(this))
 
     }.bind(this))
 
@@ -483,10 +499,10 @@ export default {
         //avoid a race condition, as another watcher iteration may reach this point before __get_stat run (async func)
         this.stats[name].lastupdate = Date.now()
 
-        this.__get_stat(watch.stat,
-          (docs) => Array.each(docs, (doc) => this.__update_stat(name, doc))
-        )
-
+        // this.__get_stat(watch.stat,
+        //   (docs) => Array.each(docs, (doc) => this.__update_stat(name, doc))
+        // )
+        this.__get_stat(watch.stat, (docs) => this.__update_stat(name, docs) )
 
       }
       else{

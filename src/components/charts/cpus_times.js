@@ -17,6 +17,9 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
     * @trasnform: diff between each value against its prev one
     */
     transform: function(values, caller, chart){
+
+      // values.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+
       // console.log('transform: ', values, Object.clone(chart))
 
       let transformed = []
@@ -24,12 +27,16 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
       Array.each(values, function(val, index){
 
+
+
         if(
           chart.prev.timestamp == 0
-          || chart.prev.timestamp < val.timestamp - 1100
-          || chart.prev.timestamp > val.timestamp + 1100
+          || chart.prev.timestamp < val.timestamp - 1999
+          || chart.prev.timestamp > val.timestamp + 1999
         ){
           // let transform = {timestamp: val.timestamp, value: { times: {} } }
+          console.log('no prev times', new Date(chart.prev.timestamp), new Date(val.timestamp), index)
+
 
           chart.prev.timestamp = val.timestamp
           Object.each(val.value.times, function(stat, key){
@@ -68,9 +75,12 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
           if(transform.timestamp > chart.prev.timestamp)
             transformed.push(transform)
 
-          val.value.times.idel = val.value.times.idel * -1
+          // val.value.times.idle = val.value.times.idle * -1
+
           chart.prev = Object.clone(val)
 
+          if(index == values.length -1)
+            chart.prev.timestamp = 0
         }
 
 

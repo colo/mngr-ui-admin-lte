@@ -194,7 +194,7 @@ export default {
     },
     __watcher (){
       let unwatch = this.$watch('stat.data', function (val, old) {
-        console.log('chart vue', val)
+        // console.log('chart vue', val)
 
         if(val.length > 1){
 
