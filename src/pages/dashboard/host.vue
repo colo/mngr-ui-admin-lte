@@ -254,7 +254,8 @@ export default {
             watch: {
               name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
               deep:true,
-              cb: this.__watcher_callback.bind(this)
+              // cb: this.__watcher_callback.bind(this)
+              cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
             },
             stat: {
               host: this.host,
@@ -313,7 +314,7 @@ export default {
       init: this.__cpu_get_stat.bind(this),
       watch: {
         name: '$store.state.stats.'+this.host+'.os.cpus',
-        cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
       },
       stat: {
         host: this.host,
@@ -332,7 +333,8 @@ export default {
       chart: Object.clone(cpus_percentage_chart),
       watch: {
         name: '$store.state.stats.'+this.host+'.os.cpus',
-        cb: this.__watcher_callback.bind(this)
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
       },
       stat: {
         host: this.host,
@@ -349,7 +351,8 @@ export default {
       init: this.__freemem_get_stat.bind(this),
       watch: {
         name: '$store.state.stats.'+this.host+'.os.freemem',
-        cb: this.__watcher_callback.bind(this)
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
       },
       stat: {
         host: this.host,
@@ -506,43 +509,16 @@ export default {
 
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
-        }.bind(this), 5000)
+        }.bind(this), 100)
 
       }.bind(this))
     },
-    __watcher_callback: function(doc, old, payload){
-      let {name, watch} = payload
-      // console.log('THIS', this)
-
-      // if(this.stats[name] && this.stats[name].lastupdate == 0){
-      //   //avoid a race condition, as another watcher iteration may reach this point before __get_stat run (async func)
-      //   this.stats[name].lastupdate = Date.now()
-      //
-      //   // this.__get_stat(watch.stat,
-      //   //   (docs) => Array.each(docs, (doc) => this.__update_stat(name, doc))
-      //   // )
-      //
-      //   this.__get_stat(watch.stat, (docs) => this.__update_stat(name, docs) )
-      //   // this.__get_stat(watch.stat, (docs) => this.__pre_update_stat(name, docs) )
-      //
-      // }
-      // else{
-      //   this.__update_stat(name, doc.value)
-      //
-      // }
-
-      this.__update_stat(name, doc.value)
-
-      // /** manually resume **/
-      // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
-
-
-      // this.stats_tabular[this.host+'_os_cpus_times'].data.splice(
-      //   -300 -1,
-      //   length - 300
-      // )
-
-    },
+    // __watcher_callback: function(doc, old, payload){
+    //   let {name, watch} = payload
+    //
+    //   this.__update_stat(name, doc.value)
+    //
+    // },
     // __pre_update_stat: function(name, docs){
     //   this.$options.stats[name] = docs
     //

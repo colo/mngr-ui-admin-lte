@@ -229,7 +229,8 @@ export default {
         //     }
         //
         //   })
-          
+          // self.stat.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
           this.$options.graph.updateOptions(
             Object.merge(
               {

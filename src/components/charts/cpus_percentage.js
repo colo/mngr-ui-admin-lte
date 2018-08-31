@@ -10,6 +10,7 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
   },
   match: /^cpus/,
   "options": {
+    connectSeparatedPoints: true,
     valueRange: [0, 100],
     labels: ['Time', 'usage %'],
     series: {

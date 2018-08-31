@@ -192,6 +192,8 @@ export default {
         data.length - length
       )
 
+      // data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+
       this.$set(this.tabular, 'data', data)
       this.tabular.lastupdate = Date.now()
       ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)

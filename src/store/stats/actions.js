@@ -42,7 +42,8 @@ const db = new PouchDB('live')
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 300
+const QUEUE_SIZE = 1200 //os = 4 docs...1200 = 300 secs of docs
+
 let deque = new Deque(QUEUE_SIZE)
 let compacted = false
 
@@ -107,24 +108,34 @@ export const get = ({ commit, dispatch }, payload) => {
       ////console.log('OPTIONS', options)
 
       db.allDocs(options).then(function (res) {
-        ////console.log('fetching from db', res)
+
 
         res.rows.reverse()
         while (length > 0 && res.rows.length > 0){
           //////console.log('fetching while...', length)
-          docs[length - 1] = res.rows.pop().doc
+          docs[length] = res.rows.pop().doc
           length--
         }
 
+
+
+        docs.sort(function(a,b) {
+          return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+        })
+        // console.log('fetching from db', docs)
         resolve(Array.clean(docs))
       }).catch(function (err) {
         //////console.log('fetching from db err', err)
-        docs.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+        docs.sort(function(a,b) {
+          return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+        })
         resolve(Array.clean(docs))
       })
     }
     else{
-      docs.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+      docs.sort(function(a,b) {
+        return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+      })
       resolve(docs)
     }
 
@@ -137,19 +148,20 @@ export const get = ({ commit, dispatch }, payload) => {
 }
 
 export const add = ({ commit, dispatch }, payload) => {
-  //console.log('action add...')
+  // console.log('action add...', payload.data)
   // //////console.log('length', deque.length)
 
-  if(deque.length >= QUEUE_SIZE)
-    dispatch('flush', payload)
+  // if(deque.length >= QUEUE_SIZE)
+  //   dispatch('flush', payload)
+
 
   if(Array.isArray(payload.data)){
     //firts soft data by timestamp
     payload.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} );
 
-    // //console.log('ACTION', payload.data)
+    // console.log('ACTION', deque.toArray(), payload.data)
 
-    let docs = []
+    // let docs = []
     Array.each(payload.data, function(data, index){
       let doc = new Object()
       doc._id = payload.host+'/'+payload.path+'/'+payload.key+'@'+data.timestamp
@@ -160,37 +172,21 @@ export const add = ({ commit, dispatch }, payload) => {
       doc.metadata.path = payload.path+'/'+payload.key
       // doc.metadata.key = payload.key
       doc.metadata.type = 'periodical'
-      docs.push(doc)
-      deque.push(doc)
+      // docs.push(doc)
+      // if(deque.isEmpty() || deque.peekBack().metadata.timestamp < doc.metadata.timestamp)
+        deque.push(doc)
 
-      // if(index == payload.data.length -1)
-      //   commit('add', {
-      //     host: payload.host,
-      //     path:payload.path,
-      //     key:payload.key,
-      //     data: {
-      //       timestamp: doc.metadata.timestamp,
-      //       value: doc
-      //     }
-      //   })
+
     })
 
-    // let commit_docs = []
-    // Array.each(docs, function(doc){
-    //   let commit_doc = new Object()
-    //   commit_doc.host = payload.host
-    //   commit_doc.path = payload.path
-    //   commit_doc.key = payload.key
-    //   commit_doc.value = doc._id
-    //   commit_docs.push(commit_doc)
-    // })
+
     commit('add', {
       host: payload.host,
       path:payload.path,
       key:payload.key,
       data: {
-        timestamp: docs[docs.length - 1].metadata.timestamp,
-        value: docs[docs.length - 1]
+        timestamp: deque.peekBack().metadata.timestamp,
+        value: deque.peekBack()
       }
     })
   }
@@ -205,7 +201,10 @@ export const add = ({ commit, dispatch }, payload) => {
     // doc.metadata.key = payload.key
     doc.metadata.type = 'periodical'
 
+    // if(deque.isEmpty() || deque.peekBack().metadata.timestamp < doc.metadata.timestamp){
     deque.push(doc)
+
+    // deque.push(doc)
     // commit('add', doc)
     commit('add', {
       host: payload.host,
@@ -216,30 +215,37 @@ export const add = ({ commit, dispatch }, payload) => {
         value: doc
       }
     })
-
-    // let commit_doc = new Object()
-    // commit_doc.host = payload.host
-    // commit_doc.path = payload.path
-    // commit_doc.key = payload.key
-    // commit_doc.value = doc._id
-    // commit('add', commit_doc)
+    // }
 
   }
 
-  //////console.log('length', deque.length)
+  if(deque.length >= QUEUE_SIZE)
+    dispatch('flush', QUEUE_SIZE)
 
 }
 
-export const flush = ({ commit, state }, payload) => {
+export const flush = ({ commit, state }, length) => {
   //console.log('action flushing...')
 
   if(deque.isEmpty() !== true){
-    let docs = deque.toArray()
+    let docs = docs = deque.toArray()
     deque.clear()
+
+    docs.sort(function(a,b) {
+      return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+    } );
+
+    if(length && length > deque.length){
+      while(length > 0){
+        let doc = docs.pop()
+        deque.unshift(doc)
+        length--
+      }
+    }
 
     db.bulkDocs(docs)
     .then(function (status) {
-
+      // console.log('flushed', docs, status, deque.toArray())
       // commit('clear', payload)
 
     }).catch(function (err) {

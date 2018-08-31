@@ -66,14 +66,16 @@ export default {
         if(Array.isArray(doc) && doc.length > 0){
           let data = []
 
-          doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          // doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
           Array.each(doc, function(d, index){
             data.push({ timestamp: d.metadata.timestamp, value: d.data })
 
             if(index == doc.length -1){
-              let old_data = JSON.parse(JSON.stringify(this.stats[name].data))
+              // let old_data = JSON.parse(JSON.stringify(this.stats[name].data))
+              let old_data = Array.clone(this.stats[name].data)
               data = old_data.combine(data)
+              data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
               this.$set(this.stats[name], 'data', data)
             }
           }.bind(this))
