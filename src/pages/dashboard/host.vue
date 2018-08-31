@@ -13,6 +13,60 @@
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
+          title="Uptime"
+          :id="host+'.os.uptime-collapsible'"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+          <!-- <dygraph-wrapper
+            :ref="host+'_os_cpus_times'"
+            :id="host+'_os_cpus_times'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus_times']"
+            :stat="stats_tabular[host+'_os_cpus_times']"
+          >
+          </dygraph-wrapper> -->
+          <chart
+            :type="'dygraph'"
+            :ref="host+'_os_uptime'"
+            :id="host+'_os_uptime'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_uptime']"
+            :stat="stats[host+'_os_uptime']"
+          >
+          </chart>
+          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+
+        </admin-lte-box-solid>
+
+        <admin-lte-box-solid
+          title="Load Average"
+          :id="host+'.os.loadavg-collapsible'"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+          <!-- <dygraph-wrapper
+            :ref="host+'_os_cpus_times'"
+            :id="host+'_os_cpus_times'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus_times']"
+            :stat="stats_tabular[host+'_os_cpus_times']"
+          >
+          </dygraph-wrapper> -->
+          <chart
+            :type="'dygraph'"
+            :ref="host+'_os_loadavg'"
+            :id="host+'_os_loadavg'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_loadavg']"
+            :stat="stats[host+'_os_loadavg']"
+          >
+          </chart>
+          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+
+        </admin-lte-box-solid>
+
+        <admin-lte-box-solid
           title="CPU Times"
           :id="host+'.os.cpus_times-collapsible'"
           v-on:show="el => showCollapsible(el)"
@@ -79,9 +133,33 @@
 
         </admin-lte-box-solid>
 
+
+        <template v-for="(blockdevice, index) in blockdevices">
+          <admin-lte-box-solid
+            :key="'blockdevice_stats_'+index"
+            :title="'Blockdevice stats['+index+']'"
+            :id="host+'.os.blockdevices_stats_'+index+'-collapsible'"
+            v-on:show="el => showCollapsible(el)"
+            v-on:hide="el => hideCollapsible(el)"
+          >
+
+            <chart
+              :type="'dygraph'"
+              :ref="host+'_os_blockdevices_stats_'+index"
+              :id="host+'_os_blockdevices_stats_'+index"
+              :EventBus="EventBus"
+              :chart="charts[host+'_os_blockdevices_stats_'+index]"
+              :stat="stats[host+'_os_blockdevices_stats_'+index]"
+            >
+            </chart>
+            <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+
+          </admin-lte-box-solid>
+        </template>
+
         <template v-for="(mount, index) in mounts">
           <admin-lte-box-solid
-            :key="'mount_'+index"
+            :key="'mounts_percentage_'+index"
             :title="'Mounts Percetange usage '+index"
             :id="host+'.os.mounts_percentage_'+index+'-collapsible'"
             v-on:show="el => showCollapsible(el)"
@@ -143,10 +221,14 @@ import dashboard from 'components/mixins/dashboard'
 
 // import dygraphWrapper from 'components/charts/wrappers/dygraph'
 
+// import DefaultDygraphLine from 'components/charts/js/default.dygraph.line'
+import uptime_chart from 'components/charts/uptime'
+import uptimechart from 'components/charts/loadavg'
 import cpus_times_chart from 'components/charts/cpus_times'
 import cpus_percentage_chart from 'components/charts/cpus_percentage'
 import freemem_chart from 'components/charts/freemem'
 import mounts_percentage_chart from 'components/charts/mounts_percentage'
+import blockdevices_stats_chart from 'components/charts/blockdevices_stats'
 
 export default {
   mixins: [dashboard],
@@ -233,12 +315,47 @@ export default {
         else{
           return {}
         }
+      },
+      blockdevices: function(){
+        // let host = this.$route.params.host || this.$store.state.hosts.current
+        if(this.$store.state.stats && this.$store.state.stats[this.host]){
+          return this.$store.state.stats[this.host].os_blockdevices
+        }
+        else{
+          return {}
+        }
       }
     }
 
   ),
 
   created: function(){
+    console.log('life cycle created')
+
+
+    EventBus.$on('os', payload => {
+      console.log('recived doc via Event os', payload.type)
+        this.process_os_doc(payload.doc)
+
+        if(payload.type == 'range'){
+          EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
+          // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+          // console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
+        }
+    })
+
+
+
+
+  },
+
+
+
+  mounted: function(){
+    console.log('life cycle mounted')
+
+    this.create_host_pipelines(this.$store.state.app.paths)
+
     let unwatch_mounts = this.$watch('mounts', function(val, old){
 
       // console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
@@ -275,39 +392,42 @@ export default {
       deep:true
     })
 
-    this.create_host_pipelines(this.$store.state.app.paths)
+    let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
 
-    EventBus.$on('os', doc => {
-      // console.log('recived doc via Event os', doc.length, this.seconds)
-        this.process_os_doc(doc)
+      // console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+      if(val !== undefined && Object.getLength(val) > 0){
+
+        Object.each(val, function(mount, key){
+          console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+          this.add_chart (Object.clone({
+            name: this.host+'_os_blockdevices_stats_'+key,
+            chart: Object.clone(blockdevices_stats_chart),
+            init: this.__blockdevices_get_stat.bind(this),
+            watch: {
+              name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
+              deep:true,
+              // cb: this.__watcher_callback.bind(this)
+              cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+            },
+            stat: {
+              host: this.host,
+              path: 'os_blockdevices',
+              key: key,
+              length: this.seconds || 300,
+              range: [Date.now() - this.seconds * 1000, Date.now()]
+            }
+          }))
+
+
+        }.bind(this))
+
+        unwatch_blockdevices()
+      }
+    }.bind(this),{
+      deep:true
     })
 
-
-    // Array.each(this.mounts, function(mount, index){
-
-      // this.add_chart ({
-      //   name: this.host+'_os_mounts_percentage_'+index,
-      //   chart: Object.clone(mounts_percentage_chart),
-      //   watch: {
-      //     name: '$store.state.stats.'+this.host+'.os_mounts.'+index,
-      //     cb: this.__watcher_callback.bind(this)
-      //   },
-      //   stat: {
-      //     host: this.host,
-      //     path: 'os_mounts',
-      //     key: index,
-      //     length: this.seconds,
-      //     range: [Date.now() - this.seconds * 1000, Date.now()]
-      //   }
-      // })
-
-    // }.bind(this))
-
-  },
-
-
-
-  mounted: function(){
     this.add_chart ({
       name: this.host+'_os_cpus_times',
       chart: Object.clone(cpus_times_chart),
@@ -322,6 +442,7 @@ export default {
         key: 'cpus',
         length: this.seconds || 300,
         range: [Date.now() - this.seconds * 1000, Date.now()]
+
       }
     })
 
@@ -362,15 +483,72 @@ export default {
         range: [Date.now() - this.seconds * 1000, Date.now()]
       }
     })
+
+    this.add_chart ({
+      name: this.host+'_os_loadavg',
+      chart: Object.clone(uptimechart),
+      init: this.__uptimeget_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.loadavg',
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'loadavg',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    })
+
+    this.add_chart ({
+      name: this.host+'_os_uptime',
+      chart: Object.clone(uptime_chart),
+      init: this.__uptime_get_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.uptime',
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'uptime',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    })
+
+    // this.add_chart ({
+    //   name: this.host+'_os_blockdevices_stats_sda',
+    //   chart: Object.clone(blockdevices_stats_chart),
+    //   init: this.__blockdevices_get_stat.bind(this),
+    //   watch: {
+    //     name: '$store.state.stats.'+this.host+'.os_blockdevices.sda',
+    //     // cb: this.__watcher_callback.bind(this)
+    //     deep: true,
+    //     cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //   },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os_blockdevices',
+    //     key: 'sda',
+    //     length: this.seconds || 300,
+    //     range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // })
+
   },
   // beforeUpdate: function(){
   //   //////console.log('beforeUpdate')
   // },
-  updated: function(){
-    //console.log('updated')
-  //   this.create_host_pipelines(this.$store.state.app.paths)
-  },
+  // updated: function(){
+  //   console.log('life cycle updated')
+  // //   this.create_host_pipelines(this.$store.state.app.paths)
+  // },
   beforeDestroy: function(){
+    console.log('life cycle beforeDestroy')
     //console.log('beforeDestroy')
 
     // this.$store.dispatch('stats/splice', {
@@ -380,136 +558,271 @@ export default {
     // })
 
     this.destroy_host_pipelines()
-    Object.each(this.$options.__unwatchers__, function(unwatcher){
-      unwatcher()
-    })
+
+
+    this.remove_charts()
   },
   methods: {
     __cpu_get_stat: function(payload){
       let {stat} = payload
-      let range = stat.range
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
+      // console.log('RANGE LENGT', range_length)
 
       this.__get_stat(stat, function(docs){
         console.log('got cpus stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
-        if(docs.length == 0){
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-          // this.__watcher()
-        }
-        else{
+
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
           this.__update_stat(this.host+'_os_cpus_times', docs)
           this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          pipeline.fireEvent('onResume')
+        }
+        else{
 
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
 
-          range[0] = docs[docs.length -1].metadata.timestamp
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs){
+              console.log('got cpus stat2', docs)
+
+                this.__update_stat(this.host+'_os_cpus_times', docs)
+                this.__update_stat(this.host+'_os_cpus_percentage', docs)
+                pipeline.fireEvent('onResume')
+                // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+            }.bind(this))
+          )
         }
 
-        setTimeout(function(){
-          this.__get_stat(stat, function(docs){
-            console.log('got cpus stat2', docs)
+        // setTimeout(function(){
 
-              this.__update_stat(this.host+'_os_cpus_times', docs)
-              this.__update_stat(this.host+'_os_cpus_percentage', docs)
-
-          }.bind(this))
-
-          this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
-
-        }.bind(this), 500)
+        // }.bind(this), 500)
 
       }.bind(this))
     },
 
     __freemem_get_stat: function(payload){
-      let {stat} = payload
-      let range = stat.range
+      let {name, stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
+      /**
+      * don't fireEvent as it's been fired already by CPUS_*
+      **/
 
       this.__get_stat(stat, function(docs){
         console.log('got freemem stat', docs)
 
-        /**
-        * don't fireEvent as it's been fired already by CPUS_*
-        **/
-        if(docs.length > 0){
-          this.__update_stat(this.host+'_os_freemem', docs)
+        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(name, docs)
+          // pipeline.fireEvent('onResume')
+        }
+        else{
+
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs){
+              console.log('got freemem stat2', docs)
+
+              this.__update_stat(name, docs)
+              // pipeline.fireEvent('onResume')
+            }.bind(this))
+          )
         }
 
-        setTimeout(function(){
-          this.__get_stat(stat, function(docs){
-            console.log('got freemem stat2', docs)
+        // setTimeout(function(){
 
-            this.__update_stat(this.host+'_os_freemem', docs)
+        // }.bind(this), 500)
 
-          }.bind(this))
+      }.bind(this))
+    },
 
-          // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+    __uptimeget_stat: function(payload){
+      let {name, stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
 
-        }.bind(this), 500)
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
 
+      /**
+      * don't fireEvent as it's been fired already by CPUS_*
+      **/
 
-        // Array.each(docs, function(doc, index){
-        //
-        //   this.__update_stat(this.host+'_os_freemem', doc)
-        //
-        // }.bind(this))
+      this.__get_stat(stat, function(docs){
+        console.log('got loadavg stat', docs)
+
+        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(name, docs)
+          // pipeline.fireEvent('onResume')
+        }
+        else{
+
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs){
+              console.log('got loadavg stat2', docs)
+
+              this.__update_stat(name, docs)
+              // pipeline.fireEvent('onResume')
+            }.bind(this))
+          )
+        }
+
+        // setTimeout(function(){
+
+        // }.bind(this), 500)
+
+      }.bind(this))
+    },
+
+    __uptime_get_stat: function(payload){
+      let {name, stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
+      /**
+      * don't fireEvent as it's been fired already by CPUS_*
+      **/
+
+      this.__get_stat(stat, function(docs){
+        console.log('got loadavg stat', docs)
+
+        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(name, docs)
+          // pipeline.fireEvent('onResume')
+        }
+        else{
+
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs){
+              console.log('got loadavg stat2', docs)
+
+              this.__update_stat(name, docs)
+              // pipeline.fireEvent('onResume')
+            }.bind(this))
+          )
+        }
+
+        // setTimeout(function(){
+
+        // }.bind(this), 500)
+
+      }.bind(this))
+    },
+
+    __blockdevices_get_stat: function(payload){
+      let {name, stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
+      /**
+      * don't fireEvent as it's been fired already by CPUS_*
+      **/
+
+      this.__get_stat(stat, function(docs){
+        console.log('got blockdevice sda stat', docs, range_length)
+
+        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os.blockdevices']
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(name, docs)
+          pipeline.fireEvent('onResume')
+        }
+        else{
+
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('os.blockdevicesRange', () =>
+            this.__get_stat(stat, function(docs){
+              console.log('got blockdevice stat2', docs)
+
+              this.__update_stat(name, docs)
+              // pipeline.fireEvent('onResume')
+            }.bind(this))
+          )
+        }
+
+        // setTimeout(function(){
+
+        // }.bind(this), 500)
 
       }.bind(this))
     },
 
     __mounts_get_stat: function(payload){
       let {name, stat} = payload
-      let range = stat.range
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
 
-      // this.__get_stat(stat, function(docs){
-      //   console.log('got mounts '+key+' stat', docs)
-      //
-      //   let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
-      //   pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
-      //   if(docs.length == 0 && key == 0){//fireEvent only on one mount
-      //     pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-      //     // this.__watcher()
-      //   }
-      //   else{
-      //     this.__update_stat(this.host+'_os_mounts_percentage_'+key, docs)
-      //     range[0] = docs[docs.length -1].metadata.timestamp
-      //     pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-      //
-      //   }
-      //
-      //
-      // }.bind(this))
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
       this.__get_stat(stat, function(docs){
         console.log('got mounts stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
-        if(docs.length == 0){
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-          // this.__watcher()
+
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(name, docs)
+          pipeline.fireEvent('onResume')
         }
         else{
-          this.__update_stat(name, docs)
-          // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
 
-
-          range[0] = docs[docs.length -1].metadata.timestamp
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('os.mountsRange', () =>
+            this.__get_stat(stat, function(docs){
+              console.log('got mounts stat2', docs)
+
+              this.__update_stat(name, docs)
+              pipeline.fireEvent('onResume')
+            }.bind(this))
+          )
         }
 
-        setTimeout(function(){
-          this.__get_stat(stat, function(docs){
-            console.log('got mounts stat2', docs)
-
-            this.__update_stat(name, docs)
-
-          }.bind(this))
-
+        // setTimeout(function(){
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
-        }.bind(this), 100)
+        // }.bind(this), 500)
 
       }.bind(this))
     },

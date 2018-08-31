@@ -1,5 +1,6 @@
 <template>
   <component
+    v-observe-visibility="visibilityChanged"
     :is="type+'-wrapper'"
     :id="id"
     :ref="id"
@@ -59,6 +60,7 @@ export default {
   data () {
     return {
       tabular: {lastupdate: 0, 'data': [[]] },
+      visible: true
     }
   },
 
@@ -75,6 +77,37 @@ export default {
     this.$set(this.tabular, 'data', [[]])
   },
   methods: {
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      // let {path, list} = this.name_to_module(entry.target.id.replace('-card',''))
+
+      console.log('visibilityChanged', isVisible, entry.target.id)
+      this.visible = isVisible
+
+      // if(isVisible == true){
+      //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
+      // }
+      // else{
+      //   this.$store.commit('hosts/erase_whitelist_module', {path: path, list: list} )
+      // }
+
+      // // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
+      //
+      // // this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
+      //
+      // // frameDebounce(function() {//performance reasons
+      // //   // //////////console.log('visibilityChanged frameDebounce')
+      // //   Object.each(this.$options.visibles, function(bool, visible){
+      // //     this.$set(this.visibles, visible, bool)
+      // //   }.bind(this))
+      // //
+      // // }.bind(this))()
+      //
+      // this.$set(this.visibles, entry.target.id.replace('-card',''), isVisible)
+
+    },
     // update: function(){
     //   this.$refs[this.id].update()
     // },
@@ -172,7 +205,10 @@ export default {
         //   console.log('generic_data_watcher', row)
         // })
 
-        data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+        console.log('generic_data_watcher visibility', this.id, this.visible)
+        if(this.visible){
+          data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+        }
       }
 
       // console.log('gonna watch...', name, this.stat.data)
@@ -184,18 +220,21 @@ export default {
     // generic_data_watcher: data_to_tabular,
 
     update_chart_stat (name, data){
-      ////console.log('update_chart_stat',name)
 
-      let length = this.stat.data.length
-      data.splice(
-        -length -1,
-        data.length - length
-      )
+      console.log('update_chart_stat visibility', this.id, this.visible)
+      if(this.visible){
 
-      // data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+        let length = this.stat.data.length
+        data.splice(
+          -length -1,
+          data.length - length
+        )
 
-      this.$set(this.tabular, 'data', data)
-      this.tabular.lastupdate = Date.now()
+        // data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+
+        this.$set(this.tabular, 'data', data)
+        this.tabular.lastupdate = Date.now()
+      }
       ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
     },
     __watcher (){

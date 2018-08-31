@@ -22,6 +22,8 @@
 
 <script>
 
+import { frameDebounce } from 'quasar'
+
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
 
@@ -65,6 +67,7 @@ export default {
   },
   data () {
     return {
+      focus: true,
       container_class_helper: '',
       // graph: null,
       highlighted: false,
@@ -81,6 +84,7 @@ export default {
 
   created () {
     //console.log('created', this.id, this.stat.data)
+    // this.$set(stat, 'data', [[]])
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
       EventBus.$on('highlightCallback', params => {
@@ -92,6 +96,14 @@ export default {
         // //////console.log('event unhighlightCallback', event)
   		})
     }
+
+    window.addEventListener('blur', function() {
+       this.focus = false
+    }.bind(this), false)
+
+    window.addEventListener('focus', function() {
+       this.focus = true
+    }.bind(this), false)
 
     this.__watcher()
     // keypath
@@ -123,7 +135,7 @@ export default {
     //   this.__create_dygraph()
     //
     // }
-    this.__watcher()
+    // this.__watcher()
 
   },
   updated () {
@@ -133,7 +145,7 @@ export default {
     //   this.__create_dygraph()
     //
     // }
-    this.__watcher()
+    // this.__watcher()
 
   },
   destroyed (){
@@ -200,10 +212,27 @@ export default {
         this.chart.init(this, this.$options.graph, 'dygraph')
     },
     update (){
-      this.updateOptions(
-        { 'dateWindow': this.$options.graph.xAxisExtremes() },
-        false
-      )
+      // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
+      if(this.focus === true){
+        console.log('focus, frameDebounce...')
+        frameDebounce(
+          this.updateOptions(
+            { 'dateWindow': this.$options.graph.xAxisExtremes() },
+            false
+          )
+        )
+      }
+      else{
+        console.log('no focus, forcing...')
+        this.updateOptions(
+          { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          true
+        )
+        // setTimeout(this.updateOptions(
+        //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
+        //   false
+        // ), 50)
+      }
     },
     updateOptions (options, block_redraw){
 

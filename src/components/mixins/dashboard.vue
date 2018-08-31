@@ -2,7 +2,10 @@
 
 import chart from 'components/chart'
 
+import admin_lte_mixin from 'components/mixins/admin-lte'
+
 export default {
+  mixins: [admin_lte_mixin],
 
   components: {
     chart
@@ -17,12 +20,15 @@ export default {
       charts: {},
     }
   },
-
+  // updated: function(){
+  //   this.admin_lte_ui()
+  //
+  // },
   methods: {
     /**
     * @start -charting
     **/
-    add_chart (payload){
+    add_chart: function (payload){
       // console.log('add_chart')
       let {name, chart, init, finish} = payload
       this.$set(this.charts, name, chart)
@@ -37,6 +43,29 @@ export default {
       //   finish(payload)
 
     },
+    remove_chart: function (name){
+      this.$set(this.charts, name, undefined)
+      delete this.charts[name]
+
+      this.$set(this.stats, name, undefined)
+      delete this.stats[name]
+
+      this.__remove_watcher(name)
+    },
+    remove_charts: function(){
+      Object.each(this.charts, function(name){
+        this.remove_chart(name)
+      }.bind(this))
+    },
+    __remove_watcher: function(name){
+      this.this.$options.__unwatchers__[name]()
+      delete this.this.$options.__unwatchers__[name]
+    },
+    // __remove_watchers: function(){
+    //   Object.each(this.$options.__unwatchers__, function(unwatcher, name){
+    //     this.__remove_watcher(name)
+    //   }.bind(this))
+    // },
     __watcher: function(payload){
       let {name, watch} = payload
       // console.log('__watcher create', watch)
@@ -97,6 +126,10 @@ export default {
     /**
     * @end - charting
     **/
+
+    /**
+    * UI
+    **/
     showCollapsible (collapsible){
       console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
@@ -113,6 +146,7 @@ export default {
       // // this.$set(this.stats[name], 'data', [])
 
     },
+    
 
   }
 }

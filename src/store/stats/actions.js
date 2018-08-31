@@ -42,7 +42,7 @@ const db = new PouchDB('live')
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 1200 //os = 4 docs...1200 = 300 secs of docs
+const QUEUE_SIZE = 300 //os = 4 docs...1200 = 300 secs of docs
 
 let deque = new Deque(QUEUE_SIZE)
 let compacted = false

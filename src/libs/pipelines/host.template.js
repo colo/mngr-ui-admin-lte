@@ -149,14 +149,14 @@ export default {
 					}
 
 					if(index == docs.length -1 )
-						pipeline.output(docs)
+						pipeline.output({type: type, doc: docs})
 			})
 
 		},
 
 	],
 	output: [
-		function(doc){
+		function(payload){
 			// //console.log('output sizeof', sizeof(doc, doc))
 
       // doc = JSON.decode(doc)
@@ -166,7 +166,7 @@ export default {
 
       // let type = doc.type
       // EventBus.$emit(type, doc)
-			EventBus.$emit('os', doc)
+			EventBus.$emit('os', payload)
 		}
 	]
 }

@@ -41,8 +41,9 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
         if(
           chart.prev.timestamp == 0
-          || chart.prev.timestamp < val.timestamp - 1999
-          || chart.prev.timestamp > val.timestamp + 1999
+          || chart.prev.timestamp > val.timestamp
+          // || chart.prev.timestamp < val.timestamp - 1999
+          // || chart.prev.timestamp > val.timestamp + 1999
         ){
           // let transform = {timestamp: val.timestamp, value: { times: {} } }
 
