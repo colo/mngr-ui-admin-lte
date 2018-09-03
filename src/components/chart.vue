@@ -35,7 +35,8 @@ export default {
   // __chart: undefined,
   __unwatcher: undefined,
   __chart_init: false,
-
+  visible: true,
+  
   props: {
     EventBus: {
       type: [Object],
@@ -62,13 +63,12 @@ export default {
   data () {
     return {
       tabular: {lastupdate: 0, 'data': [[]] },
-      visible: true
     }
   },
 
-  created () {
-    // this.create()
-  },
+  // created () {
+  //   this.create()
+  // },
   mounted () {
     this.create()
   },
@@ -87,7 +87,8 @@ export default {
 
           if(this.$options.__chart_init == false){
             // console.log('chart vue __watcher', val)
-            this.__process_stat(this.chart, this.id, val)
+            // this.__process_stat(this.chart, this.id, val)
+            this.__process_stat(this.chart, this.id, this.stat.data)
             this.$options.__chart_init = true
 
             // this.$refs[this.id].create()
@@ -110,45 +111,14 @@ export default {
       this.$set(this.tabular, 'data', [[]])
 
       // this.$refs[this.id].destroy()
-
+      this.$options.__chart_init == false
 
     },
     /**
     * UI related
     **/
     visibilityChanged (isVisible, entry) {
-      // let {path, list} = this.name_to_module(entry.target.id.replace('-card',''))
-
-      // console.log('visibilityChanged', isVisible, entry.target.id)
-      this.visible = isVisible
-      // if(this.visible == true){
-      //   this.create()
-      // }
-      // else{
-      //   this.destroy()
-      // }
-
-      // if(isVisible == true){
-      //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
-      // }
-      // else{
-      //   this.$store.commit('hosts/erase_whitelist_module', {path: path, list: list} )
-      // }
-
-      // // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
-      //
-      // // this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
-      //
-      // // frameDebounce(function() {//performance reasons
-      // //   // //////////console.log('visibilityChanged frameDebounce')
-      // //   Object.each(this.$options.visibles, function(bool, visible){
-      // //     this.$set(this.visibles, visible, bool)
-      // //   }.bind(this))
-      // //
-      // // }.bind(this))()
-      //
-      // this.$set(this.visibles, entry.target.id.replace('-card',''), isVisible)
-
+      this.$options.visible = isVisible
     },
     // update: function(){
     //   this.$refs[this.id].update()
@@ -248,7 +218,7 @@ export default {
         // })
 
         // console.log('generic_data_watcher val', chart)
-        if(this.visible){
+        if(this.$options.visible){
           if(chart.watch && chart.watch.cumulative == true){//send all values
             console.log('generic_data_watcher send all', name)
             data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
@@ -271,8 +241,8 @@ export default {
 
     update_chart_stat (name, data){
 
-      // console.log('update_chart_stat visibility', this.id, this.visible)
-      if(this.visible){
+      // console.log('update_chart_stat visibility', this.id, this.$options.visible)
+      if(this.$options.visible){
         if(data.length == 1){
           this.tabular.data.push(data[0])
           this.tabular.data.shift()

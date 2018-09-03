@@ -1,5 +1,6 @@
 <template>
   <div
+    v-observe-visibility="visibilityChanged"
     :id="id+'-container'"
     class="netdata-container-with-legend"
     v-bind:class="container_class_helper"
@@ -36,6 +37,7 @@ export default {
   freezed: false,
 
   __unwatcher: undefined,
+  visible: true,
 
   props: {
     EventBus: {
@@ -154,6 +156,12 @@ export default {
     this.$off()
   },
   methods: {
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      this.$options.visible = isVisible
+    },
     destroy: function(){
       console.log('dygraph destroy', this.id)
 
@@ -223,26 +231,28 @@ export default {
         this.chart.init(this, this.$options.graph, 'dygraph')
     },
     update (){
-      // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
-      if(this.focus === true){
-        console.log('focus, frameDebounce...')
-        frameDebounce(
+      if(this.$options.visible == true){
+        // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
+        if(this.focus === true){
+          console.log('focus, frameDebounce...')
+          frameDebounce(
+            this.updateOptions(
+              { 'dateWindow': this.$options.graph.xAxisExtremes() },
+              false
+            )
+          )
+        }
+        else{
+          console.log('no focus, forcing...')
           this.updateOptions(
             { 'dateWindow': this.$options.graph.xAxisExtremes() },
             false
           )
-        )
-      }
-      else{
-        console.log('no focus, forcing...')
-        this.updateOptions(
-          { 'dateWindow': this.$options.graph.xAxisExtremes() },
-          false
-        )
-        // setTimeout(this.updateOptions(
-        //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
-        //   false
-        // ), 50)
+          // setTimeout(this.updateOptions(
+          //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          //   false
+          // ), 50)
+        }
       }
     },
     updateOptions (options, block_redraw){

@@ -31,8 +31,9 @@ export default {
     * @start -charting
     **/
     add_chart: function (payload){
-
       let {name, chart, init, finish} = payload
+
+      this.$options.charts[name] = payload
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
 
@@ -51,10 +52,10 @@ export default {
     },
     remove_chart: function (name){
       this.$set(this.charts, name, undefined)
-      delete this.charts[name]
+      // delete this.charts[name]
 
       this.$set(this.stats, name, undefined)
-      delete this.stats[name]
+      // delete this.stats[name]
 
       this.__remove_watcher(name)
 
@@ -84,7 +85,7 @@ export default {
       this.__remove_watcher(name)
 
       this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
-        // //console.log('__watcher', this.stats[name].lastupdate)
+        console.log('__watcher', name)
         if(watch.cb)
           watch.cb(doc, old, payload)
 
@@ -110,24 +111,30 @@ export default {
             data.push({ timestamp: d.metadata.timestamp, value: d.data })
 
             if(index == doc.length -1){
-              // let old_data = JSON.parse(JSON.stringify(this.stats[name].data))
+
               let old_data = Array.clone(this.stats[name].data)
               data = old_data.combine(data)
               data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
               this.$set(this.stats[name], 'data', data)
             }
           }.bind(this))
+
+          let length = this.stats[name].data.length
+          this.stats[name].data.splice(
+            (this.seconds * -1) -1,
+            length - this.seconds
+          )
         }
         else if(doc && !Array.isArray(doc)){
           let data = { timestamp: doc.metadata.timestamp, value: doc.data }
           this.stats[name].data.push(data)
+
+          let length = this.stats[name].data.length
+          if(length > this.seconds)
+            this.stats[name].data.shift()
         }
 
-        let length = this.stats[name].data.length
-        this.stats[name].data.splice(
-          (this.seconds * -1) -1,
-          length - this.seconds
-        )
+
 
         this.stats[name].lastupdate = Date.now()
       }

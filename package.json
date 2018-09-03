@@ -12,6 +12,7 @@
   "dependencies": {
     "admin-lte": "^2.4.8",
     "amcharts3": "^3.21.13",
+    "async": "^2.6.1",
     "axios": "^0.18.0",
     "bootstrap": "^3.3.7",
     "bootswatch": "^3.3.7",
