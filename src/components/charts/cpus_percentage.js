@@ -28,7 +28,8 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
   **/
   prev: {timestamp: 0, value: { times: {} } },
   watch: {
-    merge: true,
+    cumulative: true,
+    // merge: true,
     value: 'times',
     /**
     * @trasnform: diff between each value against its prev one

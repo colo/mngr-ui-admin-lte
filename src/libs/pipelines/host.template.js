@@ -157,6 +157,7 @@ export default {
 	],
 	output: [
 		function(payload){
+			// console.log('OUTPUT', new Date())
 			// //console.log('output sizeof', sizeof(doc, doc))
 
       // doc = JSON.decode(doc)

@@ -1,4 +1,5 @@
 <template>
+
   <component
     v-observe-visibility="visibilityChanged"
     :is="type+'-wrapper'"
@@ -9,6 +10,7 @@
     :stat="tabular"
   />
   </component>
+
 </template>
 
 <script>
@@ -65,26 +67,66 @@ export default {
   },
 
   created () {
-    this.__watcher()
+    // this.create()
   },
   mounted () {
-    this.__watcher()
+    this.create()
   },
   destroyed (){
-    if(this.$options.__unwatcher)
-      this.$options.__unwatcher()
-
-    this.$set(this.tabular, 'data', [[]])
+    this.destroy()
+    this.$off()
   },
   methods: {
+    create (){
+      console.log('create chart vue')
+
+      let unwatch = this.$watch('stat.data', function (val, old) {
+
+
+        if(val && val.length > 1){
+
+          if(this.$options.__chart_init == false){
+            // console.log('chart vue __watcher', val)
+            this.__process_stat(this.chart, this.id, val)
+            this.$options.__chart_init = true
+
+            // this.$refs[this.id].create()
+          }
+
+
+
+          unwatch()
+        }
+
+      })
+    },
+
+    destroy: function(){
+      console.log('destroy  chart vue', this.id)
+
+      if(this.$options.__unwatcher)
+        this.$options.__unwatcher()
+
+      this.$set(this.tabular, 'data', [[]])
+
+      // this.$refs[this.id].destroy()
+
+
+    },
     /**
     * UI related
     **/
     visibilityChanged (isVisible, entry) {
       // let {path, list} = this.name_to_module(entry.target.id.replace('-card',''))
 
-      console.log('visibilityChanged', isVisible, entry.target.id)
+      // console.log('visibilityChanged', isVisible, entry.target.id)
       this.visible = isVisible
+      // if(this.visible == true){
+      //   this.create()
+      // }
+      // else{
+      //   this.destroy()
+      // }
 
       // if(isVisible == true){
       //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
@@ -205,9 +247,17 @@ export default {
         //   console.log('generic_data_watcher', row)
         // })
 
-        console.log('generic_data_watcher visibility', this.id, this.visible)
+        // console.log('generic_data_watcher val', chart)
         if(this.visible){
-          data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+          if(chart.watch && chart.watch.cumulative == true){//send all values
+            console.log('generic_data_watcher send all', name)
+            data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+          }
+          else{//send last only
+            console.log('generic_data_watcher send last', name)
+            data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
+          }
+
         }
       }
 
@@ -221,40 +271,31 @@ export default {
 
     update_chart_stat (name, data){
 
-      console.log('update_chart_stat visibility', this.id, this.visible)
+      // console.log('update_chart_stat visibility', this.id, this.visible)
       if(this.visible){
+        if(data.length == 1){
+          this.tabular.data.push(data[0])
+          this.tabular.data.shift()
+        }
+        else{
+          let length = this.stat.data.length
+          if(data.length > length)
+            data.splice(
+              -length -1,
+              data.length - length
+            )
 
-        let length = this.stat.data.length
-        data.splice(
-          -length -1,
-          data.length - length
-        )
+          // data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
-        // data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          this.$set(this.tabular, 'data', data)
 
-        this.$set(this.tabular, 'data', data)
+        }
+
         this.tabular.lastupdate = Date.now()
       }
       ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
     },
-    __watcher (){
-      let unwatch = this.$watch('stat.data', function (val, old) {
-        // console.log('chart vue', val)
 
-        if(val.length > 1){
-
-          if(this.$options.__chart_init == false){
-            // console.log('chart vue __watcher', val)
-            this.__process_stat(this.chart, this.id, val)
-            this.$options.__chart_init = true
-
-          }
-
-          unwatch()
-        }
-
-      })
-    },
 
   }
 }

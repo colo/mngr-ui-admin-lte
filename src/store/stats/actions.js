@@ -6,7 +6,7 @@ import PouchDB from 'pouchdb-browser'
 // // import * as $PouchDB from 'pouchdb'
 // // const PouchDB = $PouchDB['default']
 // PouchDB.plugin(memory)
-const db = new PouchDB('live')
+let db = new PouchDB('live')
 //
 // import ddocs from '@libs/_views/sort'
 //
@@ -42,7 +42,7 @@ const db = new PouchDB('live')
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 300 //os = 4 docs...1200 = 300 secs of docs
+const QUEUE_SIZE = 1200 //os = 4 docs...1200 = 300 secs of docs
 
 let deque = new Deque(QUEUE_SIZE)
 let compacted = false
@@ -255,69 +255,91 @@ export const flush = ({ commit, state }, length) => {
 
 }
 
-export const splice = ({ commit, state }, payload) => {
-  //console.log('action splice', payload)
-  // let spliced = state[payload.host][payload.path][payload.key]
-  let _id = payload.host+'/'+payload.path+'/'+payload.key
+export const splice = ({ commit, state }, length) => {
+  let options = {
+    // startkey: payload.host+'/'+payload.path+'/'+payload.key+'\ufff0',
+    // endkey: payload.host+'/'+payload.path+'/'+payload.key,
+    limit: length,
+    inclusive_end: true,
+    descending: true,
+    include_docs: true
+  }
 
-  //////console.log('splice', state[payload.host][payload.path][payload.key].length)
+  // if(payload.length){
+  //   options.limit = length
+  // }
+  //
+  // if(payload.range){
+  //   // let range = payload.range
+  //   options.startkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
+  //   options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
+  // }
 
-  db.allDocs({
-    // startkey: spliced.split('@')[0],
-    // endkey: spliced.split('@')[0]+'\ufff0'
-    startkey: _id,
-    endkey: _id+'\ufff0'
-  }).then(function (result) {
-    //////console.log('allDocs result', result);
-    // // handle result
+  ////console.log('OPTIONS', options)
 
-    let deleted = []
+  db.allDocs(options).then(function (res) {
 
-    Array.each(result.rows, function(row){
-      // //////console.log('result', row);
-      let doc = {}
-      if(!_id.contains(row.id)){
-        doc['_deleted'] = true
-        doc['_id'] = row.id
-        doc['_rev'] = row.value.rev
-        deleted.push(doc)
-      }
+    console.log('splice fetching res', res)
 
-    })
 
-    //////console.log('to delete', deleted)
-    if(deleted.length > 0){
-      db.bulkDocs(deleted).then(function (result) {
-        //console.log('action bulkDocs delete result', result);
+    res.rows.reverse()
 
-        if(compacted === false){
-          compacted = true
-          db.compact().then(function (result) {
-            //console.log('action compact result ',result);
-            compacted = false
-          }).catch(function (err) {
-            //console.log('action  compact err ',err);
-          });
-        }
+
+    db.destroy().then(function (status) {
+      console.log('splice destroy res', status)
+      db = new PouchDB('live')
+
+      console.log('splice DOCS', res.rows)
+
+      db.bulkDocs(res.rows)
+      .then(function (status) {
+        console.log('splice bulkDocs status', status)
 
       }).catch(function (err) {
-        //console.log('action  bulkDocs delete err', err);
-      });
-    }
-  }).catch(function (err) {
-    //console.log('action allDocs', err);
-  });
+        console.log('splice bulkDocs err', err)
 
-//   commit('splice', payload)
-//   let spliced = state[payload.host][payload.path][payload.key]
+      })
+
+    }).catch(function (err) {
+      console.log('splice destroy err', err)
+    })
+    // while (length > 0 && res.rows.length > 0){
+    //   //////console.log('fetching while...', length)
+    //   docs[length] = res.rows.pop().doc
+    //   length--
+    // }
+    //
+    //
+    //
+    // docs.sort(function(a,b) {
+    //   return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+    // })
+    // // console.log('fetching from db', docs)
+    // resolve(Array.clean(docs))
+  }).catch(function (err) {
+    console.log('splice fetching from db err', err)
+    // docs.sort(function(a,b) {
+    //   return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+    // })
+    // resolve(Array.clean(docs))
+  })
+
+}
+
+// export const splice = ({ commit, state }, payload) => {
+//   //console.log('action splice', payload)
+//   // let spliced = state[payload.host][payload.path][payload.key]
+//   let _id = payload.host+'/'+payload.path+'/'+payload.key
 //
 //   //////console.log('splice', state[payload.host][payload.path][payload.key].length)
 //
-//   disk.allDocs({
-//     startkey: spliced[0].split('@')[0],
-//     endkey: spliced[0].split('@')[0]+'\ufff0'
+//   db.allDocs({
+//     // startkey: spliced.split('@')[0],
+//     // endkey: spliced.split('@')[0]+'\ufff0'
+//     startkey: _id,
+//     endkey: _id+'\ufff0'
 //   }).then(function (result) {
-//     // //////console.log('result', result);
+//     //////console.log('allDocs result', result);
 //     // // handle result
 //
 //     let deleted = []
@@ -325,7 +347,7 @@ export const splice = ({ commit, state }, payload) => {
 //     Array.each(result.rows, function(row){
 //       // //////console.log('result', row);
 //       let doc = {}
-//       if(!spliced.contains(row.id)){
+//       if(!_id.contains(row.id)){
 //         doc['_deleted'] = true
 //         doc['_id'] = row.id
 //         doc['_rev'] = row.value.rev
@@ -334,22 +356,27 @@ export const splice = ({ commit, state }, payload) => {
 //
 //     })
 //
-//     // //////console.log('to delete', deleted)
+//     //////console.log('to delete', deleted)
 //     if(deleted.length > 0){
-//       disk.bulkDocs(deleted).then(function (result) {
-//         //////console.log('bulkDocs result', result);
+//       db.bulkDocs(deleted).then(function (result) {
+//         //console.log('action bulkDocs delete result', result);
 //
-//         disk.compact().then(function (result) {
-//           //////console.log('compact result ',result);
-//         }).catch(function (err) {
-//           //////console.log('compact err ',err);
-//         });
+//         if(compacted === false){
+//           compacted = true
+//           db.compact().then(function (result) {
+//             //console.log('action compact result ',result);
+//             compacted = false
+//           }).catch(function (err) {
+//             //console.log('action  compact err ',err);
+//           });
+//         }
 //
 //       }).catch(function (err) {
-//         //////console.log('bulkDocs delete', err);
+//         //console.log('action  bulkDocs delete err', err);
 //       });
 //     }
 //   }).catch(function (err) {
-//     //////console.log('allDocs', err);
+//     //console.log('action allDocs', err);
 //   });
-}
+//
+// }

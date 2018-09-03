@@ -13,74 +13,15 @@
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
-          title="Uptime"
-          :id="host+'.os.uptime-collapsible'"
-          v-on:show="el => showCollapsible(el)"
-          v-on:hide="el => hideCollapsible(el)"
-        >
-          <!-- <dygraph-wrapper
-            :ref="host+'_os_cpus_times'"
-            :id="host+'_os_cpus_times'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_cpus_times']"
-            :stat="stats_tabular[host+'_os_cpus_times']"
-          >
-          </dygraph-wrapper> -->
-          <chart
-            :type="'dygraph'"
-            :ref="host+'_os_uptime'"
-            :id="host+'_os_uptime'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_uptime']"
-            :stat="stats[host+'_os_uptime']"
-          >
-          </chart>
-          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
-
-        </admin-lte-box-solid>
-
-        <admin-lte-box-solid
-          title="Load Average"
-          :id="host+'.os.loadavg-collapsible'"
-          v-on:show="el => showCollapsible(el)"
-          v-on:hide="el => hideCollapsible(el)"
-        >
-          <!-- <dygraph-wrapper
-            :ref="host+'_os_cpus_times'"
-            :id="host+'_os_cpus_times'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_cpus_times']"
-            :stat="stats_tabular[host+'_os_cpus_times']"
-          >
-          </dygraph-wrapper> -->
-          <chart
-            :type="'dygraph'"
-            :ref="host+'_os_loadavg'"
-            :id="host+'_os_loadavg'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_loadavg']"
-            :stat="stats[host+'_os_loadavg']"
-          >
-          </chart>
-          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
-
-        </admin-lte-box-solid>
-
-        <admin-lte-box-solid
           title="CPU Times"
-          :id="host+'.os.cpus_times-collapsible'"
+          :id="host+'_os_cpus_times-collapsible'"
+          v-observe-visibility="visibilityChanged"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
-          <!-- <dygraph-wrapper
-            :ref="host+'_os_cpus_times'"
-            :id="host+'_os_cpus_times'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_cpus_times']"
-            :stat="stats_tabular[host+'_os_cpus_times']"
-          >
-          </dygraph-wrapper> -->
+
           <chart
+            v-if="visibility[host+'_os_cpus_times']"
             :type="'dygraph'"
             :ref="host+'_os_cpus_times'"
             :id="host+'_os_cpus_times'"
@@ -89,18 +30,21 @@
             :stat="stats[host+'_os_cpus_times']"
           >
           </chart>
-          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+          <chart-empty-container v-else></chart-empty-container>
+
 
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
           title="CPU Percentage"
-          :id="host+'.os.cpus_percentage-collapsible'"
+          :id="host+'_os_cpus_percentage-collapsible'"
+          v-observe-visibility="visibilityChanged"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
 
           <chart
+            v-if="visibility[host+'_os_cpus_percentage']"
             :type="'dygraph'"
             :ref="host+'_os_cpus_percentage'"
             :id="host+'_os_cpus_percentage'"
@@ -109,18 +53,21 @@
             :stat="stats[host+'_os_cpus_percentage']"
           >
           </chart>
-          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+          <chart-empty-container v-else></chart-empty-container>
+
 
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
-          title="Freemem Percetange"
-          :id="host+'.os.freemem-collapsible'"
+          title="Freemem"
+          :id="host+'_os_freemem-collapsible'"
+          v-observe-visibility="visibilityChanged"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
 
           <chart
+            v-if="visibility[host+'_os_freemem']"
             :type="'dygraph'"
             :ref="host+'_os_freemem'"
             :id="host+'_os_freemem'"
@@ -129,7 +76,52 @@
             :stat="stats[host+'_os_freemem']"
           >
           </chart>
-          <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+          <chart-empty-container v-else></chart-empty-container>
+
+
+        </admin-lte-box-solid>
+
+        <admin-lte-box-solid
+          title="Uptime"
+          :id="host+'_os_uptime-collapsible'"
+          v-observe-visibility="visibilityChanged"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+
+          <chart
+            v-if="visibility[host+'_os_uptime']"
+            :type="'dygraph'"
+            :ref="host+'_os_uptime'"
+            :id="host+'_os_uptime'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_uptime']"
+            :stat="stats[host+'_os_uptime']"
+          >
+          </chart>
+          <chart-empty-container v-else></chart-empty-container>
+
+        </admin-lte-box-solid>
+
+        <admin-lte-box-solid
+          title="Load Average"
+          :id="host+'_os_loadavg-collapsible'"
+          v-observe-visibility="visibilityChanged"
+          v-on:show="el => showCollapsible(el)"
+          v-on:hide="el => hideCollapsible(el)"
+        >
+
+          <chart
+            v-if="visibility[host+'_os_loadavg']"
+            :type="'dygraph'"
+            :ref="host+'_os_loadavg'"
+            :id="host+'_os_loadavg'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_loadavg']"
+            :stat="stats[host+'_os_loadavg']"
+          >
+          </chart>
+          <chart-empty-container v-else></chart-empty-container>
 
         </admin-lte-box-solid>
 
@@ -138,12 +130,14 @@
           <admin-lte-box-solid
             :key="'blockdevice_stats_'+index"
             :title="'Blockdevice stats['+index+']'"
-            :id="host+'.os.blockdevices_stats_'+index+'-collapsible'"
+            :id="host+'_os_blockdevices_stats_'+index+'-collapsible'"
+            v-observe-visibility="visibilityChanged"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
 
             <chart
+              v-if="visibility[host+'_os_blockdevices_stats_'+index]"
               :type="'dygraph'"
               :ref="host+'_os_blockdevices_stats_'+index"
               :id="host+'_os_blockdevices_stats_'+index"
@@ -152,7 +146,8 @@
               :stat="stats[host+'_os_blockdevices_stats_'+index]"
             >
             </chart>
-            <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+            <chart-empty-container v-else></chart-empty-container>
+
 
           </admin-lte-box-solid>
         </template>
@@ -161,12 +156,14 @@
           <admin-lte-box-solid
             :key="'mounts_percentage_'+index"
             :title="'Mounts Percetange usage '+index"
-            :id="host+'.os.mounts_percentage_'+index+'-collapsible'"
+            :id="host+'_os_mounts_percentage_'+index+'-collapsible'"
+            v-observe-visibility="visibilityChanged"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
 
             <chart
+              v-if="visibility[host+'_os_mounts_percentage_'+index]"
               :type="'dygraph'"
               :ref="host+'_os_mounts_percentage_'+index"
               :id="host+'_os_mounts_percentage_'+index"
@@ -175,9 +172,38 @@
               :stat="stats[host+'_os_mounts_percentage_'+index]"
             >
             </chart>
-            <!-- :stat="stats_tabular[host+'_os_cpus_times']" -->
+            <chart-empty-container v-else></chart-empty-container>
+
 
           </admin-lte-box-solid>
+        </template>
+
+        <template v-for="(iface, name) in networkInterfaces">
+          <template v-for="(data, messure) in iface">
+            <admin-lte-box-solid v-if="messure == 'bytes' || messure == 'packets' || messure == 'errs'"
+              :key="'networkInterfaces_stats'+name+'_'+messure"
+              :title="'Network Interface '+name+' : '+messure"
+              :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
+              v-observe-visibility="visibilityChanged"
+              v-on:show="el => showCollapsible(el)"
+              v-on:hide="el => hideCollapsible(el)"
+            >
+
+              <chart
+                v-if="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                :type="'dygraph'"
+                :ref="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                :EventBus="EventBus"
+                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+                :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+              >
+              </chart>
+              <chart-empty-container v-else></chart-empty-container>
+
+
+            </admin-lte-box-solid>
+          </template>
         </template>
 
       </section>
@@ -229,11 +255,14 @@ import cpus_percentage_chart from 'components/charts/cpus_percentage'
 import freemem_chart from 'components/charts/freemem'
 import mounts_percentage_chart from 'components/charts/mounts_percentage'
 import blockdevices_stats_chart from 'components/charts/blockdevices_stats'
+import networkInterfaces_chart from 'components/charts/networkInterfaces'
 
 export default {
   mixins: [dashboard],
 
   name: 'admin-lte-dashboard-host',
+
+  charts: {},
 
   // props: {
   //   host: {
@@ -261,7 +290,7 @@ export default {
 
   data () {
     return {
-
+      visibility: {},
     }
   },
   // pouch: {
@@ -270,7 +299,7 @@ export default {
 
   watch: {
     // '$store.state.app.docs.os': function(oldVal, newVal){
-    //   ////console.log('recived doc via Event os', newVal)
+    //   //////console.log('recived doc via Event os', newVal)
     //   this.process_os_doc(newVal)
     // },
     '$store.state.app.paths': function(oldVal, newVal){ this.create_host_pipelines(newVal) }
@@ -284,7 +313,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // ////////////////console.log('seconds to splice', state.app.range)
+        // //////////////////console.log('seconds to splice', state.app.range)
 
         let end = new Date().getTime()
         if(state.app.range[1] != null)
@@ -324,27 +353,71 @@ export default {
         else{
           return {}
         }
+      },
+      networkInterfaces: function(){
+        // let host = this.$route.params.host || this.$store.state.hosts.current
+        if(this.$store.state.stats && this.$store.state.stats[this.host]){
+          // return this.$store.state.stats[this.host].os_networkInterfaces
+          let networkInterfaces = {}
+          let val = this.$store.state.stats[this.host].os.networkInterfaces.value.data
+          let ifaces = Object.keys(val)
+          let properties = Object.keys(val[ifaces[0]])
+
+          /**
+          * properties[0] is "if", we want recived | transmited only
+          **/
+          let messures = Object.keys(val[ifaces[0]][properties[1]])
+
+          Array.each(ifaces, function(iface){
+            if(!networkInterfaces[iface])
+              networkInterfaces[iface] = {}
+            /**
+            * turn data property->messure (ex: transmited { bytes: .. }),
+            * to: messure->property (ex: bytes {transmited:.., recived: ... })
+            **/
+            Array.each(messures, function(messure){// "bytes" | "packets"
+              if(!networkInterfaces[iface][messure])
+                networkInterfaces[iface][messure] = {}
+
+              Array.each(properties, function(property, index){
+                /**
+                * properties[0] is "if", we want recived | transmited only
+                **/
+                if(index != 0){
+                  networkInterfaces[iface][messure][property] = val[iface][property][messure] * 1
+                }
+
+              })
+
+            })
+
+          })
+
+          //console.log('networkInterfaces', networkInterfaces)
+          return networkInterfaces
+        }
+        else{
+          return {}
+        }
       }
     }
 
   ),
 
   created: function(){
-    console.log('life cycle created')
+    //console.log('life cycle created')
 
 
     EventBus.$on('os', payload => {
-      console.log('recived doc via Event os', payload.type)
+      //console.log('recived doc via Event os', payload.type)
         this.process_os_doc(payload.doc)
 
         if(payload.type == 'range'){
           EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
-          // console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
+          // //console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
         }
     })
-
-
 
 
   },
@@ -352,19 +425,111 @@ export default {
 
 
   mounted: function(){
-    console.log('life cycle mounted')
+    //console.log('life cycle mounted')
 
     this.create_host_pipelines(this.$store.state.app.paths)
 
+    this.$options.charts[this.host+'_os_cpus_times'] = {
+      name: this.host+'_os_cpus_times',
+      chart: Object.clone(cpus_times_chart),
+      init: this.__cpus_time_get_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.cpus',
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'cpus',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+
+      }
+    }
+
+    this.$options.charts[this.host+'_os_cpus_percentage'] = {
+      name: this.host+'_os_cpus_percentage',
+      chart: Object.clone(cpus_percentage_chart),
+      init: this.__cpus_percentage_get_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.cpus',
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'cpus',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    }
+
+    this.$options.charts[this.host+'_os_freemem'] = {
+      name: this.host+'_os_freemem',
+      chart: Object.clone(freemem_chart),
+      init: this.__freemem_get_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.freemem',
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'freemem',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    }
+
+    this.$options.charts[this.host+'_os_loadavg'] = {
+      name: this.host+'_os_loadavg',
+      chart: Object.clone(uptimechart),
+      init: this.__uptimeget_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.loadavg',
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'loadavg',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    }
+
+    this.$options.charts[this.host+'_os_uptime'] = {
+      name: this.host+'_os_uptime',
+      chart: Object.clone(uptime_chart),
+      init: this.__uptime_get_stat.bind(this),
+      watch: {
+        name: '$store.state.stats.'+this.host+'.os.uptime',
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'uptime',
+        length: this.seconds || 300,
+        range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    }
+
     let unwatch_mounts = this.$watch('mounts', function(val, old){
 
-      // console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+      // //console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
 
       if(val !== undefined && Object.getLength(val) > 0){
 
         Object.each(val, function(mount, key){
-          console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
-          this.add_chart (Object.clone({
+          //console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+          let chart_name = this.host+'_os_mounts_percentage_'+key
+
+           this.$options.charts[chart_name] = Object.clone({
             name: this.host+'_os_mounts_percentage_'+key,
             chart: Object.clone(mounts_percentage_chart),
             init: this.__mounts_get_stat.bind(this),
@@ -381,7 +546,7 @@ export default {
               length: this.seconds || 300,
               range: [Date.now() - this.seconds * 1000, Date.now()]
             }
-          }))
+          })
 
 
         }.bind(this))
@@ -394,13 +559,15 @@ export default {
 
     let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
 
-      // console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+      // //console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
 
       if(val !== undefined && Object.getLength(val) > 0){
 
         Object.each(val, function(mount, key){
-          console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
-          this.add_chart (Object.clone({
+          //console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+          let chart_name = this.host+'_os_blockdevices_stats_'+key
+
+           this.$options.charts[chart_name] = Object.clone({
             name: this.host+'_os_blockdevices_stats_'+key,
             chart: Object.clone(blockdevices_stats_chart),
             init: this.__blockdevices_get_stat.bind(this),
@@ -417,7 +584,7 @@ export default {
               length: this.seconds || 300,
               range: [Date.now() - this.seconds * 1000, Date.now()]
             }
-          }))
+          })
 
 
         }.bind(this))
@@ -428,128 +595,278 @@ export default {
       deep:true
     })
 
-    this.add_chart ({
-      name: this.host+'_os_cpus_times',
-      chart: Object.clone(cpus_times_chart),
-      init: this.__cpu_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.cpus',
-        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-      },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'cpus',
-        length: this.seconds || 300,
-        range: [Date.now() - this.seconds * 1000, Date.now()]
 
+    let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
+
+      // //console.log('$watch networkInterfaces ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+      if(val !== undefined && Object.getLength(val) > 0){
+
+        // let iface_index = 0
+        Object.each(val, function(iface, name){
+
+          Object.each(iface, function(data, messure){
+            // if(name == 'lo' && messure == 'bytes'){
+            if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
+              //console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
+              let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
+
+               this.$options.charts[chart_name] = Object.clone({
+                name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
+                chart: Object.clone(networkInterfaces_chart),
+                init: this.__networkInterfaces_get_stat.bind(this),
+                watch: {
+                  name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
+                  deep:true,
+                  // cb: this.__watcher_callback.bind(this)
+                  cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+                },
+                stat: {
+                  host: this.host,
+                  path: 'os',
+                  key: 'networkInterfaces',
+                  length: this.seconds || 300,
+                  range: [Date.now() - this.seconds * 1000, Date.now()]
+                }
+              })
+
+              // iface_index++
+            }
+          }.bind(this))
+        }.bind(this))
+
+        unwatch_networkInterfaces()
       }
+    }.bind(this),{
+      deep:true
     })
 
-    /**
-    * no init, as __cpu_get_stat already manage all os.cpus docs
-    **/
-    this.add_chart ({
-      name: this.host+'_os_cpus_percentage',
-      chart: Object.clone(cpus_percentage_chart),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.cpus',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-      },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'cpus',
-        length: this.seconds || 300,
-        range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    })
+    // let unwatch_mounts = this.$watch('mounts', function(val, old){
+    //
+    //   // //console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+    //
+    //   if(val !== undefined && Object.getLength(val) > 0){
+    //
+    //     Object.each(val, function(mount, key){
+    //       //console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+    //       this.add_chart (Object.clone({
+    //         name: this.host+'_os_mounts_percentage_'+key,
+    //         chart: Object.clone(mounts_percentage_chart),
+    //         init: this.__mounts_get_stat.bind(this),
+    //         watch: {
+    //           name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
+    //           deep:true,
+    //           // cb: this.__watcher_callback.bind(this)
+    //           cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //         },
+    //         stat: {
+    //           host: this.host,
+    //           path: 'os_mounts',
+    //           key: key,
+    //           length: this.seconds || 300,
+    //           range: [Date.now() - this.seconds * 1000, Date.now()]
+    //         }
+    //       }))
+    //
+    //
+    //     }.bind(this))
+    //
+    //     unwatch_mounts()
+    //   }
+    // }.bind(this),{
+    //   deep:true
+    // })
 
-    this.add_chart ({
-      name: this.host+'_os_freemem',
-      chart: Object.clone(freemem_chart),
-      init: this.__freemem_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.freemem',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-      },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'freemem',
-        length: this.seconds || 300,
-        range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    })
+    // let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
+    //
+    //   // //console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+    //
+    //   if(val !== undefined && Object.getLength(val) > 0){
+    //
+    //     Object.each(val, function(mount, key){
+    //       //console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+    //       this.add_chart (Object.clone({
+    //         name: this.host+'_os_blockdevices_stats_'+key,
+    //         chart: Object.clone(blockdevices_stats_chart),
+    //         init: this.__blockdevices_get_stat.bind(this),
+    //         watch: {
+    //           name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
+    //           deep:true,
+    //           // cb: this.__watcher_callback.bind(this)
+    //           cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //         },
+    //         stat: {
+    //           host: this.host,
+    //           path: 'os_blockdevices',
+    //           key: key,
+    //           length: this.seconds || 300,
+    //           range: [Date.now() - this.seconds * 1000, Date.now()]
+    //         }
+    //       }))
+    //
+    //
+    //     }.bind(this))
+    //
+    //     unwatch_blockdevices()
+    //   }
+    // }.bind(this),{
+    //   deep:true
+    // })
 
-    this.add_chart ({
-      name: this.host+'_os_loadavg',
-      chart: Object.clone(uptimechart),
-      init: this.__uptimeget_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.loadavg',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-      },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'loadavg',
-        length: this.seconds || 300,
-        range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    })
-
-    this.add_chart ({
-      name: this.host+'_os_uptime',
-      chart: Object.clone(uptime_chart),
-      init: this.__uptime_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.uptime',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-      },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'uptime',
-        length: this.seconds || 300,
-        range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    })
+    // let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
+    //
+    //   // //console.log('$watch networkInterfaces ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+    //
+    //   if(val !== undefined && Object.getLength(val) > 0){
+    //
+    //     // let iface_index = 0
+    //     Object.each(val, function(iface, name){
+    //
+    //       Object.each(iface, function(data, messure){
+    //         // if(name == 'lo' && messure == 'bytes'){
+    //         if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
+    //           //console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
+    //
+    //           this.add_chart (Object.clone({
+    //             name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
+    //             chart: Object.clone(networkInterfaces_chart),
+    //             init: this.__networkInterfaces_get_stat.bind(this),
+    //             watch: {
+    //               name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
+    //               deep:true,
+    //               // cb: this.__watcher_callback.bind(this)
+    //               cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //             },
+    //             stat: {
+    //               host: this.host,
+    //               path: 'os',
+    //               key: 'networkInterfaces',
+    //               length: this.seconds || 300,
+    //               range: [Date.now() - this.seconds * 1000, Date.now()]
+    //             }
+    //           }))
+    //
+    //           // iface_index++
+    //         }
+    //       }.bind(this))
+    //     }.bind(this))
+    //
+    //     unwatch_networkInterfaces()
+    //   }
+    // }.bind(this),{
+    //   deep:true
+    // })
 
     // this.add_chart ({
-    //   name: this.host+'_os_blockdevices_stats_sda',
-    //   chart: Object.clone(blockdevices_stats_chart),
-    //   init: this.__blockdevices_get_stat.bind(this),
+    //   name: this.host+'_os_cpus_times',
+    //   chart: Object.clone(cpus_times_chart),
+    //   init: this.__cpus_time_get_stat.bind(this),
     //   watch: {
-    //     name: '$store.state.stats.'+this.host+'.os_blockdevices.sda',
-    //     // cb: this.__watcher_callback.bind(this)
-    //     deep: true,
+    //     name: '$store.state.stats.'+this.host+'.os.cpus',
     //     cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
     //   },
     //   stat: {
     //     host: this.host,
-    //     path: 'os_blockdevices',
-    //     key: 'sda',
+    //     path: 'os',
+    //     key: 'cpus',
+    //     length: this.seconds || 300,
+    //     range: [Date.now() - this.seconds * 1000, Date.now()]
+    //
+    //   }
+    // })
+
+
+    // this.add_chart(this.$options.charts.os_cpus_times)
+    /**
+    * no init, as __cpus_time_get_stat already manage all os.cpus docs
+    **/
+    // this.add_chart ({
+    //   name: this.host+'_os_cpus_percentage',
+    //   chart: Object.clone(cpus_percentage_chart),
+    //   watch: {
+    //     name: '$store.state.stats.'+this.host+'.os.cpus',
+    //     // cb: this.__watcher_callback.bind(this)
+    //     cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //   },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'cpus',
     //     length: this.seconds || 300,
     //     range: [Date.now() - this.seconds * 1000, Date.now()]
     //   }
     // })
 
+
+    // this.add_chart ({
+    //   name: this.host+'_os_freemem',
+    //   chart: Object.clone(freemem_chart),
+    //   init: this.__freemem_get_stat.bind(this),
+    //   watch: {
+    //     name: '$store.state.stats.'+this.host+'.os.freemem',
+    //     // cb: this.__watcher_callback.bind(this)
+    //     cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //   },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'freemem',
+    //     length: this.seconds || 300,
+    //     range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // })
+
+
+    // this.add_chart ({
+    //   name: this.host+'_os_loadavg',
+    //   chart: Object.clone(uptimechart),
+    //   init: this.__uptimeget_stat.bind(this),
+    //   watch: {
+    //     name: '$store.state.stats.'+this.host+'.os.loadavg',
+    //     // cb: this.__watcher_callback.bind(this)
+    //     cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //   },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'loadavg',
+    //     length: this.seconds || 300,
+    //     range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // })
+
+
+    // this.add_chart ({
+    //   name: this.host+'_os_uptime',
+    //   chart: Object.clone(uptime_chart),
+    //   init: this.__uptime_get_stat.bind(this),
+    //   watch: {
+    //     name: '$store.state.stats.'+this.host+'.os.uptime',
+    //     // cb: this.__watcher_callback.bind(this)
+    //     cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //   },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'uptime',
+    //     length: this.seconds || 300,
+    //     range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // })
+
+
+
   },
   // beforeUpdate: function(){
-  //   //////console.log('beforeUpdate')
+  //   ////////console.log('beforeUpdate')
   // },
   // updated: function(){
-  //   console.log('life cycle updated')
+  //   //console.log('life cycle updated')
   // //   this.create_host_pipelines(this.$store.state.app.paths)
   // },
   beforeDestroy: function(){
-    console.log('life cycle beforeDestroy')
-    //console.log('beforeDestroy')
+    //console.log('life cycle beforeDestroy')
+    ////console.log('beforeDestroy')
 
     // this.$store.dispatch('stats/splice', {
     //   host: this.host,
@@ -561,18 +878,44 @@ export default {
 
 
     this.remove_charts()
+
+    this.$store.dispatch('stats/splice', 1200)
+
+  },
+  destroyed: function(){
+    this.$off()
   },
   methods: {
-    __cpu_get_stat: function(payload){
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      // let {path, list} = this.name_to_module(entry.target.id.replace('-card',''))
+
+      let id = entry.target.id.replace('-collapsible', '')
+      let name = id.replace(this.host+'_', '')
+
+      console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
+
+      if(isVisible == false){
+        this.remove_chart(id)
+        this.$set(this.visibility, id, false)
+      }
+      else{
+        this.add_chart(this.$options.charts[id])
+        this.$set(this.visibility, id, true)
+      }
+    },
+    __cpus_time_get_stat: function(payload){
       let {stat} = payload
       let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
 
       let range_length = Math.trunc((range[1] - range[0]) / 1000)
 
-      // console.log('RANGE LENGT', range_length)
+      // //console.log('RANGE LENGT', range_length)
 
       this.__get_stat(stat, function(docs){
-        console.log('got cpus stat', docs)
+        //console.log('got cpus stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
@@ -580,7 +923,7 @@ export default {
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
           this.__update_stat(this.host+'_os_cpus_times', docs)
-          this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_stat(this.host+'_os_cpus_percentage', docs)
           pipeline.fireEvent('onResume')
         }
         else{
@@ -592,12 +935,48 @@ export default {
 
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs){
-              console.log('got cpus stat2', docs)
-
                 this.__update_stat(this.host+'_os_cpus_times', docs)
-                this.__update_stat(this.host+'_os_cpus_percentage', docs)
+                // this.__update_stat(this.host+'_os_cpus_percentage', docs)
                 pipeline.fireEvent('onResume')
                 // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+            }.bind(this))
+          )
+        }
+
+        // setTimeout(function(){
+
+        // }.bind(this), 500)
+
+      }.bind(this))
+    },
+
+    __cpus_percentage_get_stat: function(payload){
+      let {stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
+      // //console.log('RANGE LENGT', range_length)
+
+      this.__get_stat(stat, function(docs){
+        //console.log('got cpus stat', docs)
+
+        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // pipeline.fireEvent('onResume')
+        }
+        else{
+
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs){
+                this.__update_stat(this.host+'_os_cpus_percentage', docs)
+                // pipeline.fireEvent('onResume')
             }.bind(this))
           )
         }
@@ -620,7 +999,7 @@ export default {
       **/
 
       this.__get_stat(stat, function(docs){
-        console.log('got freemem stat', docs)
+        //console.log('got freemem stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
@@ -634,11 +1013,11 @@ export default {
           // if(docs.length != 0)
           //   range[0] = docs[docs.length -1].metadata.timestamp
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs){
-              console.log('got freemem stat2', docs)
+              //console.log('got freemem stat2', docs)
 
               this.__update_stat(name, docs)
               // pipeline.fireEvent('onResume')
@@ -664,7 +1043,7 @@ export default {
       **/
 
       this.__get_stat(stat, function(docs){
-        console.log('got loadavg stat', docs)
+        //console.log('got loadavg stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
@@ -678,11 +1057,11 @@ export default {
           // if(docs.length != 0)
           //   range[0] = docs[docs.length -1].metadata.timestamp
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs){
-              console.log('got loadavg stat2', docs)
+              //console.log('got loadavg stat2', docs)
 
               this.__update_stat(name, docs)
               // pipeline.fireEvent('onResume')
@@ -708,7 +1087,7 @@ export default {
       **/
 
       this.__get_stat(stat, function(docs){
-        console.log('got loadavg stat', docs)
+        //console.log('got uptime stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
@@ -722,11 +1101,11 @@ export default {
           // if(docs.length != 0)
           //   range[0] = docs[docs.length -1].metadata.timestamp
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs){
-              console.log('got loadavg stat2', docs)
+              //console.log('got uptime stat2', docs)
 
               this.__update_stat(name, docs)
               // pipeline.fireEvent('onResume')
@@ -752,14 +1131,14 @@ export default {
       **/
 
       this.__get_stat(stat, function(docs){
-        console.log('got blockdevice sda stat', docs, range_length)
+        //console.log('got blockdevice sda stat', docs, range_length)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.blockdevices']
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
           this.__update_stat(name, docs)
-          pipeline.fireEvent('onResume')
+          // pipeline.fireEvent('onResume')
         }
         else{
 
@@ -770,7 +1149,7 @@ export default {
 
           EventBus.$once('os.blockdevicesRange', () =>
             this.__get_stat(stat, function(docs){
-              console.log('got blockdevice stat2', docs)
+              //console.log('got blockdevice stat2', docs)
 
               this.__update_stat(name, docs)
               // pipeline.fireEvent('onResume')
@@ -793,7 +1172,7 @@ export default {
       let range_length = Math.trunc((range[1] - range[0]) / 1000)
 
       this.__get_stat(stat, function(docs){
-        console.log('got mounts stat', docs)
+        //console.log('got mounts stat', docs)
 
         let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
@@ -801,7 +1180,7 @@ export default {
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
           this.__update_stat(name, docs)
-          pipeline.fireEvent('onResume')
+          // pipeline.fireEvent('onResume')
         }
         else{
           // if(docs.length != 0)
@@ -811,10 +1190,10 @@ export default {
 
           EventBus.$once('os.mountsRange', () =>
             this.__get_stat(stat, function(docs){
-              console.log('got mounts stat2', docs)
+              //console.log('got mounts stat2', docs)
 
               this.__update_stat(name, docs)
-              pipeline.fireEvent('onResume')
+              // pipeline.fireEvent('onResume')
             }.bind(this))
           )
         }
@@ -826,6 +1205,51 @@ export default {
 
       }.bind(this))
     },
+
+
+
+    __networkInterfaces_get_stat: function(payload){
+      let {name, stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+
+
+      let range_length = Math.trunc((range[1] - range[0]) / 1000)
+
+      this.__get_stat(stat, function(docs){
+        //console.log('got networkInterfaces stat', payload, docs)
+
+        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+
+
+        if(docs.length  < range_length + 10 && docs.length > range_length - 10){
+          this.__update_stat(name, docs)
+          // pipeline.fireEvent('onResume')
+        }
+        else{
+          // if(docs.length != 0)
+          //   range[0] = docs[docs.length -1].metadata.timestamp
+
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs){
+              //console.log('got networkInterfaces stat2', docs)
+
+              this.__update_stat(name, docs)
+              // pipeline.fireEvent('onResume')
+            }.bind(this))
+          )
+        }
+
+        // setTimeout(function(){
+          // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+
+        // }.bind(this), 500)
+
+      }.bind(this))
+    },
+
     // __watcher_callback: function(doc, old, payload){
     //   let {name, watch} = payload
     //
@@ -868,14 +1292,14 @@ export default {
           if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
 
-            // console.log('ROW', keys, path)
+            // //console.log('ROW', keys, path)
 
             if(!paths[path])
               paths[path] = {}
 
 
             Object.each(keys, function(data, key){
-              // console.log('ROW', key, data)
+              // //console.log('ROW', key, data)
               if(!paths[path][key])
                 paths[path][key] = []
 
@@ -894,10 +1318,10 @@ export default {
 
 
       Object.each(paths, function(keys, path){
-        // console.log('stat process_os_doc', path)
+        // //console.log('stat process_os_doc', path)
 
         Object.each(keys, function(data, key){
-          // console.log('stat process_os_doc', path, key, data)
+          // //console.log('stat process_os_doc', path, key, data)
           this.$store.dispatch('stats/add', {
             host: this.host,
             path: path,
@@ -912,7 +1336,7 @@ export default {
     },
     create_host_pipelines (paths) {
       // paths = ['os.procs']
-      //////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      ////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$store.state.hosts.current || this.$route.params.host
 
       let range = Object.clone(this.$store.state.app.range)
@@ -938,7 +1362,7 @@ export default {
 
               let pipe = new Pipeline(template)
 
-              //////////////console.log('$store.state.hosts.all', pipe)
+              ////////////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -948,17 +1372,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                ////////console.log('create_hosts_pipelines onRangeDoc',doc);
+                //////////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  //////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  ////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  //////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  ////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -979,7 +1403,7 @@ export default {
               // pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                //////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                ////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
 
                 /** manually resume **/
                 // pipe.fireEvent('onResume')

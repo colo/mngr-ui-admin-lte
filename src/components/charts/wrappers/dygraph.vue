@@ -105,7 +105,7 @@ export default {
        this.focus = true
     }.bind(this), false)
 
-    this.__watcher()
+    this.create()
     // keypath
     // let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
     //
@@ -137,6 +137,7 @@ export default {
     // }
     // this.__watcher()
 
+    this.create()
   },
   updated () {
 
@@ -149,24 +150,34 @@ export default {
 
   },
   destroyed (){
-    if(this.$options.graph){
-      // //console.log('destroying ...', this.id)
-      this.$options.graph.destroy()
-      this.$options.graph = undefined
-    }
-
-    if(this.$options.__unwatcher)
-      this.$options.__unwatcher()
-
+    this.destroy()
     this.$off()
   },
   methods: {
-    __watcher (){
-      // console.log('dygraph __watcher', this.stat.data, this.stat.data.length)
+    destroy: function(){
+      console.log('dygraph destroy', this.id)
+
+      if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
+        // //console.log('destroying ...', this.id)
+        this.$options.graph.destroy()
+
+      }
+
+      this.$options.graph = undefined
+
       if(this.$options.__unwatcher){
-        this.$options.__unwatcher()//unwatch
+        this.$options.__unwatcher()
         this.$options.__unwatcher = undefined
       }
+
+    },
+    create (){
+      // console.log('dygraph __watcher', this.stat.data, this.stat.data.length)
+      // if(this.$options.__unwatcher){
+      //   this.$options.__unwatcher()//unwatch
+      //   this.$options.__unwatcher = undefined
+      // }
+      this.destroy()
 
       this.$options.__unwatcher = this.$watch('stat.data', function (val, old) {
 
@@ -226,7 +237,7 @@ export default {
         console.log('no focus, forcing...')
         this.updateOptions(
           { 'dateWindow': this.$options.graph.xAxisExtremes() },
-          true
+          false
         )
         // setTimeout(this.updateOptions(
         //   { 'dateWindow': this.$options.graph.xAxisExtremes() },

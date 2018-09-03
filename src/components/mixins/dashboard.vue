@@ -1,6 +1,7 @@
 <script>
 
 import chart from 'components/chart'
+import chartEmptyContainer from 'components/chart.empty.container'
 
 import admin_lte_mixin from 'components/mixins/admin-lte'
 
@@ -8,7 +9,8 @@ export default {
   mixins: [admin_lte_mixin],
 
   components: {
-    chart
+    chart,
+    chartEmptyContainer
   },
 
   __unwatchers__: {},
@@ -29,7 +31,7 @@ export default {
     * @start -charting
     **/
     add_chart: function (payload){
-      // console.log('add_chart')
+
       let {name, chart, init, finish} = payload
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
@@ -38,6 +40,10 @@ export default {
         init(payload)
 
       this.__watcher(payload)
+
+      console.log('add_chart', name, this.$refs)
+
+      // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
 
       // if(finish && typeof finish == 'function')
       //   finish(payload)
@@ -51,6 +57,10 @@ export default {
       delete this.stats[name]
 
       this.__remove_watcher(name)
+
+      // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
+
+      console.log('remove_chart', name, this.$refs[name])
     },
     remove_charts: function(){
       Object.each(this.charts, function(name){
@@ -58,8 +68,10 @@ export default {
       }.bind(this))
     },
     __remove_watcher: function(name){
-      this.this.$options.__unwatchers__[name]()
-      delete this.this.$options.__unwatchers__[name]
+      if(this.$options.__unwatchers__[name]){
+        this.$options.__unwatchers__[name]()
+        delete this.$options.__unwatchers__[name]
+      }
     },
     // __remove_watchers: function(){
     //   Object.each(this.$options.__unwatchers__, function(unwatcher, name){
@@ -68,14 +80,11 @@ export default {
     // },
     __watcher: function(payload){
       let {name, watch} = payload
-      // console.log('__watcher create', watch)
-      if(this.$options.__unwatchers__[name]){
-        this.$options.__unwatchers__[name]()//unwatch
-        delete this.$options.__unwatchers__[name]
-      }
+
+      this.__remove_watcher(name)
 
       this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
-        // console.log('__watcher', this.stats[name].lastupdate)
+        // //console.log('__watcher', this.stats[name].lastupdate)
         if(watch.cb)
           watch.cb(doc, old, payload)
 
@@ -84,11 +93,11 @@ export default {
       })
     },
     __get_stat: function(payload, cb){
-      console.log('__get_stat', payload)
+      //console.log('__get_stat', payload)
       this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
     },
     __update_stat: function(name, doc){
-      console.log('__update_stat', doc, this.stats[name])
+      //console.log('__update_stat', doc, this.stats[name])
 
       if(this.stats[name]){
 
@@ -131,13 +140,13 @@ export default {
     * UI
     **/
     showCollapsible (collapsible){
-      console.log('showCollapsible', collapsible)
+      //console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
 
     },
     hideCollapsible (collapsible){
-      console.log('hideCollapsible', collapsible)
+      //console.log('hideCollapsible', collapsible)
       // let name = collapsible.replace('-collapsible', '')
       // this.$options.has_no_data[name] = 61
       // this.$set(this.hide, name, true)
@@ -146,7 +155,7 @@ export default {
       // // this.$set(this.stats[name], 'data', [])
 
     },
-    
+
 
   }
 }
