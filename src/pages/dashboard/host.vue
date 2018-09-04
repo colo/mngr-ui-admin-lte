@@ -224,7 +224,7 @@ let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_his
 import Vue from 'vue'
 import { mapState } from 'vuex'
 
-import parallel from 'async/parallel'
+// import parallel from 'async/parallel'
 
 // import sizeof from 'object-sizeof'
 
@@ -265,6 +265,7 @@ export default {
   name: 'admin-lte-dashboard-host',
 
   charts: {},
+  pipelines: {},
 
   // props: {
   //   host: {
@@ -895,7 +896,7 @@ export default {
 
     this.remove_charts()
 
-    this.$store.dispatch('stats/splice', 1200)
+    this.$store.dispatch('stats/splice', 400)
 
   },
   destroyed: function(){
@@ -915,9 +916,8 @@ export default {
       console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
 
       if(isVisible == false){
-        this.remove_chart(id)
         this.$set(this.visibility, id, false)
-
+        this.remove_chart(id)
       }
       else{
         // if(!this.charts[id])
@@ -938,7 +938,7 @@ export default {
 
       this.__get_stat(stat, function(docs){
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
@@ -964,7 +964,7 @@ export default {
                 this.__update_stat(this.host+'_os_cpus_times', docs)
                 // this.__update_stat(this.host+'_os_cpus_percentage', docs)
                 pipeline.fireEvent('onResume')
-                // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
+                // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
         }
@@ -987,7 +987,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got cpus stat', docs)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
@@ -1027,7 +1027,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got freemem stat', docs)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
@@ -1071,7 +1071,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got loadavg stat', docs)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
@@ -1115,7 +1115,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got uptime stat', docs)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
@@ -1159,7 +1159,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got blockdevice sda stat', docs, range_length)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.blockdevices']
 
         if(docs.length  < range_length + 10 && docs.length > range_length - 10){
@@ -1200,7 +1200,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got mounts stat', docs)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
 
 
@@ -1244,7 +1244,7 @@ export default {
       this.__get_stat(stat, function(docs){
         //console.log('got networkInterfaces stat', payload, docs)
 
-        let pipeline = this.$store.state['host_'+this.host].pipelines['input.os']
+        let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
@@ -1291,10 +1291,9 @@ export default {
 
       if(
         host
-        && this.$store.state['host_'+host]
-        && Object.getLength(this.$store.state['host_'+host].pipelines) > 0
+        && Object.getLength(this.$options.pipelines) > 0
       ){
-        Object.each(this.$store.state['host_'+host].pipelines, function(pipe, id){//destroy old ones
+        Object.each(this.$options.pipelines, function(pipe, id){//destroy old ones
           pipe.fireEvent('onSuspend')
           pipe.fireEvent('onExit')
           pipe.removeEvents()
@@ -1368,7 +1367,7 @@ export default {
       let range = Object.clone(this.$store.state.app.range)
 
 
-      if(paths.length > 0 && this.$store.state['host_'+host]){
+      if(paths.length > 0){
         this.destroy_host_pipelines()
 
         // Array.each(hosts, function(host){
@@ -1421,7 +1420,9 @@ export default {
               }.bind(this))
 
               // this.hosts_pipelines.push(pipe)
-              this.$store.commit('host_'+host+'/add', {id: pipeline_id, pipeline: pipe})
+              // this.$store.commit('host_'+host+'/add', {id: pipeline_id, pipeline: pipe})
+              this.$options.pipelines[pipeline_id] = pipe
+
               if(range[1] == null){
                 range[1] = new Date().getTime()
               }

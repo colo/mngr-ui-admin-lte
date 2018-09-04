@@ -107,7 +107,8 @@ if(!window['EventBus'])
 //     }
 //   }
 // }
-import hostStore from 'src/store/host'
+
+// import hostStore from 'src/store/host'
 // import statsStore from 'src/store/stats'
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
@@ -185,7 +186,7 @@ export default {
         Array.each(doc.hosts, function(host){
           if(!this.$store.state['host_'+host]){
             //console.log('registerModule HOSTS', host)
-            this.$store.registerModule('host_'+host, Object.clone(hostStore))
+            // this.$store.registerModule('host_'+host, Object.clone(hostStore))
           }
           // if(!this.$store.state.stats[host]){
           //   //console.log('registerModule HOSTS', host)
@@ -196,12 +197,12 @@ export default {
         /**
         * should unregister modules for unset hosts?
         */
-        Array.each(this.$store.state, function(host){
-          if(!doc.hosts.contains(host.replace('host_'))){
-            console.log('UNregisterModule HOSTS', host)
-            this.$store.unregisterModule('host_'+host)
-          }
-        }.bind(this))
+        // Array.each(this.$store.state, function(host){
+        //   if(!doc.hosts.contains(host.replace('host_'))){
+        //     console.log('UNregisterModule HOSTS', host)
+        //     this.$store.unregisterModule('host_'+host)
+        //   }
+        // }.bind(this))
 
         // Array.each(this.$store.state.stats, function(host){
         //   if(!doc.hosts.contains(host)){

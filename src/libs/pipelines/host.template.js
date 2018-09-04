@@ -10,7 +10,7 @@ import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
 
 import store from 'src/store'
 
-import sizeof from 'object-sizeof'
+// import sizeof from 'object-sizeof'
 
 let os = {
 	mounts: {
@@ -130,6 +130,11 @@ export default {
 			Array.each(docs, function(row, index){
 				if(row.doc && row.doc.metadata && row.doc.metadata.path)
 					switch (row.doc.metadata.path) {
+						// case 'os.procs':
+						// 	// row.doc = mount_filter(row.doc)
+						// 	delete docs[index]
+						// 	break;
+
 						case 'os.mounts':
 							row.doc = mount_filter(row.doc)
 							break;
@@ -138,7 +143,7 @@ export default {
 							row.doc = blockdevices_filter(row.doc)
 							break;
 
-						case 'os.blockdevices':
+						case 'os':
 							row.doc = os_filter(row.doc)
 							break;
 
@@ -147,6 +152,8 @@ export default {
 
 
 					}
+
+					// Array.clean(docs)
 
 					if(index == docs.length -1 )
 						pipeline.output({type: type, doc: docs})

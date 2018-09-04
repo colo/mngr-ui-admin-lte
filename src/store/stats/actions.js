@@ -155,7 +155,7 @@ export const add = ({ commit, dispatch }, payload) => {
   //   dispatch('flush', payload)
 
 
-  if(Array.isArray(payload.data)){
+  if(Array.isArray(payload.data) && payload.data.length > 1){
     //firts soft data by timestamp
     payload.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} );
 
@@ -191,6 +191,9 @@ export const add = ({ commit, dispatch }, payload) => {
     })
   }
   else{
+    if(Array.isArray(payload.data))
+      payload.data = payload.data[0]
+
     let doc = new Object()
     doc._id = payload.host+'/'+payload.path+'/'+payload.key+'@'+payload.data.timestamp
     doc.data = payload.data.value
@@ -228,7 +231,7 @@ export const flush = ({ commit, state }, length) => {
   //console.log('action flushing...')
 
   if(deque.isEmpty() !== true){
-    let docs = docs = deque.toArray()
+    let docs = deque.toArray()
     deque.clear()
 
     docs.sort(function(a,b) {
