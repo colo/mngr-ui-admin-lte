@@ -1,12 +1,18 @@
-import PouchDB from 'pouchdb-browser'
-// import PouchDB from 'pouchdb'
-// // import websql from 'pouchdb-adapter-websql'
-// import memory from 'pouchdb-adapter-memory'
+// // import PouchDB from 'pouchdb'
+// import websql from 'pouchdb-adapter-websql'
+// // import memory from 'pouchdb-adapter-memory'
 //
-// // import * as $PouchDB from 'pouchdb'
-// // const PouchDB = $PouchDB['default']
-// PouchDB.plugin(memory)
-let db = new PouchDB('live')
+// // import * as $PouchDB from 'pouchdb-browser'
+// import * as $PouchDB from 'pouchdb'
+// let PouchDB = $PouchDB['default']
+//
+// PouchDB.plugin(websql)
+//
+// let db = new PouchDB('live', {adapter: 'websql'})
+
+import PouchDB from 'pouchdb-browser'
+// let db = new PouchDB('live')
+
 //
 // import ddocs from '@libs/_views/sort'
 //
@@ -42,13 +48,30 @@ let db = new PouchDB('live')
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 1200 //os = 4 docs...1200 = 300 secs of docs
+const QUEUE_SIZE = 60 //os = 4 docs...1200 = 300 secs of docs
 
-let deque = new Deque(QUEUE_SIZE)
-let compacted = false
+// let deque = new Deque()//QUEUE_SIZE
+let queues = {}
+
+// let compacted = false
+
+let get_queue = function(payload){
+  // console.log('ACTIONS get_queue', payload)
+  if(!queues[payload.host])
+    queues[payload.host] = {}
+
+  if(!queues[payload.host][payload.path])
+    queues[payload.host][payload.path] = {}
+
+  if(!queues[payload.host][payload.path][payload.key])
+    queues[payload.host][payload.path][payload.key] = new Deque()
+
+  return queues[payload.host][payload.path][payload.key]
+}
 
 export const get = ({ commit, dispatch }, payload) => {
-
+  let db = new PouchDB('live_'+payload.host)
+  let deque = get_queue(payload)
   //console.log('action get...')
 
   return new Promise((resolve, reject) => {
@@ -66,7 +89,7 @@ export const get = ({ commit, dispatch }, payload) => {
         // //////console.log('fetching while...', length)
         let doc = arr.pop()
         // delete doc._rev
-        if(doc._id.indexOf(payload.host+'/'+payload.path+'/'+payload.key) > -1){
+        if(doc._id.indexOf(payload.path+'/'+payload.key) > -1){
           ////console.log('DOC', doc, (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1]))
           if(
             payload.range && (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1])
@@ -88,8 +111,8 @@ export const get = ({ commit, dispatch }, payload) => {
 
     if(length > 0 || payload.range){//from db
       let options = {
-        startkey: payload.host+'/'+payload.path+'/'+payload.key+'\ufff0',
-        endkey: payload.host+'/'+payload.path+'/'+payload.key,
+        startkey: payload.path+'/'+payload.key+'\ufff0',
+        endkey: payload.path+'/'+payload.key,
         inclusive_end: true,
         descending: true,
         include_docs: true
@@ -101,8 +124,8 @@ export const get = ({ commit, dispatch }, payload) => {
 
       if(payload.range){
         // let range = payload.range
-        options.startkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
-        options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
+        options.startkey = payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
+        options.endkey = payload.path+'/'+payload.key+'@'+range[0]
       }
 
       ////console.log('OPTIONS', options)
@@ -148,6 +171,8 @@ export const get = ({ commit, dispatch }, payload) => {
 }
 
 export const add = ({ commit, dispatch }, payload) => {
+  let db = new PouchDB('live_'+payload.host)
+  let deque = get_queue(payload)
   // console.log('action add...', payload.data)
   // //////console.log('length', deque.length)
 
@@ -164,7 +189,7 @@ export const add = ({ commit, dispatch }, payload) => {
     // let docs = []
     Array.each(payload.data, function(data, index){
       let doc = new Object()
-      doc._id = payload.host+'/'+payload.path+'/'+payload.key+'@'+data.timestamp
+      doc._id = payload.path+'/'+payload.key+'@'+data.timestamp
       doc.data = data.value
       doc.metadata = new Object()
       doc.metadata.timestamp = data.timestamp
@@ -174,7 +199,7 @@ export const add = ({ commit, dispatch }, payload) => {
       doc.metadata.type = 'periodical'
       // docs.push(doc)
       // if(deque.isEmpty() || deque.peekBack().metadata.timestamp < doc.metadata.timestamp)
-        deque.push(doc)
+      deque.push(doc)
 
 
     })
@@ -195,7 +220,7 @@ export const add = ({ commit, dispatch }, payload) => {
       payload.data = payload.data[0]
 
     let doc = new Object()
-    doc._id = payload.host+'/'+payload.path+'/'+payload.key+'@'+payload.data.timestamp
+    doc._id = payload.path+'/'+payload.key+'@'+payload.data.timestamp
     doc.data = payload.data.value
     doc.metadata = new Object()
     doc.metadata.timestamp = payload.data.timestamp
@@ -222,29 +247,35 @@ export const add = ({ commit, dispatch }, payload) => {
 
   }
 
-  if(deque.length >= QUEUE_SIZE)
-    dispatch('flush', QUEUE_SIZE)
+  console.log('actions add', payload.host, payload.path, payload.key, deque.length)
+  if(deque.length >= QUEUE_SIZE){
+    payload.length = QUEUE_SIZE
+    dispatch('flush', payload)
+  }
 
 }
 
-export const flush = ({ commit, state }, length) => {
-  //console.log('action flushing...')
+export const flush = ({ commit, state }, payload) => {
+  let db = new PouchDB('live_'+payload.host)
+  let length = payload.length
+  let deque = get_queue(payload)
+  console.log('action flushing...', payload.host, payload.path, payload.key)
 
   if(deque.isEmpty() !== true){
     let docs = deque.toArray()
     deque.clear()
 
-    docs.sort(function(a,b) {
-      return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
-    } );
+    // docs.sort(function(a,b) {
+    //   return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+    // } );
 
-    if(length && length > deque.length){
-      while(length > 0){
-        let doc = docs.pop()
-        deque.unshift(doc)
-        length--
-      }
-    }
+    // if(length && length > deque.length){
+    //   while(length > 0){
+    //     // let doc = docs.pop()
+    //     deque.unshift(docs.pop())
+    //     length--
+    //   }
+    // }
 
     db.bulkDocs(docs)
     .then(function (status) {
@@ -253,12 +284,16 @@ export const flush = ({ commit, state }, length) => {
 
     }).catch(function (err) {
       //////console.log('bulkDocs err', err)
-    });
+    })
   }
 
 }
 
-export const splice = ({ commit, state }, length) => {
+export const splice = ({ commit, state }, payload) => {
+  let db = new PouchDB('live_'+payload.host)
+  let length = payload.length
+  // let deque = get_queue(payload)
+
   let options = {
     // startkey: payload.host+'/'+payload.path+'/'+payload.key+'\ufff0',
     // endkey: payload.host+'/'+payload.path+'/'+payload.key,

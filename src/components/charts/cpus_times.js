@@ -12,7 +12,7 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
   prev: {timestamp: 0, value: { times: {} } },
   watch: {
     // merge: true,
-    cumulative: true,
+    // cumulative: true,
     value: 'times',
     /**
     * @trasnform: diff between each value against its prev one
@@ -80,12 +80,14 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
           chart.prev = Object.clone(val)
 
-          if(index == values.length -1)
-            chart.prev.timestamp = 0
+          // if(index == values.length -1)
+          //   chart.prev.timestamp = 0
         }
 
 
       })
+
+      console.log('transformed: ', transformed)
       return transformed
     }
   }

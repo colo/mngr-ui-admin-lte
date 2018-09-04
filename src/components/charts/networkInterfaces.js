@@ -28,7 +28,7 @@ export default Object.merge(Object.clone(DefaultDygraphLine), {
   },
   watch: {
     // managed: true,
-    cumulative: true,
+    // cumulative: true,
     transform: function(values, vm, chart){
       // let watcher = chart.watch || {}
       // console.log('networkInterfaces transform: ', values)
@@ -79,8 +79,8 @@ export default Object.merge(Object.clone(DefaultDygraphLine), {
 
           chart.prev = Object.clone(current)
 
-          if(index == values.length -1)
-            chart.prev.timestamp = 0
+          // if(index == values.length -1)
+          //   chart.prev.timestamp = 0
         }
 
       })

@@ -28,7 +28,7 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
   **/
   prev: {timestamp: 0, value: { times: {} } },
   watch: {
-    cumulative: true,
+    // cumulative: true,
     // merge: true,
     value: 'times',
     /**
@@ -105,8 +105,8 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
           chart.prev = Object.clone(current)
 
-          if(index == values.length -1)
-            chart.prev.timestamp = 0
+          // if(index == values.length -1)
+          //   chart.prev.timestamp = 0
 
           transformed.push(transform)
         }

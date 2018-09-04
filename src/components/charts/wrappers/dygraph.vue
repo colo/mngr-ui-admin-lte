@@ -193,7 +193,7 @@ export default {
         console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
 
         // if(val.length > 1 && this.chart == null){
-        if(val.length > 1){
+        if(this.stat.data.length >= 1){
 
           if(!this.$options.graph){
 
@@ -231,6 +231,8 @@ export default {
         this.chart.init(this, this.$options.graph, 'dygraph')
     },
     update (){
+
+
       if(this.$options.visible == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
         if(this.focus === true){
@@ -280,6 +282,8 @@ export default {
         //
         //   })
           // self.stat.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
+
 
           this.$options.graph.updateOptions(
             Object.merge(

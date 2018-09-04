@@ -36,7 +36,7 @@ export default {
   __unwatcher: undefined,
   __chart_init: false,
   visible: true,
-  
+
   props: {
     EventBus: {
       type: [Object],
@@ -224,7 +224,7 @@ export default {
             data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
           }
           else{//send last only
-            console.log('generic_data_watcher send last', name)
+            console.log('generic_data_watcher send last', name, [ current[current.length - 1] ])
             data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
           }
 
@@ -241,11 +241,18 @@ export default {
 
     update_chart_stat (name, data){
 
-      // console.log('update_chart_stat visibility', this.id, this.$options.visible)
-      if(this.$options.visible){
+      console.log('update_chart_stat visibility', name, data)
+      
+      if(this.$options.visible && data.length > 0){
         if(data.length == 1){
-          this.tabular.data.push(data[0])
-          this.tabular.data.shift()
+
+          // this.tabular.data.shift()
+          // this.tabular.data.push(data[0])
+          let old_data = this.tabular.data
+          old_data.shift()
+          old_data.push(data[0])
+          old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          this.$set(this.tabular, 'data', old_data)
         }
         else{
           let length = this.stat.data.length
@@ -255,7 +262,7 @@ export default {
               data.length - length
             )
 
-          // data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
           this.$set(this.tabular, 'data', data)
 

@@ -9,6 +9,9 @@ export const add = function(state, payload) {//generic mutation
   if(!state[payload.host][payload.path])
     Vue.set(state[payload.host], payload.path, {})
 
+  if(!state[payload.host][payload.path][payload.key])
+    Vue.set(state[payload.host][payload.path], payload.key, undefined)
+
   let value = undefined
   if(Array.isArray(payload.data)){
     // Vue.set(state[payload.host][payload.path], payload.key, payload.value)
@@ -25,7 +28,9 @@ export const add = function(state, payload) {//generic mutation
   //
   //
   // }
-  Vue.set(state[payload.host][payload.path], payload.key, value)
+
+  // Vue.set(state[payload.host][payload.path], payload.key, value)
+  state[payload.host][payload.path][payload.key] = value
 }
 
 export const clear = (state, payload) => {

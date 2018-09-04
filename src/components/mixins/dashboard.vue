@@ -85,7 +85,7 @@ export default {
       this.__remove_watcher(name)
 
       this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
-        console.log('__watcher', name)
+        // console.log('__watcher', name)
         if(watch.cb)
           watch.cb(doc, old, payload)
 
@@ -98,7 +98,7 @@ export default {
       this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
     },
     __update_stat: function(name, doc){
-      //console.log('__update_stat', doc, this.stats[name])
+      console.log('__update_stat', doc, this.stats[name])
 
       if(this.stats[name]){
 
