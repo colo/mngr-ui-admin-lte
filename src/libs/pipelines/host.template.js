@@ -64,15 +64,15 @@ export default {
 				],
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
-				// requests: {
-				// 	periodical: 1000,
-				// },
 				requests: {
-    			periodical: function(dispatch){
-						// ////////console.log('host periodical running')
-    				return cron.schedule('* * * * * *', dispatch);//every second
-    			}
-    		},
+					periodical: 1000,
+				},
+				// requests: {
+    		// 	periodical: function(dispatch){
+				// 		// ////////console.log('host periodical running')
+    		// 		return cron.schedule('* * * * * *', dispatch);//every second
+    		// 	}
+    		// },
 			},
 		}
 	],

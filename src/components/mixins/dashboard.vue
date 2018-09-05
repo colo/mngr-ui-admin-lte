@@ -31,7 +31,7 @@ export default {
     * @start -charting
     **/
     add_chart: function (payload){
-      let {name, chart, init, finish} = payload
+      let {name, chart, init, watch} = payload
 
       this.$options.charts[name] = payload
       this.$set(this.charts, name, chart)
@@ -40,9 +40,10 @@ export default {
       if(init && typeof init == 'function')
         init(payload)
 
-      this.__watcher(payload)
+      if(watch)
+        this.add_watcher(payload)
 
-      console.log('add_chart', name, this.$refs)
+      console.log('add_chart', name)
 
       // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
 
@@ -57,35 +58,35 @@ export default {
       this.$set(this.stats, name, undefined)
       // delete this.stats[name]
 
-      this.__remove_watcher(name)
+      this.remove_watcher(name)
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
-      console.log('remove_chart', name, this.$refs[name])
+      console.log('remove_chart', name)
     },
     remove_charts: function(){
       Object.each(this.charts, function(name){
         this.remove_chart(name)
       }.bind(this))
     },
-    __remove_watcher: function(name){
+    remove_watcher: function(name){
       if(this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name]()
         delete this.$options.__unwatchers__[name]
       }
     },
-    // __remove_watchers: function(){
+    // remove_watchers: function(){
     //   Object.each(this.$options.__unwatchers__, function(unwatcher, name){
-    //     this.__remove_watcher(name)
+    //     this.remove_watcher(name)
     //   }.bind(this))
     // },
-    __watcher: function(payload){
+    add_watcher: function(payload){
       let {name, watch} = payload
 
-      this.__remove_watcher(name)
+      this.remove_watcher(name)
 
       this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
-        // console.log('__watcher', name)
+        // console.log('add_watcher', name)
         if(watch.cb)
           watch.cb(doc, old, payload)
 

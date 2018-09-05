@@ -18,23 +18,23 @@ import PouchDB from 'pouchdb-browser'
 //
 // Array.each(ddocs, function(ddoc){
 //   db.put(ddoc).then(function (info) {
-//     //////console.log('sortView info', info)
+//     //////// console.log('sortView info', info)
 //
 //   }).catch(function (err) {
-//     //////console.log('sortView err', err)
+//     //////// console.log('sortView err', err)
 //   });
 //
 //   let keys = Object.keys(ddoc.views)
 //
 //   Array.each(keys, function(key){
 //     let doc = ddoc._id.replace('_design/', '')+'/'+key
-//     //////console.log('quering', doc)
+//     //////// console.log('quering', doc)
 //     db.query(doc, {
 //       limit: 0 // don't return any results
 //     }).then(function (res) {
-//       //////console.log('build index res', res)
+//       //////// console.log('build index res', res)
 //     }).catch(function (err) {
-//       //////console.log('build index err', err)
+//       //////// console.log('build index err', err)
 //     });
 //
 //   })
@@ -56,7 +56,7 @@ let queues = {}
 // let compacted = false
 
 let get_queue = function(payload){
-  // console.log('ACTIONS get_queue', payload)
+  // // console.log('ACTIONS get_queue', payload)
   if(!queues[payload.host])
     queues[payload.host] = {}
 
@@ -72,7 +72,7 @@ let get_queue = function(payload){
 export const get = ({ commit, dispatch }, payload) => {
   let db = new PouchDB('live_'+payload.host)
   let deque = get_queue(payload)
-  //console.log('action get...')
+  //// console.log('action get...')
 
   return new Promise((resolve, reject) => {
     let length = payload.length || deque.length
@@ -83,14 +83,14 @@ export const get = ({ commit, dispatch }, payload) => {
 
     if(deque.length > 0){
       let arr = deque.toArray()
-      //////console.log('fetching deque.length', deque.length, arr)
+      //////// console.log('fetching deque.length', deque.length, arr)
       // let reg = new RegExp(payload.path+'\/'+payload.host)
       while (length > 0 && arr.length > 0){
-        // //////console.log('fetching while...', length)
+        // //////// console.log('fetching while...', length)
         let doc = arr.pop()
         // delete doc._rev
         if(doc._id.indexOf(payload.path+'/'+payload.key) > -1){
-          ////console.log('DOC', doc, (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1]))
+          ////// console.log('DOC', doc, (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1]))
           if(
             payload.range && (doc.metadata.timestamp > range[0] && doc.metadata.timestamp < range[1])
             || !payload.range
@@ -107,7 +107,7 @@ export const get = ({ commit, dispatch }, payload) => {
       }
     }
 
-    ////console.log('fetching doc', docs, range)
+    ////// console.log('fetching doc', docs, range)
 
     if(length > 0 || payload.range){//from db
       let options = {
@@ -128,14 +128,14 @@ export const get = ({ commit, dispatch }, payload) => {
         options.endkey = payload.path+'/'+payload.key+'@'+range[0]
       }
 
-      ////console.log('OPTIONS', options)
+      ////// console.log('OPTIONS', options)
 
       db.allDocs(options).then(function (res) {
 
 
         res.rows.reverse()
         while (length > 0 && res.rows.length > 0){
-          //////console.log('fetching while...', length)
+          //////// console.log('fetching while...', length)
           docs[length] = res.rows.pop().doc
           length--
         }
@@ -145,10 +145,10 @@ export const get = ({ commit, dispatch }, payload) => {
         docs.sort(function(a,b) {
           return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
         })
-        // console.log('fetching from db', docs)
+        // // console.log('fetching from db', docs)
         resolve(Array.clean(docs))
       }).catch(function (err) {
-        //////console.log('fetching from db err', err)
+        //////// console.log('fetching from db err', err)
         docs.sort(function(a,b) {
           return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
         })
@@ -164,7 +164,7 @@ export const get = ({ commit, dispatch }, payload) => {
 
     // setTimeout(() => {
     //   // commit('someMutation')
-    //   //////console.log('stats get')
+    //   //////// console.log('stats get')
     //   resolve()
     // }, 1000)
   })
@@ -173,18 +173,18 @@ export const get = ({ commit, dispatch }, payload) => {
 export const add = ({ commit, dispatch }, payload) => {
   let db = new PouchDB('live_'+payload.host)
   let deque = get_queue(payload)
-  // console.log('action add...', payload.data)
-  // //////console.log('length', deque.length)
+  // // console.log('action add...', payload.data)
+  // //////// console.log('length', deque.length)
 
   // if(deque.length >= QUEUE_SIZE)
   //   dispatch('flush', payload)
 
 
   if(Array.isArray(payload.data) && payload.data.length > 1){
-    //firts soft data by timestamp
+    //firts sort data by timestamp
     payload.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} );
 
-    // console.log('ACTION', deque.toArray(), payload.data)
+    // // console.log('ACTION', deque.toArray(), payload.data)
 
     // let docs = []
     Array.each(payload.data, function(data, index){
@@ -247,7 +247,7 @@ export const add = ({ commit, dispatch }, payload) => {
 
   }
 
-  console.log('actions add', payload.host, payload.path, payload.key, deque.length)
+  // console.log('actions add', payload.host, payload.path, payload.key, deque.length)
   if(deque.length >= QUEUE_SIZE){
     payload.length = QUEUE_SIZE
     dispatch('flush', payload)
@@ -259,7 +259,7 @@ export const flush = ({ commit, state }, payload) => {
   let db = new PouchDB('live_'+payload.host)
   let length = payload.length
   let deque = get_queue(payload)
-  console.log('action flushing...', payload.host, payload.path, payload.key)
+  // console.log('action flushing...', payload.host, payload.path, payload.key)
 
   if(deque.isEmpty() !== true){
     let docs = deque.toArray()
@@ -279,11 +279,11 @@ export const flush = ({ commit, state }, payload) => {
 
     db.bulkDocs(docs)
     .then(function (status) {
-      // console.log('flushed', docs, status, deque.toArray())
+      // // console.log('flushed', docs, status, deque.toArray())
       // commit('clear', payload)
 
     }).catch(function (err) {
-      //////console.log('bulkDocs err', err)
+      //////// console.log('bulkDocs err', err)
     })
   }
 
@@ -313,36 +313,36 @@ export const splice = ({ commit, state }, payload) => {
   //   options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
   // }
 
-  ////console.log('OPTIONS', options)
+  ////// console.log('OPTIONS', options)
 
   db.allDocs(options).then(function (res) {
 
-    console.log('splice fetching res', res)
+    // console.log('splice fetching res', res)
 
 
     res.rows.reverse()
 
 
     db.destroy().then(function (status) {
-      console.log('splice destroy res', status)
+      // console.log('splice destroy res', status)
       db = new PouchDB('live')
 
-      console.log('splice DOCS', res.rows)
+      // console.log('splice DOCS', res.rows)
 
       db.bulkDocs(res.rows)
       .then(function (status) {
-        console.log('splice bulkDocs status', status)
+        // console.log('splice bulkDocs status', status)
 
       }).catch(function (err) {
-        console.log('splice bulkDocs err', err)
+        // console.log('splice bulkDocs err', err)
 
       })
 
     }).catch(function (err) {
-      console.log('splice destroy err', err)
+      // console.log('splice destroy err', err)
     })
     // while (length > 0 && res.rows.length > 0){
-    //   //////console.log('fetching while...', length)
+    //   //////// console.log('fetching while...', length)
     //   docs[length] = res.rows.pop().doc
     //   length--
     // }
@@ -352,10 +352,10 @@ export const splice = ({ commit, state }, payload) => {
     // docs.sort(function(a,b) {
     //   return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
     // })
-    // // console.log('fetching from db', docs)
+    // // // console.log('fetching from db', docs)
     // resolve(Array.clean(docs))
   }).catch(function (err) {
-    console.log('splice fetching from db err', err)
+    // console.log('splice fetching from db err', err)
     // docs.sort(function(a,b) {
     //   return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
     // })
@@ -365,11 +365,11 @@ export const splice = ({ commit, state }, payload) => {
 }
 
 // export const splice = ({ commit, state }, payload) => {
-//   //console.log('action splice', payload)
+//   //// console.log('action splice', payload)
 //   // let spliced = state[payload.host][payload.path][payload.key]
 //   let _id = payload.host+'/'+payload.path+'/'+payload.key
 //
-//   //////console.log('splice', state[payload.host][payload.path][payload.key].length)
+//   //////// console.log('splice', state[payload.host][payload.path][payload.key].length)
 //
 //   db.allDocs({
 //     // startkey: spliced.split('@')[0],
@@ -377,13 +377,13 @@ export const splice = ({ commit, state }, payload) => {
 //     startkey: _id,
 //     endkey: _id+'\ufff0'
 //   }).then(function (result) {
-//     //////console.log('allDocs result', result);
+//     //////// console.log('allDocs result', result);
 //     // // handle result
 //
 //     let deleted = []
 //
 //     Array.each(result.rows, function(row){
-//       // //////console.log('result', row);
+//       // //////// console.log('result', row);
 //       let doc = {}
 //       if(!_id.contains(row.id)){
 //         doc['_deleted'] = true
@@ -394,27 +394,27 @@ export const splice = ({ commit, state }, payload) => {
 //
 //     })
 //
-//     //////console.log('to delete', deleted)
+//     //////// console.log('to delete', deleted)
 //     if(deleted.length > 0){
 //       db.bulkDocs(deleted).then(function (result) {
-//         //console.log('action bulkDocs delete result', result);
+//         //// console.log('action bulkDocs delete result', result);
 //
 //         if(compacted === false){
 //           compacted = true
 //           db.compact().then(function (result) {
-//             //console.log('action compact result ',result);
+//             //// console.log('action compact result ',result);
 //             compacted = false
 //           }).catch(function (err) {
-//             //console.log('action  compact err ',err);
+//             //// console.log('action  compact err ',err);
 //           });
 //         }
 //
 //       }).catch(function (err) {
-//         //console.log('action  bulkDocs delete err', err);
+//         //// console.log('action  bulkDocs delete err', err);
 //       });
 //     }
 //   }).catch(function (err) {
-//     //console.log('action allDocs', err);
+//     //// console.log('action allDocs', err);
 //   });
 //
 // }

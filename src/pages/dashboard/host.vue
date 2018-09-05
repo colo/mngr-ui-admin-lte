@@ -15,7 +15,7 @@
         <admin-lte-box-solid
           title="CPU Times"
           :id="host+'_os_cpus_times-collapsible'"
-          v-observe-visibility="visibilityChanged"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -38,7 +38,7 @@
         <admin-lte-box-solid
           title="CPU Percentage"
           :id="host+'_os_cpus_percentage-collapsible'"
-          v-observe-visibility="visibilityChanged"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -61,7 +61,7 @@
         <admin-lte-box-solid
           title="Freemem"
           :id="host+'_os_freemem-collapsible'"
-          v-observe-visibility="visibilityChanged"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -84,7 +84,7 @@
         <admin-lte-box-solid
           title="Uptime"
           :id="host+'_os_uptime-collapsible'"
-          v-observe-visibility="visibilityChanged"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -106,7 +106,7 @@
         <admin-lte-box-solid
           title="Load Average"
           :id="host+'_os_loadavg-collapsible'"
-          v-observe-visibility="visibilityChanged"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -131,7 +131,7 @@
             :key="'blockdevice_stats_'+index"
             :title="'Blockdevice stats['+index+']'"
             :id="host+'_os_blockdevices_stats_'+index+'-collapsible'"
-            v-observe-visibility="visibilityChanged"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -157,7 +157,7 @@
             :key="'mounts_percentage_'+index"
             :title="'Mounts Percetange usage '+index"
             :id="host+'_os_mounts_percentage_'+index+'-collapsible'"
-            v-observe-visibility="visibilityChanged"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -184,7 +184,7 @@
               :key="'networkInterfaces_stats'+name+'_'+messure"
               :title="'Network Interface '+name+' : '+messure"
               :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
-              v-observe-visibility="visibilityChanged"
+              v-observe-visibility="{ callback: visibilityChanged, throttle: 100 }"
               v-on:show="el => showCollapsible(el)"
               v-on:hide="el => hideCollapsible(el)"
             >
@@ -436,11 +436,11 @@ export default {
       name: this.host+'_os_cpus_times',
       chart: Object.clone(cpus_times_chart),
       init: this.__cpus_time_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.cpus',
-        deep: true,
-        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      },
+      // watch: {
+      //   name: '$store.state.stats.'+this.host+'.os.cpus',
+      //   deep: true,
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      // },
       stat: {
         host: this.host,
         path: 'os',
@@ -455,11 +455,11 @@ export default {
       name: this.host+'_os_cpus_percentage',
       chart: Object.clone(cpus_percentage_chart),
       init: this.__cpus_percentage_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.cpus',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      },
+      // watch: {
+      //   name: '$store.state.stats.'+this.host+'.os.cpus',
+      //   // cb: this.__watcher_callback.bind(this)
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      // },
       stat: {
         host: this.host,
         path: 'os',
@@ -473,11 +473,11 @@ export default {
       name: this.host+'_os_freemem',
       chart: Object.clone(freemem_chart),
       init: this.__freemem_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.freemem',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      },
+      // watch: {
+      //   name: '$store.state.stats.'+this.host+'.os.freemem',
+      //   // cb: this.__watcher_callback.bind(this)
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      // },
       stat: {
         host: this.host,
         path: 'os',
@@ -491,11 +491,11 @@ export default {
       name: this.host+'_os_loadavg',
       chart: Object.clone(loadavg_chart),
       init: this.__loadavg_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.loadavg',
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      },
+      // watch: {
+      //   name: '$store.state.stats.'+this.host+'.os.loadavg',
+      //   // cb: this.__watcher_callback.bind(this)
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      // },
       stat: {
         host: this.host,
         path: 'os',
@@ -510,11 +510,11 @@ export default {
       name: this.host+'_os_uptime',
       chart: Object.clone(uptime_chart),
       init: this.__uptime_get_stat.bind(this),
-      watch: {
-        name: '$store.state.stats.'+this.host+'.os.uptime',
-        // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      },
+      // watch: {
+      //   name: '$store.state.stats.'+this.host+'.os.uptime',
+      //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      // },
       stat: {
         host: this.host,
         path: 'os',
@@ -538,12 +538,12 @@ export default {
             name: this.host+'_os_mounts_percentage_'+key,
             chart: Object.clone(mounts_percentage_chart),
             init: this.__mounts_get_stat.bind(this),
-            watch: {
-              name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
-              deep:true,
-              // cb: this.__watcher_callback.bind(this)
-              cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-            },
+            // watch: {
+            //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
+            //   deep:true,
+            //   // cb: this.__watcher_callback.bind(this)
+            //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+            // },
             stat: {
               host: this.host,
               path: 'os_mounts',
@@ -576,12 +576,12 @@ export default {
             name: this.host+'_os_blockdevices_stats_'+key,
             chart: Object.clone(blockdevices_stats_chart),
             init: this.__blockdevices_get_stat.bind(this),
-            watch: {
-              name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
-              deep:true,
-              // cb: this.__watcher_callback.bind(this)
-              cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-            },
+            // watch: {
+            //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
+            //   deep:true,
+            //   // cb: this.__watcher_callback.bind(this)
+            //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+            // },
             stat: {
               host: this.host,
               path: 'os_blockdevices',
@@ -620,12 +620,12 @@ export default {
                 name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
                 chart: Object.clone(networkInterfaces_chart),
                 init: this.__networkInterfaces_get_stat.bind(this),
-                watch: {
-                  name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
-                  deep:true,
-                  // cb: this.__watcher_callback.bind(this)
-                  cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-                },
+                // watch: {
+                //   name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
+                //   deep:true,
+                //   // cb: this.__watcher_callback.bind(this)
+                //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+                // },
                 stat: {
                   host: this.host,
                   path: 'os',
@@ -918,16 +918,22 @@ export default {
       console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
 
       if(isVisible == false){
-        this.$set(this.visibility, id, false)
-        this.remove_chart(id)
+        if(!this.visibility[id] || this.visibility[id] === true){
+          this.$set(this.visibility, id, false)
+          this.remove_chart(id)
+        }
       }
       else{
         // if(!this.charts[id])
-        this.add_chart(this.$options.charts[id])
+        if(!this.visibility[id] || this.visibility[id] === false){
+          this.$set(this.visibility, id, true)
+          this.add_chart(this.$options.charts[id], id)
+        }
+
         // if(this.charts[id] && typeof this.charts[id].init == 'function')
         //   this.charts[id].init(this.$options.charts[id])
 
-        this.$set(this.visibility, id, true)
+
       }
     },
     __cpus_time_get_stat: function(payload){
@@ -937,6 +943,15 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
       console.log('__cpus_time_get_stat', payload)
+
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        cb: (doc, old, payload) => {
+          console.log('__cpus_time_get_stat watcher ', new Date())
+          if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value)
+        }
+      }
 
       this.__get_stat(stat, function(docs){
 
@@ -950,6 +965,7 @@ export default {
 
           this.__update_stat(this.host+'_os_cpus_times', docs)
           // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          this.add_watcher(payload)
           pipeline.fireEvent('onResume')
         }
         else{
@@ -965,6 +981,7 @@ export default {
                 // this.$set(this.stats[name], 'data', [])
                 this.__update_stat(this.host+'_os_cpus_times', docs)
                 // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+                this.add_watcher(payload)
                 pipeline.fireEvent('onResume')
                 // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
@@ -984,7 +1001,12 @@ export default {
 
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
-      // //console.log('RANGE LENGT', range_length)
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
 
       this.__get_stat(stat, function(docs){
         //console.log('got cpus stat', docs)
@@ -995,6 +1017,7 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1004,6 +1027,7 @@ export default {
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs){
                 this.__update_stat(this.host+'_os_cpus_percentage', docs)
+                this.add_watcher(payload)
                 // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1023,9 +1047,12 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
 
-      /**
-      * don't fireEvent as it's been fired already by CPUS_*
-      **/
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
 
       this.__get_stat(stat, function(docs){
         //console.log('got freemem stat', docs)
@@ -1035,6 +1062,8 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(name, docs)
+
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1049,6 +1078,7 @@ export default {
               //console.log('got freemem stat2', docs)
 
               this.__update_stat(name, docs)
+              this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1068,9 +1098,12 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
 
-      /**
-      * don't fireEvent as it's been fired already by CPUS_*
-      **/
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
 
       this.__get_stat(stat, function(docs){
         //console.log('got loadavg stat', docs)
@@ -1080,6 +1113,7 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(name, docs)
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1094,6 +1128,7 @@ export default {
               //console.log('got loadavg stat2', docs)
 
               this.__update_stat(name, docs)
+              this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1113,9 +1148,12 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
 
-      /**
-      * don't fireEvent as it's been fired already by CPUS_*
-      **/
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
 
       this.__get_stat(stat, function(docs){
         //console.log('got loadavg stat', docs)
@@ -1125,6 +1163,7 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(name, docs)
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1139,6 +1178,7 @@ export default {
               //console.log('got loadavg stat2', docs)
 
               this.__update_stat(name, docs)
+              this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1159,9 +1199,12 @@ export default {
 
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
-      /**
-      * don't fireEvent as it's been fired already by CPUS_*
-      **/
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep:true,
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
 
       this.__get_stat(stat, function(docs){
         //console.log('got blockdevice sda stat', docs, range_length)
@@ -1171,6 +1214,7 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(name, docs)
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1185,6 +1229,7 @@ export default {
               //console.log('got blockdevice stat2', docs)
 
               this.__update_stat(name, docs)
+              this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1203,6 +1248,13 @@ export default {
 
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
+      payload.watch = {
+        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep:true,
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
+
       this.__get_stat(stat, function(docs){
         //console.log('got mounts stat', docs)
 
@@ -1212,6 +1264,7 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(name, docs)
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1225,6 +1278,7 @@ export default {
               //console.log('got mounts stat2', docs)
 
               this.__update_stat(name, docs)
+              this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1246,6 +1300,13 @@ export default {
 
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
+      payload.watch = {
+        name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
+        deep:true,
+        // cb: this.__watcher_callback.bind(this)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
+
       this.__get_stat(stat, function(docs){
         //console.log('got networkInterfaces stat', payload, docs)
 
@@ -1255,6 +1316,7 @@ export default {
 
         if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
           this.__update_stat(name, docs)
+          this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
@@ -1268,6 +1330,7 @@ export default {
               //console.log('got networkInterfaces stat2', docs)
 
               this.__update_stat(name, docs)
+              this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
             }.bind(this))
           )
@@ -1419,7 +1482,7 @@ export default {
                   this.$store.commit('app/suspend', false)//
 
                   /** manually resume **/
-                  // pipe.fireEvent('onResume')
+                  pipe.fireEvent('onResume')
 
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', false)

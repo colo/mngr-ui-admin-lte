@@ -18,7 +18,8 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
     * @trasnform: diff between each value against its prev one
     */
     transform: function(values, caller, chart){
-      // //////console.log('transform: ', values)
+      // console.log('blockdevices transform: ', values)
+
       let transformed = []
       let prev = null
       Array.each(values, function(val, index){
@@ -26,8 +27,9 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
         if(
           chart.prev.timestamp == 0
-          || chart.prev.timestamp < val.timestamp - 1999
-          || chart.prev.timestamp > val.timestamp + 1999
+          || chart.prev.timestamp > val.timestamp
+          // || chart.prev.timestamp < val.timestamp - 1999
+          // || chart.prev.timestamp > val.timestamp + 1999
         ){
           console.log('no prev blockdevice', new Date(chart.prev.timestamp), new Date(val.timestamp), index)
 
@@ -38,17 +40,17 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
           let transform = {timestamp: val.timestamp, value: { stats: {} } }
           let prev = Object.clone(chart.prev)
 
-          if(index == 0){
-            Object.each(val.value.stats, function(stat, key){
-                transform.value.stats[key] = 0
-            })
-          }
-          else{
+          // if(index == 0){
+          //   Object.each(val.value.stats, function(stat, key){
+          //       transform.value.stats[key] = 0
+          //   })
+          // }
+          // else{
             Object.each(val.value.stats, function(stat, key){
               let value = ((stat - prev.value.stats[key]) > 0) ? stat - prev.value.stats[key] : 0
               transform.value.stats[key] = value
             })
-          }
+          // }
 
           chart.prev = Object.clone(val)
 
@@ -61,6 +63,7 @@ export default Object.merge(Object.clone(DefaultDygraphLine),{
 
 
       })
+      console.log('blockdevices transform: ', transformed)
       return transformed
     }
   }

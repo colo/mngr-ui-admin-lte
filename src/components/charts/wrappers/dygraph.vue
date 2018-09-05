@@ -206,7 +206,7 @@ export default {
           this.update()
         }
 
-      })
+      }, {deep : true})
     },
     __create_dygraph (){
       //console.log('__create_dygraph', this.stat.data)
@@ -245,7 +245,7 @@ export default {
           )
         }
         else{
-          console.log('no focus, forcing...')
+          console.log('no focus, forcing...', new Date())
           this.updateOptions(
             { 'dateWindow': this.$options.graph.xAxisExtremes() },
             false

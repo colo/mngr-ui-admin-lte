@@ -66,10 +66,13 @@ export default {
     }
   },
 
-  // created () {
+  created () {
+    this.create()
+  },
+  // mounted () {
   //   this.create()
   // },
-  mounted () {
+  updated () {
     this.create()
   },
   destroyed (){
@@ -78,10 +81,10 @@ export default {
   },
   methods: {
     create (){
-      console.log('create chart vue')
 
       let unwatch = this.$watch('stat.data', function (val, old) {
 
+        console.log('create chart vue', this.id, this.$options.__chart_init, val)
 
         if(val && val.length > 1){
 
@@ -99,7 +102,7 @@ export default {
           unwatch()
         }
 
-      })
+      }, { deep: true } )
     },
 
     destroy: function(){
@@ -212,22 +215,24 @@ export default {
       }
 
       let generic_data_watcher = function(current){
-        // console.log('generic_data_watcher', name, current)
-        // Array.each(current, function(row, index){
-        //   console.log('generic_data_watcher', row)
-        // })
+        if(current){
+          // console.log('generic_data_watcher', name, current)
+          // Array.each(current, function(row, index){
+          //   console.log('generic_data_watcher', row)
+          // })
 
-        // console.log('generic_data_watcher val', chart)
-        if(this.$options.visible){
-          if(chart.watch && chart.watch.cumulative == true){//send all values
-            console.log('generic_data_watcher send all', name)
-            data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
-          }
-          else{//send last only
-            console.log('generic_data_watcher send last', name, [ current[current.length - 1] ])
-            data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
-          }
+          // console.log('generic_data_watcher val', chart)
+          if(this.$options.visible){
+            if(chart.watch && chart.watch.cumulative == true){//send all values
+              console.log('generic_data_watcher send all', name)
+              data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+            }
+            else{//send last only
+              console.log('generic_data_watcher send last', name, current)
+              data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
+            }
 
+          }
         }
       }
 
@@ -242,7 +247,7 @@ export default {
     update_chart_stat (name, data){
 
       console.log('update_chart_stat visibility', name, data)
-      
+
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
 
