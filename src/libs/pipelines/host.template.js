@@ -6,7 +6,7 @@ import DefaultConn from '@etc/default.conn'
 
 import InputPollerCouchDBOS from '@libs/input/poller/couchdb.os'
 
-import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
+// import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
 
 import store from 'src/store'
 

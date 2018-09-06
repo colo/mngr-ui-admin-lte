@@ -228,7 +228,7 @@ import { mapState } from 'vuex'
 
 // import sizeof from 'object-sizeof'
 
-import Pipeline from 'node-mngr-worker/lib/pipeline'
+import Pipeline from 'js-pipeline'
 
 
 import HostTemplatePipeline from '@libs/pipelines/host.template'

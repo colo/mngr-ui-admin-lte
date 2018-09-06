@@ -111,7 +111,7 @@ if(!window['EventBus'])
 // import hostStore from 'src/store/host'
 // import statsStore from 'src/store/stats'
 
-import Pipeline from 'node-mngr-worker/lib/pipeline'
+import Pipeline from 'js-pipeline'
 
 
 /**

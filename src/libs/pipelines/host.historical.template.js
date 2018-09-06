@@ -6,7 +6,7 @@ import DefaultConn from '../../etc/default.conn'
 
 import InputPollerCouchDBOSHistorical from '../input/poller/couchdb.historical.os'
 
-import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
+// import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
 
 export default {
 	input: [
