@@ -129,12 +129,12 @@ let count_pipeline = new Pipeline(CountPipeline)
 
 import { mapState } from 'vuex'
 
-import VuexPersistence from 'vuex-persist'
-const vuexLocal = new VuexPersistence ({
-  storage: window.localStorage,
-  // reducer: state => ({app: state.app, hosts : state.hosts, stats: state.stats}), //only save app module
-  // modules: ['app', 'hosts', 'stats']
-})
+// import VuexPersistence from 'vuex-persist'
+// const vuexLocal = new VuexPersistence ({
+//   storage: window.localStorage,
+//   // reducer: state => ({app: state.app, hosts : state.hosts, stats: state.stats}), //only save app module
+//   // modules: ['app', 'hosts', 'stats']
+// })
 
 export default {
   name: 'App',
