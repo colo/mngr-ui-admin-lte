@@ -30,6 +30,7 @@
     "js-pipeline": "git+https://github.com/colo/js-pipeline.git",
     "node-app-couchdb-client": "git+https://github.com/colo/node-app-couchdb-client.git",
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
+    "node-app-socket.io-client": "git+https://github.com/colo/node-app-socket.io-client.git",
     "node-cron": "^1.2.1",
     "node-mngr-docs": "git+https://github.com/colo/node-mngr-docs.git",
     "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",

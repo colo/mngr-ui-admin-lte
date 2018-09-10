@@ -1,6 +1,6 @@
 'use strict'
 
-import InputIOApp from '@libs/input/io/app'
+import InputIOApp from '@libs/input/poller/app'
 
 import DefaultConn from '@etc/default.io'
 
@@ -25,9 +25,9 @@ export default  {
 				],
 				// connect_retry_count: 5,
 				// connect_retry_periodical: 1000,
-				// requests: {
-				// 	periodical: 10000,
-				// },
+				requests: {
+					periodical: 1000,
+				},
 			},
 		},
 

@@ -127,6 +127,9 @@ let search_pipeline = new Pipeline(SearchPipeline)
 import CountPipeline from '@libs/pipelines/count'
 let count_pipeline = new Pipeline(CountPipeline)
 
+import AppPipeline from '@libs/pipelines/app'
+let app_pipeline = new Pipeline(AppPipeline)
+
 import { mapState } from 'vuex'
 
 // import VuexPersistence from 'vuex-persist'
