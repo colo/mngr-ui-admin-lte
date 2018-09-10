@@ -110,9 +110,9 @@ export default new Class({
 			routes: {
 				'app.doc': [{
 					// path: ':param',
-					once: true, //socket.once
-					callbacks: ['check', 'message'],
-					middlewares: [], //socket.use(fn)
+					// once: true, //socket.once
+					callbacks: ['app_doc'],
+					// middlewares: [], //socket.use(fn)
 				}],
 				// '*': [{// catch all
 				// 	path: '',
@@ -125,18 +125,14 @@ export default new Class({
 
   },
 
-  check: function(socket, next){
-		console.log('checking...', socket, arguments)
+  app_doc: function(socket, next){
+    this.fireEvent('onPeriodicalDoc', [arguments[2], {type: 'periodical', input_type: this, app: null}]);
+		// console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()
 		// this.io.to('root').emit('response', 'a new user has joined the room saying '+arguments[2]);
-		next(socket)
+		// next(socket)
 	},
-	message: function(socket, next){
-		console.log('message recived')
-		socket.emit('response', 'some response')
 
-		// console.log(this.authorization)
-	},
   initialize: function(options){
 		this.parent(options);//override default options
 

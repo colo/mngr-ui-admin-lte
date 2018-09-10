@@ -117,15 +117,15 @@ import Pipeline from 'js-pipeline'
 /**
 * search host & paths
 **/
-import SearchPipeline from '@libs/pipelines/search'
-let search_pipeline = new Pipeline(SearchPipeline)
+// import SearchPipeline from '@libs/pipelines/search'
+// let search_pipeline = new Pipeline(SearchPipeline)
 
 
 /**
 * count docs x sec
 **/
-import CountPipeline from '@libs/pipelines/count'
-let count_pipeline = new Pipeline(CountPipeline)
+// import CountPipeline from '@libs/pipelines/count'
+// let count_pipeline = new Pipeline(CountPipeline)
 
 import AppPipeline from '@libs/pipelines/app'
 let app_pipeline = new Pipeline(AppPipeline)
@@ -151,40 +151,54 @@ export default {
   },
 
   watch: {
-    '$store.state.app.docs.search': function(oldVal, newVal){
-      console.log('recived doc via Event search', newVal)
-      this.process_search_doc(newVal)
+    '$store.state.app.docs.hosts': {
+      handler: function(newVal, oldVal){
+        console.log('recived doc via Event hosts', newVal)
+        this.process_hosts_doc(newVal)
+      },
+      deep: true
     },
+    '$store.state.app.docs.paths': {
+      handler: function(newVal, oldVal){
+        console.log('recived doc via Event paths', newVal)
+        this.process_paths_doc(newVal)
+      },
+      deep: true
+    }
   },
-  // mounted: function(){
-  //   this.process_search_doc(this.$store.state.app.docs.search)
-  // },
+  mounted: function(){
+    this.process_paths_doc(this.$store.state.app.docs.paths)
+    this.process_hosts_doc(this.$store.state.app.docs.hosts)
+  },
   methods: {
-    process_search_doc: function(doc){
+    process_paths_doc: function(doc){
       if(doc != null){
         let currentPaths = this.$store.state.app.paths
-        if (currentPaths.equals(doc.paths) !== true){
+        if (currentPaths.equals(doc) !== true){
 
-          this.$store.commit('app/paths', doc.paths)
-
-          this.$store.commit('hosts/clear')
-          this.$store.commit('hosts/set', doc.hosts)
-
-
-          let currentRange = Object.clone(this.$store.state.app.range)
-          ////console.log('update range', currentRange)
-          //just a small modification to notify of update
-          this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
-
-          this.$store.commit('app/reset', false)
-          this.$store.commit('app/reset', true)
+          this.$store.commit('app/paths', doc)
 
         }
-        else {
-          this.$store.commit('hosts/set', doc.hosts)
-        }
+        // else {
+        //   this.$store.commit('hosts/set', doc.hosts)
+        // }
 
 
+      }
+    },
+    process_hosts_doc: function(doc){
+      if(doc != null){
+
+        this.$store.commit('hosts/clear')
+        this.$store.commit('hosts/set', doc)
+
+        let currentRange = Object.clone(this.$store.state.app.range)
+        ////console.log('update range', currentRange)
+        //just a small modification to notify of update
+        this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
+
+        this.$store.commit('app/reset', false)
+        this.$store.commit('app/reset', true)
 
         Array.each(doc.hosts, function(host){
           if(!this.$store.state['host_'+host]){

@@ -1,6 +1,6 @@
 'use strict'
 
-import InputIOApp from '@libs/input/poller/io.app'
+import InputIOHost from '@libs/input/poller/io.host'
 
 import DefaultConn from '@etc/default.io'
 
@@ -12,13 +12,13 @@ export default  {
 	input: [
 		{
 			poll: {
-				id: "input.app",
+				id: "input.os",
 				conn: [
           Object.merge(
             Object.clone(DefaultConn),
             {
-              id: 'input.app',
-              module: InputIOApp,
+              id: 'os',
+              module: InputIOHost,
             }
           )
 
@@ -46,9 +46,12 @@ export default  {
 	// 	}
 	// ],
 	output: [
-		function(doc){
-			console.log('app/doc output', doc)
-			store.commit('app/doc', doc)
+		function(payload){
+      console.log('HOST OUTPUT', payload)
+			// console.log('app/doc output', doc)
+			// store.commit('app/doc', doc)
+
+      EventBus.$emit('os', payload)
 
 		}
 	]

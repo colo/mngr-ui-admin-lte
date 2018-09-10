@@ -231,15 +231,18 @@ import { mapState } from 'vuex'
 import Pipeline from 'js-pipeline'
 
 
-import HostTemplatePipeline from '@libs/pipelines/host.template'
+// import HostTemplatePipeline from '@libs/pipelines/host.template'
+import HostPipeline from '@libs/pipelines/host'
+
 import HostHistoricalTemplatePipeline from '@libs/pipelines/host.historical.template'
 import HostMuninTemplatePipeline from '@libs/pipelines/host.munin.template'
 
 
 let host_pipelines_templates = [
-  HostTemplatePipeline,
+  // HostTemplatePipeline,
   // HostMuninTemplatePipeline,
   // HostHistoricalTemplatePipeline
+  HostPipeline
 ]
 
 import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
