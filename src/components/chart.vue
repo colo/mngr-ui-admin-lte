@@ -19,7 +19,7 @@
 // let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
 let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
-import dygraphWrapper from 'components/charts/wrappers/dygraph'
+import dygraphWrapper from 'components/wrappers/dygraph'
 
 import chart from 'components/mixins/chart'
 

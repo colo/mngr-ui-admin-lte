@@ -250,17 +250,24 @@ import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/su
 
 import dashboard from 'components/mixins/dashboard'
 
-// import dygraphWrapper from 'components/charts/wrappers/dygraph'
 
-// import DefaultDygraphLine from 'components/charts/js/default.dygraph.line'
-import uptime_chart from 'components/charts/uptime'
-import loadavg_chart from 'components/charts/loadavg'
-import cpus_times_chart from 'components/charts/cpus_times'
-import cpus_percentage_chart from 'components/charts/cpus_percentage'
-import freemem_chart from 'components/charts/freemem'
-import mounts_percentage_chart from 'components/charts/mounts_percentage'
-import blockdevices_stats_chart from 'components/charts/blockdevices_stats'
-import networkInterfaces_chart from 'components/charts/networkInterfaces'
+// import uptime_chart from 'components/charts/uptime'
+// import loadavg_chart from 'components/charts/loadavg'
+// import cpus_times_chart from 'components/charts/cpus_times'
+// import cpus_percentage_chart from 'components/charts/cpus_percentage'
+// import freemem_chart from 'components/charts/freemem'
+// import mounts_percentage_chart from 'components/charts/mounts_percentage'
+// import blockdevices_stats_chart from 'components/charts/blockdevices_stats'
+// import networkInterfaces_chart from 'components/charts/networkInterfaces'
+
+import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
+import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
+import cpus_times_chart from 'mngr-ui-admin-charts/os/cpus_times'
+import cpus_percentage_chart from 'mngr-ui-admin-charts/os/cpus_percentage'
+import freemem_chart from 'mngr-ui-admin-charts/os/freemem'
+import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
+import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
+import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
 
 export default {
   mixins: [dashboard],

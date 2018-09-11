@@ -37,39 +37,14 @@ export default new Class({
                 Array.each(app.options.paths, function(path){
                   if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
 
-                    // //console.log('couchdb.os range', path)
-
-                      // next(
-                      // app.view({
-          						// 	uri: app.options.db,
-                      //   args: [
-                      //     'sort',
-                      //     'by_path',
-                      //     {
-            					// 			// startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
-            					// 			// endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
-                      //       // startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
-                      //       startkey: [path, app.options.stat_host, "periodical", start],
-            					// 			endkey: [path, app.options.stat_host, "periodical",end],
-                      //
-            					// 			inclusive_end: true,
-            					// 			include_docs: true
-            					// 		}
-                      //   ]
-          						// })
-                      this.io.emit('range', {
-                        host: app.options.stat_host,
-                        path: path,
-                        range: req.opt.range
-          						})
+                    this.io.emit('range', {
+                      host: app.options.stat_host,
+                      path: path,
+                      range: req.opt.range
+        						})
                   }
 
                 }.bind(app))
-              //
-              //   start -= CHUNK
-              //   end -= CHUNK
-              // }
-              // while(start > req.opt.range.start)
 
             }
 
@@ -82,6 +57,19 @@ export default new Class({
       once: [
 			],
 			periodical: [
+        {
+					sort_by_host: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('periodical', {
+                host: app.options.stat_host,
+              })
+
+            }
+
+					}
+				}
 			],
 
 		},
