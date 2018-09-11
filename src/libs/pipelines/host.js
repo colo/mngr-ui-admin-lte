@@ -51,7 +51,14 @@ export default  {
 			// console.log('app/doc output', doc)
 			// store.commit('app/doc', doc)
 
-      EventBus.$emit('os', payload)
+			if(payload.type == 'charts'){
+				EventBus.$emit('charts', payload.charts)
+			}
+			else{
+				EventBus.$emit('os', payload)
+			}
+
+
 
 		}
 	]

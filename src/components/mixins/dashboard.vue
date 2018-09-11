@@ -1,6 +1,8 @@
 <script>
 
 import chart from 'components/chart'
+import chartTabular from 'components/chart.tabular'
+
 import chartEmptyContainer from 'components/chart.empty.container'
 
 import admin_lte_mixin from 'components/mixins/admin-lte'
@@ -10,6 +12,7 @@ export default {
 
   components: {
     chart,
+    chartTabular,
     chartEmptyContainer
   },
 
@@ -62,7 +65,7 @@ export default {
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
-      console.log('remove_chart', name)
+      // console.log('remove_chart', name)
     },
     remove_charts: function(){
       Object.each(this.charts, function(name){

@@ -20,7 +20,7 @@
           v-on:hide="el => hideCollapsible(el)"
         >
 
-          <chart
+          <chart-tabular
             v-if="visibility[host+'_os_cpus_times']"
             :type="'dygraph'"
             :ref="host+'_os_cpus_times'"
@@ -29,7 +29,7 @@
             :chart="charts[host+'_os_cpus_times']"
             :stat="stats[host+'_os_cpus_times']"
           >
-          </chart>
+          </chart-tabular>
           <chart-empty-container v-else></chart-empty-container>
 
 
@@ -43,7 +43,7 @@
           v-on:hide="el => hideCollapsible(el)"
         >
 
-          <chart
+          <chart-tabular
             v-if="visibility[host+'_os_cpus_percentage']"
             :type="'dygraph'"
             :ref="host+'_os_cpus_percentage'"
@@ -52,7 +52,7 @@
             :chart="charts[host+'_os_cpus_percentage']"
             :stat="stats[host+'_os_cpus_percentage']"
           >
-          </chart>
+          </chart-tabular>
           <chart-empty-container v-else></chart-empty-container>
 
 
@@ -274,6 +274,7 @@ export default {
 
   name: 'admin-lte-dashboard-host',
 
+  charts_objects: {},
   charts: {},
   pipelines: {},
 
@@ -420,6 +421,49 @@ export default {
   created: function(){
     //console.log('life cycle created')
 
+    EventBus.$on('charts', charts => {
+      console.log('recived doc via Event charts', charts)
+      Object.each(charts, function(chart, name){
+        this.$options.charts_objects[name] = chart
+      }.bind(this))
+
+      this.$options.charts[this.host+'_os_cpus_times'] = {
+        name: this.host+'_os_cpus_times',
+        chart: Object.clone(this.$options.charts_objects['cpus_times']),
+        init: this.__cpus_time_get_stat.bind(this),
+        // watch: {
+        //   name: '$store.state.stats.'+this.host+'.os.cpus',
+        //   deep: true,
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        // },
+        stat: {
+          host: this.host,
+          path: 'os',
+          key: 'cpus',
+          length: this.seconds || 300,
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+
+        }
+      }
+
+      this.$options.charts[this.host+'_os_cpus_percentage'] = {
+        name: this.host+'_os_cpus_percentage',
+        chart: Object.clone(this.$options.charts_objects['cpus_percentage']),
+        init: this.__cpus_percentage_get_stat.bind(this),
+        // watch: {
+        //   name: '$store.state.stats.'+this.host+'.os.cpus',
+        //   // cb: this.__watcher_callback.bind(this)
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        // },
+        stat: {
+          host: this.host,
+          path: 'os',
+          key: 'cpus',
+          length: this.seconds || 300,
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      }
+    })
 
     EventBus.$on('os', payload => {
       //console.log('recived doc via Event os', payload.type)
@@ -442,42 +486,42 @@ export default {
 
     this.create_host_pipelines(this.$store.state.app.paths)
 
-    this.$options.charts[this.host+'_os_cpus_times'] = {
-      name: this.host+'_os_cpus_times',
-      chart: Object.clone(cpus_times_chart),
-      init: this.__cpus_time_get_stat.bind(this),
-      // watch: {
-      //   name: '$store.state.stats.'+this.host+'.os.cpus',
-      //   deep: true,
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      // },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'cpus',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-
-      }
-    }
-
-    this.$options.charts[this.host+'_os_cpus_percentage'] = {
-      name: this.host+'_os_cpus_percentage',
-      chart: Object.clone(cpus_percentage_chart),
-      init: this.__cpus_percentage_get_stat.bind(this),
-      // watch: {
-      //   name: '$store.state.stats.'+this.host+'.os.cpus',
-      //   // cb: this.__watcher_callback.bind(this)
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      // },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'cpus',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    }
+    // this.$options.charts[this.host+'_os_cpus_times'] = {
+    //   name: this.host+'_os_cpus_times',
+    //   chart: Object.clone(cpus_times_chart),
+    //   init: this.__cpus_time_get_stat.bind(this),
+    //   // watch: {
+    //   //   name: '$store.state.stats.'+this.host+'.os.cpus',
+    //   //   deep: true,
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   // },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'cpus',
+    //     length: this.seconds || 300,
+    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+    //
+    //   }
+    // }
+    //
+    // this.$options.charts[this.host+'_os_cpus_percentage'] = {
+    //   name: this.host+'_os_cpus_percentage',
+    //   chart: Object.clone(cpus_percentage_chart),
+    //   init: this.__cpus_percentage_get_stat.bind(this),
+    //   // watch: {
+    //   //   name: '$store.state.stats.'+this.host+'.os.cpus',
+    //   //   // cb: this.__watcher_callback.bind(this)
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   // },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'cpus',
+    //     length: this.seconds || 300,
+    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // }
 
     this.$options.charts[this.host+'_os_freemem'] = {
       name: this.host+'_os_freemem',
@@ -925,7 +969,7 @@ export default {
       let id = entry.target.id.replace('-collapsible', '')
       let name = id.replace(this.host+'_', '')
 
-      console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
+      // console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
 
       if(isVisible == false){
         if(!this.visibility[id] || this.visibility[id] === true){

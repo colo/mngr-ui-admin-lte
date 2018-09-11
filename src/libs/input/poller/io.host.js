@@ -55,6 +55,19 @@ export default new Class({
 
 			],
       once: [
+        {
+					charts_by_host: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('charts', {
+                host: app.options.stat_host,
+              })
+
+            }
+
+					}
+				}
 			],
 			periodical: [
         {
@@ -78,6 +91,9 @@ export default new Class({
 			// middlewares: [], //namespace.use(fn)
 			// rooms: ['root'], //atomatically join connected sockets to this rooms
 			routes: {
+        'charts':[{
+          callbacks: ['charts']
+        }],
         'host': [{
 					// path: ':param',
 					// once: true, //socket.once
@@ -99,6 +115,12 @@ export default new Class({
 		}
 
 
+  },
+  charts: function(socket, next){
+    let {host, charts} = arguments[2]
+    console.log('IO.HOST charts', host, charts)
+
+    this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
   },
   host: function(socket, next){
     let {host, status} = arguments[2]
