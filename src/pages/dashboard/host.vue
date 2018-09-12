@@ -466,8 +466,8 @@ export default {
     })
 
     EventBus.$on('os', payload => {
-      //console.log('recived doc via Event os', payload.type)
-        this.process_os_doc(payload.doc)
+      console.log('recived doc via Event os', payload)
+        this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
 
         if(payload.type == 'range'){
           EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
@@ -1431,7 +1431,10 @@ export default {
       }
     },
 
-    process_os_doc: function(doc){
+    /**
+    * copied to mngr-ui-admin-app/os
+    **/
+    process_os_doc: function(doc, cb){
 
       let paths = {}
 
@@ -1465,7 +1468,11 @@ export default {
         paths[path] = keys
       }
 
+      cb(paths)
 
+
+    },
+    __add_os_doc_stats(paths){
       Object.each(paths, function(keys, path){
         // //console.log('stat process_os_doc', path)
 
@@ -1481,7 +1488,6 @@ export default {
         }.bind(this))
 
       }.bind(this))
-
     },
     create_host_pipelines (paths) {
       // paths = ['os.procs']

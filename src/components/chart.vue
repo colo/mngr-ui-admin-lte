@@ -123,11 +123,12 @@ export default {
     visibilityChanged (isVisible, entry) {
       this.$options.visible = isVisible
     },
-    // update: function(){
-    //   this.$refs[this.id].update()
-    // },
+
+    /**
+    * copied to mngr-ui-admin-app/os
+    **/
     __process_stat (chart, name, stat){
-      //////console.log('__process_stat', stat)
+      console.log('__process_stat', name, stat)
       if(!Array.isArray(stat))
         stat = [stat]
 
@@ -188,7 +189,11 @@ export default {
       }
 
     },
+    /**
+    * copied to mngr-ui-admin-app/os
+    **/
     __process_chart (chart, name, stat){
+      console.log('data_to_tabular', this.stat.data, name, stat)
 
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
@@ -196,8 +201,10 @@ export default {
       /**
       * first update
       **/
-      if(this.stat.data.length > 0)
+      if(this.stat.data.length > 0){
+
         data_to_tabular(this.stat.data, chart, name, this.update_chart_stat.bind(this))
+      }
 
       this.__create_watcher(name, chart)
 
