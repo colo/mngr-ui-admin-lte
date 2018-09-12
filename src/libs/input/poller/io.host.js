@@ -56,33 +56,44 @@ export default new Class({
 			],
       once: [
         {
-					charts_by_host: function(req, next, app){
+					host: function(req, next, app){
 
             if(app.options.stat_host){
 
-              this.io.emit('charts', {
-                host: app.options.stat_host,
-              })
+              this.io.emit('host', app.options.stat_host)
 
             }
 
 					}
 				}
+        // {
+				// 	charts_by_host: function(req, next, app){
+        //
+        //     if(app.options.stat_host){
+        //
+        //       this.io.emit('charts', {
+        //         host: app.options.stat_host,
+        //       })
+        //
+        //     }
+        //
+				// 	}
+				// }
 			],
 			periodical: [
-        {
-					sort_by_host: function(req, next, app){
-
-            if(app.options.stat_host){
-
-              this.io.emit('periodical', {
-                host: app.options.stat_host,
-              })
-
-            }
-
-					}
-				}
+        // {
+				// 	sort_by_host: function(req, next, app){
+        //
+        //     if(app.options.stat_host){
+        //
+        //       this.io.emit('periodical', {
+        //         host: app.options.stat_host,
+        //       })
+        //
+        //     }
+        //
+				// 	}
+				// }
 			],
 
 		},
@@ -123,9 +134,12 @@ export default new Class({
     this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
   },
   host: function(socket, next){
-    let {host, status} = arguments[2]
-    console.log('IO.HOST host', host, status)
+    let {host, status, charts} = arguments[2]
+    console.log('IO.HOST host', host, status, charts)
     this.status = status
+
+    this.charts(socket, next, {host: host, charts: charts})
+    // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
     //
     // if(status == 'ok')
     //   this.io.emit('range', )
@@ -147,8 +161,13 @@ export default new Class({
 
 		this.profile('root_init');//start profiling
 
+    this.addEvent('onExit', function(){
+      console.log('EXITING...')
+      if(this.io.disconnected == false)
+        this.io.close()
+    })
     // console.log('this.io', this.io)
-    this.io.emit('host', this.options.stat_host)
+    // this.io.emit('host', this.options.stat_host)
 
 		this.profile('root_init');//end profiling
 
