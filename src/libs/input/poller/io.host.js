@@ -81,19 +81,19 @@ export default new Class({
 				// }
 			],
 			periodical: [
-        // {
-				// 	sort_by_host: function(req, next, app){
-        //
-        //     if(app.options.stat_host){
-        //
-        //       this.io.emit('periodical', {
-        //         host: app.options.stat_host,
-        //       })
-        //
-        //     }
-        //
-				// 	}
-				// }
+        {
+					sort_by_host: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('periodical', {
+                host: app.options.stat_host,
+              })
+
+            }
+
+					}
+				}
 			],
 
 		},
@@ -145,10 +145,11 @@ export default new Class({
     //   this.io.emit('range', )
   },
   os: function(socket, next){
-    let {type, doc} = arguments[2]
+    let {type, doc, tabular} = arguments[2]
     console.log('IO.HOST os', arguments[2])
 
-    this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [arguments[2], {type: type, input_type: this, app: null}]);
+    if(tabular != true)
+      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [arguments[2], {type: type, input_type: this, app: null}]);
 
 		// console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()
