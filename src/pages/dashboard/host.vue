@@ -467,9 +467,14 @@ export default {
 
     EventBus.$on('os', payload => {
       console.log('recived doc via Event os', payload)
-        this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
+        if(payload.tabular == true){
+          this.process_os_tabular(payload.doc)
+        }
+        else{
+          this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
+        }
 
-        if(payload.type == 'range'){
+        if(payload.type == 'range' && payload.tabular != true){
           EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
           // //console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
@@ -1430,7 +1435,52 @@ export default {
 
       }
     },
+    process_os_tabular: function(doc){
+      // console.log('process_os_tabular', doc)
+      if(doc.metadata != null && doc.metadata.host == this.host){
+        Object.each(doc.data, function(row, path){
+          Object.each(row, function(data, key){
 
+            if(data.length > 0){
+              if(Array.isArray(data[0])){//array of array, range data
+                let result = []
+                Array.each(data, function(value) {
+
+                  result.push({
+                    timestamp: value[0],
+                    value: value
+                  })
+
+
+
+                }.bind(this))
+
+                console.log('process_os_tabular', path, key, result)
+
+                this.$store.dispatch('stats_tabular/add', {
+                  host: this.host,
+                  path: path,
+                  key: key,
+                  data: result
+                })
+              }
+              else{
+                this.$store.dispatch('stats_tabular/add', {
+                  host: this.host,
+                  path: path,
+                  key: key,
+                  data: {
+                    timestamp: data[0],
+                    value: data
+                  }
+                })
+              }
+            }
+
+          }.bind(this))
+        }.bind(this))
+      }
+    },
     /**
     * copied to mngr-ui-admin-app/os
     **/
@@ -1473,11 +1523,12 @@ export default {
 
     },
     __add_os_doc_stats(paths){
+      // console.log('__add_os_doc_stats', paths)
       Object.each(paths, function(keys, path){
         // //console.log('stat process_os_doc', path)
 
         Object.each(keys, function(data, key){
-          // //console.log('stat process_os_doc', path, key, data)
+          console.log('stat process_os_doc', path, key, data)
           this.$store.dispatch('stats/add', {
             host: this.host,
             path: path,

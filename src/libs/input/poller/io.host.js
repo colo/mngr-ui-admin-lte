@@ -148,7 +148,7 @@ export default new Class({
     let {type, doc, tabular} = arguments[2]
     console.log('IO.HOST os', arguments[2])
 
-    if(tabular != true)
+    // if(tabular != true)
       this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [arguments[2], {type: type, input_type: this, app: null}]);
 
 		// console.log('app_doc...', socket, arguments[2])

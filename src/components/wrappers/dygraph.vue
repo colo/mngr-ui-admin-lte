@@ -284,11 +284,15 @@ export default {
           // self.stat.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 
-
+          let data = []
+          Array.each(self.stat.data, function(row){
+            row[0] = new Date(row[0])
+            data.push(row)
+          })
           this.$options.graph.updateOptions(
             Object.merge(
               {
-                'file': self.stat.data
+                'file': data
               },
               options
             ),
