@@ -81,19 +81,19 @@ export default new Class({
 				// }
 			],
 			periodical: [
-        {
-					sort_by_host: function(req, next, app){
-
-            if(app.options.stat_host){
-
-              this.io.emit('periodical', {
-                host: app.options.stat_host,
-              })
-
-            }
-
-					}
-				}
+        // {
+				// 	sort_by_host: function(req, next, app){
+        //
+        //     if(app.options.stat_host){
+        //
+        //       this.io.emit('periodical', {
+        //         host: app.options.stat_host,
+        //       })
+        //
+        //     }
+        //
+				// 	}
+				// }
 			],
 
 		},
@@ -102,9 +102,9 @@ export default new Class({
 			// middlewares: [], //namespace.use(fn)
 			// rooms: ['root'], //atomatically join connected sockets to this rooms
 			routes: {
-        'charts':[{
-          callbacks: ['charts']
-        }],
+        // 'charts':[{
+        //   callbacks: ['charts']
+        // }],
         'host': [{
 					// path: ':param',
 					// once: true, //socket.once
@@ -164,6 +164,7 @@ export default new Class({
 
     this.addEvent('onExit', function(){
       console.log('EXITING...')
+      
       if(this.io.disconnected == false)
         this.io.close()
     })

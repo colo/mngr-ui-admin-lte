@@ -216,9 +216,14 @@ export default {
       if(options.labelsDiv)
         options.labelsDiv = this.id+'-'+options.labelsDiv
 
+      let data = []
+      Array.each(this.stat.data, function(row){
+        row[0] = new Date(row[0])
+        data.push(row)
+      })
       this.$options.graph = new Dygraph(
         document.getElementById(this.id),  // containing div
-        this.stat.data,
+        data,
         options
       )
 

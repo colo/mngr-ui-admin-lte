@@ -89,7 +89,7 @@
           v-on:hide="el => hideCollapsible(el)"
         >
 
-          <chart
+          <chart-tabular
             v-if="visibility[host+'_os_uptime']"
             :type="'dygraph'"
             :ref="host+'_os_uptime'"
@@ -98,7 +98,7 @@
             :chart="charts[host+'_os_uptime']"
             :stat="stats[host+'_os_uptime']"
           >
-          </chart>
+          </chart-tabular>
           <chart-empty-container v-else></chart-empty-container>
 
         </admin-lte-box-solid>
@@ -111,7 +111,7 @@
           v-on:hide="el => hideCollapsible(el)"
         >
 
-          <chart
+          <chart-tabular
             v-if="visibility[host+'_os_loadavg']"
             :type="'dygraph'"
             :ref="host+'_os_loadavg'"
@@ -120,7 +120,7 @@
             :chart="charts[host+'_os_loadavg']"
             :stat="stats[host+'_os_loadavg']"
           >
-          </chart>
+          </chart-tabular>
           <chart-empty-container v-else></chart-empty-container>
 
         </admin-lte-box-solid>
@@ -136,7 +136,7 @@
             v-on:hide="el => hideCollapsible(el)"
           >
 
-            <chart
+            <chart-tabular
               v-if="visibility[host+'_os_blockdevices_stats_'+index]"
               :type="'dygraph'"
               :ref="host+'_os_blockdevices_stats_'+index"
@@ -145,7 +145,7 @@
               :chart="charts[host+'_os_blockdevices_stats_'+index]"
               :stat="stats[host+'_os_blockdevices_stats_'+index]"
             >
-            </chart>
+            </chart-tabular>
             <chart-empty-container v-else></chart-empty-container>
 
 
@@ -162,7 +162,7 @@
             v-on:hide="el => hideCollapsible(el)"
           >
 
-            <chart
+            <chart-tabular
               v-if="visibility[host+'_os_mounts_percentage_'+index]"
               :type="'dygraph'"
               :ref="host+'_os_mounts_percentage_'+index"
@@ -171,7 +171,7 @@
               :chart="charts[host+'_os_mounts_percentage_'+index]"
               :stat="stats[host+'_os_mounts_percentage_'+index]"
             >
-            </chart>
+            </chart-tabular>
             <chart-empty-container v-else></chart-empty-container>
 
 
@@ -423,13 +423,13 @@ export default {
 
     EventBus.$on('charts', charts => {
       console.log('recived doc via Event charts', charts)
-      Object.each(charts, function(chart, name){
-        this.$options.charts_objects[name] = chart
+      Object.each(charts, function(data, name){
+        this.$options.charts_objects[name] = data.chart
       }.bind(this))
 
       this.$options.charts[this.host+'_os_cpus_times'] = {
         name: this.host+'_os_cpus_times',
-        chart: Object.clone(this.$options.charts_objects['cpus_times']),
+        chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
         init: this.__cpus_time_get_stat.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
@@ -438,9 +438,10 @@ export default {
         // },
         stat: {
           host: this.host,
-          path: 'os',
-          key: 'cpus',
+          path: 'cpus_times',
+          key: 'os_cpus',
           length: this.seconds || 300,
+          tabular: true
           // range: [Date.now() - this.seconds * 1000, Date.now()]
 
         }
@@ -448,7 +449,7 @@ export default {
 
       this.$options.charts[this.host+'_os_cpus_percentage'] = {
         name: this.host+'_os_cpus_percentage',
-        chart: Object.clone(this.$options.charts_objects['cpus_percentage']),
+        chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
         init: this.__cpus_percentage_get_stat.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
@@ -457,12 +458,128 @@ export default {
         // },
         stat: {
           host: this.host,
-          path: 'os',
-          key: 'cpus',
+          path: 'cpus_percentage',
+          key: 'os_cpus',
           length: this.seconds || 300,
+          tabular: true
           // range: [Date.now() - this.seconds * 1000, Date.now()]
         }
       }
+
+      this.$options.charts[this.host+'_os_uptime'] = {
+        name: this.host+'_os_uptime',
+        chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
+        init: this.__uptime_get_stat.bind(this),
+        // watch: {
+        //   name: '$store.state.stats.'+this.host+'.os.uptime',
+        //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        // },
+        stat: {
+          host: this.host,
+          path: 'uptime',
+          key: 'os_uptime',
+          length: this.seconds || 300,
+          tabular: true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      }
+
+      this.$options.charts[this.host+'_os_loadavg'] = {
+        name: this.host+'_os_loadavg',
+        chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
+        init: this.__loadavg_get_stat.bind(this),
+        // watch: {
+        //   name: '$store.state.stats.'+this.host+'.os.loadavg',
+        //   // cb: this.__watcher_callback.bind(this)
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        // },
+        stat: {
+          host: this.host,
+          path: 'loadavg',
+          key: 'os_loadavg',
+          length: this.seconds || 300,
+          tabular:true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      }
+
+      let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
+
+        // //console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+        if(val !== undefined && Object.getLength(val) > 0){
+
+          Object.each(val, function(mount, key){
+            //console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+            let chart_name = this.host+'_os_blockdevices_stats_'+key
+
+             this.$options.charts[chart_name] = Object.clone({
+              name: this.host+'_os_blockdevices_stats_'+key,
+              chart: Object.merge(blockdevices_stats_chart, this.$options.charts_objects['blockdevices_stats']),
+              init: this.__blockdevices_get_stat.bind(this),
+              // watch: {
+              //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
+              //   deep:true,
+              //   // cb: this.__watcher_callback.bind(this)
+              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+              // },
+              stat: {
+                host: this.host,
+                path: 'blockdevices_stats',
+                key: 'os_blockdevices_'+key,
+                length: this.seconds || 300,
+                tabular: true
+                // range: [Date.now() - this.seconds * 1000, Date.now()]
+              }
+            })
+
+
+          }.bind(this))
+
+          unwatch_blockdevices()
+        }
+      }.bind(this),{
+        deep:true
+      })
+
+      let unwatch_mounts = this.$watch('mounts', function(val, old){
+
+        // //console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+        if(val !== undefined && Object.getLength(val) > 0){
+
+          Object.each(val, function(mount, key){
+            //console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+            let chart_name = this.host+'_os_mounts_percentage_'+key
+
+             this.$options.charts[chart_name] = Object.clone({
+              name: this.host+'_os_mounts_percentage_'+key,
+              chart: Object.merge(mounts_percentage_chart, this.$options.charts_objects['mounts_percentage']),
+              init: this.__mounts_get_stat.bind(this),
+              // watch: {
+              //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
+              //   deep:true,
+              //   // cb: this.__watcher_callback.bind(this)
+              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+              // },
+              stat: {
+                host: this.host,
+                path: 'mounts_percentage',
+                key: 'os_mounts_'+key,
+                length: this.seconds || 300,
+                // range: [Date.now() - this.seconds * 1000, Date.now()]
+              }
+            })
+
+
+          }.bind(this))
+
+          unwatch_mounts()
+        }
+      }.bind(this),{
+        deep:true
+      })
     })
 
     EventBus.$on('os', payload => {
@@ -491,6 +608,9 @@ export default {
 
     this.create_host_pipelines(this.$store.state.app.paths)
 
+    /**
+    * moved to "charts" event
+    **/
     // this.$options.charts[this.host+'_os_cpus_times'] = {
     //   name: this.host+'_os_cpus_times',
     //   chart: Object.clone(cpus_times_chart),
@@ -509,7 +629,10 @@ export default {
     //
     //   }
     // }
-    //
+
+    /**
+    * moved to "charts" event
+    **/
     // this.$options.charts[this.host+'_os_cpus_percentage'] = {
     //   name: this.host+'_os_cpus_percentage',
     //   chart: Object.clone(cpus_percentage_chart),
@@ -546,118 +669,130 @@ export default {
       }
     }
 
-    this.$options.charts[this.host+'_os_loadavg'] = {
-      name: this.host+'_os_loadavg',
-      chart: Object.clone(loadavg_chart),
-      init: this.__loadavg_get_stat.bind(this),
-      // watch: {
-      //   name: '$store.state.stats.'+this.host+'.os.loadavg',
-      //   // cb: this.__watcher_callback.bind(this)
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      // },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'loadavg',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    }
+    /**
+    * moved to "charts" event
+    **/
+    // this.$options.charts[this.host+'_os_loadavg'] = {
+    //   name: this.host+'_os_loadavg',
+    //   chart: Object.clone(loadavg_chart),
+    //   init: this.__loadavg_get_stat.bind(this),
+    //   // watch: {
+    //   //   name: '$store.state.stats.'+this.host+'.os.loadavg',
+    //   //   // cb: this.__watcher_callback.bind(this)
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   // },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'loadavg',
+    //     length: this.seconds || 300,
+    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // }
+
+    /**
+    * moved to "charts" event
+    **/
+    // this.$options.charts[this.host+'_os_uptime'] = {
+    //   name: this.host+'_os_uptime',
+    //   chart: Object.clone(uptime_chart),
+    //   init: this.__uptime_get_stat.bind(this),
+    //   // watch: {
+    //   //   name: '$store.state.stats.'+this.host+'.os.uptime',
+    //   //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   // },
+    //   stat: {
+    //     host: this.host,
+    //     path: 'os',
+    //     key: 'uptime',
+    //     length: this.seconds || 300,
+    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+    //   }
+    // }
+
+    /**
+    * moved to "charts" event
+    **/
+    // let unwatch_mounts = this.$watch('mounts', function(val, old){
+    //
+    //   // //console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+    //
+    //   if(val !== undefined && Object.getLength(val) > 0){
+    //
+    //     Object.each(val, function(mount, key){
+    //       //console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+    //       let chart_name = this.host+'_os_mounts_percentage_'+key
+    //
+    //        this.$options.charts[chart_name] = Object.clone({
+    //         name: this.host+'_os_mounts_percentage_'+key,
+    //         chart: Object.clone(mounts_percentage_chart),
+    //         init: this.__mounts_get_stat.bind(this),
+    //         // watch: {
+    //         //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
+    //         //   deep:true,
+    //         //   // cb: this.__watcher_callback.bind(this)
+    //         //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //         // },
+    //         stat: {
+    //           host: this.host,
+    //           path: 'os_mounts',
+    //           key: key,
+    //           length: this.seconds || 300,
+    //           // range: [Date.now() - this.seconds * 1000, Date.now()]
+    //         }
+    //       })
+    //
+    //
+    //     }.bind(this))
+    //
+    //     unwatch_mounts()
+    //   }
+    // }.bind(this),{
+    //   deep:true
+    // })
 
 
-    this.$options.charts[this.host+'_os_uptime'] = {
-      name: this.host+'_os_uptime',
-      chart: Object.clone(uptime_chart),
-      init: this.__uptime_get_stat.bind(this),
-      // watch: {
-      //   name: '$store.state.stats.'+this.host+'.os.uptime',
-      //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      // },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'uptime',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    }
-
-    let unwatch_mounts = this.$watch('mounts', function(val, old){
-
-      // //console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
-
-      if(val !== undefined && Object.getLength(val) > 0){
-
-        Object.each(val, function(mount, key){
-          //console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
-          let chart_name = this.host+'_os_mounts_percentage_'+key
-
-           this.$options.charts[chart_name] = Object.clone({
-            name: this.host+'_os_mounts_percentage_'+key,
-            chart: Object.clone(mounts_percentage_chart),
-            init: this.__mounts_get_stat.bind(this),
-            // watch: {
-            //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
-            //   deep:true,
-            //   // cb: this.__watcher_callback.bind(this)
-            //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-            // },
-            stat: {
-              host: this.host,
-              path: 'os_mounts',
-              key: key,
-              length: this.seconds || 300,
-              // range: [Date.now() - this.seconds * 1000, Date.now()]
-            }
-          })
-
-
-        }.bind(this))
-
-        unwatch_mounts()
-      }
-    }.bind(this),{
-      deep:true
-    })
-
-    let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
-
-      // //console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
-
-      if(val !== undefined && Object.getLength(val) > 0){
-
-        Object.each(val, function(mount, key){
-          //console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
-          let chart_name = this.host+'_os_blockdevices_stats_'+key
-
-           this.$options.charts[chart_name] = Object.clone({
-            name: this.host+'_os_blockdevices_stats_'+key,
-            chart: Object.clone(blockdevices_stats_chart),
-            init: this.__blockdevices_get_stat.bind(this),
-            // watch: {
-            //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
-            //   deep:true,
-            //   // cb: this.__watcher_callback.bind(this)
-            //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-            // },
-            stat: {
-              host: this.host,
-              path: 'os_blockdevices',
-              key: key,
-              length: this.seconds || 300,
-              // range: [Date.now() - this.seconds * 1000, Date.now()]
-            }
-          })
-
-
-        }.bind(this))
-
-        unwatch_blockdevices()
-      }
-    }.bind(this),{
-      deep:true
-    })
+    /**
+    * moved to "charts" event
+    **/
+    // let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
+    //
+    //   // //console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+    //
+    //   if(val !== undefined && Object.getLength(val) > 0){
+    //
+    //     Object.each(val, function(mount, key){
+    //       //console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+    //       let chart_name = this.host+'_os_blockdevices_stats_'+key
+    //
+    //        this.$options.charts[chart_name] = Object.clone({
+    //         name: this.host+'_os_blockdevices_stats_'+key,
+    //         chart: Object.clone(blockdevices_stats_chart),
+    //         init: this.__blockdevices_get_stat.bind(this),
+    //         // watch: {
+    //         //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
+    //         //   deep:true,
+    //         //   // cb: this.__watcher_callback.bind(this)
+    //         //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //         // },
+    //         stat: {
+    //           host: this.host,
+    //           path: 'os_blockdevices',
+    //           key: key,
+    //           length: this.seconds || 300,
+    //           // range: [Date.now() - this.seconds * 1000, Date.now()]
+    //         }
+    //       })
+    //
+    //
+    //     }.bind(this))
+    //
+    //     unwatch_blockdevices()
+    //   }
+    // }.bind(this),{
+    //   deep:true
+    // })
 
 
     let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
@@ -709,6 +844,9 @@ export default {
     * manually
     */
 
+    /**
+    * moved to "charts" event
+    **/
     // let unwatch_mounts = this.$watch('mounts', function(val, old){
     //
     //   // //console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
@@ -745,6 +883,9 @@ export default {
     //   deep:true
     // })
 
+    /**
+    * moved to "charts" event
+    **/
     // let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
     //
     //   // //console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
@@ -928,20 +1069,9 @@ export default {
   // beforeUpdate: function(){
   //   ////////console.log('beforeUpdate')
   // },
-  updated: function(){
-    //console.log('life cycle updated')
-
-    // let parallelize = {}
-    // Object.each(this.$options.charts, function(chart, name){
-    //   if(!this.charts[name])
-    //     parallelize[name] = this.add_chart(chart, name)
-    // }.bind(this))
-    //
-    // if(Object.getLength(parallelize) > 0)
-    //   parallel(parallelize, function(err, results) {
-    //     // results is now equals to: {one: 1, two: 2}
-    //   })
-  },
+  // updated: function(){
+  //
+  // },
   beforeDestroy: function(){
     //console.log('life cycle beforeDestroy')
     ////console.log('beforeDestroy')
@@ -958,7 +1088,7 @@ export default {
     this.remove_charts()
 
     this.$store.dispatch('stats/splice', {host: this.host, length: 400})
-
+    this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 400})
   },
   destroyed: function(){
     this.$off()
@@ -995,6 +1125,64 @@ export default {
 
       }
     },
+    // __cpus_time_get_stat: function(payload){
+    //   let {stat, name} = payload
+    //   let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+    //
+    //   let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
+    //
+    //   console.log('__cpus_time_get_stat', payload)
+    //
+    //   payload.watch = {
+    //     name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+    //     deep: true,
+    //     cb: (doc, old, payload) => {
+    //       console.log('__cpus_time_get_stat watcher ', new Date())
+    //       if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value)
+    //     }
+    //   }
+    //
+    //   this.__get_stat(stat, function(docs){
+    //
+    //     let pipeline = this.$options.pipelines['input.os']
+    //     pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+    //
+    //
+    //     if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
+    //       // console.log('__cpus_time_get_stat RANGE', docs)
+    //       console.log('got cpus stat', docs, new Date(range[0]), new Date(range[1]))
+    //
+    //       this.__update_stat(this.host+'_os_cpus_times', docs)
+    //       // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+    //       this.add_watcher(payload)
+    //       pipeline.fireEvent('onResume')
+    //     }
+    //     else{
+    //
+    //       // if(docs.length != 0)
+    //       //   range[0] = docs[docs.length -1].metadata.timestamp
+    //
+    //       pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+    //
+    //       EventBus.$once('osRange', () =>
+    //         this.__get_stat(stat, function(docs){
+    //           console.log('got cpus stat2', docs)
+    //             // this.$set(this.stats[name], 'data', [])
+    //             this.__update_stat(this.host+'_os_cpus_times', docs)
+    //             // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+    //             this.add_watcher(payload)
+    //             pipeline.fireEvent('onResume')
+    //             // this.$options.pipelines['input.os'].fireEvent('onResume')
+    //         }.bind(this))
+    //       )
+    //     }
+    //
+    //     // setTimeout(function(){
+    //
+    //     // }.bind(this), 500)
+    //
+    //   }.bind(this))
+    // },
     __cpus_time_get_stat: function(payload){
       let {stat, name} = payload
       let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
@@ -1004,7 +1192,7 @@ export default {
       console.log('__cpus_time_get_stat', payload)
 
       payload.watch = {
-        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep: true,
         cb: (doc, old, payload) => {
           console.log('__cpus_time_get_stat watcher ', new Date())
@@ -1025,7 +1213,7 @@ export default {
           this.__update_stat(this.host+'_os_cpus_times', docs)
           // this.__update_stat(this.host+'_os_cpus_percentage', docs)
           this.add_watcher(payload)
-          pipeline.fireEvent('onResume')
+          // pipeline.fireEvent('onResume')
         }
         else{
 
@@ -1041,7 +1229,7 @@ export default {
                 this.__update_stat(this.host+'_os_cpus_times', docs)
                 // this.__update_stat(this.host+'_os_cpus_percentage', docs)
                 this.add_watcher(payload)
-                pipeline.fireEvent('onResume')
+                // pipeline.fireEvent('onResume')
                 // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
@@ -1061,7 +1249,7 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
       payload.watch = {
-        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep: true,
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
@@ -1158,7 +1346,7 @@ export default {
 
 
       payload.watch = {
-        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep: true,
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
@@ -1208,7 +1396,7 @@ export default {
 
 
       payload.watch = {
-        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep: true,
         // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
@@ -1259,7 +1447,7 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
       payload.watch = {
-        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep:true,
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
@@ -1308,7 +1496,7 @@ export default {
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
       payload.watch = {
-        name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep:true,
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }

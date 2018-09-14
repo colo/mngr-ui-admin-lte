@@ -90,8 +90,9 @@ export default {
 
           if(this.$options.__chart_init == false){
             // console.log('chart vue __watcher', val)
-            
+
             // this.__process_stat(this.chart, this.id, this.stat.data)
+            this.__create_watcher(this.id)
             this.$options.__chart_init = true
 
             // this.$refs[this.id].create()
@@ -201,80 +202,84 @@ export default {
     //
     // },
 
-    // __create_watcher(name, chart){
-    //   let watcher = chart.watch || {}
-    //
-    //   watcher.value = watcher.value || ''
-    //   watcher.transform = watcher.transform || ''
-    //
-    //   if(this.$options.__unwatcher){
-    //     this.$options.__unwatcher()
-    //     this.$options.__unwatcher == undefined
-    //   }
-    //
-    //   let generic_data_watcher = function(current){
-    //     if(current){
-    //       // console.log('generic_data_watcher', name, current)
-    //       // Array.each(current, function(row, index){
-    //       //   console.log('generic_data_watcher', row)
-    //       // })
-    //
-    //       // console.log('generic_data_watcher val', chart)
-    //       if(this.$options.visible){
-    //         if(chart.watch && chart.watch.cumulative == true){//send all values
-    //           console.log('generic_data_watcher send all', name)
-    //           data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
-    //         }
-    //         else{//send last only
-    //           console.log('generic_data_watcher send last', name, current)
-    //           data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
-    //         }
-    //
-    //       }
-    //     }
-    //   }
-    //
-    //   // console.log('gonna watch...', name, this.stat.data)
-    //
-    //   this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
-    //
-    // },
+    __create_watcher(name, chart){
+      // let watcher = chart.watch || {}
+      //
+      // watcher.value = watcher.value || ''
+      // watcher.transform = watcher.transform || ''
+      //
+      // if(this.$options.__unwatcher){
+      //   this.$options.__unwatcher()
+      //   this.$options.__unwatcher == undefined
+      // }
+      //
+      let generic_data_watcher = function(current){
+        if(current){
+          // console.log('generic_data_watcher', name, current)
+          // Array.each(current, function(row, index){
+          //   console.log('generic_data_watcher', row)
+          // })
+
+          // console.log('generic_data_watcher val', chart)
+          if(this.$options.visible){
+            let data = []
+            Array.each(current, function(row){
+              data.push(row.value)
+            })
+            // if(chart.watch && chart.watch.cumulative == true){//send all values
+            //   console.log('generic_data_watcher send all', name)
+            //   data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
+            // }
+            // else{//send last only
+            //   console.log('generic_data_watcher send last', name, current)
+            //   data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
+            // }
+            this.update_chart_stat(data)
+          }
+        }
+      }
+
+      console.log('gonna watch...', name, this.stat.data)
+
+      this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
+
+    },
 
     // generic_data_watcher: data_to_tabular,
 
-    // update_chart_stat (name, data){
-    //
-    //   console.log('update_chart_stat visibility', name, data)
-    //
-    //   if(this.$options.visible && data.length > 0){
-    //     if(data.length == 1){
-    //
-    //       // this.tabular.data.shift()
-    //       // this.tabular.data.push(data[0])
-    //       let old_data = this.tabular.data
-    //       old_data.shift()
-    //       old_data.push(data[0])
-    //       old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-    //       this.$set(this.tabular, 'data', old_data)
-    //     }
-    //     else{
-    //       let length = this.stat.data.length
-    //       if(data.length > length)
-    //         data.splice(
-    //           -length -1,
-    //           data.length - length
-    //         )
-    //
-    //       data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-    //
-    //       this.$set(this.tabular, 'data', data)
-    //
-    //     }
-    //
-    //     this.tabular.lastupdate = Date.now()
-    //   }
-    //   ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
-    // },
+    update_chart_stat (data){
+
+      console.log('update_chart_stat visibility', data)
+
+      if(this.$options.visible && data.length > 0){
+        if(data.length == 1){
+
+          this.tabular.data.shift()
+          this.tabular.data.push(data[0])
+          // let old_data = this.tabular.data
+          // old_data.shift()
+          // old_data.push(data[0])
+          // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          // this.$set(this.tabular, 'data', old_data)
+        }
+        else{
+          let length = this.stat.data.length
+          if(data.length > length)
+            data.splice(
+              -length -1,
+              data.length - length
+            )
+
+          data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
+          this.$set(this.tabular, 'data', data)
+
+        }
+
+        this.tabular.lastupdate = Date.now()
+      }
+      ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
+    },
 
 
   }

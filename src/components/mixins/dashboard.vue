@@ -99,7 +99,12 @@ export default {
     },
     __get_stat: function(payload, cb){
       //console.log('__get_stat', payload)
-      this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
+      if(payload.tabular == true){
+        this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
+      }
+      else{
+        this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
+      }
     },
     __update_stat: function(name, doc){
       console.log('__update_stat', doc, this.stats[name])

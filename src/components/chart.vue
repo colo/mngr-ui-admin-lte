@@ -258,13 +258,13 @@ export default {
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
 
-          // this.tabular.data.shift()
-          // this.tabular.data.push(data[0])
-          let old_data = this.tabular.data
-          old_data.shift()
-          old_data.push(data[0])
-          old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-          this.$set(this.tabular, 'data', old_data)
+          this.tabular.data.shift()
+          this.tabular.data.push(data[0])
+          // let old_data = this.tabular.data
+          // old_data.shift()
+          // old_data.push(data[0])
+          // old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          // this.$set(this.tabular, 'data', old_data)
         }
         else{
           let length = this.stat.data.length
