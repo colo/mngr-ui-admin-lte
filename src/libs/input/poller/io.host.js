@@ -20,7 +20,7 @@ export default new Class({
       range: [
     		{
 					sort_by_path: function(req, next, app){
-            console.log('SORT_BY_PATH RANGE', app.options.paths)
+            console.log('SORT_BY_PATH RANGE', app.options.paths, new Date(req.opt.range.start), new Date(req.opt.range.end))
 
             if(app.options.stat_host && this.status == 'ok'){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
@@ -127,18 +127,20 @@ export default new Class({
 
 
   },
-  charts: function(socket, next){
-    let {host, charts} = arguments[2]
-    console.log('IO.HOST charts', host, charts)
-
-    this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
-  },
+  // charts: function(socket, next){
+  //   let {host, charts} = arguments[2]
+  //   console.log('IO.HOST charts', host, charts)
+  //
+  //   this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
+  // },
   host: function(socket, next){
     let {host, status, charts} = arguments[2]
     console.log('IO.HOST host', host, status, charts)
     this.status = status
 
-    this.charts(socket, next, {host: host, charts: charts})
+    this.fireEvent('onDoc', [{type: 'host', host: host, charts: charts}, {type: 'doc', input_type: this, app: null}]);
+
+    // this.charts(socket, next, {host: host, charts: charts})
     // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
     //
     // if(status == 'ok')
@@ -164,7 +166,7 @@ export default new Class({
 
     this.addEvent('onExit', function(){
       console.log('EXITING...')
-      
+
       if(this.io.disconnected == false)
         this.io.close()
     })

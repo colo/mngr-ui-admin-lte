@@ -421,11 +421,13 @@ export default {
   created: function(){
     //console.log('life cycle created')
 
-    EventBus.$on('charts', charts => {
-      console.log('recived doc via Event charts', charts)
-      Object.each(charts, function(data, name){
+    EventBus.$on('host', doc => {
+      // console.log('recived doc via Event host', doc)
+      Object.each(doc.charts, function(data, name){
         this.$options.charts_objects[name] = data.chart
       }.bind(this))
+
+      console.log('recived doc via Event host', doc, this.$options.charts_objects)
 
       this.$options.charts[this.host+'_os_cpus_times'] = {
         name: this.host+'_os_cpus_times',
@@ -591,10 +593,16 @@ export default {
           this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
         }
 
+        // if(payload.type == 'range')
+        //   console.log('RANGE', payload)
+
         if(payload.type == 'range' && payload.tabular != true){
           EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
           // //console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
+        }
+        else{
+          EventBus.$emit('tabularRange')
         }
     })
 
@@ -1087,8 +1095,11 @@ export default {
 
     this.remove_charts()
 
-    this.$store.dispatch('stats/splice', {host: this.host, length: 400})
-    this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 400})
+    this.$store.dispatch('stats/flush', {host: this.host})
+    this.$store.dispatch('stats_tabular/flush', {host: this.host})
+
+    this.$store.dispatch('stats/splice', {host: this.host, length: 300})
+    this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
   },
   destroyed: function(){
     this.$off()
@@ -1201,30 +1212,41 @@ export default {
       }
 
       this.__get_stat(stat, function(docs){
+        console.log('__cpus_time_get_stat', docs)
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
+        // if(docs.length != 0 && range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
+        if(docs.length != 0 && docs[docs.length - 1].metadata){
           // console.log('__cpus_time_get_stat RANGE', docs)
           console.log('got cpus stat', docs, new Date(range[0]), new Date(range[1]))
 
-          this.__update_stat(this.host+'_os_cpus_times', docs)
-          // this.__update_stat(this.host+'_os_cpus_percentage', docs)
-          this.add_watcher(payload)
-          // pipeline.fireEvent('onResume')
+          if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
+          // // pipeline.fireEvent('onResume')
         }
-        else{
+        // else{
 
           // if(docs.length != 0)
           //   range[0] = docs[docs.length -1].metadata.timestamp
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('osRange', () =>
-            this.__get_stat(stat, function(docs){
-              console.log('got cpus stat2', docs)
+          EventBus.$once('tabularRange', () =>
+            this.__get_stat(stat, function(docs_range){
+              docs = docs.append(docs_range)
+              docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              console.log('got cpus stat2', docs, new Date(range[0]), new Date(range[1]))
                 // this.$set(this.stats[name], 'data', [])
                 this.__update_stat(this.host+'_os_cpus_times', docs)
                 // this.__update_stat(this.host+'_os_cpus_percentage', docs)
@@ -1233,7 +1255,7 @@ export default {
                 // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
-        }
+        // }
 
         // setTimeout(function(){
 
@@ -1271,7 +1293,7 @@ export default {
 
           // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('osRange', () =>
+          EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs){
                 this.__update_stat(this.host+'_os_cpus_percentage', docs)
                 this.add_watcher(payload)
@@ -1370,7 +1392,7 @@ export default {
 
           // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('osRange', () =>
+          EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs){
               //console.log('got loadavg stat2', docs)
 
@@ -1420,7 +1442,7 @@ export default {
 
           // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('osRange', () =>
+          EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs){
               //console.log('got loadavg stat2', docs)
 
@@ -1471,7 +1493,7 @@ export default {
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('os.blockdevicesRange', () =>
+          EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs){
               //console.log('got blockdevice stat2', docs)
 
@@ -1520,7 +1542,7 @@ export default {
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('os.mountsRange', () =>
+          EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs){
               //console.log('got mounts stat2', docs)
 

@@ -173,7 +173,7 @@ export const get = ({ commit, dispatch }, payload) => {
 export const add = ({ commit, dispatch }, payload) => {
   let db = new PouchDB('tabular_live_'+payload.host)
   let deque = get_queue(payload)
-  console.log('action add...', payload.data)
+  // console.log('action add...', payload.data)
   // //////// console.log('length', deque.length)
 
   // if(deque.length >= QUEUE_SIZE)

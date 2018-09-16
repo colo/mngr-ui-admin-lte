@@ -85,7 +85,8 @@ export default {
     // },
     add_watcher: function(payload){
       let {name, watch} = payload
-
+      console.log('add_watcher', name, watch)
+      
       this.remove_watcher(name)
 
       this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
@@ -121,8 +122,9 @@ export default {
 
             if(index == doc.length -1){
 
-              let old_data = Array.clone(this.stats[name].data)
-              data = old_data.combine(data)
+              // let old_data = Array.clone(this.stats[name].data)
+              // data = old_data.combine(data)
+              data = this.stats[name].data.combine(data)
               data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
               this.$set(this.stats[name], 'data', data)
             }
