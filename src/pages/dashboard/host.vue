@@ -433,6 +433,10 @@ export default {
         name: this.host+'_os_cpus_times',
         chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
         init: this.__cpus_time_get_stat.bind(this),
+        stop: function(payload){
+          // console.log('stoping _os_cpus_times', payload.stat)
+          this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
         //   deep: true,
@@ -453,6 +457,10 @@ export default {
         name: this.host+'_os_cpus_percentage',
         chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
         init: this.__cpus_percentage_get_stat.bind(this),
+        stop: function(payload){
+          // console.log('stoping _os_cpus_times', payload.stat)
+          this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
         //   // cb: this.__watcher_callback.bind(this)
@@ -472,6 +480,10 @@ export default {
         name: this.host+'_os_uptime',
         chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
         init: this.__uptime_get_stat.bind(this),
+        stop: function(payload){
+          // console.log('stoping _os_cpus_times', payload.stat)
+          this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.uptime',
         //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
@@ -491,6 +503,10 @@ export default {
         name: this.host+'_os_loadavg',
         chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
         init: this.__loadavg_get_stat.bind(this),
+        stop: function(payload){
+          // console.log('stoping _os_cpus_times', payload.stat)
+          this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.loadavg',
         //   // cb: this.__watcher_callback.bind(this)
@@ -520,6 +536,10 @@ export default {
               name: this.host+'_os_blockdevices_stats_'+key,
               chart: Object.merge(blockdevices_stats_chart, this.$options.charts_objects['blockdevices_stats']),
               init: this.__blockdevices_get_stat.bind(this),
+              stop: function(payload){
+                // console.log('stoping _os_cpus_times', payload.stat)
+                this.$store.dispatch('stats_tabular/flush', payload.stat)
+              }.bind(this),
               // watch: {
               //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
               //   deep:true,
@@ -559,6 +579,10 @@ export default {
               name: this.host+'_os_mounts_percentage_'+key,
               chart: Object.merge(mounts_percentage_chart, this.$options.charts_objects['mounts_percentage']),
               init: this.__mounts_get_stat.bind(this),
+              stop: function(payload){
+                // console.log('stoping _os_cpus_times', payload.stat)
+                this.$store.dispatch('stats_tabular/flush', payload.stat)
+              }.bind(this),
               // watch: {
               //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
               //   deep:true,
@@ -570,6 +594,7 @@ export default {
                 path: 'mounts_percentage',
                 key: 'os_mounts_'+key,
                 length: this.seconds || 300,
+                tabular: true
                 // range: [Date.now() - this.seconds * 1000, Date.now()]
               }
             })
@@ -663,6 +688,10 @@ export default {
       name: this.host+'_os_freemem',
       chart: Object.clone(freemem_chart),
       init: this.__freemem_get_stat.bind(this),
+      stop: function(payload){
+        // console.log('stoping _os_cpus_times', payload.stat)
+        this.$store.dispatch('stats/flush', payload.stat)
+      }.bind(this),
       // watch: {
       //   name: '$store.state.stats.'+this.host+'.os.freemem',
       //   // cb: this.__watcher_callback.bind(this)
@@ -822,6 +851,10 @@ export default {
                 name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
                 chart: Object.clone(networkInterfaces_chart),
                 init: this.__networkInterfaces_get_stat.bind(this),
+                stop: function(payload){
+                  // console.log('stoping _os_cpus_times', payload.stat)
+                  this.$store.dispatch('stats/flush', payload.stat)
+                }.bind(this),
                 // watch: {
                 //   name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
                 //   deep:true,
@@ -1095,11 +1128,21 @@ export default {
 
     this.remove_charts()
 
-    this.$store.dispatch('stats/flush', {host: this.host})
-    this.$store.dispatch('stats_tabular/flush', {host: this.host})
+    // this.$store.dispatch('stats/list_queues',{host: this.host}).then((paths) => function(paths){
+    //   Array.each(paths, function(path){
+    //     this.$store.dispatch('stats/list_queues',{host: this.host, path:path}).then((keys) => function(keys){
+    //       Array.each(paths, function(path){
+    //       this.$store.dispatch('stats/flush', {host: this.host})
+    //     }.bind(this))
+    //     })
+    //   }.bind(this))
+    // })
 
-    this.$store.dispatch('stats/splice', {host: this.host, length: 300})
-    this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
+    this.$store.dispatch('stats/flush_all', {host: this.host})
+    this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
+
+    // this.$store.dispatch('stats/splice', {host: this.host, length: 300})
+    // this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
   },
   destroyed: function(){
     this.$off()
@@ -1117,23 +1160,13 @@ export default {
 
       // console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
 
-      if(isVisible == false){
-        if(!this.visibility[id] || this.visibility[id] === true){
-          this.$set(this.visibility, id, false)
-          this.remove_chart(id)
-        }
+      if(isVisible == false && (this.visibility[id] == undefined || this.visibility[id] == true)){
+        this.$set(this.visibility, id, false)
+        this.remove_chart(id)
       }
-      else{
-        // if(!this.charts[id])
-        if(!this.visibility[id] || this.visibility[id] === false){
-          this.$set(this.visibility, id, true)
-          this.add_chart(this.$options.charts[id], id)
-        }
-
-        // if(this.charts[id] && typeof this.charts[id].init == 'function')
-        //   this.charts[id].init(this.$options.charts[id])
-
-
+      else if (isVisible == true && (this.visibility[id] == undefined || this.visibility[id] == false)){
+        this.$set(this.visibility, id, true)
+        this.add_chart(this.$options.charts[id], id)
       }
     },
     // __cpus_time_get_stat: function(payload){
@@ -1211,48 +1244,95 @@ export default {
         }
       }
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        console.log('__cpus_time_get_stat', docs)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
-        // if(docs.length != 0 && range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-        if(docs.length != 0 && docs[docs.length - 1].metadata){
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
           // console.log('__cpus_time_get_stat RANGE', docs)
-          console.log('got cpus stat', docs, new Date(range[0]), new Date(range[1]))
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
 
-          if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
 
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
             range[0] = docs[docs.length - 1].metadata.timestamp
-            console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
           }
+          else{
+            docs = []
+          }
+          // }
 
           // this.__update_stat(this.host+'_os_cpus_times', docs)
           // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
-          // // pipeline.fireEvent('onResume')
+          // pipeline.fireEvent('onResume')
         }
-        // else{
+        else{
+          docs = []
+        }
 
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
-              docs = docs.append(docs_range)
-              docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
 
-              console.log('got cpus stat2', docs, new Date(range[0]), new Date(range[1]))
-                // this.$set(this.stats[name], 'data', [])
-                this.__update_stat(this.host+'_os_cpus_times', docs)
-                // this.__update_stat(this.host+'_os_cpus_percentage', docs)
-                this.add_watcher(payload)
-                // pipeline.fireEvent('onResume')
-                // this.$options.pipelines['input.os'].fireEvent('onResume')
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(this.host+'_os_cpus_times', all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.add_watcher(payload)
+              // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
         // }
@@ -1277,30 +1357,98 @@ export default {
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
       },
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        //console.log('got cpus stat', docs)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(this.host+'_os_cpus_percentage', docs)
-          this.add_watcher(payload)
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
+          docs = []
+        }
 
-          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
-            this.__get_stat(stat, function(docs){
-                this.__update_stat(this.host+'_os_cpus_percentage', docs)
-                this.add_watcher(payload)
-                // pipeline.fireEvent('onResume')
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
+
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(this.host+'_os_cpus_percentage', all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.add_watcher(payload)
+              // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
-        }
+        // }
 
         // setTimeout(function(){
 
@@ -1323,85 +1471,98 @@ export default {
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
       },
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        //console.log('got freemem stat', docs)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(name, docs)
 
-          this.add_watcher(payload)
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
-
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
-
-          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-
-          EventBus.$once('osRange', () =>
-            this.__get_stat(stat, function(docs){
-              //console.log('got freemem stat2', docs)
-
-              this.__update_stat(name, docs)
-              this.add_watcher(payload)
-              // pipeline.fireEvent('onResume')
-            }.bind(this))
-          )
+          docs = []
         }
 
-        // setTimeout(function(){
 
-        // }.bind(this), 500)
-
-      }.bind(this))
-    },
-
-    __loadavg_get_stat: function(payload){
-      let {name, stat} = payload
-      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
-
-      let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
-
-
-      payload.watch = {
-        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
-        deep: true,
-        // cb: this.__watcher_callback.bind(this)
-        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      },
-
-      this.__get_stat(stat, function(docs){
-        //console.log('got loadavg stat', docs)
-
-        let pipeline = this.$options.pipelines['input.os']
-        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
-
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(name, docs)
-          this.add_watcher(payload)
-          // pipeline.fireEvent('onResume')
-        }
-        else{
-
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
-
-          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
-            this.__get_stat(stat, function(docs){
-              //console.log('got loadavg stat2', docs)
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
 
-              this.__update_stat(name, docs)
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(name, all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
-        }
+        // }
 
         // setTimeout(function(){
 
@@ -1424,34 +1585,98 @@ export default {
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
       },
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        //console.log('got loadavg stat', docs)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(name, docs)
-          this.add_watcher(payload)
+
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
+          docs = []
+        }
 
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
 
-          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
-            this.__get_stat(stat, function(docs){
-              //console.log('got loadavg stat2', docs)
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
 
-              this.__update_stat(name, docs)
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(name, all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
-        }
+        // }
 
         // setTimeout(function(){
 
@@ -1460,7 +1685,119 @@ export default {
       }.bind(this))
     },
 
+    __loadavg_get_stat: function(payload){
+      let {name, stat} = payload
+      let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
 
+      let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
+
+
+      payload.watch = {
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+        cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      },
+
+      stat.range = range
+
+      this.__get_stat(stat, function(docs){
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
+
+        let pipeline = this.$options.pipelines['input.os']
+        pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
+
+
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
+          // pipeline.fireEvent('onResume')
+        }
+        else{
+          docs = []
+        }
+
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('tabularRange', () =>
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
+
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(name, all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.add_watcher(payload)
+              // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
+            }.bind(this))
+          )
+        // }
+
+        // setTimeout(function(){
+
+        // }.bind(this), 500)
+
+      }.bind(this))
+    },
 
     __blockdevices_get_stat: function(payload){
       let {name, stat} = payload
@@ -1475,34 +1812,98 @@ export default {
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
       },
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        //console.log('got blockdevice sda stat', docs, range_length)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.blockdevices']
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(name, docs)
-          this.add_watcher(payload)
+
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
+          docs = []
+        }
 
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
-            this.__get_stat(stat, function(docs){
-              //console.log('got blockdevice stat2', docs)
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
 
-              this.__update_stat(name, docs)
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(name, all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
-        }
+        // }
 
         // setTimeout(function(){
 
@@ -1524,37 +1925,100 @@ export default {
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
       },
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        //console.log('got mounts stat', docs)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os.mounts']
 
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(name, docs)
-          this.add_watcher(payload)
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
+          docs = []
+        }
+
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
-            this.__get_stat(stat, function(docs){
-              //console.log('got mounts stat2', docs)
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
 
-              this.__update_stat(name, docs)
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(name, all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
-        }
+        // }
 
         // setTimeout(function(){
-          // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
         // }.bind(this), 500)
 
@@ -1576,37 +2040,100 @@ export default {
         cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
       },
 
+      stat.range = range
+
       this.__get_stat(stat, function(docs){
-        //console.log('got networkInterfaces stat', payload, docs)
+        // console.log('got cpus stat', docs)
+        //
+        // if(docs.length > 0)
+        //   console.log('got cpus stat 2',
+        //     new Date(docs[0].metadata.timestamp),
+        //     new Date(docs[docs.length - 1].metadata.timestamp),
+        //     new Date(range[0]),
+        //     new Date(range[1])
+        //   )
 
         let pipeline = this.$options.pipelines['input.os']
         pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
 
 
-        if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-          this.__update_stat(name, docs)
-          this.add_watcher(payload)
+        if(
+          docs.length != 0
+          // && range_length
+          // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
+          && docs[docs.length - 1].metadata
+          && docs[0].metadata.timestamp > range[0] - 10000
+          && docs[0].metadata.timestamp < range[0] + 10000
+        ){
+        // if(docs.length != 0 && docs[docs.length - 1].metadata){
+          // console.log('__cpus_time_get_stat RANGE', docs)
+          // console.log('got cpus stat 3', docs, new Date(range[0]), new Date(range[1]))
+
+          // if(docs[0].metadata.timestamp > range[0] - 10000 && docs[0].metadata.timestamp < range[0] + 10000){
+          let prev = undefined
+          let missing = false
+
+          docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+          Array.each(docs, function(doc){
+            if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+              // console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+              missing = true
+            }
+            prev = doc
+          })
+
+          if(missing == false){
+            range[0] = docs[docs.length - 1].metadata.timestamp
+            // console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+          }
+          else{
+            docs = []
+          }
+          // }
+
+          // this.__update_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
         else{
-          // if(docs.length != 0)
-          //   range[0] = docs[docs.length -1].metadata.timestamp
-
-          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-
-          EventBus.$once('osRange', () =>
-            this.__get_stat(stat, function(docs){
-              //console.log('got networkInterfaces stat2', docs)
-
-              this.__update_stat(name, docs)
-              this.add_watcher(payload)
-              // pipeline.fireEvent('onResume')
-            }.bind(this))
-          )
+          docs = []
         }
 
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+          EventBus.$once('osRange', () =>
+            this.__get_stat(stat, function(docs_range){
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
+
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              let length = all_stats.length
+              all_stats.splice(
+                range_length -1,
+                length - range_length
+              )
+
+              // this.$set(this.stats[name], 'data', [])
+              this.__update_stat(name, all_stats)
+              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.add_watcher(payload)
+              // pipeline.fireEvent('onResume')
+              // this.$options.pipelines['input.os'].fireEvent('onResume')
+            }.bind(this))
+          )
+        // }
+
         // setTimeout(function(){
-          // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
 
         // }.bind(this), 500)
 

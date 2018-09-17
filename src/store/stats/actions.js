@@ -69,6 +69,22 @@ let get_queue = function(payload){
   return queues[payload.host][payload.path][payload.key]
 }
 
+export const list_queues = ({ commit, dispatch }, payload) => {
+  // return new Promise((resolve, reject) => {
+    let list_queues = []
+
+    if(payload.path && queues[payload.host] && queues[payload.host][payload.path]){
+      list_queues = Object.keys(queues[payload.host])
+    }
+    else if(payload.host && queues[payload.host]){
+      list_queues = Object.keys(queues[payload.host])
+    }
+
+    return list_queues
+    // resolve(list_queues)
+  // })
+}
+
 export const get = ({ commit, dispatch }, payload) => {
   let db = new PouchDB('live_'+payload.host)
   let deque = get_queue(payload)
@@ -255,11 +271,35 @@ export const add = ({ commit, dispatch }, payload) => {
 
 }
 
+
+export const flush_all = ({ commit, dispatch }, payload) => {
+  dispatch('list_queues', payload).then(function(paths){
+    Array.each(paths, function(path){
+      payload.path = path
+      dispatch('list_queues', payload).then(function(keys){
+        Array.each(keys, function(key){
+          payload.key = key
+          dispatch('flush', payload)
+        })
+      })
+    })
+  })
+  // Array.each(dispatch('list_queues', payload), function(path){
+  //   payload.path = path
+  //   console.log('flush_all', payload)
+  //
+  //   Array.each(dispatch('list_queues', payload), function(key){
+  //     payload.key = key
+  //     dispatch('flush', payload)
+  //   })
+  // })
+}
+
 export const flush = ({ commit, state }, payload) => {
   let db = new PouchDB('live_'+payload.host)
   let length = payload.length
   let deque = get_queue(payload)
-  // console.log('action flushing...', payload.host, payload.path, payload.key)
+  console.log('action flushing...', payload.host, payload.path, payload.key)
 
   if(deque.isEmpty() !== true){
     let docs = deque.toArray()

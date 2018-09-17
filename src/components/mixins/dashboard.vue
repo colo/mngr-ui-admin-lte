@@ -55,6 +55,10 @@ export default {
 
     },
     remove_chart: function (name){
+
+      if(this.$options.charts[name] && this.$options.charts[name].stop && typeof this.$options.charts[name].stop == 'function')
+        this.$options.charts[name].stop(this.$options.charts[name])
+
       this.$set(this.charts, name, undefined)
       // delete this.charts[name]
 
@@ -65,7 +69,7 @@ export default {
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
-      // console.log('remove_chart', name)
+      console.log('remove_chart', name)
     },
     remove_charts: function(){
       Object.each(this.charts, function(name){
@@ -86,7 +90,7 @@ export default {
     add_watcher: function(payload){
       let {name, watch} = payload
       console.log('add_watcher', name, watch)
-      
+
       this.remove_watcher(name)
 
       this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
