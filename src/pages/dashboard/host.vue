@@ -453,6 +453,9 @@ export default {
         }
       }
 
+      /**
+      * remove for testing
+      **/
       this.$options.charts[this.host+'_os_cpus_percentage'] = {
         name: this.host+'_os_cpus_percentage',
         chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
@@ -607,6 +610,10 @@ export default {
       }.bind(this),{
         deep:true
       })
+
+      /**
+      * remove for testing
+      **/
     })
 
     EventBus.$on('os', payload => {
@@ -640,6 +647,89 @@ export default {
     //console.log('life cycle mounted')
 
     this.create_host_pipelines(this.$store.state.app.paths)
+
+
+    /**
+    * removed for testing
+    **/
+    this.$options.charts[this.host+'_os_freemem'] = {
+      name: this.host+'_os_freemem',
+      chart: Object.clone(freemem_chart),
+      init: this.__freemem_get_stat.bind(this),
+      stop: function(payload){
+        // console.log('stoping _os_cpus_times', payload.stat)
+        this.$store.dispatch('stats/flush', payload.stat)
+      }.bind(this),
+      // watch: {
+      //   name: '$store.state.stats.'+this.host+'.os.freemem',
+      //   // cb: this.__watcher_callback.bind(this)
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      // },
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'freemem',
+        length: this.seconds || 300,
+        // range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    }
+
+    let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
+
+      // //console.log('$watch networkInterfaces ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+      if(val !== undefined && Object.getLength(val) > 0){
+
+        // let iface_index = 0
+        Object.each(val, function(iface, name){
+
+          Object.each(iface, function(data, messure){
+            // if(name == 'lo' && messure == 'bytes'){
+            if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
+              //console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
+              let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
+
+               this.$options.charts[chart_name] = Object.clone({
+                name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
+                chart: Object.clone(networkInterfaces_chart),
+                init: this.__networkInterfaces_get_stat.bind(this),
+                stop: function(payload){
+                  // console.log('stoping _os_cpus_times', payload.stat)
+                  this.$store.dispatch('stats/flush', payload.stat)
+                }.bind(this),
+                // watch: {
+                //   name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
+                //   deep:true,
+                //   // cb: this.__watcher_callback.bind(this)
+                //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+                // },
+                stat: {
+                  host: this.host,
+                  path: 'os',
+                  key: 'networkInterfaces',
+                  length: this.seconds || 300,
+                  // range: [Date.now() - this.seconds * 1000, Date.now()]
+                }
+              })
+
+              // iface_index++
+            }
+          }.bind(this))
+        }.bind(this))
+
+        unwatch_networkInterfaces()
+      }
+    }.bind(this),{
+      deep:true
+    })
+    /**
+    * remove for testing
+    **/
+
+    /**
+    * manually
+    */
+
 
     /**
     * moved to "charts" event
@@ -684,27 +774,6 @@ export default {
     //   }
     // }
 
-    this.$options.charts[this.host+'_os_freemem'] = {
-      name: this.host+'_os_freemem',
-      chart: Object.clone(freemem_chart),
-      init: this.__freemem_get_stat.bind(this),
-      stop: function(payload){
-        // console.log('stoping _os_cpus_times', payload.stat)
-        this.$store.dispatch('stats/flush', payload.stat)
-      }.bind(this),
-      // watch: {
-      //   name: '$store.state.stats.'+this.host+'.os.freemem',
-      //   // cb: this.__watcher_callback.bind(this)
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-      // },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'freemem',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    }
 
     /**
     * moved to "charts" event
@@ -830,60 +899,6 @@ export default {
     // }.bind(this),{
     //   deep:true
     // })
-
-
-    let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
-
-      // //console.log('$watch networkInterfaces ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
-
-      if(val !== undefined && Object.getLength(val) > 0){
-
-        // let iface_index = 0
-        Object.each(val, function(iface, name){
-
-          Object.each(iface, function(data, messure){
-            // if(name == 'lo' && messure == 'bytes'){
-            if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
-              //console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
-              let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
-
-               this.$options.charts[chart_name] = Object.clone({
-                name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
-                chart: Object.clone(networkInterfaces_chart),
-                init: this.__networkInterfaces_get_stat.bind(this),
-                stop: function(payload){
-                  // console.log('stoping _os_cpus_times', payload.stat)
-                  this.$store.dispatch('stats/flush', payload.stat)
-                }.bind(this),
-                // watch: {
-                //   name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
-                //   deep:true,
-                //   // cb: this.__watcher_callback.bind(this)
-                //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
-                // },
-                stat: {
-                  host: this.host,
-                  path: 'os',
-                  key: 'networkInterfaces',
-                  length: this.seconds || 300,
-                  // range: [Date.now() - this.seconds * 1000, Date.now()]
-                }
-              })
-
-              // iface_index++
-            }
-          }.bind(this))
-        }.bind(this))
-
-        unwatch_networkInterfaces()
-      }
-    }.bind(this),{
-      deep:true
-    })
-
-    /**
-    * manually
-    */
 
     /**
     * moved to "charts" event
@@ -1117,32 +1132,17 @@ export default {
     //console.log('life cycle beforeDestroy')
     ////console.log('beforeDestroy')
 
-    // this.$store.dispatch('stats/splice', {
-    //   host: this.host,
-    //   path: 'os',
-    //   key: 'cpus'
-    // })
-
     this.destroy_host_pipelines()
 
 
     this.remove_charts()
 
-    // this.$store.dispatch('stats/list_queues',{host: this.host}).then((paths) => function(paths){
-    //   Array.each(paths, function(path){
-    //     this.$store.dispatch('stats/list_queues',{host: this.host, path:path}).then((keys) => function(keys){
-    //       Array.each(paths, function(path){
-    //       this.$store.dispatch('stats/flush', {host: this.host})
-    //     }.bind(this))
-    //     })
-    //   }.bind(this))
-    // })
 
     this.$store.dispatch('stats/flush_all', {host: this.host})
     this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
 
-    // this.$store.dispatch('stats/splice', {host: this.host, length: 300})
-    // this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
+    this.$store.dispatch('stats/splice', {host: this.host, length: 300})
+    this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
   },
   destroyed: function(){
     this.$off()
@@ -1169,64 +1169,7 @@ export default {
         this.add_chart(this.$options.charts[id], id)
       }
     },
-    // __cpus_time_get_stat: function(payload){
-    //   let {stat, name} = payload
-    //   let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
-    //
-    //   let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
-    //
-    //   console.log('__cpus_time_get_stat', payload)
-    //
-    //   payload.watch = {
-    //     name: '$store.state.stats.'+stat.host+'.'+stat.path+'.'+stat.key,
-    //     deep: true,
-    //     cb: (doc, old, payload) => {
-    //       console.log('__cpus_time_get_stat watcher ', new Date())
-    //       if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value)
-    //     }
-    //   }
-    //
-    //   this.__get_stat(stat, function(docs){
-    //
-    //     let pipeline = this.$options.pipelines['input.os']
-    //     pipeline.inputs[0].options.conn[0].module.options.paths = ['os']
-    //
-    //
-    //     if(range_length && (docs.length  < range_length + 10 && docs.length > range_length - 10)){
-    //       // console.log('__cpus_time_get_stat RANGE', docs)
-    //       console.log('got cpus stat', docs, new Date(range[0]), new Date(range[1]))
-    //
-    //       this.__update_stat(this.host+'_os_cpus_times', docs)
-    //       // this.__update_stat(this.host+'_os_cpus_percentage', docs)
-    //       this.add_watcher(payload)
-    //       pipeline.fireEvent('onResume')
-    //     }
-    //     else{
-    //
-    //       // if(docs.length != 0)
-    //       //   range[0] = docs[docs.length -1].metadata.timestamp
-    //
-    //       pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //
-    //       EventBus.$once('osRange', () =>
-    //         this.__get_stat(stat, function(docs){
-    //           console.log('got cpus stat2', docs)
-    //             // this.$set(this.stats[name], 'data', [])
-    //             this.__update_stat(this.host+'_os_cpus_times', docs)
-    //             // this.__update_stat(this.host+'_os_cpus_percentage', docs)
-    //             this.add_watcher(payload)
-    //             pipeline.fireEvent('onResume')
-    //             // this.$options.pipelines['input.os'].fireEvent('onResume')
-    //         }.bind(this))
-    //       )
-    //     }
-    //
-    //     // setTimeout(function(){
-    //
-    //     // }.bind(this), 500)
-    //
-    //   }.bind(this))
-    // },
+
     __cpus_time_get_stat: function(payload){
       let {stat, name} = payload
       let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
@@ -1535,7 +1478,7 @@ export default {
 
           pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          EventBus.$once('tabularRange', () =>
+          EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs_range){
               // console.log('got cpus stat4', docs,
               //   docs_range,

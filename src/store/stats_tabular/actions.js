@@ -48,11 +48,11 @@ import PouchDB from 'pouchdb-browser'
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 60 //os = 4 docs...1200 = 300 secs of docs
+const QUEUE_SIZE = 360 //os = 4 docs...1200 = 300 secs of docs
 
 // let deque = new Deque()//QUEUE_SIZE
 let queues = {}
-
+let dbs = {}
 // let compacted = false
 
 let get_queue = function(payload){
@@ -67,6 +67,15 @@ let get_queue = function(payload){
     queues[payload.host][payload.path][payload.key] = new Deque()
 
   return queues[payload.host][payload.path][payload.key]
+}
+
+let get_db = function(payload){
+  // // console.log('ACTIONS get_db', payload)
+  if(!dbs[payload.host])
+    dbs[payload.host] = new PouchDB('tabular_live_'+payload.host)
+
+
+  return dbs[payload.host]
 }
 
 export const list_queues = ({ commit, dispatch }, payload) => {
@@ -86,7 +95,8 @@ export const list_queues = ({ commit, dispatch }, payload) => {
 }
 
 export const get = ({ commit, dispatch }, payload) => {
-  let db = new PouchDB('tabular_live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
+  let db = get_db(payload.host)
   let deque = get_queue(payload)
   //// console.log('action get...')
 
@@ -187,7 +197,8 @@ export const get = ({ commit, dispatch }, payload) => {
 }
 
 export const add = ({ commit, dispatch }, payload) => {
-  let db = new PouchDB('tabular_live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
+  // let db = get_db(payload.host)
   let deque = get_queue(payload)
   // console.log('action add...', payload.data)
   // //////// console.log('length', deque.length)
@@ -295,7 +306,8 @@ export const flush_all = ({ commit, dispatch }, payload) => {
 }
 
 export const flush = ({ commit, state }, payload) => {
-  let db = new PouchDB('tabular_live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
+  let db = get_db(payload.host)
   let length = payload.length
   let deque = get_queue(payload)
   console.log('action flushing...', payload.host, payload.path, payload.key)
@@ -329,7 +341,8 @@ export const flush = ({ commit, state }, payload) => {
 }
 
 export const splice = ({ commit, state }, payload) => {
-  let db = new PouchDB('tabular_live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
+  let db = get_db(payload.host)
   let length = payload.length
   // let deque = get_queue(payload)
 
@@ -364,7 +377,8 @@ export const splice = ({ commit, state }, payload) => {
 
     db.destroy().then(function (status) {
       // console.log('splice destroy res', status)
-      db = new PouchDB('live')
+      // db.close()
+      db = new PouchDB('tabular_live_'+payload.host)
 
       // console.log('splice DOCS', res.rows)
 

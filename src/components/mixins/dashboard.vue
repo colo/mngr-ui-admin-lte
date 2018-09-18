@@ -72,7 +72,7 @@ export default {
       console.log('remove_chart', name)
     },
     remove_charts: function(){
-      Object.each(this.charts, function(name){
+      Object.each(this.charts, function(chart, name){
         this.remove_chart(name)
       }.bind(this))
     },

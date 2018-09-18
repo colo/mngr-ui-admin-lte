@@ -304,6 +304,7 @@ export default {
             block_redraw
           );
 
+          data.empty()
           this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)
 
 

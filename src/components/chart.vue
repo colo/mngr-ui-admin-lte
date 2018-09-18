@@ -282,6 +282,8 @@ export default {
 
         this.tabular.lastupdate = Date.now()
       }
+
+      // data.empty()
       ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
     },
 
