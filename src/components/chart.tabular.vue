@@ -36,6 +36,7 @@ export default {
   __unwatcher: undefined,
   __chart_init: false,
   visible: true,
+  data: [],
 
   props: {
     EventBus: {
@@ -249,17 +250,18 @@ export default {
 
     update_chart_stat (data){
 
-      console.log('update_chart_stat visibility', data)
+      // console.log('update_chart_stat visibility', this.$refs[this.id])
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
 
           this.tabular.data.shift()
           this.tabular.data.push(data[0])
+
           // let old_data = this.tabular.data
           // old_data.shift()
           // old_data.push(data[0])
-          // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          // old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
           // this.$set(this.tabular, 'data', old_data)
         }
         else{
@@ -276,10 +278,31 @@ export default {
 
         }
 
-        this.tabular.lastupdate = Date.now()
+        // if(data.length == 1){
+        //
+        //   // this.tabular.data.shift()
+        //   // this.tabular.data.push(data[0])
+        //   this.$options.data.push(data[0])
+        // }
+        // else{
+        //
+        //   this.$options.data = data
+        // }
+        // this.$options.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+        //
+        // let length = this.stat.data.length
+        // if(this.$options.data.length > length)
+        //   this.$options.data.splice(
+        //     -length -1,
+        //     this.$options.data.length - length
+        //   )
+        //
+        //
+        // this.$refs[this.id].update(this.$options.data)
+        //
+        // this.tabular.lastupdate = Date.now()
       }
-      ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
-      // data.empty()
+
     },
 
 

@@ -48,7 +48,7 @@ import PouchDB from 'pouchdb-browser'
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 360 //os = 4 docs...1200 = 300 secs of docs
+const QUEUE_SIZE = 60 //os = 4 docs...1200 = 300 secs of docs
 
 // let deque = new Deque()//QUEUE_SIZE
 let queues = {}
@@ -70,13 +70,20 @@ let get_queue = function(payload){
   return queues[payload.host][payload.path][payload.key]
 }
 
-let get_db = function(payload){
-  // // console.log('ACTIONS get_db', payload)
-  if(!dbs[payload.host])
-    dbs[payload.host] = new PouchDB('live_'+payload.host)
+let get_db = function(host){
+  console.log('ACTIONS get_db', host)
+  if(!dbs[host])
+    dbs[host] = new PouchDB('tabular_live_'+host)
 
 
-  return dbs[payload.host]
+  return dbs[host]
+}
+let close_db = function(host, cb){
+  // console.log('ACTIONS get_db', host)
+  if(dbs[host])
+    dbs[host].close(() => {delete dbs[host]; cb()})
+
+  // return dbs[host]
 }
 
 export const list_queues = ({ commit, dispatch }, payload) => {
@@ -352,21 +359,21 @@ export const splice = ({ commit, state }, payload) => {
   let options = {
     // startkey: payload.host+'/'+payload.path+'/'+payload.key+'\ufff0',
     // endkey: payload.host+'/'+payload.path+'/'+payload.key,
-    limit: length,
+    // limit: length,
     inclusive_end: true,
     descending: true,
     include_docs: true
   }
 
-  // if(payload.length){
-  //   options.limit = length
-  // }
-  //
-  // if(payload.range){
-  //   // let range = payload.range
-  //   options.startkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
-  //   options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
-  // }
+  if(payload.length){
+    options.limit = length
+  }
+
+  if(payload.range){
+    let range = payload.range
+    options.startkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
+    options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
+  }
 
   ////// console.log('OPTIONS', options)
 
@@ -381,17 +388,21 @@ export const splice = ({ commit, state }, payload) => {
     db.destroy().then(function (status) {
       // console.log('splice destroy res', status)
       // db.close()
-      db = new PouchDB('live_'+payload.host)
+      // db = new PouchDB('live_'+payload.host)
+      close_db(payload.host,() => {
+        db = get_db(payload.host)
 
-      // console.log('splice DOCS', res.rows)
 
-      db.bulkDocs(res.rows)
-      .then(function (status) {
-        // console.log('splice bulkDocs status', status)
+        // console.log('splice DOCS', res.rows)
 
-      }).catch(function (err) {
-        // console.log('splice bulkDocs err', err)
+        db.bulkDocs(res.rows)
+        .then(function (status) {
+          // console.log('splice bulkDocs status', status)
 
+        }).catch(function (err) {
+          // console.log('splice bulkDocs err', err)
+
+        })
       })
 
     }).catch(function (err) {

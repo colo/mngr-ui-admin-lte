@@ -36,6 +36,7 @@ export default {
   __unwatcher: undefined,
   __chart_init: false,
   visible: true,
+  data: [],
 
   props: {
     EventBus: {
@@ -253,7 +254,7 @@ export default {
 
     update_chart_stat (name, data){
 
-      console.log('update_chart_stat visibility', name, data)
+      // console.log('update_chart_stat visibility', name, data)
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
@@ -281,10 +282,42 @@ export default {
         }
 
         this.tabular.lastupdate = Date.now()
+
+        // if(data.length == 1){
+        //
+        //   // this.tabular.data.shift()
+        //   // this.tabular.data.push(data[0])
+        //   // data = Array.clone(this.$options.data).push(data[0])
+        //   this.$options.data.push(data[0])
+        // }
+        // else{
+        //   // let length = this.stat.data.length
+        //   // if(data.length > length)
+        //   //   data.splice(
+        //   //     -length -1,
+        //   //     data.length - length
+        //   //   )
+        //
+        //   this.$options.data = data
+        // }
+        //
+        // this.$options.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+        //
+        // let length = this.stat.data.length
+        // if(this.$options.data.length > length)
+        //   this.$options.data.splice(
+        //     -length -1,
+        //     this.$options.data.length - length
+        //   )
+        //
+        //
+        //
+        // this.$refs[this.id].update(this.$options.data)
+        //
+        // this.tabular.lastupdate = Date.now()
       }
 
-      // data.empty()
-      ////console.log('update_chart_stat',name, this.tabular.data, window.performance.memory)
+
     },
 
 

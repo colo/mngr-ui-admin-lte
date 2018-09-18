@@ -109,26 +109,26 @@ export default {
 
     this.create()
     // keypath
-    // let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
-    //
-    //
-    //   //console.log('updated data dygraph', this.id, this.stat.data)
-    //
-    //   // if(val.length > 1 && this.chart == null){
-    //   if(val.length > 1){
-    //
-    //     if(this.$options.graph == null){
-    //
-    //       this.__create_dygraph()
-    //
-    //     }
-    //     // this.__create_dygraph()
-    //     //
-    //     // __unwatcher()
-    //     this.update()
-    //   }
-    //
-    // })
+    let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
+
+
+      //console.log('updated data dygraph', this.id, this.stat.data)
+
+      // if(val.length > 1 && this.chart == null){
+      if(val.length > 1){
+
+        if(this.$options.graph == null){
+
+          this.__create_dygraph()
+
+        }
+        // this.__create_dygraph()
+        //
+        // __unwatcher()
+        this.update()
+      }
+
+    })
   },
   mounted () {
 
@@ -161,6 +161,8 @@ export default {
     **/
     visibilityChanged (isVisible, entry) {
       this.$options.visible = isVisible
+      if(isVisible == true && !this.$options.graph)
+        this.__create_dygraph()
     },
     destroy: function(){
       console.log('dygraph destroy', this.id)
@@ -187,56 +189,69 @@ export default {
       // }
       this.destroy()
 
-      this.$options.__unwatcher = this.$watch('stat.data', function (val, old) {
 
 
-        console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
-
-        // if(val.length > 1 && this.chart == null){
-        if(this.stat.data.length >= 1){
-
-          if(!this.$options.graph){
-
-            this.__create_dygraph()
-
-          }
-          // this.__create_dygraph()
-          //
-          // __unwatcher()
-          this.update()
-        }
-
-      }, {deep : true})
+      // this.$options.__unwatcher = this.$watch('stat.data', function (val, old) {
+      //
+      //
+      //   console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
+      //
+      //   // if(val.length > 1 && this.chart == null){
+      //   if(this.stat.data.length >= 1){
+      //
+      //     if(!this.$options.graph){
+      //
+      //       this.__create_dygraph()
+      //
+      //     }
+      //     // this.__create_dygraph()
+      //     //
+      //     // __unwatcher()
+      //     this.update()
+      //   }
+      //
+      // }, {deep : true})
     },
     __create_dygraph (){
-      //console.log('__create_dygraph', this.stat.data)
+
 
       let options = Object.clone(this.chart.options)
+      if(options.labels){
+        if(options.labelsDiv)
+          options.labelsDiv = this.id+'-'+options.labelsDiv
 
-      if(options.labelsDiv)
-        options.labelsDiv = this.id+'-'+options.labelsDiv
-
-      let data = []
-      Array.each(this.stat.data, function(row){
-        row[0] = new Date(row[0])
+        let data = []
+        let row = []
+        Array.each(options.labels, function(label){
+          row.push(0)
+        })
         data.push(row)
-      })
-      this.$options.graph = new Dygraph(
-        document.getElementById(this.id),  // containing div
-        data,
-        options
-      )
 
-      this.$options.graph.ready(function(){
-        // //////console.log('chart '+this.id+' ready')
-        this.ready = true
-      }.bind(this))
+        // Array.each(this.stat.data, function(row){
+        //   row[0] = new Date(row[0])
+        //   data.push(row)
+        // })
 
-      if(this.chart.init)
-        this.chart.init(this, this.$options.graph, 'dygraph')
+        console.log('__create_dygraph', data, options.labels)
+
+        this.$options.graph = new Dygraph(
+          document.getElementById(this.id),  // containing div
+          data,
+          options
+        )
+
+        this.$options.graph.ready(function(){
+          // //////console.log('chart '+this.id+' ready')
+          this.ready = true
+        }.bind(this))
+
+        if(this.chart.init)
+          this.chart.init(this, this.$options.graph, 'dygraph')
+      }
     },
-    update (){
+    update (data){
 
+      console.log('dygraph update', data)
 
       if(this.$options.visible == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
@@ -244,6 +259,7 @@ export default {
           console.log('focus, frameDebounce...')
           frameDebounce(
             this.updateOptions(
+              data || this.stat.data,
               { 'dateWindow': this.$options.graph.xAxisExtremes() },
               false
             )
@@ -252,6 +268,7 @@ export default {
         else{
           console.log('no focus, forcing...', new Date())
           this.updateOptions(
+            data || this.stat.data,
             { 'dateWindow': this.$options.graph.xAxisExtremes() },
             false
           )
@@ -262,9 +279,9 @@ export default {
         }
       }
     },
-    updateOptions (options, block_redraw){
+    updateOptions (data, options, block_redraw){
 
-      let self = this
+      // let self = this
 
       if(
         this.highlighted == false
@@ -289,10 +306,10 @@ export default {
           // self.stat.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 
-          let data = []
-          Array.each(self.stat.data, function(row){
+          // let data = []
+          Array.each(data, function(row){
             row[0] = new Date(row[0])
-            data.push(row)
+            // data.push(row)
           })
           this.$options.graph.updateOptions(
             Object.merge(
@@ -304,7 +321,7 @@ export default {
             block_redraw
           );
 
-          data.empty()
+          // data.empty()
           this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)
 
 

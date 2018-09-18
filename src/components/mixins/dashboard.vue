@@ -38,7 +38,9 @@ export default {
 
       this.$options.charts[name] = payload
       this.$set(this.charts, name, chart)
-      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+
+      if(!this.stats[name])
+        this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
 
       if(init && typeof init == 'function')
         init(payload)
@@ -60,10 +62,10 @@ export default {
         this.$options.charts[name].stop(this.$options.charts[name])
 
       this.$set(this.charts, name, undefined)
-      // delete this.charts[name]
 
-      this.$set(this.stats, name, undefined)
-      // delete this.stats[name]
+
+      // this.$set(this.stats, name, undefined)
+
 
       this.remove_watcher(name)
 
