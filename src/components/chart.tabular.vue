@@ -238,9 +238,11 @@ export default {
             this.update_chart_stat(data)
           }
         }
-      }
+      }.bind(this)
 
       console.log('gonna watch...', name, this.stat.data)
+      if(this.stat.data.length > 0)
+        generic_data_watcher(this.stat.data)
 
       this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
 
@@ -250,7 +252,7 @@ export default {
 
     update_chart_stat (data){
 
-      // console.log('update_chart_stat visibility', this.$refs[this.id])
+      console.log('update_chart_stat visibility', data)
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
@@ -265,12 +267,12 @@ export default {
           // this.$set(this.tabular, 'data', old_data)
         }
         else{
-          let length = this.stat.data.length
-          if(data.length > length)
-            data.splice(
-              -length -1,
-              data.length - length
-            )
+          // let length = this.stat.data.length
+          // if(data.length > length)
+          //   data.splice(
+          //     -length -1,
+          //     data.length - length
+          //   )
 
           data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 

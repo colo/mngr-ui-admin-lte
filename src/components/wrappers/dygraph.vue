@@ -221,11 +221,17 @@ export default {
           options.labelsDiv = this.id+'-'+options.labelsDiv
 
         let data = []
-        let row = []
-        Array.each(options.labels, function(label){
-          row.push(0)
-        })
-        data.push(row)
+        if(this.stat.data[0].length == 0){
+
+          let row = []
+          Array.each(options.labels, function(label){
+            row.push(0)
+          })
+          data.push(row)
+        }
+        else{
+          data = this.stat.data
+        }
 
         // Array.each(this.stat.data, function(row){
         //   row[0] = new Date(row[0])
@@ -250,26 +256,28 @@ export default {
       }
     },
     update (data){
-
+      data = data || this.stat.data
       console.log('dygraph update', data)
 
       if(this.$options.visible == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
         if(this.focus === true){
           console.log('focus, frameDebounce...')
-          frameDebounce(
+          // frameDebounce(
             this.updateOptions(
-              data || this.stat.data,
-              { 'dateWindow': this.$options.graph.xAxisExtremes() },
+              data,
+              {},
+              // { 'dateWindow': this.$options.graph.xAxisExtremes() },
               false
             )
-          )
+          // )
         }
         else{
           console.log('no focus, forcing...', new Date())
           this.updateOptions(
-            data || this.stat.data,
-            { 'dateWindow': this.$options.graph.xAxisExtremes() },
+            data,
+            {},
+            // { 'dateWindow': this.$options.graph.xAxisExtremes() },
             false
           )
           // setTimeout(this.updateOptions(
@@ -280,7 +288,7 @@ export default {
       }
     },
     updateOptions (data, options, block_redraw){
-
+      console.log('updateOptions', data, this.ready)
       // let self = this
 
       if(

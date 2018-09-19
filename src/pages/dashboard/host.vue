@@ -435,27 +435,27 @@ export default {
       this.$options.charts[this.host+'_os_cpus_times'] = {
         name: this.host+'_os_cpus_times',
         chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-        // init: this.__cpus_time_get_stat.bind(this),
+        init: this.__cpus_time_get_stat.bind(this),
         stop: function(payload){
           // console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats/splice', payload.stat)
           this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
-        watch: {
-          name: '$store.state.stats_tabular.'+this.host+'.cpus_times.os_cpus',
-          deep: true,
-          cb: (doc, old, payload) => {
-            console.log('__cpus_time_get_stat watcher ', doc, old, payload)
-            // if(this.visibility[payload.name] === true)
-            if(doc && doc.value)
-              this.__update_stat(payload.name, doc.value)
-          }
-        },
+        // watch: {
+        //   name: '$store.state.stats_tabular.'+this.host+'.cpus_times.os_cpus',
+        //   deep: true,
+        //   cb: (doc, old, payload) => {
+        //     console.log('__cpus_time_get_stat watcher ', doc, old, payload)
+        //     // if(this.visibility[payload.name] === true)
+        //     if(doc && doc.value)
+        //       this.__update_chart_stat(payload.name, doc.value)
+        //   }
+        // },
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
         //   deep: true,
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
         // },
         stat: {
           host: this.host,
@@ -468,23 +468,23 @@ export default {
         }
       }
 
-      this.__cpus_time_get_stat({
-        name: this.host+'_os_cpus_times',
-        stat: {
-          host: this.host,
-          path: 'cpus_times',
-          key: 'os_cpus',
-          length: this.seconds || 300,
-          tabular: true
-          // range: [Date.now() - this.seconds * 1000, Date.now()]
-
-        }
-
-      })
+      // this.__cpus_time_get_stat({
+      //   name: this.host+'_os_cpus_times',
+      //   stat: {
+      //     host: this.host,
+      //     path: 'cpus_times',
+      //     key: 'os_cpus',
+      //     length: this.seconds || 300,
+      //     tabular: true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //
+      //   }
+      //
+      // })
 
       /**
       * remove for testing
-
+      **/
       this.$options.charts[this.host+'_os_cpus_percentage'] = {
         name: this.host+'_os_cpus_percentage',
         chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
@@ -497,7 +497,7 @@ export default {
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
         //   // cb: this.__watcher_callback.bind(this)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
         // },
         stat: {
           host: this.host,
@@ -508,6 +508,7 @@ export default {
           // range: [Date.now() - this.seconds * 1000, Date.now()]
         }
       }
+
 
       this.$options.charts[this.host+'_os_uptime'] = {
         name: this.host+'_os_uptime',
@@ -520,8 +521,8 @@ export default {
         }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.uptime',
-        //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        //   // cb: (doc, old, payload) => this.__update_chart_stat(payload.name, doc.value)
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
         // },
         stat: {
           host: this.host,
@@ -532,6 +533,7 @@ export default {
           // range: [Date.now() - this.seconds * 1000, Date.now()]
         }
       }
+
 
       this.$options.charts[this.host+'_os_loadavg'] = {
         name: this.host+'_os_loadavg',
@@ -545,7 +547,7 @@ export default {
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.loadavg',
         //   // cb: this.__watcher_callback.bind(this)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
         // },
         stat: {
           host: this.host,
@@ -556,6 +558,7 @@ export default {
           // range: [Date.now() - this.seconds * 1000, Date.now()]
         }
       }
+
 
       let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
 
@@ -580,7 +583,7 @@ export default {
               //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
               //   deep:true,
               //   // cb: this.__watcher_callback.bind(this)
-              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
               // },
               stat: {
                 host: this.host,
@@ -601,6 +604,7 @@ export default {
       }.bind(this),{
         deep:true
       })
+
 
       let unwatch_mounts = this.$watch('mounts', function(val, old){
 
@@ -625,7 +629,7 @@ export default {
               //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
               //   deep:true,
               //   // cb: this.__watcher_callback.bind(this)
-              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
               // },
               stat: {
                 host: this.host,
@@ -651,6 +655,7 @@ export default {
       //   this.add_chart(chart, id)
       // }.bind(this))
 
+      /**
       * remove for testing
       **/
     })
@@ -658,9 +663,11 @@ export default {
     EventBus.$on('os', payload => {
       console.log('recived doc via Event os', payload)
         if(this.$options.tabular_range_started = true && payload.tabular == true){
+        // if(payload.tabular == true){
           this.process_os_tabular(payload.doc)
         }
         else if(this.$options.range_started = true){
+        // else{
           this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
         }
 
@@ -692,7 +699,7 @@ export default {
 
     /**
     * remove for testing
-
+    **/
     this.$options.charts[this.host+'_os_freemem'] = {
       name: this.host+'_os_freemem',
       chart: Object.clone(freemem_chart),
@@ -705,7 +712,7 @@ export default {
       // watch: {
       //   name: '$store.state.stats.'+this.host+'.os.freemem',
       //   // cb: this.__watcher_callback.bind(this)
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
       // },
       stat: {
         host: this.host,
@@ -715,6 +722,7 @@ export default {
         // range: [Date.now() - this.seconds * 1000, Date.now()]
       }
     }
+
 
     let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
 
@@ -744,7 +752,7 @@ export default {
                 //   name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
                 //   deep:true,
                 //   // cb: this.__watcher_callback.bind(this)
-                //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+                //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
                 // },
                 stat: {
                   host: this.host,
@@ -767,6 +775,7 @@ export default {
       deep:true
     })
 
+    /**
     * remove for testing
     **/
 
@@ -785,7 +794,7 @@ export default {
     //   // watch: {
     //   //   name: '$store.state.stats.'+this.host+'.os.cpus',
     //   //   deep: true,
-    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   // },
     //   stat: {
     //     host: this.host,
@@ -807,7 +816,7 @@ export default {
     //   // watch: {
     //   //   name: '$store.state.stats.'+this.host+'.os.cpus',
     //   //   // cb: this.__watcher_callback.bind(this)
-    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   // },
     //   stat: {
     //     host: this.host,
@@ -829,7 +838,7 @@ export default {
     //   // watch: {
     //   //   name: '$store.state.stats.'+this.host+'.os.loadavg',
     //   //   // cb: this.__watcher_callback.bind(this)
-    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   // },
     //   stat: {
     //     host: this.host,
@@ -849,8 +858,8 @@ export default {
     //   init: this.__uptime_get_stat.bind(this),
     //   // watch: {
     //   //   name: '$store.state.stats.'+this.host+'.os.uptime',
-    //   //   // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
-    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //   //   // cb: (doc, old, payload) => this.__update_chart_stat(payload.name, doc.value)
+    //   //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   // },
     //   stat: {
     //     host: this.host,
@@ -882,7 +891,7 @@ export default {
     //         //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
     //         //   deep:true,
     //         //   // cb: this.__watcher_callback.bind(this)
-    //         //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //         //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //         // },
     //         stat: {
     //           host: this.host,
@@ -924,7 +933,7 @@ export default {
     //         //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
     //         //   deep:true,
     //         //   // cb: this.__watcher_callback.bind(this)
-    //         //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //         //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //         // },
     //         stat: {
     //           host: this.host,
@@ -963,7 +972,7 @@ export default {
     //           name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
     //           deep:true,
     //           // cb: this.__watcher_callback.bind(this)
-    //           cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //           cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //         },
     //         stat: {
     //           host: this.host,
@@ -1002,7 +1011,7 @@ export default {
     //           name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
     //           deep:true,
     //           // cb: this.__watcher_callback.bind(this)
-    //           cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //           cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //         },
     //         stat: {
     //           host: this.host,
@@ -1044,7 +1053,7 @@ export default {
     //               name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
     //               deep:true,
     //               // cb: this.__watcher_callback.bind(this)
-    //               cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //               cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //             },
     //             stat: {
     //               host: this.host,
@@ -1072,7 +1081,7 @@ export default {
     //   init: this.__cpus_time_get_stat.bind(this),
     //   watch: {
     //     name: '$store.state.stats.'+this.host+'.os.cpus',
-    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   },
     //   stat: {
     //     host: this.host,
@@ -1095,7 +1104,7 @@ export default {
     //   watch: {
     //     name: '$store.state.stats.'+this.host+'.os.cpus',
     //     // cb: this.__watcher_callback.bind(this)
-    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   },
     //   stat: {
     //     host: this.host,
@@ -1114,7 +1123,7 @@ export default {
     //   watch: {
     //     name: '$store.state.stats.'+this.host+'.os.freemem',
     //     // cb: this.__watcher_callback.bind(this)
-    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   },
     //   stat: {
     //     host: this.host,
@@ -1133,7 +1142,7 @@ export default {
     //   watch: {
     //     name: '$store.state.stats.'+this.host+'.os.loadavg',
     //     // cb: this.__watcher_callback.bind(this)
-    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   },
     //   stat: {
     //     host: this.host,
@@ -1152,7 +1161,7 @@ export default {
     //   watch: {
     //     name: '$store.state.stats.'+this.host+'.os.uptime',
     //     // cb: this.__watcher_callback.bind(this)
-    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_stat(payload.name, doc.value) }
+    //     cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
     //   },
     //   stat: {
     //     host: this.host,
@@ -1179,7 +1188,10 @@ export default {
     this.destroy_host_pipelines()
 
 
-    this.remove_charts()
+    this.remove_charts({
+      clean: true,
+      unwatch: true,
+    })
 
 
     this.$store.dispatch('stats/flush_all', {host: this.host})
@@ -1233,16 +1245,17 @@ export default {
 
       console.log('__cpus_time_get_stat', payload)
 
-      // payload.watch = {
-      //   name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
-      //   deep: true,
-      //   cb: (doc, old, payload) => {
-      //     // console.log('__cpus_time_get_stat watcher ', new Date())
-      //     // if(this.visibility[payload.name] === true)
-      //     this.__update_stat(payload.name, doc.value)
-      //   }
-      // }
-      //
+      payload.watch = {
+        name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
+        deep: true,
+        cb: (doc, old, payload) => {
+          // console.log('__cpus_time_get_stat watcher ', new Date())
+          // if(this.visibility[payload.name] === true)
+          this.__update_chart_stat(payload.name, doc.value)
+
+        }
+      }
+
       // this.add_watcher(payload)
 
       stat.range = range
@@ -1296,8 +1309,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -1306,17 +1319,15 @@ export default {
         }
 
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
-              console.log('got cpus stat4', docs,
-                docs_range,
-                new Date(range[0]),
-                new Date(range[1]),
-                new Date(docs_range[0].metadata.timestamp),
-                new Date(docs_range[docs_range.length - 1].metadata.timestamp)
-              )
+              // console.log('got cpus stat4', docs,
+              //   docs_range,
+              //   new Date(range[0]),
+              //   new Date(range[1]),
+              //   new Date(docs_range[0].metadata.timestamp),
+              //   new Date(docs_range[docs_range.length - 1].metadata.timestamp)
+              // )
 
               let all_stats = docs.append(docs_range)
               all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
@@ -1329,10 +1340,11 @@ export default {
 
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
 
-              // this.add_watcher(payload)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
+
+              this.add_watcher(payload)
 
 
 
@@ -1340,6 +1352,8 @@ export default {
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1361,7 +1375,7 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -1416,8 +1430,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -1425,8 +1439,6 @@ export default {
           docs = []
         }
 
-
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -1448,13 +1460,16 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(this.host+'_os_cpus_percentage', all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(this.host+'_os_cpus_percentage', all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
         // }
 
         // setTimeout(function(){
@@ -1477,7 +1492,7 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -1533,8 +1548,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -1543,7 +1558,7 @@ export default {
         }
 
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
 
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -1565,13 +1580,15 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1591,10 +1608,10 @@ export default {
       payload.watch = {
         name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep: true,
-        // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+        // cb: (doc, old, payload) => this.__update_chart_stat(payload.name, doc.value)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -1650,8 +1667,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -1660,7 +1677,7 @@ export default {
         }
 
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -1682,13 +1699,15 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1708,10 +1727,10 @@ export default {
       payload.watch = {
         name: '$store.state.stats_tabular.'+stat.host+'.'+stat.path+'.'+stat.key,
         deep: true,
-        // cb: (doc, old, payload) => this.__update_stat(payload.name, doc.value)
+        // cb: (doc, old, payload) => this.__update_chart_stat(payload.name, doc.value)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -1767,8 +1786,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -1777,7 +1796,7 @@ export default {
         }
 
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -1799,13 +1818,15 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1827,7 +1848,7 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -1883,8 +1904,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -1893,7 +1914,7 @@ export default {
         }
 
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -1915,13 +1936,15 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1943,7 +1966,7 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -1999,8 +2022,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -2008,8 +2031,6 @@ export default {
           docs = []
         }
 
-
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -2031,13 +2052,15 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -2061,7 +2084,7 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value)
         }
       },
 
@@ -2117,8 +2140,8 @@ export default {
           }
           // }
 
-          // this.__update_stat(this.host+'_os_cpus_times', docs)
-          // // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+          // this.__update_chart_stat(this.host+'_os_cpus_times', docs)
+          // // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
           // this.add_watcher(payload)
           // pipeline.fireEvent('onResume')
         }
@@ -2149,8 +2172,8 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_stat(name, all_stats)
-              // this.__update_stat(this.host+'_os_cpus_percentage', docs)
+              this.__update_chart_stat(name, all_stats)
+              // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
               // this.$options.pipelines['input.os'].fireEvent('onResume')
@@ -2168,7 +2191,7 @@ export default {
     // __watcher_callback: function(doc, old, payload){
     //   let {name, watch} = payload
     //
-    //   this.__update_stat(name, doc.value)
+    //   this.__update_chart_stat(name, doc.value)
     //
     // },
     // __pre_update_stat: function(name, docs){

@@ -268,12 +268,12 @@ export default {
           // this.$set(this.tabular, 'data', old_data)
         }
         else{
-          let length = this.stat.data.length
-          if(data.length > length)
-            data.splice(
-              -length -1,
-              data.length - length
-            )
+          // let length = this.stat.data.length
+          // if(data.length > length)
+          //   data.splice(
+          //     -length -1,
+          //     data.length - length
+          //   )
 
           data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 

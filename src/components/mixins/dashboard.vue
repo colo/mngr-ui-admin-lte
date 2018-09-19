@@ -56,29 +56,32 @@ export default {
       //   finish(payload)
 
     },
-    remove_chart: function (name){
+    remove_chart: function (name, options){
+      options = options || {}
 
       if(this.$options.charts[name] && this.$options.charts[name].stop && typeof this.$options.charts[name].stop == 'function')
         this.$options.charts[name].stop(this.$options.charts[name])
 
       this.$set(this.charts, name, undefined)
 
+      if(options.clean && options.clean == true)
+        this.$set(this.stats, name, undefined)
 
-      // this.$set(this.stats, name, undefined)
-
-
-      this.remove_watcher(name)
+      if(options.unwatch && options.unwatch == true)
+        this.remove_watcher(name)
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
       console.log('remove_chart', name)
     },
-    remove_charts: function(){
+    remove_charts: function(options){
       Object.each(this.charts, function(chart, name){
-        this.remove_chart(name)
+        this.remove_chart(name, options)
       }.bind(this))
     },
     remove_watcher: function(name){
+      console.log('remove_watcher', name)
+
       if(this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name]()
         delete this.$options.__unwatchers__[name]
@@ -91,18 +94,19 @@ export default {
     // },
     add_watcher: function(payload){
       let {name, watch} = payload
-      console.log('add_watcher', name, watch)
+      // console.log('add_watcher', name, watch)
 
       this.remove_watcher(name)
+      // if(!this.$options.__unwatchers__[name]){
+        this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
+          // console.log('add_watcher', name)
+          if(watch.cb)
+            watch.cb(doc, old, payload)
 
-      this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
-        // console.log('add_watcher', name)
-        if(watch.cb)
-          watch.cb(doc, old, payload)
-
-      }.bind(this),{
-        deep: watch.deep || false
-      })
+        }.bind(this),{
+          deep: watch.deep || false
+        })
+      // }
     },
     __get_stat: function(payload, cb){
       //console.log('__get_stat', payload)
@@ -113,8 +117,8 @@ export default {
         this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
       }
     },
-    __update_stat: function(name, doc){
-      console.log('__update_stat', doc, this.stats[name])
+    __update_chart_stat: function(name, doc){
+      console.log('__update_chart_stat', doc, this.stats[name])
 
       if(this.stats[name]){
 
@@ -130,7 +134,7 @@ export default {
 
               // let old_data = Array.clone(this.stats[name].data)
               // data = old_data.combine(data)
-              data = this.stats[name].data.combine(data)
+              // data = this.stats[name].data.combine(data)
               data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
               this.$set(this.stats[name], 'data', data)
             }
