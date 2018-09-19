@@ -39,8 +39,8 @@ export default {
       this.$options.charts[name] = payload
       this.$set(this.charts, name, chart)
 
-      if(!this.stats[name])
-        this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+      // if(!this.stats[name])
+      //   this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
 
       if(init && typeof init == 'function')
         init(payload)
@@ -56,6 +56,19 @@ export default {
       //   finish(payload)
 
     },
+    add_chart_stat: function (name){
+      // if(!this.stats[name])
+      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+    },
+    remove_chart_stat: function (name){
+      this.$set(this.stats, name, undefined)
+    },
+    remove_chart_stats: function(){
+      // Object.each(this.stats, function(stat, name){
+      //   this.remove_chart_stat(name)
+      // }.bind(this))
+      this.$set(this, 'stats', {})
+    },
     remove_chart: function (name, options){
       options = options || {}
 
@@ -64,8 +77,8 @@ export default {
 
       this.$set(this.charts, name, undefined)
 
-      if(options.clean && options.clean == true)
-        this.$set(this.stats, name, undefined)
+      // if(options.clean && options.clean == true)
+      //   this.$set(this.stats, name, undefined)
 
       if(options.unwatch && options.unwatch == true)
         this.remove_watcher(name)

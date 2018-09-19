@@ -266,8 +266,8 @@ export default {
           // frameDebounce(
             this.updateOptions(
               data,
-              {},
-              // { 'dateWindow': this.$options.graph.xAxisExtremes() },
+              // {},
+              { 'dateWindow': this.$options.graph.xAxisExtremes() },
               false
             )
           // )
@@ -276,8 +276,8 @@ export default {
           console.log('no focus, forcing...', new Date())
           this.updateOptions(
             data,
-            {},
-            // { 'dateWindow': this.$options.graph.xAxisExtremes() },
+            // {},
+            { 'dateWindow': this.$options.graph.xAxisExtremes() },
             false
           )
           // setTimeout(this.updateOptions(

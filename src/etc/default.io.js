@@ -2,6 +2,6 @@
 
 export default {
   scheme: 'http',
-  host:'localhost',
+  host:'colo',
   port: 8080,
 }

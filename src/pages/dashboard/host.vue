@@ -278,8 +278,8 @@ export default {
   charts: {},
   pipelines: {},
 
-  range_started: false,
-  tabular_range_started: false,
+  // range_started: false,
+  // tabular_range_started: false,
   // props: {
   //   host: {
   //     type: [String],
@@ -421,9 +421,9 @@ export default {
   ),
 
   created: function(){
-    //console.log('life cycle created')
+    console.log('life cycle created')
 
-    EventBus.$on('host', doc => {
+    EventBus.$once('host', doc => {
       // console.log('recived doc via Event host', doc)
       Object.each(doc.charts, function(data, name){
         this.$options.charts_objects[name] = data.chart
@@ -431,16 +431,65 @@ export default {
 
       console.log('recived doc via Event host', doc, this.$options.charts_objects)
 
+      this.__cpus_time_get_stat({
+        name: this.host+'_os_cpus_times',
+        stat: {
+          host: this.host,
+          path: 'cpus_times',
+          key: 'os_cpus',
+          length: this.seconds || 300,
+          tabular: true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+
+        }
+
+      })
+
+      this.__cpus_percentage_get_stat({
+        name: this.host+'_os_cpus_percentage',
+        stat: {
+          host: this.host,
+          path: 'cpus_percentage',
+          key: 'os_cpus',
+          length: this.seconds || 300,
+          tabular: true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      })
+
+      this.__uptime_get_stat({
+        name: this.host+'_os_uptime',
+        stat: {
+          host: this.host,
+          path: 'uptime',
+          key: 'os_uptime',
+          length: this.seconds || 300,
+          tabular: true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      })
+
+      this.__loadavg_get_stat({
+        name: this.host+'_os_loadavg',
+        stat: {
+          host: this.host,
+          path: 'loadavg',
+          key: 'os_loadavg',
+          length: this.seconds || 300,
+          tabular:true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      })
 
       this.$options.charts[this.host+'_os_cpus_times'] = {
         name: this.host+'_os_cpus_times',
         chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-        init: this.__cpus_time_get_stat.bind(this),
+        // init: this.__cpus_time_get_stat.bind(this),
         stop: function(payload){
-          // console.log('stoping _os_cpus_times', payload.stat)
+          console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
-          // this.$store.dispatch('stats/splice', payload.stat)
-          this.$store.dispatch('stats_tabular/splice', payload.stat)
+
+          // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
         // watch: {
         //   name: '$store.state.stats_tabular.'+this.host+'.cpus_times.os_cpus',
@@ -468,31 +517,17 @@ export default {
         }
       }
 
-      // this.__cpus_time_get_stat({
-      //   name: this.host+'_os_cpus_times',
-      //   stat: {
-      //     host: this.host,
-      //     path: 'cpus_times',
-      //     key: 'os_cpus',
-      //     length: this.seconds || 300,
-      //     tabular: true
-      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //
-      //   }
-      //
-      // })
-
       /**
       * remove for testing
-      **/
+      */
       this.$options.charts[this.host+'_os_cpus_percentage'] = {
         name: this.host+'_os_cpus_percentage',
         chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
-        init: this.__cpus_percentage_get_stat.bind(this),
+        // init: this.__cpus_percentage_get_stat.bind(this),
         stop: function(payload){
           // console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
-          this.$store.dispatch('stats_tabular/splice', payload.stat)
+          // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.cpus',
@@ -513,11 +548,11 @@ export default {
       this.$options.charts[this.host+'_os_uptime'] = {
         name: this.host+'_os_uptime',
         chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
-        init: this.__uptime_get_stat.bind(this),
+        // init: this.__uptime_get_stat.bind(this),
         stop: function(payload){
           // console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
-          this.$store.dispatch('stats_tabular/splice', payload.stat)
+          // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.uptime',
@@ -534,15 +569,14 @@ export default {
         }
       }
 
-
       this.$options.charts[this.host+'_os_loadavg'] = {
         name: this.host+'_os_loadavg',
         chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
-        init: this.__loadavg_get_stat.bind(this),
+        // init: this.__loadavg_get_stat.bind(this),
         stop: function(payload){
           // console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
-          this.$store.dispatch('stats_tabular/splice', payload.stat)
+          // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
         // watch: {
         //   name: '$store.state.stats.'+this.host+'.os.loadavg',
@@ -573,11 +607,11 @@ export default {
              this.$options.charts[chart_name] = Object.clone({
               name: this.host+'_os_blockdevices_stats_'+key,
               chart: Object.merge(blockdevices_stats_chart, this.$options.charts_objects['blockdevices_stats']),
-              init: this.__blockdevices_get_stat.bind(this),
+              // init: this.__blockdevices_get_stat.bind(this),
               stop: function(payload){
                 // console.log('stoping _os_cpus_times', payload.stat)
                 this.$store.dispatch('stats_tabular/flush', payload.stat)
-                this.$store.dispatch('stats_tabular/splice', payload.stat)
+                // this.$store.dispatch('stats_tabular/splice', payload.stat)
               }.bind(this),
               // watch: {
               //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
@@ -595,7 +629,17 @@ export default {
               }
             })
 
-            // this.add_chart(this.$options.charts[chart_name], chart_name)
+            this.__blockdevices_get_stat({
+              name: this.host+'_os_blockdevices_stats_'+key,
+              stat: {
+                host: this.host,
+                path: 'blockdevices_stats',
+                key: 'os_blockdevices_'+key,
+                length: this.seconds || 300,
+                tabular: true
+                // range: [Date.now() - this.seconds * 1000, Date.now()]
+              }
+            })
 
           }.bind(this))
 
@@ -619,11 +663,11 @@ export default {
              this.$options.charts[chart_name] = Object.clone({
               name: this.host+'_os_mounts_percentage_'+key,
               chart: Object.merge(mounts_percentage_chart, this.$options.charts_objects['mounts_percentage']),
-              init: this.__mounts_get_stat.bind(this),
+              // init: this.__mounts_get_stat.bind(this),
               stop: function(payload){
                 // console.log('stoping _os_cpus_times', payload.stat)
                 this.$store.dispatch('stats_tabular/flush', payload.stat)
-                this.$store.dispatch('stats_tabular/splice', payload.stat)
+                // this.$store.dispatch('stats_tabular/splice', payload.stat)
               }.bind(this),
               // watch: {
               //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
@@ -642,7 +686,17 @@ export default {
             })
 
             // this.add_chart(this.$options.charts[chart_name], chart_name)
-
+            this.__mounts_get_stat({
+              name: this.host+'_os_mounts_percentage_'+key,
+              stat: {
+                host: this.host,
+                path: 'mounts_percentage',
+                key: 'os_mounts_'+key,
+                length: this.seconds || 300,
+                tabular: true
+                // range: [Date.now() - this.seconds * 1000, Date.now()]
+              }
+            })
           }.bind(this))
 
           unwatch_mounts()
@@ -661,28 +715,36 @@ export default {
     })
 
     EventBus.$on('os', payload => {
-      console.log('recived doc via Event os', payload)
-        if(this.$options.tabular_range_started = true && payload.tabular == true){
-        // if(payload.tabular == true){
+      // console.log('recived doc via Event os', payload)
+        // if(this.$options.tabular_range_started === true && payload.tabular == true){
+        if(payload.tabular == true){
           this.process_os_tabular(payload.doc)
         }
-        else if(this.$options.range_started = true){
-        // else{
+        // else if(this.$options.range_started === true && payload.tabular != true){
+        else{
           this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
         }
 
         // if(payload.type == 'range')
         //   console.log('RANGE', payload)
 
-        if(payload.type == 'range' && payload.tabular != true){
+        if(
+          payload.type == 'range'
+          && payload.tabular != true
+          // && this.$options.range_started === false
+        ){
+          // this.$options.range_started = true
           EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
-          this.$options.range_started = true
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
           // //console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
         }
-        else{
+        else if(
+          payload.type == 'range'
+          // && this.$options.tabular_range_started === false
+        ){
+          console.log('recived doc via Event os', payload)
+          // this.$options.tabular_range_started = true
           EventBus.$emit('tabularRange')
-          this.$options.tabular_range_started = true
         }
     })
 
@@ -692,7 +754,7 @@ export default {
 
 
   mounted: function(){
-    //console.log('life cycle mounted')
+    console.log('life cycle mounted')
 
     this.create_host_pipelines(this.$store.state.app.paths)
 
@@ -700,14 +762,15 @@ export default {
     /**
     * remove for testing
     **/
+
     this.$options.charts[this.host+'_os_freemem'] = {
       name: this.host+'_os_freemem',
       chart: Object.clone(freemem_chart),
-      init: this.__freemem_get_stat.bind(this),
+      // init: this.__freemem_get_stat.bind(this),
       stop: function(payload){
         // console.log('stoping _os_cpus_times', payload.stat)
         this.$store.dispatch('stats/flush', payload.stat)
-        this.$store.dispatch('stats/splice', payload.stat)
+        // this.$store.dispatch('stats/splice', payload.stat)
       }.bind(this),
       // watch: {
       //   name: '$store.state.stats.'+this.host+'.os.freemem',
@@ -722,6 +785,17 @@ export default {
         // range: [Date.now() - this.seconds * 1000, Date.now()]
       }
     }
+
+    this.__freemem_get_stat({
+      name: this.host+'_os_freemem',
+      stat: {
+        host: this.host,
+        path: 'os',
+        key: 'freemem',
+        length: this.seconds || 300,
+        // range: [Date.now() - this.seconds * 1000, Date.now()]
+      }
+    })
 
 
     let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
@@ -739,6 +813,17 @@ export default {
               //console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
               let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
 
+              // this.__networkInterfaces_get_stat({
+              //   name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
+              //   stat: {
+              //     host: this.host,
+              //     path: 'os',
+              //     key: 'networkInterfaces',
+              //     length: this.seconds || 300,
+              //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+              //   }
+              // })
+
                this.$options.charts[chart_name] = Object.clone({
                 name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
                 chart: Object.clone(networkInterfaces_chart),
@@ -746,7 +831,7 @@ export default {
                 stop: function(payload){
                   // console.log('stoping _os_cpus_times', payload.stat)
                   this.$store.dispatch('stats/flush', payload.stat)
-                  this.$store.dispatch('stats/splice', payload.stat)
+                  // this.$store.dispatch('stats/splice', payload.stat)
                 }.bind(this),
                 // watch: {
                 //   name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
@@ -765,6 +850,7 @@ export default {
 
               // this.add_chart(this.$options.charts[chart_name], chart_name)
               // iface_index++
+
             }
           }.bind(this))
         }.bind(this))
@@ -1181,18 +1267,25 @@ export default {
   // updated: function(){
   //
   // },
+  beforeCreate: function(){
+    console.log('life cycle beforeCreate')
+    EventBus.$off('host')
+    EventBus.$off('os')
+  },
   beforeDestroy: function(){
-    //console.log('life cycle beforeDestroy')
+    console.log('life cycle beforeDestroy')
     ////console.log('beforeDestroy')
+    // this.$options.tabular_range_started = false
+    // this.$options.range_started = false
 
     this.destroy_host_pipelines()
 
 
     this.remove_charts({
-      clean: true,
+      // clean: true,
       unwatch: true,
     })
-
+    this.remove_chart_stats()
 
     this.$store.dispatch('stats/flush_all', {host: this.host})
     this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
@@ -1256,9 +1349,9 @@ export default {
         }
       }
 
-      // this.add_watcher(payload)
-
       stat.range = range
+
+      this.add_chart_stat(name)
 
       this.__get_stat(stat, function(docs){
         console.log('got cpus stat', docs)
@@ -1305,6 +1398,7 @@ export default {
             console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
           }
           else{
+            console.log('got cpus stat missing')
             docs = []
           }
           // }
@@ -1315,13 +1409,14 @@ export default {
           // pipeline.fireEvent('onResume')
         }
         else{
+          console.log('got cpus not close enought')
           docs = []
         }
 
 
           EventBus.$once('tabularRange', () =>
             this.__get_stat(stat, function(docs_range){
-              // console.log('got cpus stat4', docs,
+              console.log('got cpus stat4', docs, docs_range)
               //   docs_range,
               //   new Date(range[0]),
               //   new Date(range[1]),
@@ -1353,7 +1448,7 @@ export default {
             }.bind(this))
           )
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1364,7 +1459,7 @@ export default {
     },
 
     __cpus_percentage_get_stat: function(payload){
-      let {stat} = payload
+      let {name, stat} = payload
       let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
 
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
@@ -1380,6 +1475,8 @@ export default {
       },
 
       stat.range = range
+
+      this.add_chart_stat(name)
 
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
@@ -1460,7 +1557,7 @@ export default {
               )
 
               // this.$set(this.stats[name], 'data', [])
-              this.__update_chart_stat(this.host+'_os_cpus_percentage', all_stats)
+              this.__update_chart_stat(name, all_stats)
               // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
               this.add_watcher(payload)
               // pipeline.fireEvent('onResume')
@@ -1468,7 +1565,7 @@ export default {
             }.bind(this))
           )
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
         // }
 
@@ -1497,6 +1594,8 @@ export default {
       },
 
       stat.range = range
+
+      this.add_chart_stat(name)
 
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
@@ -1617,6 +1716,8 @@ export default {
 
       stat.range = range
 
+      this.add_chart_stat(name)
+
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
         //
@@ -1707,7 +1808,7 @@ export default {
             }.bind(this))
           )
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
@@ -1735,6 +1836,8 @@ export default {
       },
 
       stat.range = range
+
+      this.add_chart_stat(name)
 
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
@@ -1854,6 +1957,8 @@ export default {
 
       stat.range = range
 
+      this.add_chart_stat(name)
+
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
         //
@@ -1972,6 +2077,8 @@ export default {
 
       stat.range = range
 
+      this.add_chart_stat(name)
+
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
         //
@@ -2089,6 +2196,8 @@ export default {
       },
 
       stat.range = range
+
+      this.add_chart_stat(name)
 
       this.__get_stat(stat, function(docs){
         // console.log('got cpus stat', docs)
@@ -2221,7 +2330,7 @@ export default {
       }
     },
     process_os_tabular: function(doc){
-      // console.log('process_os_tabular', doc)
+      console.log('process_os_tabular', doc)
       if(doc.metadata != null && doc.metadata.host == this.host){
         Object.each(doc.data, function(row, path){
           Object.each(row, function(data, key){

@@ -20,7 +20,7 @@ export default new Class({
   	requests : {
       range: [
     		{
-					sort_by_path: throttle(function(req, next, app){
+					sort_by_path: function(req, next, app){
             console.log('SORT_BY_PATH RANGE', app.options.paths, new Date(req.opt.range.start), new Date(req.opt.range.end))
 
             if(app.options.stat_host && this.status == 'ok'){
@@ -51,7 +51,8 @@ export default new Class({
 
 
 
-					}, 1000)
+					}
+          
 				},
 
 			],

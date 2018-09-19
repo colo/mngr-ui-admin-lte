@@ -48,12 +48,11 @@ import PouchDB from 'pouchdb-browser'
 
 import Deque from 'double-ended-queue'
 
-const QUEUE_SIZE = 60 //os = 4 docs...1200 = 300 secs of docs
+const QUEUE_SIZE = 300 //os = 4 docs...1200 = 300 secs of docs
 
 // let deque = new Deque()//QUEUE_SIZE
 let queues = {}
 let dbs = {}
-
 // let compacted = false
 
 let get_queue = function(payload, arr){
@@ -75,22 +74,38 @@ let get_queue = function(payload, arr){
 
 let get_db = function(host){
   console.log('ACTIONS get_db', host)
-  if(!dbs[host])
-    dbs[host] = new PouchDB('live_'+host)
+  if(!dbs[host]){
+    dbs[host] = {}
+    dbs[host].flushing = false
+    dbs[host].conn = new PouchDB('tabular_live_'+host)
+  }
 
+  // dbs[host].conn.info().then(function (result) {
+  //   console.log('INFO', result)
+  // }).catch(function (err) {
+  //   dbs[host].flushing = false
+  //   dbs[host].conn = new PouchDB('tabular_live_'+host)
+  // });
 
   return dbs[host]
 }
 let close_db = function(host, cb){
   // console.log('ACTIONS get_db', host)
-  if(dbs[host])
-    dbs[host].close(() => {delete dbs[host]; cb()})
+  // if(dbs[host] && typeof dbs[host].close == 'function'){
+  //   dbs[host].close(() => {delete dbs[host]; cb()})
+  // }
+  // else if(dbs[host]){
+    delete dbs[host]
+    cb()
+  // }
+
+
 
   // return dbs[host]
 }
 
 export const list_queues = ({ commit, dispatch }, payload) => {
-  // return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let list_queues = []
 
     if(payload.path && queues[payload.host] && queues[payload.host][payload.path]){
@@ -100,14 +115,13 @@ export const list_queues = ({ commit, dispatch }, payload) => {
       list_queues = Object.keys(queues[payload.host])
     }
 
-    return list_queues
-    // resolve(list_queues)
-  // })
+    // return list_queues
+    resolve(list_queues)
+  })
 }
 
-
 export const get = ({ commit, dispatch }, payload) => {
-  // let db = new PouchDB('live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
   let db = get_db(payload.host)
   let deque = get_queue(payload)
   //// console.log('action get...')
@@ -166,32 +180,61 @@ export const get = ({ commit, dispatch }, payload) => {
         options.endkey = payload.path+'/'+payload.key+'@'+range[0]
       }
 
-      ////// console.log('OPTIONS', options)
+      // console.log('action get OPTIONS', options)
 
-      db.allDocs(options).then(function (res) {
-
-
-        res.rows.reverse()
-        while (length > 0 && res.rows.length > 0){
-          //////// console.log('fetching while...', length)
-          docs[length] = res.rows.pop().doc
-          length--
-        }
+      // let get_all = function(){
+      //   let db = get_db(payload.host)
+      //   if(db.flushing == false){
 
 
+          db.conn.allDocs(options).then(function (res) {
 
-        docs.sort(function(a,b) {
-          return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
-        })
-        // // console.log('fetching from db', docs)
-        resolve(Array.clean(docs))
-      }).catch(function (err) {
-        //////// console.log('fetching from db err', err)
-        docs.sort(function(a,b) {
-          return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
-        })
-        resolve(Array.clean(docs))
-      })
+
+            res.rows.reverse()
+            while (length > 0 && res.rows.length > 0){
+              //////// console.log('fetching while...', length)
+              docs[length] = res.rows.pop().doc
+              length--
+            }
+
+
+
+            docs.sort(function(a,b) {
+              return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+            })
+            docs = docs.clean()
+            // // console.log('fetching from db', docs)
+            console.log('action get...from db', docs.clean())
+            resolve(docs)
+          }).catch(function (err) {
+            //////// console.log('fetching from db err', err)
+            docs.sort(function(a,b) {
+              return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+            })
+            resolve(docs)
+          })
+
+
+      //   }
+      // }
+
+      // if(db.flushing == false){
+      //   console.log('NOT flushing')
+      //   get_all()
+      // }
+      // else{
+      //   let timeout = setTimeout(function(){
+      //     let db = get_db(payload.host)
+      //     if(db.flushing == false){
+      //       console.log('NOT flushing clear')
+      //       clearTimeout(timeout)
+      //       get_all()
+      //     }
+      //     else{
+      //       console.log('IS flushing')
+      //     }
+      //   }, 100)
+      // }
     }
     else{
       docs.sort(function(a,b) {
@@ -209,10 +252,10 @@ export const get = ({ commit, dispatch }, payload) => {
 }
 
 export const add = ({ commit, dispatch }, payload) => {
-  // let db = new PouchDB('live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
   // let db = get_db(payload.host)
   let deque = get_queue(payload)
-  // // console.log('action add...', payload.data)
+  console.log('action add...', payload.data)
   // //////// console.log('length', deque.length)
 
   // if(deque.length >= QUEUE_SIZE)
@@ -286,14 +329,14 @@ export const add = ({ commit, dispatch }, payload) => {
 
   }
 
+  // console.log('actions add', payload.host, payload.path, payload.key, deque.length)
   if(deque.length >= QUEUE_SIZE){
-    console.log('actions add FLUSH', deque.length)
+    console.log('actions add FLUSH', deque.length, QUEUE_SIZE)
     payload.remaing = 0 //QUEUE_SIZE
     dispatch('flush', payload)
   }
 
 }
-
 
 export const flush_all = ({ commit, dispatch }, payload) => {
   dispatch('list_queues', payload).then(function(paths){
@@ -350,12 +393,12 @@ export const flush = ({ commit, state }, payload) => {
 
     console.log('action flushing...', length, payload.host, payload.path, payload.key,docs, deque.toArray())
 
-    // db.flushing = true
-    db.bulkDocs(docs)
+    db.flushing = true
+    db.conn.bulkDocs(docs)
     .then(function (status) {
       console.log('flushed', docs, status, deque.toArray())
       // commit('clear', payload)
-      // db.flushing = false
+      db.flushing = false
     }).catch(function (err) {
       console.log('flushed err', err)
     })
@@ -364,7 +407,7 @@ export const flush = ({ commit, state }, payload) => {
 }
 
 export const splice = ({ commit, state }, payload) => {
-  // let db = new PouchDB('live_'+payload.host)
+  // let db = new PouchDB('tabular_live_'+payload.host)
   let db = get_db(payload.host)
   let length = payload.length
   // let deque = get_queue(payload)
@@ -390,7 +433,7 @@ export const splice = ({ commit, state }, payload) => {
 
   ////// console.log('OPTIONS', options)
 
-  db.allDocs(options).then(function (res) {
+  db.conn.allDocs(options).then(function (res) {
 
     // console.log('splice fetching res', res)
 
@@ -398,28 +441,28 @@ export const splice = ({ commit, state }, payload) => {
     res.rows.reverse()
 
 
-    db.destroy().then(function (status) {
-      // console.log('splice destroy res', status)
-      // db.close()
-      // db = new PouchDB('live_'+payload.host)
+    db.conn.destroy().then(function (status) {
+      console.log('splice destroy res', status)
+      // db = new PouchDB('tabular_live_'+payload.host)
       close_db(payload.host,() => {
         db = get_db(payload.host)
 
 
         // console.log('splice DOCS', res.rows)
 
-        db.bulkDocs(res.rows)
+        db.conn.bulkDocs(res.rows)
         .then(function (status) {
-          // console.log('splice bulkDocs status', status)
+          console.log('splice bulkDocs status', status)
 
         }).catch(function (err) {
-          // console.log('splice bulkDocs err', err)
+          console.log('splice bulkDocs err', err)
 
         })
       })
 
+
     }).catch(function (err) {
-      // console.log('splice destroy err', err)
+      console.log('splice destroy err', err)
     })
     // while (length > 0 && res.rows.length > 0){
     //   //////// console.log('fetching while...', length)
