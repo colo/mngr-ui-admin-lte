@@ -240,7 +240,7 @@ export default {
         }
       }.bind(this)
 
-      console.log('gonna watch...', name, this.stat.data)
+      // console.log('gonna watch...', name, this.stat.data)
       if(this.stat.data.length > 0)
         generic_data_watcher(this.stat.data)
 

@@ -166,7 +166,7 @@ export default {
           filtered = true
         }
 
-        if(filtered == true){
+        if(filtered == true && typeof chart.pre_process == 'function'){
 
           chart = chart.pre_process(chart, name, stat)
 
@@ -181,12 +181,11 @@ export default {
 
         // chart.label = this.__process_chart_label(chart, name, stat) || name
         // let chart_name = this.__process_chart_name(chart, stat) || name
+        if(typeof chart.pre_process == 'function'){
+          chart = chart.pre_process(chart, name, stat)
+        }
 
-        this.__process_chart(
-          chart.pre_process(chart, name, stat),
-          name,
-          stat
-        )
+        this.__process_chart(chart, name, stat)
       }
 
     },
@@ -194,7 +193,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_chart (chart, name, stat){
-      console.log('data_to_tabular', this.stat.data, name, stat)
+      console.log('__process_chart', this.stat.data, name, stat)
 
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
@@ -224,7 +223,7 @@ export default {
 
       let generic_data_watcher = function(current){
         if(current){
-          // console.log('generic_data_watcher', name, current)
+          console.log('generic_data_watcher', name, current)
           // Array.each(current, function(row, index){
           //   console.log('generic_data_watcher', row)
           // })
@@ -244,7 +243,7 @@ export default {
         }
       }
 
-      // console.log('gonna watch...', name, this.stat.data)
+      console.log('gonna watch...', name, this.stat.data)
 
       this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
 
@@ -259,13 +258,17 @@ export default {
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
 
-          this.tabular.data.shift()
-          this.tabular.data.push(data[0])
-          // let old_data = this.tabular.data
-          // old_data.shift()
-          // old_data.push(data[0])
-          // old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-          // this.$set(this.tabular, 'data', old_data)
+          // this.tabular.data.shift()
+          // this.tabular.data.push(data[0])
+
+          /**
+          * ensures no "glitches" as a point may be in the incorrect posittion
+          */
+          let old_data = this.tabular.data
+          old_data.shift()
+          old_data.push(data[0])
+          old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+          this.$set(this.tabular, 'data', old_data)
         }
         else{
           // let length = this.stat.data.length

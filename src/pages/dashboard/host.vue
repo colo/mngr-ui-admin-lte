@@ -15,7 +15,7 @@
         <admin-lte-box-solid
           title="CPU Times"
           :id="host+'_os_cpus_times-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -38,7 +38,7 @@
         <admin-lte-box-solid
           title="CPU Percentage"
           :id="host+'_os_cpus_percentage-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -61,7 +61,7 @@
         <admin-lte-box-solid
           title="Freemem"
           :id="host+'_os_freemem-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -84,7 +84,7 @@
         <admin-lte-box-solid
           title="Uptime"
           :id="host+'_os_uptime-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -106,7 +106,7 @@
         <admin-lte-box-solid
           title="Load Average"
           :id="host+'_os_loadavg-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -131,7 +131,7 @@
             :key="'blockdevice_stats_'+index"
             :title="'Blockdevice stats['+index+']'"
             :id="host+'_os_blockdevices_stats_'+index+'-collapsible'"
-            v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -157,7 +157,7 @@
             :key="'mounts_percentage_'+index"
             :title="'Mounts Percetange usage '+index"
             :id="host+'_os_mounts_percentage_'+index+'-collapsible'"
-            v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -184,7 +184,7 @@
               :key="'networkInterfaces_stats'+name+'_'+messure"
               :title="'Network Interface '+name+' : '+messure"
               :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
-              v-observe-visibility="{ callback: visibilityChanged, throttle: 200 }"
+              v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
               v-on:show="el => showCollapsible(el)"
               v-on:hide="el => hideCollapsible(el)"
             >
@@ -812,17 +812,6 @@ export default {
             if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
               //console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
               let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
-
-              // this.__networkInterfaces_get_stat({
-              //   name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
-              //   stat: {
-              //     host: this.host,
-              //     path: 'os',
-              //     key: 'networkInterfaces',
-              //     length: this.seconds || 300,
-              //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-              //   }
-              // })
 
                this.$options.charts[chart_name] = Object.clone({
                 name: this.host+'_os_networkInterfaces_stats_'+name+'_'+messure,
@@ -2259,7 +2248,7 @@ export default {
         }
 
 
-          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
 
           EventBus.$once('osRange', () =>
             this.__get_stat(stat, function(docs_range){
@@ -2288,6 +2277,8 @@ export default {
               // this.$options.pipelines['input.os'].fireEvent('onResume')
             }.bind(this))
           )
+
+          pipeline.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
         // }
 
         // setTimeout(function(){
