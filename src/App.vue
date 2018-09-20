@@ -192,10 +192,12 @@ export default {
         this.$store.commit('hosts/clear')
         this.$store.commit('hosts/set', doc)
 
+        /**
         let currentRange = Object.clone(this.$store.state.app.range)
         ////console.log('update range', currentRange)
         //just a small modification to notify of update
         this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
+        **/
 
         this.$store.commit('app/reset', false)
         this.$store.commit('app/reset', true)

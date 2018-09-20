@@ -17,10 +17,7 @@ export default function() {
     /**
     *
     **/
-    range: [
-      Date.now() - 300 * 1000,
-      null
-    ],
+    range: [],
     // charts_tree_menu: [],
     // default_chart_icon: 'mdi-pulse',
     // icons: {

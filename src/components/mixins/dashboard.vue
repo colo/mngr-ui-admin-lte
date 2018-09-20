@@ -34,7 +34,7 @@ export default {
     * @start -charting
     **/
     add_chart: function (payload){
-      let {name, chart, init, watch} = payload
+      let {name, chart, init, watch, watcher} = payload
 
       this.$options.charts[name] = payload
       this.$set(this.charts, name, chart)
@@ -45,29 +45,16 @@ export default {
       if(init && typeof init == 'function')
         init(payload)
 
-      if(watch)
+      if(watch == true && watcher)
         this.add_watcher(payload)
 
-      console.log('add_chart', name)
+      //console.log('add_chart', name)
 
       // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
 
       // if(finish && typeof finish == 'function')
       //   finish(payload)
 
-    },
-    add_chart_stat: function (name){
-      // if(!this.stats[name])
-      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-    },
-    remove_chart_stat: function (name){
-      this.$set(this.stats, name, undefined)
-    },
-    remove_chart_stats: function(){
-      // Object.each(this.stats, function(stat, name){
-      //   this.remove_chart_stat(name)
-      // }.bind(this))
-      this.$set(this, 'stats', {})
     },
     remove_chart: function (name, options){
       options = options || {}
@@ -85,7 +72,7 @@ export default {
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
-      console.log('remove_chart', name)
+      //console.log('remove_chart', name)
     },
     remove_charts: function(options){
       Object.each(this.charts, function(chart, name){
@@ -93,36 +80,44 @@ export default {
       }.bind(this))
     },
     remove_watcher: function(name){
-      console.log('remove_watcher', name)
+      //console.log('remove_watcher', name)
 
       if(this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name]()
         delete this.$options.__unwatchers__[name]
       }
     },
-    // remove_watchers: function(){
-    //   Object.each(this.$options.__unwatchers__, function(unwatcher, name){
-    //     this.remove_watcher(name)
-    //   }.bind(this))
-    // },
+    add_chart_stat: function (name){
+      // if(!this.stats[name])
+      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+    },
+    remove_chart_stat: function (name){
+      this.$set(this.stats, name, undefined)
+    },
+    remove_chart_stats: function(){
+      // Object.each(this.stats, function(stat, name){
+      //   this.remove_chart_stat(name)
+      // }.bind(this))
+      this.$set(this, 'stats', {})
+    },
     add_watcher: function(payload){
-      let {name, watch} = payload
-      // console.log('add_watcher', name, watch)
+      let {name, watcher} = payload
+      // //console.log('add_watcher', name, watch)
 
       this.remove_watcher(name)
       // if(!this.$options.__unwatchers__[name]){
-        this.$options.__unwatchers__[name] = this.$watch(watch.name, function (doc, old) {
-          // console.log('add_watcher', name)
-          if(watch.cb)
-            watch.cb(doc, old, payload)
+        this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
+          // //console.log('add_watcher', name)
+          if(watcher.cb)
+            watcher.cb(doc, old, payload)
 
         }.bind(this),{
-          deep: watch.deep || false
+          deep: watcher.deep || false
         })
       // }
     },
     __get_stat: function(payload, cb){
-      //console.log('__get_stat', payload)
+      ////console.log('__get_stat', payload)
       if(payload.tabular == true){
         this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
       }
@@ -131,7 +126,7 @@ export default {
       }
     },
     __update_chart_stat: function(name, doc){
-      console.log('__update_chart_stat', doc, this.stats[name])
+      //console.log('__update_chart_stat', doc, this.stats[name])
 
       if(this.stats[name]){
 
@@ -181,13 +176,13 @@ export default {
     * UI
     **/
     showCollapsible (collapsible){
-      //console.log('showCollapsible', collapsible)
+      ////console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
 
     },
     hideCollapsible (collapsible){
-      //console.log('hideCollapsible', collapsible)
+      ////console.log('hideCollapsible', collapsible)
       // let name = collapsible.replace('-collapsible', '')
       // this.$options.has_no_data[name] = 61
       // this.$set(this.hide, name, true)
