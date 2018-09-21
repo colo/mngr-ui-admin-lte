@@ -1,25 +1,9 @@
-<template>
-
-  <component
-    v-observe-visibility="visibilityChanged"
-    :is="type+'-wrapper'"
-    :id="id"
-    :ref="id"
-    :EventBus="EventBus"
-    :chart="chart"
-    :stat="tabular"
-  />
-  </component>
-
-</template>
 
 <script>
 // let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
 // let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
 // let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
 let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
-
-import dygraphWrapper from 'components/wrappers/dygraph'
 
 import chart from 'components/mixins/chart'
 
@@ -28,76 +12,21 @@ export default {
 
   name: 'chart',
 
-  components: {
-    dygraphWrapper
-  },
 
-  // __chart: undefined,
-  __unwatcher: undefined,
-  __chart_init: false,
-  visible: true,
-  data: [],
-
-  props: {
-    EventBus: {
-      type: [Object],
-       default: () => ({})
-    },
-    chart: {
-      type: [Object],
-      default: () => ({})
-    },
-    stat: {
-      type: [Object],
-      default: () => ({})
-    },
-    type:{
-      type: [String],
-      default: 'dygraph'
-    },
-    id:{
-      type: [String],
-      default: ''
-    }
-  },
-
-  data () {
-    return {
-      tabular: {lastupdate: 0, 'data': [[]] },
-    }
-  },
-
-  created () {
-    this.create()
-  },
-  // mounted () {
-  //   this.create()
-  // },
-  updated () {
-    this.create()
-  },
-  destroyed (){
-    this.destroy()
-    this.$off()
-  },
   methods: {
     create (){
 
       let unwatch = this.$watch('stat.data', function (val, old) {
 
-        //console.log('create chart vue', this.id, this.$options.__chart_init, val)
 
         if(val && val.length > 1){
 
           if(this.$options.__chart_init == false){
-            // //console.log('chart vue __watcher', val)
-            // this.__process_stat(this.chart, this.id, val)
+
             this.__process_stat(this.chart, this.id, this.stat.data)
             this.$options.__chart_init = true
 
-            // this.$refs[this.id].create()
           }
-
 
 
           unwatch()
@@ -106,24 +35,6 @@ export default {
       }, { deep: true } )
     },
 
-    destroy: function(){
-      //console.log('destroy  chart vue', this.id)
-
-      if(this.$options.__unwatcher)
-        this.$options.__unwatcher()
-
-      this.$set(this.tabular, 'data', [[]])
-
-      // this.$refs[this.id].destroy()
-      this.$options.__chart_init == false
-
-    },
-    /**
-    * UI related
-    **/
-    visibilityChanged (isVisible, entry) {
-      this.$options.visible = isVisible
-    },
 
     /**
     * copied to mngr-ui-admin-app/os
@@ -134,16 +45,6 @@ export default {
         stat = [stat]
 
 
-      // if(Array.isArray(stat[0].value)){//like 'cpus'
-      //
-      //   this.__process_chart(
-      //     chart.pre_process(chart, name, stat),
-      //     name,
-      //     stat
-      //   )
-      //
-      // }
-      // else
       if(isNaN(stat[0].value)){
         //sdX.stats.
 
@@ -170,17 +71,13 @@ export default {
 
           chart = chart.pre_process(chart, name, stat)
 
-          // chart.label = this.__process_chart_label(chart, name, stat) || name
-          // let chart_name = this.__process_chart_name(chart, stat) || name
-
           this.__process_chart(chart, name, stat)
         }
 
       }
       else{
 
-        // chart.label = this.__process_chart_label(chart, name, stat) || name
-        // let chart_name = this.__process_chart_name(chart, stat) || name
+
         if(typeof chart.pre_process == 'function'){
           chart = chart.pre_process(chart, name, stat)
         }
@@ -223,12 +120,7 @@ export default {
 
       let generic_data_watcher = function(current){
         if(current){
-          //console.log('generic_data_watcher', name, current)
-          // Array.each(current, function(row, index){
-          //   //console.log('generic_data_watcher', row)
-          // })
 
-          // //console.log('generic_data_watcher val', chart)
           if(this.$options.visible){
             if(chart.watch && chart.watch.cumulative == true){//send all values
               //console.log('generic_data_watcher send all', name)

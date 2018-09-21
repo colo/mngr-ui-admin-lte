@@ -1,18 +1,24 @@
 <template>
+
   <div
-  :class="options.class"
+    v-observe-visibility="visibilityChanged"
+    :id="id+'-container'"
+    :style="chart.style"
+    :class="chart.class"
   >
     <vue-easy-pie-chart
-      v-bind="options.options"
+      v-bind="chart.options"
       :percent="percentage"
       :id="id"
     />
-  </div>
 
+  </div>
+  <!-- v-bind:class="container_class_helper" -->
 </template>
 
-
 <script>
+
+import { frameDebounce } from 'quasar'
 
 import VueEasyPieChart from 'vue-easy-pie-chart'
 import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
@@ -24,9 +30,10 @@ export default {
   components: {
     VueEasyPieChart
   },
-  
-  // chart: null,
+
+  // graph: undefined,
   freezed: false,
+  visible: true,
 
   props: {
     EventBus: {
@@ -37,7 +44,7 @@ export default {
       type: [String],
       default: () => ('')
     },
-    options: {
+    chart: {
       type: [Object],
       default: () => ({})
     },
@@ -55,12 +62,16 @@ export default {
       type: [Boolean],
       default: () => (true)
     },
+    decimals: {
+      type: [Number],
+      default: 2
+    }
   },
   data () {
     return {
       percentage: 0,
       // container_class_helper: '',
-      chart: null,
+      // chart: null,
       // highlighted: false,
       // ready: false,
       // to_suspend: false,
@@ -74,105 +85,84 @@ export default {
   },
 
   created () {
-    this.chart = this
-  //   // //console.log('created', this.id, this.visible)
-  //
-  //   this.EventBus.$on('highlightCallback', params => {
-  //     this.highlighted = true
-  //     // ////console.log('event highlightCallback', params)
-	// 	})
-  //   this.EventBus.$on('unhighlightCallback', event => {
-  //     this.highlighted = false
-  //     // ////console.log('event unhighlightCallback', event)
-	// 	})
-  //
-  //   // keypath
-  //   let unwatch = this.$watch('stat.data', function (val, oldVal) {
-  //
-  //
-  //     ////console.log('created', this.id, this.stat.data)
-  //
-  //     // if(val.length > 1 && this.chart == null){
-  //     if(val.length > 1){
-  //
-  //
-  //       this._create_dygraph()
-  //
-  //       unwatch()
-  //     }
-  //
-  //   })
-  // },
-  // mounted () {
-  //
-  //   if(this.chart == null){
-  //
-  //     this._create_dygraph()
-  //
-  //   }
-  //
-  // },
+    // this.chart = this
+    window.addEventListener('blur', function() {
+       this.focus = false
+    }.bind(this), false)
 
-  // destroyed (){
-  //
-  //   if(this.chart){
-  //     this.chart.destroy()
-  //     this.chart = null
-  //   }
-  //   this.$off()
+    window.addEventListener('focus', function() {
+       this.focus = true
+    }.bind(this), false)
+
+    let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
+
+      if(val.length > 1){
+
+        // if(this.$options.graph == null){
+        //
+        //   this.__create_dygraph()
+        //
+        // }
+
+        this.update()
+      }
+
+    })
   },
-  methods: {
 
-    // _create_dygraph (){
-    //   let options = Object.clone(this.options.options)
+  destroyed (){
+    this.$off()
+  },
+  mounted () {
+
+    // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
     //
-    //   if(options.labelsDiv)
-    //     options.labelsDiv = this.id+'-'+options.labelsDiv
-    //
-    //   this.chart = new Dygraph(
-    //     document.getElementById(this.id),  // containing div
-    //     this.stat.data,
-    //     options
-    //   )
-    //
-    //   this.chart.ready(function(){
-    //     // ////console.log('chart '+this.id+' ready')
-    //     this.ready = true
-    //   }.bind(this))
-    //
-    //   if(this.options.init)
-    //     this.options.init(this, this.chart, 'dygraph')
-    // },
-    update () {
-      // console.log('qknob update')
-      // this.model = this.stat.data.getLast()[1]
-      this.percentage = this.stat.data.getLast()[1]
-    },
-    // updateOptions (options, block_redraw){
-    //
-    //   let self = this
-    //
-    //   if(this.highlighted == false && this.ready == true
-    //     // && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
-    //     // && this.freezed == false
-    //   ){
-    //
-    //       this.chart.updateOptions(
-    //         Object.merge(
-    //           {
-    //             'file': self.stat.data
-    //           },
-    //           options
-    //         ),
-    //         block_redraw
-    //       );
-    //
-    //       this.chart.setSelection(this.chart.numRows() - 1, {}, false)
-    //
-    //
-    //   }
+    //   this.__create_dygraph()
     //
     // }
+    // this.__watcher()
+
+    // this.create()
+  },
+  methods: {
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      this.$options.visible = isVisible
+      // if(isVisible == true && !this.$options.graph)
+      //   this.__create_dygraph()
+    },
+    destroy: function(){
+
+    },
+    create (){
+      this.destroy()
+    },
+    // update () {
+    //   // console.log('qknob update')
+    //   // this.model = this.stat.data.getLast()[1]
+    //   this.percentage = this.stat.data.getLast()[1]
+    // },
+    update (data){
+      data = data || this.stat.data
+      // console.log('vue-easy-pie-chart update', data)
+
+      if(this.$options.visible == true){
+        // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
+        if(this.focus === true){
+          //console.log('focus, frameDebounce...')
+          frameDebounce(
+            this.percentage = data.getLast()[1].toFixed(this.decimals) * 1
+          )
+        }
+        else{
+
+          this.percentage = data.getLast()[1].toFixed(this.decimals) * 1
+
+        }
+      }
+    },
   }
 }
 </script>

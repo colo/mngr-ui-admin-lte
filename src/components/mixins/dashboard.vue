@@ -126,7 +126,7 @@ export default {
       }
     },
     __update_chart_stat: function(name, doc){
-      //console.log('__update_chart_stat', doc, this.stats[name])
+      // console.log('__update_chart_stat',name, this.stats[name],  doc)
 
       if(this.stats[name]){
 

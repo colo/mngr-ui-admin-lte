@@ -1,19 +1,104 @@
+<template>
+
+  <component
+    v-observe-visibility="visibilityChanged"
+    :is="type+'-wrapper'"
+    :id="id"
+    :ref="id"
+    :EventBus="EventBus"
+    :chart="chart"
+    :stat="tabular"
+    v-bind="wrapper_props"
+  />
+  </component>
+
+</template>
+
 <script>
 
-// let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
-// let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
-// let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
-// let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
+import dygraphWrapper from 'components/wrappers/dygraph'
+import vueEasyPieChartWrapper from 'components/wrappers/vueEasyPieChart'
 
 export default {
 
-  data () {
-    return {
+  components: {
+    dygraphWrapper,
+    vueEasyPieChartWrapper
+  },
+
+
+  __unwatcher: undefined,
+  __chart_init: false,
+  visible: true,
+  data: [],
+
+  props: {
+    EventBus: {
+      type: [Object],
+       default: () => ({})
+    },
+    chart: {
+      type: [Object],
+      default: () => ({})
+    },
+    stat: {
+      type: [Object],
+      default: () => ({})
+    },
+    type:{
+      type: [String],
+      default: 'dygraph'
+    },
+    id:{
+      type: [String],
+      default: ''
+    },
+    wrapper_props: {
+      type: [Object],
+      default: () => ({})
     }
   },
 
-  methods: {
+  data () {
+    return {
+      tabular: {lastupdate: 0, 'data': [[]] },
+    }
+  },
 
+  created () {
+    this.create()
+  },
+  // mounted () {
+  //   this.create()
+  // },
+  updated () {
+    this.create()
+  },
+  destroyed (){
+    this.destroy()
+    this.$off()
+  },
+  methods: {
+    destroy: function(){
+      //console.log('destroy  chart vue', this.id)
+
+      if(this.$options.__unwatcher)
+        this.$options.__unwatcher()
+
+      this.$set(this.tabular, 'data', [[]])
+
+      // this.$refs[this.id].destroy()
+      this.$options.__chart_init == false
+
+    },
+    __create_watcher(name, chart){},
+    update_chart_stat (name, data){},
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      this.$options.visible = isVisible
+    },
   }
 }
 </script>

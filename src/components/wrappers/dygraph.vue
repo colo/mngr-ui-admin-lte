@@ -141,16 +141,16 @@ export default {
 
     this.create()
   },
-  updated () {
-
-    // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
-    //
-    //   this.__create_dygraph()
-    //
-    // }
-    // this.__watcher()
-
-  },
+  // updated () {
+  //
+  //   // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
+  //   //
+  //   //   this.__create_dygraph()
+  //   //
+  //   // }
+  //   // this.__watcher()
+  //
+  // },
   destroyed (){
     this.destroy()
     this.$off()
@@ -263,14 +263,14 @@ export default {
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
         if(this.focus === true){
           //console.log('focus, frameDebounce...')
-          // frameDebounce(
+          frameDebounce(
             this.updateOptions(
               data,
               // {},
               { 'dateWindow': this.$options.graph.xAxisExtremes() },
               false
             )
-          // )
+          )
         }
         else{
           //console.log('no focus, forcing...', new Date())

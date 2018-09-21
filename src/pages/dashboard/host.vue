@@ -8,9 +8,62 @@
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
-          <admin-lte-dashboard-host-summary>
-          </admin-lte-dashboard-host-summary>
+
+
+        <div class="col-md-3 col-sm-6 col-xs-12"
+        :id="host+'_os_freemem_pie-collapsible'"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        >
+          <chart
+            v-if="visibility[host+'_os_freemem_pie']"
+            :type="'vue-easy-pie-chart'"
+            :wrapper_props="{'decimals': 1}"
+            :ref="host+'_os_freemem_pie'"
+            :id="host+'_os_freemem_pie'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_freemem_pie']"
+            :stat="stats[host+'_os_freemem_pie']"
+          >
+          </chart>
+          <div class="description-block border-right">
+            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 20%</span> -->
+            <!-- <h5 class="description-header">percentage</h5> -->
+            <span class="description-text">free mem</span>
+          </div>
+          <!-- /.description-block -->
+
+
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12"
+        :id="host+'_os_cpus_percentage_pie-collapsible'"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        >
+          <chart-tabular
+            v-if="visibility[host+'_os_cpus_percentage_pie']"
+            :type="'vue-easy-pie-chart'"
+            :wrapper_props="{'decimals': 1}"
+            :ref="host+'_os_cpus_percentage_pie'"
+            :id="host+'_os_cpus_percentage_pie'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus_percentage_pie']"
+            :stat="stats[host+'_os_cpus_percentage_pie']"
+          >
+          </chart-tabular>
+          <div class="description-block border-right">
+            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 20%</span> -->
+            <!-- <h5 class="description-header">percentage</h5> -->
+            <span class="description-text">CPUS Consumption</span>
+          </div>
+          <!-- /.description-block -->
+
+
+        </div>
+
         </admin-lte-box-solid>
+
+
+
 
         <admin-lte-box-solid
           title="CPU Times"
@@ -268,6 +321,8 @@ import freemem_chart from 'mngr-ui-admin-charts/os/freemem'
 import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
 import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
 import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
+
+import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
 
 export default {
   mixins: [dashboard],
@@ -564,21 +619,6 @@ export default {
 
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
-        // watch: {
-        //   name: '$store.state.stats_tabular.'+this.host+'.cpus_times.os_cpus',
-        //   deep: true,
-        //   cb: (doc, old, payload) => {
-        //     ////console.log('__cpus_time_get_stat watcher ', doc, old, payload)
-        //     // if(this.visibility[payload.name] === true)
-        //     if(doc && doc.value)
-        //       this.__update_chart_stat(payload.name, doc.value)
-        //   }
-        // },
-        // watch: {
-        //   name: '$store.state.stats.'+this.host+'.os.cpus',
-        //   deep: true,
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-        // },
         stat: {
           host: this.host,
           path: 'cpus_times',
@@ -602,11 +642,7 @@ export default {
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
-        // watch: {
-        //   name: '$store.state.stats.'+this.host+'.os.cpus',
-        //   // cb: this.__watcher_callback.bind(this)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-        // },
+
         stat: {
           host: this.host,
           path: 'cpus_percentage',
@@ -614,6 +650,47 @@ export default {
           length: this.seconds || 300,
           tabular: true
           // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      }
+      /**
+      * pie
+      **/
+      this.$options.charts[this.host+'_os_cpus_percentage_pie'] = {
+        name: this.host+'_os_cpus_percentage_pie',
+        chart: Object.merge(Object.clone(pie_chart), {
+          options:{
+            // 'track-color': false,
+            size: 120,
+            'font-size': '24px',
+            'bar-color': function(percentage){
+              if(percentage > 0 && percentage < 33){
+                return '#86b300'
+              }
+              else if(percentage > 33 && percentage < 66){
+                return '#f6d95b'
+              }
+              else{
+                return '#ff704d'
+              }
+            }
+          }
+        }),
+        init: this.__get_stat_for_chart.bind(this),
+        stop: function(payload){
+          // this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
+        stat: {
+          host: this.host,
+          path: 'cpus_percentage',
+          key: 'os_cpus',
+          length: 1,
+          tabular: true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        },
+        pipeline: {
+          name: 'input.os',
+          path: 'os',
+          // range: true
         }
       }
 
@@ -627,11 +704,7 @@ export default {
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
-        // watch: {
-        //   name: '$store.state.stats.'+this.host+'.os.uptime',
-        //   // cb: (doc, old, payload) => this.__update_chart_stat(payload.name, doc.value)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-        // },
+
         stat: {
           host: this.host,
           path: 'uptime',
@@ -651,11 +724,7 @@ export default {
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
-        // watch: {
-        //   name: '$store.state.stats.'+this.host+'.os.loadavg',
-        //   // cb: this.__watcher_callback.bind(this)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-        // },
+        //
         stat: {
           host: this.host,
           path: 'loadavg',
@@ -686,12 +755,6 @@ export default {
                 this.$store.dispatch('stats_tabular/flush', payload.stat)
                 // this.$store.dispatch('stats_tabular/splice', payload.stat)
               }.bind(this),
-              // watch: {
-              //   name: '$store.state.stats.'+this.host+'.os_blockdevices.'+key,
-              //   deep:true,
-              //   // cb: this.__watcher_callback.bind(this)
-              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-              // },
               stat: {
                 host: this.host,
                 path: 'blockdevices_stats',
@@ -702,17 +765,7 @@ export default {
               }
             })
 
-            // this.__blockdevices_get_stat({
-            //   name: this.host+'_os_blockdevices_stats_'+key,
-            //   stat: {
-            //     host: this.host,
-            //     path: 'blockdevices_stats',
-            //     key: 'os_blockdevices_'+key,
-            //     length: this.seconds || 300,
-            //     tabular: true
-            //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-            //   }
-            // })
+
             this.__get_stat_for_chart({
               name: this.host+'_os_blockdevices_stats_'+key,
               stat: {
@@ -758,12 +811,7 @@ export default {
                 this.$store.dispatch('stats_tabular/flush', payload.stat)
                 // this.$store.dispatch('stats_tabular/splice', payload.stat)
               }.bind(this),
-              // watch: {
-              //   name: '$store.state.stats.'+this.host+'.os_mounts.'+key,
-              //   deep:true,
-              //   // cb: this.__watcher_callback.bind(this)
-              //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-              // },
+
               stat: {
                 host: this.host,
                 path: 'mounts_percentage',
@@ -773,19 +821,6 @@ export default {
                 // range: [Date.now() - this.seconds * 1000, Date.now()]
               }
             })
-
-            // this.add_chart(this.$options.charts[chart_name], chart_name)
-            // this.__mounts_get_stat({
-            //   name: this.host+'_os_mounts_percentage_'+key,
-            //   stat: {
-            //     host: this.host,
-            //     path: 'mounts_percentage',
-            //     key: 'os_mounts_'+key,
-            //     length: this.seconds || 300,
-            //     tabular: true
-            //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-            //   }
-            // })
 
             this.__get_stat_for_chart({
               name: this.host+'_os_mounts_percentage_'+key,
@@ -869,11 +904,7 @@ export default {
           this.$store.dispatch('stats/flush', payload.stat)
           // this.$store.dispatch('stats/splice', payload.stat)
         }.bind(this),
-        // watch: {
-        //   name: '$store.state.stats.'+this.host+'.os.freemem',
-        //   // cb: this.__watcher_callback.bind(this)
-        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-        // },
+
         stat: {
           host: this.host,
           path: 'os',
@@ -882,6 +913,61 @@ export default {
           // range: [Date.now() - this.seconds * 1000, Date.now()]
         }
       }
+
+      /**
+      * pie
+      **/
+      this.$options.charts[this.host+'_os_freemem_pie'] = {
+        name: this.host+'_os_freemem_pie',
+        chart: Object.merge(Object.clone(pie_chart), {
+          totalmem: this.os_stats.totalmem.value.data,
+          watch: {
+            /**
+            * @trasnform: diff between each value against its prev one
+            */
+            transform: function(values, caller, chart){
+              let last = values[values.length - 1]
+              last.value = last.value * 100 / chart.totalmem
+              // console.log('_os_freemem_pie transform', values, chart.totalmem, last)
+              return values
+            }
+          },
+          options:{
+            // 'track-color': false,
+            size: 80,
+            'font-size': '14px',
+            'bar-color': function(percentage){
+              if(percentage > 0 && percentage < 33){
+                return '#ff704d'
+              }
+              else if(percentage > 33 && percentage < 66){
+                return '#f6d95b'
+              }
+              else{
+                return '#86b300'
+              }
+            }
+          }
+        }),
+        init: this.__get_stat_for_chart.bind(this),
+        stop: function(payload){
+          // this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
+        stat: {
+          host: this.host,
+          path: 'os',
+          key: 'freemem',
+          length: 1,
+          // tabular:true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        },
+        pipeline: {
+          name: 'input.os',
+          path: 'os',
+          // range: true
+        }
+      }
+
       unwatch_freemem()
     },{
       deep: true
@@ -896,17 +982,6 @@ export default {
 
     this.create_host_pipelines(this.$store.state.app.paths)
 
-
-    // this.__freemem_get_stat({
-    //   name: this.host+'_os_freemem',
-    //   stat: {
-    //     host: this.host,
-    //     path: 'os',
-    //     key: 'freemem',
-    //     length: this.seconds || 300,
-    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-    //   }
-    // })
 
     this.__get_stat_for_chart({
       name: this.host+'_os_freemem',
@@ -1427,7 +1502,7 @@ export default {
       let id = entry.target.id.replace('-collapsible', '')
       // let name = id.replace(this.host+'_', '')
 
-      // ////console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
+      // console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
 
       if(
         isVisible == false
