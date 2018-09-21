@@ -72,31 +72,31 @@ export default new Class({
   },
 
   get_last_periodical: function(err, resp, body){
-		console.log('this.get %o', resp);
+		//console.log('this.get %o', resp);
 
 		if(err){
-			console.log('this.get error %o', err);
+			//console.log('this.get error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
 		else{
 			let result = JSON.decode(resp.body)
 
-			console.log('this.get result %o', result);
+			//console.log('this.get result %o', result);
 
 			if(result.rows[0]){
 				this.fireEvent('onPeriodicalDoc', [result.rows[0].doc.data, {type: 'periodical', input_type: this, app: null}]);
 
 				//for (var key in result.rows[0].doc.data) {
-					//console.log(key);
+					////console.log(key);
 				//}
 			}
 		}
   },
   get: function(err, resp, body){
-		console.log('this.get %o', body);
+		//console.log('this.get %o', body);
 
 		if(err){
-			console.log('this.get error %o', err);
+			//console.log('this.get error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
   },
@@ -107,7 +107,7 @@ export default new Class({
    *
    * */
   _flatten_obj: function(data) {
-		console.log('_flatten_obj %o', data);
+		//console.log('_flatten_obj %o', data);
 
 		var result = {};
 		function recurse (cur, prop) {
@@ -133,14 +133,14 @@ export default new Class({
 		return result;
 	},
 	use: function(mount, app){
-		console.log('use %o %o', mount, app);
+		//console.log('use %o %o', mount, app);
 
 		var id = Object.keys(this._flatten_obj(mount))[0];
 
 		app.options.id = id;
 
 		app.addEvent(app.ON_CONNECT_ERROR, function(err){
-			console.log('app.ON_CONNECT_ERROR %o', err);
+			//console.log('app.ON_CONNECT_ERROR %o', err);
 
 			this.fireEvent(this.ON_CONNECT_ERROR);
 		}.bind(this));
@@ -159,18 +159,18 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		console.log('this.connect');
+		//console.log('this.connect');
 
 		try{
 			//this.os.api.get({uri: 'hostname'});
 			this.get({uri: '/'}, this._first_connect.bind(this));
 		}
 		catch(e){
-			console.log(e);
+			//console.log(e);
 		}
 	},
 	_first_connect: function(err, result, body, opts){
-		console.log('first_connect %o', JSON.decode(result.body).uuid);
+		//console.log('first_connect %o', JSON.decode(result.body).uuid);
 		this.options.id = JSON.decode(result.body).uuid;//set ID
 
 	}

@@ -85,12 +85,12 @@ export default {
 
       let unwatch = this.$watch('stat.data', function (val, old) {
 
-        console.log('create chart vue', this.id, this.$options.__chart_init, val)
+        //console.log('create chart vue', this.id, this.$options.__chart_init, val)
 
         if(val && val.length > 1){
 
           if(this.$options.__chart_init == false){
-            // console.log('chart vue __watcher', val)
+            // //console.log('chart vue __watcher', val)
             // this.__process_stat(this.chart, this.id, val)
             this.__process_stat(this.chart, this.id, this.stat.data)
             this.$options.__chart_init = true
@@ -107,7 +107,7 @@ export default {
     },
 
     destroy: function(){
-      console.log('destroy  chart vue', this.id)
+      //console.log('destroy  chart vue', this.id)
 
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
@@ -129,7 +129,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_stat (chart, name, stat){
-      console.log('__process_stat', name, stat)
+      //console.log('__process_stat', name, stat)
       if(!Array.isArray(stat))
         stat = [stat]
 
@@ -193,7 +193,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_chart (chart, name, stat){
-      console.log('__process_chart', this.stat.data, name, stat)
+      //console.log('__process_chart', this.stat.data, name, stat)
 
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
@@ -223,19 +223,19 @@ export default {
 
       let generic_data_watcher = function(current){
         if(current){
-          console.log('generic_data_watcher', name, current)
+          //console.log('generic_data_watcher', name, current)
           // Array.each(current, function(row, index){
-          //   console.log('generic_data_watcher', row)
+          //   //console.log('generic_data_watcher', row)
           // })
 
-          // console.log('generic_data_watcher val', chart)
+          // //console.log('generic_data_watcher val', chart)
           if(this.$options.visible){
             if(chart.watch && chart.watch.cumulative == true){//send all values
-              console.log('generic_data_watcher send all', name)
+              //console.log('generic_data_watcher send all', name)
               data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
             }
             else{//send last only
-              console.log('generic_data_watcher send last', name, current)
+              //console.log('generic_data_watcher send last', name, current)
               data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
             }
 
@@ -243,7 +243,7 @@ export default {
         }
       }
 
-      console.log('gonna watch...', name, this.stat.data)
+      //console.log('gonna watch...', name, this.stat.data)
 
       this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
 
@@ -253,7 +253,7 @@ export default {
 
     update_chart_stat (name, data){
 
-      // console.log('update_chart_stat visibility', name, data)
+      // //console.log('update_chart_stat visibility', name, data)
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){

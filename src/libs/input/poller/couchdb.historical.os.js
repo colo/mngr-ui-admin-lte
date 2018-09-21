@@ -24,8 +24,8 @@ export default new Class({
 				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
 				{
 					sort_by_type: function(req, next, app){
-            // //console.log('req.opt.range', req.opt.range)
-            // console.log('sort_by_type', next)
+            // ////console.log('req.opt.range', req.opt.range)
+            // //console.log('sort_by_type', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
@@ -36,13 +36,13 @@ export default new Class({
               let views = []
 
               Array.each(app.options.paths, function(path){
-                // ////console.log('sort_by_path', host)
+                // //////console.log('sort_by_path', host)
 
                 // if(!app.hosts_range_started.contains(host)){
                   // app.hosts_range_started.push(host)
-                  //////console.log('req.opt.range', req.opt.range, host)
+                  ////////console.log('req.opt.range', req.opt.range, host)
 
-                  console.log('input.poller.couchdb.stats.os range path', path, new Date(Date.now()).toString())
+                  //console.log('input.poller.couchdb.stats.os range path', path, new Date(Date.now()).toString())
 
                   // next(
                   // let cb = app.view.pass({
@@ -79,7 +79,7 @@ export default new Class({
               }.bind(app))
 
               // Array.each(views, function(view){
-              //   console.log('input.poller.couchdb.stats.os view', view, new Date(Date.now()).toString())
+              //   //console.log('input.poller.couchdb.stats.os view', view, new Date(Date.now()).toString())
               //
   						// 	view.attempt();
   						// });
@@ -96,8 +96,8 @@ export default new Class({
 
 				{
 					sort_by_path: function(req, next, app){
-            // ////console.log('sort_by_path', app.hosts)
-            // ////console.log('sort_by_path', next)
+            // //////console.log('sort_by_path', app.hosts)
+            // //////console.log('sort_by_path', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
@@ -106,7 +106,7 @@ export default new Class({
 
               Array.each(app.options.paths, function(path){
 
-                console.log('input.poller.couchdb.stats.os periodical path', path, new Date(Date.now()).toString())
+                //console.log('input.poller.couchdb.stats.os periodical path', path, new Date(Date.now()).toString())
 
                 // let cb = app.view.pass({
                 app.view({
@@ -176,7 +176,7 @@ export default new Class({
   },
 
   view: function(err, resp, view){
-		// console.log('historical..os -> this.view ', resp, view.options.args);
+		// //console.log('historical..os -> this.view ', resp, view.options.args);
 
 		if(err){
 
@@ -184,12 +184,12 @@ export default new Class({
 		else{
 
         if(view.options.args[2].limit == 1 && resp.rows[0]){
-          console.log('input.poller.couchdb.stats.os periodical RESP', resp.rows[0], new Date(Date.now()).toString())
+          //console.log('input.poller.couchdb.stats.os periodical RESP', resp.rows[0], new Date(Date.now()).toString())
 
   				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
   			}
         else if(resp.rows.length > 0){//range docs
-          console.log('input.poller.couchdb.stats.os range RESP', resp.rows, new Date(Date.now()).toString())
+          //console.log('input.poller.couchdb.stats.os range RESP', resp.rows, new Date(Date.now()).toString())
 
           this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
 
@@ -211,7 +211,7 @@ export default new Class({
 
     options.paths = paths
 
-    console.log('input.poller.couchdb.stats.os', options.paths, Date.now())
+    //console.log('input.poller.couchdb.stats.os', options.paths, Date.now())
 
 		this.parent(options);//override default options
 

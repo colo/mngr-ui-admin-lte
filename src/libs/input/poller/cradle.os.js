@@ -4,9 +4,9 @@
 // const App = require ( '../../node_modules/node-app-cradle-client/index' )
 const App = require ( 'node-app-cradle-client/index' )
 
-//var console.log = require('console.log')('InputPollerCradleOS');
-//var console.log = require('console.log')('InputPollerCradleOS:Internals');
-//var console.log = require('console.log')('InputPollerCradleOS:Events');
+//var //console.log = require('//console.log')('InputPollerCradleOS');
+//var //console.log = require('//console.log')('InputPollerCradleOS:Internals');
+//var //console.log = require('//console.log')('InputPollerCradleOS:Events');
 
 export default new Class({
   Extends: App,
@@ -42,10 +42,10 @@ export default new Class({
 				//}
 				//{
 					//view: function(req, next, app){
-						//console.log('---periodical')
+						////console.log('---periodical')
 
 							//let cb = next.pass(
-								////console.log('---next')
+								//////console.log('---next')
 								//app.view({//get doc by host->last.timestamp (descending = true, and reversed star/end keys)
 									//uri: 'dashboard',
 									//id: 'sort/by_path',
@@ -71,9 +71,9 @@ export default new Class({
 				//}
 				//{
 					//view: function(req, next, app){//wrap it on a func, so we can call "this", as "app"
-						//console.log('---periodical')
+						////console.log('---periodical')
 						//let cb = next.pass(
-							////console.log('---next')
+							//////console.log('---next')
 							//app.view({
 								//uri: 'dashboard/_design/sort/_view/by_path',
 								//headers: {
@@ -135,34 +135,34 @@ export default new Class({
   },
 
   search: function(err, resp, body){
-		console.log('this.search %o', resp);
+		//console.log('this.search %o', resp);
 
 		if(err){
-			console.log('this.search error %o', err);
+			//console.log('this.search error %o', err);
 
 		}
 		else{
 			//let result = JSON.decode(resp.body)
 
-			//console.log('this.get result %o', result);
+			////console.log('this.get result %o', result);
 
 			//if(result.rows[0]){
 				//this.fireEvent('onPeriodicalDoc', [result.rows[0].doc.data, {type: 'periodical', input_type: this, app: null}]);
 
 				////for (var key in result.rows[0].doc.data) {
-					////console.log(key);
+					//////console.log(key);
 				////}
 			//}
 		}
   },
   info: function(err, resp){
-		console.log('this.info %o', resp);
+		//console.log('this.info %o', resp);
 
-		//console.log('---INFO RESP---');
+		////console.log('---INFO RESP---');
 		//this.get({uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
-		//console.log(resp);
+		////console.log(resp);
 		if(err){
-			console.log('this.info error %o', err);
+			//console.log('this.info error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
 	},
@@ -177,7 +177,7 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		console.log('this.connect');
+		//console.log('this.connect');
 
 		try{
 			//this.os.api.get({uri: 'hostname'});
@@ -185,8 +185,8 @@ export default new Class({
 			this.info({},this._first_connect.bind(this));
 
 			let exists = function(err, resp){
-				console.log('exists', err);
-				console.log('exists', resp);
+				//console.log('exists', err);
+				//console.log('exists', resp);
 			};
 
 			this.exists({ uri: this.options.db}, exists.bind(exists));
@@ -195,16 +195,16 @@ export default new Class({
 				uri: this.options.db,
 				id: 'sort/by_path',
 			}, function(err, resp){
-				console.log('view', err);
-				console.log('view', resp);
+				//console.log('view', err);
+				//console.log('view', resp);
 			})
 		}
 		catch(e){
-			console.log(e);
+			//console.log(e);
 		}
 	},
 	_first_connect: function(err, result, body, opts){
-		console.log('first_connect %o', result.uuid);
+		//console.log('first_connect %o', result.uuid);
 		this.options.id = result.uuid;//set ID
 
 	}

@@ -76,16 +76,16 @@ export default {
   mounted: function() {
   //
     let self = this
-  //   console.log('this.$el', this.$el)
+  //   //console.log('this.$el', this.$el)
     $(this.$el).on("expanded.boxwidget",function(){
       self.$emit('show', self.$el)
-      console.log('expanded')
+      //console.log('expanded')
       // this.showCollapsible(this.$el)
     })
 
     $(this.$el).on("collapsed.boxwidget",function(){
       self.$emit('hide', self.$el)
-      console.log('collapsed')
+      //console.log('collapsed')
       // this.hideCollapsible(this.$el)
     })
 
@@ -96,7 +96,7 @@ export default {
   // updated: function() {
   // //
   //   let self = this
-  // //   console.log('this.$el', this.$el)
+  // //   //console.log('this.$el', this.$el)
   //   $(this.$el).on( "expanded.boxwidget",function(){
   //     self.$emit('show', self.$el)
   //     // this.showCollapsible(this.$el)

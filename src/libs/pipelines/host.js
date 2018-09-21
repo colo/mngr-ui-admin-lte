@@ -35,7 +35,7 @@ export default  {
 	// filters: [
 	// 	function(doc, opts, next){
   //
-	// 		// console.log('search_pipeline ', doc)
+	// 		// //console.log('search_pipeline ', doc)
   //
 	// 		buffer = Object.merge(buffer, doc.data)
   //
@@ -47,8 +47,8 @@ export default  {
 	// ],
 	output: [
 		function(payload){
-      console.log('HOST OUTPUT', payload)
-			// console.log('app/doc output', doc)
+      //console.log('HOST OUTPUT', payload)
+			// //console.log('app/doc output', doc)
 			// store.commit('app/doc', doc)
 
 			if(payload.type == 'host'){
@@ -57,7 +57,7 @@ export default  {
 			else{
 				EventBus.$emit('os', payload)
 			}
-			
+
 
 
 		}

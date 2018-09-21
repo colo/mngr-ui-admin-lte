@@ -35,7 +35,7 @@ export default  {
 	// filters: [
 	// 	function(doc, opts, next){
   //
-	// 		// console.log('search_pipeline ', doc)
+	// 		// //console.log('search_pipeline ', doc)
   //
 	// 		buffer = Object.merge(buffer, doc.data)
   //
@@ -47,7 +47,7 @@ export default  {
 	// ],
 	output: [
 		function(doc){
-			console.log('app/doc output', doc)
+			//console.log('app/doc output', doc)
 			store.commit('app/doc', doc)
 
 		}

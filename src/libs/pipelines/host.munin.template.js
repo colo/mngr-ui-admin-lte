@@ -33,11 +33,11 @@ export default {
 
 
       if(doc != null && opts.type == 'periodical'){
-        console.log('host_munin_pipeline_template periodical', doc)
+        //console.log('host_munin_pipeline_template periodical', doc)
 
       }
       else if(doc != null && doc[0]){
-        console.log('host_munin_pipeline_template range', doc)
+        //console.log('host_munin_pipeline_template range', doc)
       }
       // else if(doc != null){
       //   next(doc)

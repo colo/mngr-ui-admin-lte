@@ -325,7 +325,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // //console.log('state.app.range', state.app.range)
+        // ////console.log('state.app.range', state.app.range)
 
         let end = Date.now()
         if(state.app.range[1] && state.app.range[1] != null)
@@ -345,6 +345,15 @@ export default {
 
       host: function(state){
         return state.hosts.current || this.$route.params.host
+      },
+
+      os_stats: function(state){
+        if(state.stats && state.stats[this.host]){
+          return state.stats[this.host].os
+        }
+        else{
+          return {}
+        }
       },
 
       mounts: function(state){
@@ -406,7 +415,7 @@ export default {
 
           })
 
-          ////console.log('networkInterfaces', networkInterfaces)
+          //////console.log('networkInterfaces', networkInterfaces)
           return networkInterfaces
         }
         else{
@@ -418,15 +427,15 @@ export default {
   ),
 
   created: function(){
-    // //console.log('life cycle created')
+    // ////console.log('life cycle created')
 
     EventBus.$once('host', doc => {
-      // //console.log('recived doc via Event host', doc)
+      // ////console.log('recived doc via Event host', doc)
       Object.each(doc.charts, function(data, name){
         this.$options.charts_objects[name] = data.chart
       }.bind(this))
 
-      // //console.log('recived doc via Event host', doc, this.$options.charts_objects)
+      // ////console.log('recived doc via Event host', doc, this.$options.charts_objects)
 
       // this.__cpus_time_get_stat({
       //   name: this.host+'_os_cpus_times',
@@ -550,7 +559,7 @@ export default {
         chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
         // init: this.__cpus_time_get_stat.bind(this),
         stop: function(payload){
-          //console.log('stoping _os_cpus_times', payload.stat)
+          ////console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
 
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
@@ -559,7 +568,7 @@ export default {
         //   name: '$store.state.stats_tabular.'+this.host+'.cpus_times.os_cpus',
         //   deep: true,
         //   cb: (doc, old, payload) => {
-        //     //console.log('__cpus_time_get_stat watcher ', doc, old, payload)
+        //     ////console.log('__cpus_time_get_stat watcher ', doc, old, payload)
         //     // if(this.visibility[payload.name] === true)
         //     if(doc && doc.value)
         //       this.__update_chart_stat(payload.name, doc.value)
@@ -589,7 +598,7 @@ export default {
         chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
         // init: this.__cpus_percentage_get_stat.bind(this),
         stop: function(payload){
-          // //console.log('stoping _os_cpus_times', payload.stat)
+          // ////console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
@@ -614,7 +623,7 @@ export default {
         chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
         // init: this.__uptime_get_stat.bind(this),
         stop: function(payload){
-          // //console.log('stoping _os_cpus_times', payload.stat)
+          // ////console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
@@ -638,7 +647,7 @@ export default {
         chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
         // init: this.__loadavg_get_stat.bind(this),
         stop: function(payload){
-          // //console.log('stoping _os_cpus_times', payload.stat)
+          // ////console.log('stoping _os_cpus_times', payload.stat)
           this.$store.dispatch('stats_tabular/flush', payload.stat)
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
@@ -660,12 +669,12 @@ export default {
 
       let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
 
-        // ////console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+        // //////console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
 
         if(val !== undefined && Object.getLength(val) > 0){
 
           Object.each(val, function(mount, key){
-            ////console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+            //////console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
             let chart_name = this.host+'_os_blockdevices_stats_'+key
 
              this.$options.charts[chart_name] = Object.clone({
@@ -673,7 +682,7 @@ export default {
               chart: Object.merge(blockdevices_stats_chart, this.$options.charts_objects['blockdevices_stats']),
               // init: this.__blockdevices_get_stat.bind(this),
               stop: function(payload){
-                // //console.log('stoping _os_cpus_times', payload.stat)
+                // ////console.log('stoping _os_cpus_times', payload.stat)
                 this.$store.dispatch('stats_tabular/flush', payload.stat)
                 // this.$store.dispatch('stats_tabular/splice', payload.stat)
               }.bind(this),
@@ -732,12 +741,12 @@ export default {
 
       let unwatch_mounts = this.$watch('mounts', function(val, old){
 
-        // ////console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+        // //////console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
 
         if(val !== undefined && Object.getLength(val) > 0){
 
           Object.each(val, function(mount, key){
-            ////console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+            //////console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
             let chart_name = this.host+'_os_mounts_percentage_'+key
 
              this.$options.charts[chart_name] = Object.clone({
@@ -745,7 +754,7 @@ export default {
               chart: Object.merge(mounts_percentage_chart, this.$options.charts_objects['mounts_percentage']),
               // init: this.__mounts_get_stat.bind(this),
               stop: function(payload){
-                // //console.log('stoping _os_cpus_times', payload.stat)
+                // ////console.log('stoping _os_cpus_times', payload.stat)
                 this.$store.dispatch('stats_tabular/flush', payload.stat)
                 // this.$store.dispatch('stats_tabular/splice', payload.stat)
               }.bind(this),
@@ -812,7 +821,7 @@ export default {
     })
 
     EventBus.$on('os', payload => {
-      // //console.log('recived doc via Event os', payload)
+      // ////console.log('recived doc via Event os', payload)
         // if(this.$options.tabular_range_started === true && payload.tabular == true){
         if(payload.tabular == true){
           this.process_os_tabular(payload.doc)
@@ -823,7 +832,7 @@ export default {
         }
 
         // if(payload.type == 'range')
-        //   //console.log('RANGE', payload)
+        //   ////console.log('RANGE', payload)
 
         if(
           payload.type == 'range'
@@ -833,55 +842,60 @@ export default {
           // this.$options.range_started = true
           EventBus.$emit(payload.doc[0].doc.metadata.path+'Range')
           // this.$store.state['host_'+this.host].pipelines['input.os'].fireEvent('onResume')
-          // ////console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
+          // //////console.log('RANGE', payload.doc[0].doc.metadata.path+'Range')
         }
         else if(
           payload.type == 'range'
           // && this.$options.tabular_range_started === false
         ){
-          //console.log('recived doc via Event os', payload)
+          ////console.log('recived doc via Event os', payload)
           // this.$options.tabular_range_started = true
           EventBus.$emit('tabularRange')
         }
     })
 
 
+
+    /**
+    * remove for testing
+    **/
+    let unwatch_freemem = this.$watch('os_stats', (val, old) => {
+      this.$options.charts[this.host+'_os_freemem'] = {
+        name: this.host+'_os_freemem',
+        chart: Object.clone(freemem_chart),
+        // init: this.__freemem_get_stat.bind(this),
+        stop: function(payload){
+          // ////console.log('stoping _os_cpus_times', payload.stat)
+          this.$store.dispatch('stats/flush', payload.stat)
+          // this.$store.dispatch('stats/splice', payload.stat)
+        }.bind(this),
+        // watch: {
+        //   name: '$store.state.stats.'+this.host+'.os.freemem',
+        //   // cb: this.__watcher_callback.bind(this)
+        //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
+        // },
+        stat: {
+          host: this.host,
+          path: 'os',
+          key: 'freemem',
+          length: this.seconds || 300,
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        }
+      }
+      unwatch_freemem()
+    },{
+      deep: true
+    })
+
   },
 
 
 
   mounted: function(){
-    //console.log('life cycle mounted')
+    ////console.log('life cycle mounted')
 
     this.create_host_pipelines(this.$store.state.app.paths)
 
-
-    /**
-    * remove for testing
-    **/
-
-    this.$options.charts[this.host+'_os_freemem'] = {
-      name: this.host+'_os_freemem',
-      chart: Object.clone(freemem_chart),
-      // init: this.__freemem_get_stat.bind(this),
-      stop: function(payload){
-        // //console.log('stoping _os_cpus_times', payload.stat)
-        this.$store.dispatch('stats/flush', payload.stat)
-        // this.$store.dispatch('stats/splice', payload.stat)
-      }.bind(this),
-      // watch: {
-      //   name: '$store.state.stats.'+this.host+'.os.freemem',
-      //   // cb: this.__watcher_callback.bind(this)
-      //   cb: (doc, old, payload) => { if(this.visibility[payload.name] === true) this.__update_chart_stat(payload.name, doc.value) }
-      // },
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'freemem',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-      }
-    }
 
     // this.__freemem_get_stat({
     //   name: this.host+'_os_freemem',
@@ -912,7 +926,7 @@ export default {
 
     let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
 
-      // ////console.log('$watch networkInterfaces ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+      // //////console.log('$watch networkInterfaces ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
 
       if(val !== undefined && Object.getLength(val) > 0){
 
@@ -922,7 +936,7 @@ export default {
           Object.each(iface, function(data, messure){
             // if(name == 'lo' && messure == 'bytes'){
             if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
-              ////console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
+              //////console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
               let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
 
                this.$options.charts[chart_name] = Object.clone({
@@ -931,7 +945,7 @@ export default {
                 // init: this.__networkInterfaces_get_stat.bind(this),
                 init: this.__get_stat_for_chart.bind(this),
                 stop: function(payload){
-                  // //console.log('stoping _os_cpus_times', payload.stat)
+                  // ////console.log('stoping _os_cpus_times', payload.stat)
                   this.$store.dispatch('stats/flush', payload.stat)
                   // this.$store.dispatch('stats/splice', payload.stat)
                 }.bind(this),
@@ -979,7 +993,7 @@ export default {
   },
 
   beforeCreate: function(){
-    //console.log('life cycle beforeCreate')
+    ////console.log('life cycle beforeCreate')
     EventBus.$off('host')
     EventBus.$off('os')
   },
@@ -1023,7 +1037,7 @@ export default {
           this.__update_chart_stat(payload.name, doc.value)
         }
       },
-      // console.log('__get_stat_for_chart', payload.watcher)
+      // //console.log('__get_stat_for_chart', payload.watcher)
 
       stat.range = range
 
@@ -1138,7 +1152,7 @@ export default {
     //
     //       Array.each(docs, function(doc){
     //         if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
-    //           // //console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
+    //           // ////console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
     //           missing = true
     //         }
     //         prev = doc
@@ -1146,7 +1160,7 @@ export default {
     //
     //       if(missing == false){
     //         range[0] = docs[docs.length - 1].metadata.timestamp
-    //         // //console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
+    //         // ////console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
     //       }
     //       else{
     //         docs = []
@@ -1187,7 +1201,7 @@ export default {
 
 
     process_os_tabular: function(doc){
-      //console.log('process_os_tabular', doc)
+      ////console.log('process_os_tabular', doc)
       if(doc.metadata != null && doc.metadata.host == this.host){
         Object.each(doc.data, function(row, path){
           Object.each(row, function(data, key){
@@ -1206,7 +1220,7 @@ export default {
 
                 }.bind(this))
 
-                //console.log('process_os_tabular', path, key, result)
+                ////console.log('process_os_tabular', path, key, result)
 
                 this.$store.dispatch('stats_tabular/add', {
                   host: this.host,
@@ -1245,14 +1259,14 @@ export default {
           if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
 
-            // ////console.log('ROW', keys, path)
+            // //////console.log('ROW', keys, path)
 
             if(!paths[path])
               paths[path] = {}
 
 
             Object.each(keys, function(data, key){
-              // ////console.log('ROW', key, data)
+              // //////console.log('ROW', key, data)
               if(!paths[path][key])
                 paths[path][key] = []
 
@@ -1274,12 +1288,12 @@ export default {
 
     },
     __add_os_doc_stats(paths){
-      // //console.log('__add_os_doc_stats', paths)
+      // ////console.log('__add_os_doc_stats', paths)
       Object.each(paths, function(keys, path){
-        // ////console.log('stat process_os_doc', path)
+        // //////console.log('stat process_os_doc', path)
 
         Object.each(keys, function(data, key){
-          //console.log('stat process_os_doc', path, key, data)
+          ////console.log('stat process_os_doc', path, key, data)
           this.$store.dispatch('stats/add', {
             host: this.host,
             path: path,
@@ -1297,7 +1311,7 @@ export default {
     **/
     create_host_pipelines (paths) {
       // paths = ['os.procs']
-      //////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      ////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$store.state.hosts.current || this.$route.params.host
 
       // let range = Object.clone(this.$store.state.app.range)
@@ -1323,7 +1337,7 @@ export default {
 
               let pipe = new Pipeline(template)
 
-              //////////////////console.log('$store.state.hosts.all', pipe)
+              ////////////////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -1333,17 +1347,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                ////////////console.log('create_hosts_pipelines onRangeDoc',doc);
+                //////////////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  //////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  ////////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  //////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  ////////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -1366,7 +1380,7 @@ export default {
               // pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                //////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                ////////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
 
                 /** manually resume **/
                 // pipe.fireEvent('onResume')
@@ -1413,7 +1427,7 @@ export default {
       let id = entry.target.id.replace('-collapsible', '')
       // let name = id.replace(this.host+'_', '')
 
-      // //console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
+      // ////console.log('visibilityChanged', isVisible, id, name, this.$options.charts[id])
 
       if(
         isVisible == false

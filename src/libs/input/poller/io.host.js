@@ -21,7 +21,7 @@ export default new Class({
       range: [
     		{
 					sort_by_path: function(req, next, app){
-            console.log('SORT_BY_PATH RANGE', app.options.paths, new Date(req.opt.range.start), new Date(req.opt.range.end))
+            //console.log('SORT_BY_PATH RANGE', app.options.paths, new Date(req.opt.range.start), new Date(req.opt.range.end))
 
             if(app.options.stat_host && this.status == 'ok'){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
@@ -52,7 +52,7 @@ export default new Class({
 
 
 					}
-          
+
 				},
 
 			],
@@ -131,13 +131,13 @@ export default new Class({
   },
   // charts: function(socket, next){
   //   let {host, charts} = arguments[2]
-  //   console.log('IO.HOST charts', host, charts)
+  //   //console.log('IO.HOST charts', host, charts)
   //
   //   this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
   // },
   host: function(socket, next){
     let {host, status, charts} = arguments[2]
-    console.log('IO.HOST host', host, status, charts)
+    //console.log('IO.HOST host', host, status, charts)
     this.status = status
 
     this.fireEvent('onDoc', [{type: 'host', host: host, charts: charts}, {type: 'doc', input_type: this, app: null}]);
@@ -150,12 +150,12 @@ export default new Class({
   },
   os: function(socket, next){
     let {type, doc, tabular} = arguments[2]
-    console.log('IO.HOST os', arguments[2])
+    //console.log('IO.HOST os', arguments[2])
 
     // if(tabular != true)
       this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [arguments[2], {type: type, input_type: this, app: null}]);
 
-		// console.log('app_doc...', socket, arguments[2])
+		// //console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()
 		// this.io.to('root').emit('response', 'a new user has joined the room saying '+arguments[2]);
 		// next(socket)
@@ -167,12 +167,12 @@ export default new Class({
 		this.profile('root_init');//start profiling
 
     this.addEvent('onExit', function(){
-      console.log('EXITING...')
+      //console.log('EXITING...')
 
       if(this.io.disconnected == false)
         this.io.close()
     })
-    // console.log('this.io', this.io)
+    // //console.log('this.io', this.io)
     // this.io.emit('host', this.options.stat_host)
 
 		this.profile('root_init');//end profiling

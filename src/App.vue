@@ -55,7 +55,7 @@ if(!window['EventBus'])
 //       else {
 //
 //         // if(payload.key == 'loadavg'){
-//         //   ////////console.log('data', state, payload)
+//         //   //////////console.log('data', state, payload)
 //         // }
 //         if(!state.stats[payload.path])
 //           Vue.set(state.stats, payload.path, {})
@@ -153,14 +153,14 @@ export default {
   watch: {
     '$store.state.app.docs.hosts': {
       handler: function(newVal, oldVal){
-        console.log('recived doc via Event hosts', newVal)
+        //console.log('recived doc via Event hosts', newVal)
         this.process_hosts_doc(newVal)
       },
       deep: true
     },
     '$store.state.app.docs.paths': {
       handler: function(newVal, oldVal){
-        console.log('recived doc via Event paths', newVal)
+        //console.log('recived doc via Event paths', newVal)
         this.process_paths_doc(newVal)
       },
       deep: true
@@ -194,7 +194,7 @@ export default {
 
         /**
         let currentRange = Object.clone(this.$store.state.app.range)
-        ////console.log('update range', currentRange)
+        //////console.log('update range', currentRange)
         //just a small modification to notify of update
         this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
         **/
@@ -204,11 +204,11 @@ export default {
 
         Array.each(doc.hosts, function(host){
           if(!this.$store.state['host_'+host]){
-            //console.log('registerModule HOSTS', host)
+            ////console.log('registerModule HOSTS', host)
             // this.$store.registerModule('host_'+host, Object.clone(hostStore))
           }
           // if(!this.$store.state.stats[host]){
-          //   //console.log('registerModule HOSTS', host)
+          //   ////console.log('registerModule HOSTS', host)
           //   this.$store.registerModule(['stats',host], Object.clone(statsStore), { preserveState: true })
           // }
         }.bind(this))
@@ -218,14 +218,14 @@ export default {
         */
         // Array.each(this.$store.state, function(host){
         //   if(!doc.hosts.contains(host.replace('host_'))){
-        //     console.log('UNregisterModule HOSTS', host)
+        //     //console.log('UNregisterModule HOSTS', host)
         //     this.$store.unregisterModule('host_'+host)
         //   }
         // }.bind(this))
 
         // Array.each(this.$store.state.stats, function(host){
         //   if(!doc.hosts.contains(host)){
-        //     console.log('UNregisterModule Stats', host)
+        //     //console.log('UNregisterModule Stats', host)
         //     this.$store.unregisterModule(['stats',host])
         //   }
         // }.bind(this))
@@ -237,18 +237,18 @@ export default {
     let self = this
     // this.$options.intervals.push(
     //   setInterval(function(){
-    //     console.log('flushing...')
+    //     //console.log('flushing...')
     //     self.$store.dispatch('stats/flush')
     //   }, 5000)
     // )
     // EventBus.$on('count', doc => {
-    //   // console.log('recived doc via Event count', doc)
+    //   // //console.log('recived doc via Event count', doc)
     //
     //   this.$store.commit('app/docs_per_sec', doc.data)
     // })
 
     // EventBus.$on('search', doc => {
-		// 	// console.log('recived doc via Event search', doc)
+		// 	// //console.log('recived doc via Event search', doc)
     //
     //
     //   let currentPaths = this.$store.state.app.paths
@@ -261,7 +261,7 @@ export default {
     //
     //
     //     let currentRange = Object.clone(this.$store.state.app.range)
-    //     ////console.log('update range', currentRange)
+    //     //////console.log('update range', currentRange)
     //     //just a small modification to notify of update
     //     this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
     //
@@ -277,7 +277,7 @@ export default {
     //
     //   Array.each(doc.hosts, function(host){
     //     if(!this.$store.state.hosts[host]){
-    //       //console.log('registerModule HOSTS', host)
+    //       ////console.log('registerModule HOSTS', host)
     //       this.$store.registerModule(['hosts', host], Object.clone(hostStore))
     //     }
     //   }.bind(this))
@@ -287,7 +287,7 @@ export default {
     //   */
     //   Array.each(this.$store.state.hosts, function(host){
     //     if(!doc.hosts.contains(host)){
-    //       console.log('UNregisterModule HOSTS', host)
+    //       //console.log('UNregisterModule HOSTS', host)
     //       this.$store.unregisterModule(['hosts', host])
     //     }
     //   }.bind(this))
