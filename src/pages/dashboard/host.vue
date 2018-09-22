@@ -26,9 +26,9 @@
           >
           </chart>
           <div class="description-block border-right">
-            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 20%</span> -->
-            <!-- <h5 class="description-header">percentage</h5> -->
-            <span class="description-text">free mem</span>
+            <span class="description-percentage text-blue"><i class="fa fa-caret-up"></i></span>
+            <h5 class="description-header">free memory</h5>
+            <!-- <span class="description-text">free mem</span> -->
           </div>
           <!-- /.description-block -->
 
@@ -51,9 +51,34 @@
           >
           </chart-tabular>
           <div class="description-block border-right">
-            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 20%</span> -->
-            <!-- <h5 class="description-header">percentage</h5> -->
-            <span class="description-text">CPUS Consumption</span>
+            <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
+            <h5 class="description-header">cpus utilization</h5>
+            <!-- <span class="description-text">CPUS Consumption</span> -->
+          </div>
+          <!-- /.description-block -->
+
+
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12"
+        :id="host+'_os_cpus_percentage_knob-collapsible'"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        >
+          <chart-tabular
+            v-if="visibility[host+'_os_cpus_percentage_knob']"
+            :type="'jquery-knob'"
+            :wrapper_props="{'decimals': 1}"
+            :ref="host+'_os_cpus_percentage_knob'"
+            :id="host+'_os_cpus_percentage_knob'"
+            :EventBus="EventBus"
+            :chart="charts[host+'_os_cpus_percentage_knob']"
+            :stat="stats[host+'_os_cpus_percentage_knob']"
+          >
+          </chart-tabular>
+          <div class="description-block border-right">
+            <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
+            <h5 class="description-header">cpus utilization</h5>
+            <!-- <span class="description-text">CPUS Consumption</span> -->
           </div>
           <!-- /.description-block -->
 
@@ -661,8 +686,9 @@ export default {
           options:{
             // 'track-color': false,
             size: 120,
+            // animated: false,
             'font-size': '24px',
-            'bar-color': function(percentage){
+            "bar-color": function(percentage){
               if(percentage > 0 && percentage < 33){
                 return '#86b300'
               }
@@ -694,6 +720,45 @@ export default {
         }
       }
 
+      this.$options.charts[this.host+'_os_cpus_percentage_knob'] = {
+        name: this.host+'_os_cpus_percentage_knob',
+        chart: Object.merge(Object.clone(pie_chart), {
+          options:{
+            // 'track-color': false,
+            size: 120,
+            // animated: false,
+            'font-size': '24px',
+            "bar-color": function(percentage){
+              if(percentage > 0 && percentage < 33){
+                return '#86b300'
+              }
+              else if(percentage > 33 && percentage < 66){
+                return '#f6d95b'
+              }
+              else{
+                return '#ff704d'
+              }
+            }
+          }
+        }),
+        init: this.__get_stat_for_chart.bind(this),
+        stop: function(payload){
+          // this.$store.dispatch('stats_tabular/flush', payload.stat)
+        }.bind(this),
+        stat: {
+          host: this.host,
+          path: 'cpus_percentage',
+          key: 'os_cpus',
+          length: 1,
+          tabular: true
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        },
+        pipeline: {
+          name: 'input.os',
+          path: 'os',
+          // range: true
+        }
+      }
 
       this.$options.charts[this.host+'_os_uptime'] = {
         name: this.host+'_os_uptime',
@@ -895,9 +960,25 @@ export default {
     * remove for testing
     **/
     let unwatch_freemem = this.$watch('os_stats', (val, old) => {
+      this.__get_stat_for_chart({
+        name: this.host+'_os_freemem',
+        stat: {
+          host: this.host,
+          path: 'os',
+          key: 'freemem',
+          length: this.seconds || 300,
+          // range: [Date.now() - this.seconds * 1000, Date.now()]
+        },
+        pipeline: {
+          name: 'input.os',
+          path: 'os',
+          range: true
+        }
+      })
+
       this.$options.charts[this.host+'_os_freemem'] = {
         name: this.host+'_os_freemem',
-        chart: Object.clone(freemem_chart),
+        chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.os_stats.totalmem.value.data}),
         // init: this.__freemem_get_stat.bind(this),
         stop: function(payload){
           // ////console.log('stoping _os_cpus_times', payload.stat)
@@ -935,8 +1016,9 @@ export default {
           options:{
             // 'track-color': false,
             size: 80,
+            // animated: false,
             'font-size': '14px',
-            'bar-color': function(percentage){
+            "bar-color": function(percentage){
               if(percentage > 0 && percentage < 33){
                 return '#ff704d'
               }
@@ -964,7 +1046,7 @@ export default {
         pipeline: {
           name: 'input.os',
           path: 'os',
-          // range: true
+          range: true
         }
       }
 
@@ -983,21 +1065,6 @@ export default {
     this.create_host_pipelines(this.$store.state.app.paths)
 
 
-    this.__get_stat_for_chart({
-      name: this.host+'_os_freemem',
-      stat: {
-        host: this.host,
-        path: 'os',
-        key: 'freemem',
-        length: this.seconds || 300,
-        // range: [Date.now() - this.seconds * 1000, Date.now()]
-      },
-      pipeline: {
-        name: 'input.os',
-        path: 'os',
-        range: true
-      }
-    })
 
     let unwatch_networkInterfaces = this.$watch('networkInterfaces', function(val, old){
 

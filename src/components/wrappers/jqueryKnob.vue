@@ -6,9 +6,8 @@
     :style="chart.style"
     :class="chart.class"
   >
-    <vue-easy-pie-chart
+    <input
       v-bind="chart.options"
-      :percent="percentage"
       :id="id"
     />
 
@@ -20,15 +19,15 @@
 
 import { frameDebounce } from 'quasar'
 
-import VueEasyPieChart from 'vue-easy-pie-chart'
-import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
+import jqueryKnob from 'jquery-knob'
+// import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
 
 
 export default {
-  name: 'vue-easy-pie-chart-wrapper',
+  name: 'jquery-knob-wrapper',
 
   components: {
-    VueEasyPieChart
+    jqueryKnob
   },
 
   // graph: undefined,
@@ -79,7 +78,7 @@ export default {
   },
   watch: {
     visible: function (val) {
-      this.container_class_helper = (val == false) ? 'invisible' : ''
+      // this.container_class_helper = (val == false) ? 'invisible' : ''
       // console.log('class visible', val, this.container_class_helper)
     }
   },
@@ -113,8 +112,11 @@ export default {
   destroyed (){
     this.$off()
   },
+  updated () {
+    this._jquery_knob()
+  },
   mounted () {
-
+    this._jquery_knob()
     // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
     //
     //   this.__create_dygraph()
@@ -125,14 +127,7 @@ export default {
     // this.create()
   },
   methods: {
-    /**
-    * UI related
-    **/
-    visibilityChanged (isVisible, entry) {
-      this.$options.visible = isVisible
-      // if(isVisible == true && !this.$options.graph)
-      //   this.__create_dygraph()
-    },
+
     destroy: function(){
 
     },
@@ -164,6 +159,22 @@ export default {
         }
       }
     },
+
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      this.$options.visible = isVisible
+      // if(isVisible == true && !this.$options.graph)
+      //   this.__create_dygraph()
+    },
+    _jquery_knob: function(){
+      console.log('_jquery_knob', this.id)
+      // $(document).trigger('vue-loaded')
+
+      $("#"+this.id).knob();
+
+    }
   }
 }
 </script>

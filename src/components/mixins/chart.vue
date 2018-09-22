@@ -18,12 +18,14 @@
 
 import dygraphWrapper from 'components/wrappers/dygraph'
 import vueEasyPieChartWrapper from 'components/wrappers/vueEasyPieChart'
+import jqueryKnobWrapper from 'components/wrappers/jqueryKnob'
 
 export default {
 
   components: {
     dygraphWrapper,
-    vueEasyPieChartWrapper
+    vueEasyPieChartWrapper,
+    jqueryKnobWrapper
   },
 
 
