@@ -125,8 +125,8 @@ export default {
         this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
       }
     },
-    __update_chart_stat: function(name, doc){
-      // console.log('__update_chart_stat',name, this.stats[name],  doc)
+    __update_chart_stat: function(name, doc, splice){
+
 
       if(this.stats[name]){
 
@@ -148,22 +148,38 @@ export default {
             }
           }.bind(this))
 
-          let length = this.stats[name].data.length
-          this.stats[name].data.splice(
-            (this.seconds * -1) -1,
-            length - this.seconds
-          )
+          // splice = splice || this.seconds
+          // let length = this.stats[name].data.length
+          // this.stats[name].data.splice(
+          //   (splice * -1) -1,
+          //   length - splice
+          // )
         }
         else if(doc && !Array.isArray(doc)){
           let data = { timestamp: doc.metadata.timestamp, value: doc.data }
           this.stats[name].data.push(data)
 
-          let length = this.stats[name].data.length
-          if(length > this.seconds)
-            this.stats[name].data.shift()
+
+          // if(length > this.seconds)
+          //   this.stats[name].data.shift()
         }
 
+        splice = splice || this.seconds
 
+        let length = this.stats[name].data.length
+        // if(splice == 1){
+        //   let last = this.stats[name].data[this.stats[name].data.length -1]
+        //   this.$set(this.stats[name], 'data', [last])
+        // }
+        // else{
+          splice = (splice == 1) ? 2 : splice
+          this.stats[name].data.splice(
+            (splice * -1) -1,
+            length - splice
+          )
+        // }
+
+        console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
 
         this.stats[name].lastupdate = Date.now()
       }

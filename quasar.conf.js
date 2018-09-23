@@ -15,7 +15,7 @@ module.exports = function (ctx) {
       'vue-observe-visibility',
       // 'amcharts3',
       // 'vueEcharts3',
-      // 'highchartsVue'
+      'highchartsVue'
       // 'axios'
     ],
     // css: [

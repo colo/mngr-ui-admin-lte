@@ -1,17 +1,18 @@
 <template>
 
-    <div v-if="options.class"
+    <div v-if="chart.class"
+      v-observe-visibility="visibilityChanged"
       :id="id+'-container'"
       class="netdata-container-with-legend"
-      :style="options.style"
+      :style="chart.style"
       v-bind:class="container_class_helper"
     >
     <!--   -->
     <highcharts
       :ref="id"
       :id="id"
-      :class="options.class"
-      :options="options.options"
+      :class="chart.class"
+      :options="chart.options"
     >
     </highcharts>
 
@@ -22,12 +23,17 @@
     </div> -->
     </div>
 
-    <highcharts v-else
-      :ref="id"
-      :id="id"
-      :options="options.options"
+    <div v-else
+      v-observe-visibility="visibilityChanged"
+      :id="id+'-container'"
     >
-    </highcharts>
+      <highcharts
+        :ref="id"
+        :id="id"
+        :options="chart.options"
+      >
+      </highcharts>
+    </div>
 
 
 </template>
@@ -39,6 +45,7 @@
 * highcharts sync
 * https://www.highcharts.com/blog/snippets/synchronisation-of-multiple-charts/
 **/
+import { frameDebounce } from 'quasar'
 
 export default {
   name: 'highcharts-vue-wrapper',
@@ -59,7 +66,7 @@ export default {
       type: [String],
       default: () => ('')
     },
-    options: {
+    chart: {
       type: [Object],
       default: () => ({})
     },
@@ -77,13 +84,25 @@ export default {
       type: [Boolean],
       default: () => (true)
     },
+    gauge: {
+      type: [Boolean],
+      default: () => (false)
+    },
+    decimals: {
+      type: [Number],
+      default: 2
+    },
+    // animation: {
+    //   type: [Boolean],
+    //   default: false
+    // }
   },
   data () {
     return {
       // values: [],
       // labels: [],
       container_class_helper: '',
-      chart: null,
+      // chart: null,
       // highlighted: false,
       // ready: false,
       // to_suspend: false,
@@ -97,34 +116,28 @@ export default {
   },
 
   created () {
-    this.chart = this
-    // // //console.log('created', this.id, this.visible)
-    //
-    // // this.EventBus.$on('highlightCallback', params => {
-    // //   this.highlighted = true
-    // //   // ////console.log('event highlightCallback', params)
-		// // })
-    // // this.EventBus.$on('unhighlightCallback', event => {
-    // //   this.highlighted = false
-    // //   // ////console.log('event unhighlightCallback', event)
-		// // })
-    //
-    // // keypath
-    // let unwatch = this.$watch('stat.data', function (val, oldVal) {
-    //
-    //
-    //   ////console.log('created', this.id, this.stat.data)
-    //
-    //   // if(val.length > 1 && this.chart == null){
-    //   if(val.length > 1){
-    //
-    //
-    //     this._create_frappe()
-    //
-    //     unwatch()
-    //   }
-    //
-    // })
+    window.addEventListener('blur', function() {
+       this.focus = false
+    }.bind(this), false)
+
+    window.addEventListener('focus', function() {
+       this.focus = true
+    }.bind(this), false)
+
+    let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
+
+      if(val.length > 1){
+
+        // if(this.$options.graph == null){
+        //
+        //   this.__create_dygraph()
+        //
+        // }
+
+        this.update()
+      }
+
+    })
   },
   // mounted () {
   //
@@ -136,72 +149,34 @@ export default {
   //
   // },
 
-  // destroyed (){
-  //
-  //   if(this.chart){
-  //     this.chart.destroy()
-  //     this.chart = null
-  //   }
-  //   this.$off()
-  // },
+  destroyed (){
+    this.$off()
+  },
   methods: {
+    update (data){
+      data = data || this.stat.data
+      console.log('highcharts-vue update', data)
+      if(this.$options.visible == true){
 
-    // _create_frappe (){
-    //   let options = Object.clone(this.options.options)
-    //   // console.log('frappe options', options)
-    //   // if(options.labelsDiv)
-    //   //   options.labelsDiv = this.id+'-'+options.labelsDiv
-    //
-    //   this.chart = new Chart(
-    //     document.getElementById(this.id),  // containing div
-    //     options
-    //   )
-    //
-    //   // this.chart.ready(function(){
-    //   //   // ////console.log('chart '+this.id+' ready')
-    //   //   this.ready = true
-    //   // }.bind(this))
-    //
-    //   if(this.options.init)
-    //     this.options.init(this, this.chart, 'frappe')
-    // },
-    update () {
-      // let data = {
-      //   labels: [],
-      //   datasets: []
-      // }
-      //
-      // // const skip = 15
-      // this.$refs[this.id].option.xAxis.data = []
+        if(this.gauge == true){
+          let value = data.getLast()[1]
+          if (value != null)
+            frameDebounce(
+              this.$set(this.chart.options.series[0].data, 0, value.toFixed(this.decimals) * 1)
+              // this.chart.options.series[0].data.push(value.toFixed(this.decimals) * 1)
+              // this.chart.options.series[0].data.shift()
+            )
+        }
+        else{
 
-      //
-      // console.log('updating....',this.options.options.series)
+          Array.each(data, function(column, index){
 
-      Array.each(this.stat.data, function(column, index){
-        // if(
-        //   !this.options.watch.skip
-        //   || (
-        //     index == 0
-        //     || (index % this.options.watch.skip == 0)
-        //     || index == this.stat.data.length - 1
-        //   )
-        // ){
-
-          // this.$refs[this.id].option.xAxis.data.push(new Date(column[0]).toLocaleTimeString())
-          // chart.options.option.legend.data.push(name)
-          // data.labels.push(new Date(column[0]).toLocaleTimeString())
-          //
-
-          // if(column[0]== 0){
-          //   console.log('zeroooo')
-          // }
-
-          if(column.length == 1){//gauge type
-            this.$set(this.options.options.series[0].data, 0, column[0])
-            // this.options.options.series[0].data.push(column[0])
-            // this.options.options.series[0].data.shift()
-          }
-          else{
+            // if(column.length == 1){//gauge type
+            //   this.$set(this.options.options.series[0].data, 0, column[0])
+            //   // this.options.options.series[0].data.push(column[0])
+            //   // this.options.options.series[0].data.shift()
+            // }
+            // else{
             Array.each(column, function(value, value_index){
               if(value_index != 0){
                 // if(!this.$refs[this.id].options.series[value_index -1]){
@@ -214,43 +189,40 @@ export default {
                 if (index == 0){
                   // let serie = this.options.options.series[value_index -1]
                   // serie.data = []
-                  this.$set(this.options.options.series[value_index -1], 'data', [])
+                  this.$set(this.chart.options.series[value_index -1], 'data', [])
 
                 }
 
-                this.options.options.series[value_index -1].data.push([
+                this.chart.options.series[value_index -1].data.push([
                   new Date(column[0]).getTime(),//timestamp
                   value
                 ])
               }
 
             }.bind(this))
-          }
+            // }
 
-        // }
 
-      }.bind(this))
 
-      // console.log('updated....',this.options.options.series)
-      // Array.each(series, function(serie, index){
-      //   this.$refs[this.id].options.series[index].update({ data: serie.data })
-      // }.bind(this))
+          }.bind(this))
 
-      //
-      // // console.log(data)
-      // this.chart.update(data)
-      // // this.chart.updateDataset(data.datasets[0].values, 0)
-      // // this.$set(this, 'labels', [])
-      // // this.$set(this, 'values', [])
-      // //
-      // // Array.each(this.stat.data, function(data){
-      // //   this.values.push(data[1])
-      // // }.bind(this))
-      // //
-      //
-      // // console.log('this.values', this.values)
+        }
+
+      }
+
+
     },
 
+
+
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      this.$options.visible = isVisible
+      // if(isVisible == true && !this.$options.graph)
+      //   this.__create_dygraph()
+    },
   }
 }
 </script>

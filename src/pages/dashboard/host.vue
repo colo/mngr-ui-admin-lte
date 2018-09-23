@@ -10,7 +10,7 @@
         >
 
 
-        <div class="col-md-3 col-sm-6 col-xs-12"
+        <!-- <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_freemem_pie-collapsible'"
         v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
         >
@@ -28,14 +28,10 @@
           <div class="description-block border-right">
             <span class="description-percentage text-blue"><i class="fa fa-caret-up"></i></span>
             <h5 class="description-header">free memory</h5>
-            <!-- <span class="description-text">free mem</span> -->
           </div>
-          <!-- /.description-block -->
+        </div> -->
 
-
-        </div>
-
-        <div class="col-md-3 col-sm-6 col-xs-12"
+        <!-- <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_cpus_percentage_pie-collapsible'"
         v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
         >
@@ -53,6 +49,28 @@
           <div class="description-block border-right">
             <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
             <h5 class="description-header">cpus utilization</h5>
+          </div>
+        </div> -->
+
+        <div class="col-md-3 col-sm-6 col-xs-12"
+        :id="host+'_os_freemem_knob-collapsible'"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        >
+
+          <div class="description-block border-right">
+            <chart
+              v-if="visibility[host+'_os_freemem_knob']"
+              :type="'jquery-knob'"
+              :wrapper_props="{'decimals': 1, 'animation': false}"
+              :ref="host+'_os_freemem_knob'"
+              :id="host+'_os_freemem_knob'"
+              :EventBus="EventBus"
+              :chart="charts[host+'_os_freemem_knob']"
+              :stat="stats[host+'_os_freemem_knob']"
+            >
+            </chart>
+            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
+            <h5 class="description-header">freemem</h5> -->
             <!-- <span class="description-text">CPUS Consumption</span> -->
           </div>
           <!-- /.description-block -->
@@ -64,19 +82,46 @@
         :id="host+'_os_cpus_percentage_knob-collapsible'"
         v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
         >
-          <chart-tabular
-            v-if="visibility[host+'_os_cpus_percentage_knob']"
-            :type="'jquery-knob'"
-            :wrapper_props="{'decimals': 1}"
-            :ref="host+'_os_cpus_percentage_knob'"
-            :id="host+'_os_cpus_percentage_knob'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_cpus_percentage_knob']"
-            :stat="stats[host+'_os_cpus_percentage_knob']"
-          >
-          </chart-tabular>
+
           <div class="description-block border-right">
-            <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
+            <chart-tabular
+              v-if="visibility[host+'_os_cpus_percentage_knob']"
+              :type="'jquery-knob'"
+              :wrapper_props="{'decimals': 1, 'animation': false}"
+              :ref="host+'_os_cpus_percentage_knob'"
+              :id="host+'_os_cpus_percentage_knob'"
+              :EventBus="EventBus"
+              :chart="charts[host+'_os_cpus_percentage_knob']"
+              :stat="stats[host+'_os_cpus_percentage_knob']"
+            >
+            </chart-tabular>
+            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
+            <h5 class="description-header">cpus utilization</h5> -->
+            <!-- <span class="description-text">CPUS Consumption</span> -->
+          </div>
+          <!-- /.description-block -->
+
+
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12"
+        :id="host+'_os_cpus_percentage_gauge-collapsible'"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        >
+
+          <div class="description-block border-right">
+            <chart-tabular
+              v-if="visibility[host+'_os_cpus_percentage_gauge']"
+              :type="'highcharts-vue'"
+              :wrapper_props="{'decimals': 1, 'gauge': true}"
+              :ref="host+'_os_cpus_percentage_gauge'"
+              :id="host+'_os_cpus_percentage_gauge'"
+              :EventBus="EventBus"
+              :chart="charts[host+'_os_cpus_percentage_gauge']"
+              :stat="stats[host+'_os_cpus_percentage_gauge']"
+            >
+            </chart-tabular>
+            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span> -->
             <h5 class="description-header">cpus utilization</h5>
             <!-- <span class="description-text">CPUS Consumption</span> -->
           </div>
@@ -348,6 +393,11 @@ import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats
 import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
 
 import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
+import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
+
+import * as Highcharts from 'highcharts'
+let highchartsVueGauge = require('mngr-ui-admin-charts/defaults/highchartsVue.gauge')(Highcharts)
+// import highchartsVueGauge from 'mngr-ui-admin-charts/defaults/highchartsVue.gauge'
 
 export default {
   mixins: [dashboard],
@@ -680,27 +730,141 @@ export default {
       /**
       * pie
       **/
-      this.$options.charts[this.host+'_os_cpus_percentage_pie'] = {
-        name: this.host+'_os_cpus_percentage_pie',
-        chart: Object.merge(Object.clone(pie_chart), {
-          options:{
-            // 'track-color': false,
-            size: 120,
-            // animated: false,
-            'font-size': '24px',
-            "bar-color": function(percentage){
-              if(percentage > 0 && percentage < 33){
-                return '#86b300'
-              }
-              else if(percentage > 33 && percentage < 66){
-                return '#f6d95b'
-              }
-              else{
-                return '#ff704d'
-              }
-            }
-          }
-        }),
+      // this.$options.charts[this.host+'_os_cpus_percentage_pie'] = {
+      //   name: this.host+'_os_cpus_percentage_pie',
+      //   chart: Object.merge(Object.clone(pie_chart), {
+      //     options:{
+      //       // 'track-color': false,
+      //       size: 120,
+      //       // animated: false,
+      //       'font-size': '24px',
+      //       "bar-color": function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#86b300'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#ff704d'
+      //         }
+      //       }
+      //     }
+      //   }),
+      //   init: this.__get_stat_for_chart.bind(this),
+      //   stop: function(payload){
+      //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
+      //   }.bind(this),
+      //   stat: {
+      //     host: this.host,
+      //     path: 'cpus_percentage',
+      //     key: 'os_cpus',
+      //     length: 1,
+      //     tabular: true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   },
+      //   pipeline: {
+      //     name: 'input.os',
+      //     path: 'os',
+      //     // range: true
+      //   }
+      // }
+
+      // this.$options.charts[this.host+'_os_cpus_percentage_knob'] = {
+      //   name: this.host+'_os_cpus_percentage_knob',
+      //   chart: Object.merge(Object.clone(jqueryKnob), {
+      //     options:{
+      //       readOnly: true,
+      //       displayPrevious: true,
+      //       // thickness: 0.1,
+      //       width: 120,
+      //       // skin: 'tron',
+      //       angleOffset: 235,
+      //       angleArc: 250,
+      //       // bgColor: 'black',
+      //       fgColor: function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#86b300'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#ff704d'
+      //         }
+      //       },
+      //       inputColor: function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#86b300'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#ff704d'
+      //         }
+      //       }
+      //     }
+      //   }),
+      //   init: this.__get_stat_for_chart.bind(this),
+      //   stop: function(payload){
+      //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
+      //   }.bind(this),
+      //   stat: {
+      //     host: this.host,
+      //     path: 'cpus_percentage',
+      //     key: 'os_cpus',
+      //     length: 1,
+      //     tabular: true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   },
+      //   pipeline: {
+      //     name: 'input.os',
+      //     path: 'os',
+      //     // range: true
+      //   }
+      // }
+
+      /**
+      * gauge
+      **/
+      this.$options.charts[this.host+'_os_cpus_percentage_gauge'] = {
+        name: this.host+'_os_cpus_percentage_gauge',
+        chart: highchartsVueGauge,
+        // Object.merge(Object.clone(highchartsVueGauge), {
+          // options:{
+          //   readOnly: true,
+          //   displayPrevious: true,
+          //   // thickness: 0.1,
+          //   width: 120,
+          //   // skin: 'tron',
+          //   angleOffset: 235,
+          //   angleArc: 250,
+          //   // bgColor: 'black',
+          //   fgColor: function(percentage){
+          //     if(percentage > 0 && percentage < 33){
+          //       return '#86b300'
+          //     }
+          //     else if(percentage > 33 && percentage < 66){
+          //       return '#f6d95b'
+          //     }
+          //     else{
+          //       return '#ff704d'
+          //     }
+          //   },
+          //   inputColor: function(percentage){
+          //     if(percentage > 0 && percentage < 33){
+          //       return '#86b300'
+          //     }
+          //     else if(percentage > 33 && percentage < 66){
+          //       return '#f6d95b'
+          //     }
+          //     else{
+          //       return '#ff704d'
+          //     }
+          //   }
+          // }
+        // }),
         init: this.__get_stat_for_chart.bind(this),
         stop: function(payload){
           // this.$store.dispatch('stats_tabular/flush', payload.stat)
@@ -720,45 +884,6 @@ export default {
         }
       }
 
-      this.$options.charts[this.host+'_os_cpus_percentage_knob'] = {
-        name: this.host+'_os_cpus_percentage_knob',
-        chart: Object.merge(Object.clone(pie_chart), {
-          options:{
-            // 'track-color': false,
-            size: 120,
-            // animated: false,
-            'font-size': '24px',
-            "bar-color": function(percentage){
-              if(percentage > 0 && percentage < 33){
-                return '#86b300'
-              }
-              else if(percentage > 33 && percentage < 66){
-                return '#f6d95b'
-              }
-              else{
-                return '#ff704d'
-              }
-            }
-          }
-        }),
-        init: this.__get_stat_for_chart.bind(this),
-        stop: function(payload){
-          // this.$store.dispatch('stats_tabular/flush', payload.stat)
-        }.bind(this),
-        stat: {
-          host: this.host,
-          path: 'cpus_percentage',
-          key: 'os_cpus',
-          length: 1,
-          tabular: true
-          // range: [Date.now() - this.seconds * 1000, Date.now()]
-        },
-        pipeline: {
-          name: 'input.os',
-          path: 'os',
-          // range: true
-        }
-      }
 
       this.$options.charts[this.host+'_os_uptime'] = {
         name: this.host+'_os_uptime',
@@ -998,57 +1123,125 @@ export default {
       /**
       * pie
       **/
-      this.$options.charts[this.host+'_os_freemem_pie'] = {
-        name: this.host+'_os_freemem_pie',
-        chart: Object.merge(Object.clone(pie_chart), {
-          totalmem: this.os_stats.totalmem.value.data,
-          watch: {
-            /**
-            * @trasnform: diff between each value against its prev one
-            */
-            transform: function(values, caller, chart){
-              let last = values[values.length - 1]
-              last.value = last.value * 100 / chart.totalmem
-              // console.log('_os_freemem_pie transform', values, chart.totalmem, last)
-              return values
-            }
-          },
-          options:{
-            // 'track-color': false,
-            size: 80,
-            // animated: false,
-            'font-size': '14px',
-            "bar-color": function(percentage){
-              if(percentage > 0 && percentage < 33){
-                return '#ff704d'
-              }
-              else if(percentage > 33 && percentage < 66){
-                return '#f6d95b'
-              }
-              else{
-                return '#86b300'
-              }
-            }
-          }
-        }),
-        init: this.__get_stat_for_chart.bind(this),
-        stop: function(payload){
-          // this.$store.dispatch('stats_tabular/flush', payload.stat)
-        }.bind(this),
-        stat: {
-          host: this.host,
-          path: 'os',
-          key: 'freemem',
-          length: 1,
-          // tabular:true
-          // range: [Date.now() - this.seconds * 1000, Date.now()]
-        },
-        pipeline: {
-          name: 'input.os',
-          path: 'os',
-          range: true
-        }
-      }
+      // this.$options.charts[this.host+'_os_freemem_pie'] = {
+      //   name: this.host+'_os_freemem_pie',
+      //   chart: Object.merge(Object.clone(pie_chart), {
+      //     totalmem: this.os_stats.totalmem.value.data,
+      //     watch: {
+      //       /**
+      //       * @trasnform: diff between each value against its prev one
+      //       */
+      //       transform: function(values, caller, chart){
+      //         let last = values[values.length - 1]
+      //         last.value = last.value * 100 / chart.totalmem
+      //         // console.log('_os_freemem_pie transform', values, chart.totalmem, last)
+      //         return values
+      //       }
+      //     },
+      //     options:{
+      //       // 'track-color': false,
+      //       size: 80,
+      //       // animated: false,
+      //       'font-size': '14px',
+      //       "bar-color": function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#ff704d'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#86b300'
+      //         }
+      //       }
+      //     }
+      //   }),
+      //   init: this.__get_stat_for_chart.bind(this),
+      //   stop: function(payload){
+      //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
+      //   }.bind(this),
+      //   stat: {
+      //     host: this.host,
+      //     path: 'os',
+      //     key: 'freemem',
+      //     length: 1,
+      //     // tabular:true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   },
+      //   pipeline: {
+      //     name: 'input.os',
+      //     path: 'os',
+      //     range: true
+      //   }
+      // }
+
+      /**
+      * knob
+      */
+      // this.$options.charts[this.host+'_os_freemem_knob'] = {
+      //   name: this.host+'_os_freemem_knob',
+      //   chart: Object.merge(Object.clone(jqueryKnob), {
+      //     totalmem: this.os_stats.totalmem.value.data,
+      //     watch: {
+      //       /**
+      //       * @trasnform: diff between each value against its prev one
+      //       */
+      //       transform: function(values, caller, chart){
+      //         let last = values[values.length - 1]
+      //         last.value = last.value * 100 / chart.totalmem
+      //         // console.log('_os_freemem_knob transform', values, chart.totalmem, last)
+      //         return values
+      //       }
+      //     },
+      //     options:{
+      //       readOnly: true,
+      //       displayPrevious: true,
+      //       thickness: 0.1,
+      //       width: 80,
+      //       skin: 'tron',
+      //       // bgColor: 'black',
+      //       fgColor: function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#ff704d'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#86b300'
+      //         }
+      //       },
+      //       inputColor: function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#ff704d'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#86b300'
+      //         }
+      //       }
+      //     }
+      //   }),
+      //   init: this.__get_stat_for_chart.bind(this),
+      //   stop: function(payload){
+      //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
+      //   }.bind(this),
+      //   stat: {
+      //     host: this.host,
+      //     path: 'os',
+      //     key: 'freemem',
+      //     length: 1,
+      //     // tabular:true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   },
+      //   pipeline: {
+      //     name: 'input.os',
+      //     path: 'os',
+      //     range: true
+      //   }
+      // }
 
       unwatch_freemem()
     },{
@@ -1176,7 +1369,7 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_chart_stat(payload.name, doc.value)
+          this.__update_chart_stat(payload.name, doc.value, stat.length)
         }
       },
       // //console.log('__get_stat_for_chart', payload.watcher)
@@ -1238,7 +1431,7 @@ export default {
               length - range_length
             )
 
-            this.__update_chart_stat(name, all_stats)
+            this.__update_chart_stat(name, all_stats, stat.length)
 
             this.add_watcher(payload)
 
