@@ -116,6 +116,9 @@ export default {
         })
       // }
     },
+    /**
+    * @move to stat mixin
+    **/
     __get_stat: function(payload, cb){
       ////console.log('__get_stat', payload)
       if(payload.tabular == true){

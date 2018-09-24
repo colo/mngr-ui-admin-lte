@@ -154,7 +154,7 @@ export default {
   methods: {
     update (data){
       data = data || this.stat.data
-      console.log('highcharts-vue update', data)
+      // console.log('highcharts-vue update', data)
       if(this.$options.visible == true){
 
         if(this.gauge == true){

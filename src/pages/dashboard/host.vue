@@ -143,6 +143,13 @@
           v-on:hide="el => hideCollapsible(el)"
         >
 
+          <!-- <cpus-times-dygraph
+            :visibility="visibility[host+'_os_cpus_times']"
+            :ref="host+'_os_cpus_times'"
+            :host="host"
+            :EventBus="EventBus"
+          /> -->
+
           <chart-tabular
             v-if="visibility[host+'_os_cpus_times']"
             :type="'dygraph'"
@@ -383,6 +390,8 @@ import dashboard from 'components/mixins/dashboard'
 // import blockdevices_stats_chart from 'components/charts/blockdevices_stats'
 // import networkInterfaces_chart from 'components/charts/networkInterfaces'
 
+// import cpusTimesDygraph from 'components/charts/os/cpus_times_dygraph'
+
 import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
 import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
 import cpus_times_chart from 'mngr-ui-admin-charts/os/cpus_times'
@@ -396,69 +405,8 @@ import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
 import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
 
 import * as Highcharts from 'highcharts'
-// Highcharts.theme = {
-//     colors: ['#7cb5ec', '#f7a35c', '#90ee7e', '#7798BF', '#aaeeee', '#ff0066',
-//         '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
-//     chart: {
-//         backgroundColor: null,
-//         style: {
-//             fontFamily: 'Dosis, sans-serif'
-//         }
-//     },
-//     title: {
-//         style: {
-//             fontSize: '16px',
-//             fontWeight: 'bold',
-//             textTransform: 'uppercase'
-//         }
-//     },
-//     tooltip: {
-//         borderWidth: 0,
-//         backgroundColor: 'rgba(219,219,216,0.8)',
-//         shadow: false
-//     },
-//     legend: {
-//         itemStyle: {
-//             fontWeight: 'bold',
-//             fontSize: '13px'
-//         }
-//     },
-//     xAxis: {
-//         gridLineWidth: 1,
-//         labels: {
-//             style: {
-//                 fontSize: '12px'
-//             }
-//         }
-//     },
-//     yAxis: {
-//         minorTickInterval: 'auto',
-//         title: {
-//             style: {
-//                 textTransform: 'uppercase'
-//             }
-//         },
-//         labels: {
-//             style: {
-//                 fontSize: '12px'
-//             }
-//         }
-//     },
-//     plotOptions: {
-//         candlestick: {
-//             lineColor: '#404048'
-//         }
-//     },
-//
-//
-//     // General
-//     background2: '#F0F0EA'
-//
-// }
-// Highcharts.setOptions(Highcharts.theme)
 
 let highchartsVueGauge = require('mngr-ui-admin-charts/defaults/highchartsVue.gauge')(Highcharts)
-// import highchartsVueGauge from 'mngr-ui-admin-charts/defaults/highchartsVue.gauge'
 
 export default {
   mixins: [dashboard],
@@ -481,6 +429,7 @@ export default {
   components: {
     AdminLteBoxSolid,
     AdminLteDashboardHostSummary,
+    // cpusTimesDygraph
     // dygraphWrapper
   },
 
@@ -628,19 +577,7 @@ export default {
 
       // ////console.log('recived doc via Event host', doc, this.$options.charts_objects)
 
-      // this.__cpus_time_get_stat({
-      //   name: this.host+'_os_cpus_times',
-      //   stat: {
-      //     host: this.host,
-      //     path: 'cpus_times',
-      //     key: 'os_cpus',
-      //     length: this.seconds || 300,
-      //     tabular: true
-      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //
-      //   }
-      //
-      // })
+
       this.__get_stat_for_chart({
         name: this.host+'_os_cpus_times',
         stat: {
@@ -657,18 +594,6 @@ export default {
           // range: true
         }
       })
-
-      // this.__cpus_percentage_get_stat({
-      //   name: this.host+'_os_cpus_percentage',
-      //   stat: {
-      //     host: this.host,
-      //     path: 'cpus_percentage',
-      //     key: 'os_cpus',
-      //     length: this.seconds || 300,
-      //     tabular: true
-      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //   }
-      // })
 
       this.__get_stat_for_chart({
         name: this.host+'_os_cpus_percentage',
@@ -687,18 +612,6 @@ export default {
         }
       })
 
-      // this.__uptime_get_stat({
-      //   name: this.host+'_os_uptime',
-      //   stat: {
-      //     host: this.host,
-      //     path: 'uptime',
-      //     key: 'os_uptime',
-      //     length: this.seconds || 300,
-      //     tabular: true
-      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //   }
-      // })
-
       this.__get_stat_for_chart({
         name: this.host+'_os_uptime',
         stat: {
@@ -715,18 +628,6 @@ export default {
           // range: true
         }
       })
-
-      // this.__loadavg_get_stat({
-      //   name: this.host+'_os_loadavg',
-      //   stat: {
-      //     host: this.host,
-      //     path: 'loadavg',
-      //     key: 'os_loadavg',
-      //     length: this.seconds || 300,
-      //     tabular:true
-      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //   }
-      // })
 
       this.__get_stat_for_chart({
         name: this.host+'_os_loadavg',
@@ -1505,96 +1406,6 @@ export default {
 
       }.bind(this))
     },
-
-    // __networkInterfaces_get_stat: function(payload){
-    //   let {name, stat, pipeline} = payload
-    //   let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
-    //
-    //   let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
-    //
-    //   payload.watcher = payload.watcher ||  {
-    //     name: '$store.state.stats.'+this.host+'.os.networkInterfaces',
-    //     deep:true,
-    //     // cb: this.__watcher_callback.bind(this)
-    //     cb: (doc, old, payload) => {
-    //       // if(this.visibility[payload.name] === true)
-    //       this.__update_chart_stat(payload.name, doc.value)
-    //     }
-    //   },
-    //
-    //   stat.range = range
-    //
-    //   this.add_chart_stat(name)
-    //
-    //   this.__get_stat(stat, function(docs){
-    //
-    //     let pipe = this.$options.pipelines[pipeline.name]
-    //     pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
-    //
-    //
-    //     if(
-    //       docs.length != 0
-    //       // && range_length
-    //       // && (docs.length  < range_length + 10 && docs.length > range_length - 10)
-    //       && docs[docs.length - 1].metadata
-    //       && docs[0].metadata.timestamp > range[0] - 10000
-    //       && docs[0].metadata.timestamp < range[0] + 10000
-    //     ){
-    //
-    //       let prev = undefined
-    //       let missing = false
-    //
-    //       docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //
-    //       Array.each(docs, function(doc){
-    //         if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
-    //           // ////console.log('got cpus stat missing', new Date(prev.metadata.timestamp), new Date(doc.metadata.timestamp))
-    //           missing = true
-    //         }
-    //         prev = doc
-    //       })
-    //
-    //       if(missing == false){
-    //         range[0] = docs[docs.length - 1].metadata.timestamp
-    //         // ////console.log('got cpus stat change range', docs, new Date(range[0]), new Date(range[1]))
-    //       }
-    //       else{
-    //         docs = []
-    //       }
-    //
-    //     }
-    //     else{
-    //       docs = []
-    //     }
-    //
-    //     EventBus.$once('osRange', () =>
-    //       this.__get_stat(stat, function(docs_range){
-    //
-    //         let all_stats = docs.append(docs_range)
-    //         all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //
-    //         let length = all_stats.length
-    //         all_stats.splice(
-    //           range_length -1,
-    //           length - range_length
-    //         )
-    //
-    //         // this.$set(this.stats[name], 'data', [])
-    //         this.__update_chart_stat(name, all_stats)
-    //         // this.__update_chart_stat(this.host+'_os_cpus_percentage', docs)
-    //         this.add_watcher(payload)
-    //
-    //
-    //       }.bind(this))
-    //     )
-    //
-    //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //
-    //
-    //
-    //   }.bind(this))
-    // },
-
 
     process_os_tabular: function(doc){
       ////console.log('process_os_tabular', doc)
