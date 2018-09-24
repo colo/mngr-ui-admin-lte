@@ -396,6 +396,67 @@ import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
 import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
 
 import * as Highcharts from 'highcharts'
+// Highcharts.theme = {
+//     colors: ['#7cb5ec', '#f7a35c', '#90ee7e', '#7798BF', '#aaeeee', '#ff0066',
+//         '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+//     chart: {
+//         backgroundColor: null,
+//         style: {
+//             fontFamily: 'Dosis, sans-serif'
+//         }
+//     },
+//     title: {
+//         style: {
+//             fontSize: '16px',
+//             fontWeight: 'bold',
+//             textTransform: 'uppercase'
+//         }
+//     },
+//     tooltip: {
+//         borderWidth: 0,
+//         backgroundColor: 'rgba(219,219,216,0.8)',
+//         shadow: false
+//     },
+//     legend: {
+//         itemStyle: {
+//             fontWeight: 'bold',
+//             fontSize: '13px'
+//         }
+//     },
+//     xAxis: {
+//         gridLineWidth: 1,
+//         labels: {
+//             style: {
+//                 fontSize: '12px'
+//             }
+//         }
+//     },
+//     yAxis: {
+//         minorTickInterval: 'auto',
+//         title: {
+//             style: {
+//                 textTransform: 'uppercase'
+//             }
+//         },
+//         labels: {
+//             style: {
+//                 fontSize: '12px'
+//             }
+//         }
+//     },
+//     plotOptions: {
+//         candlestick: {
+//             lineColor: '#404048'
+//         }
+//     },
+//
+//
+//     // General
+//     background2: '#F0F0EA'
+//
+// }
+// Highcharts.setOptions(Highcharts.theme)
+
 let highchartsVueGauge = require('mngr-ui-admin-charts/defaults/highchartsVue.gauge')(Highcharts)
 // import highchartsVueGauge from 'mngr-ui-admin-charts/defaults/highchartsVue.gauge'
 
@@ -1794,3 +1855,27 @@ export default {
 
 
 </script>
+
+<style>
+/* .highcharts-background {
+	fill: #efefef;
+	stroke: #a4edba;
+	stroke-width: 2px;
+} */
+/* .highcharts-yaxis-grid .highcharts-grid-line {
+	display: none;
+} */
+/* .highcharts-background {
+	fill: #FFFFFF;
+	stroke: #a4edba;
+	stroke-width: 0px;
+} */
+.highcharts-yaxis-grid .highcharts-grid-line {
+	display: none;
+  stroke-width: 0px;
+}
+.highcharts-axis.highcharts-color-0 .highcharts-axis-line {
+  display: none;
+  stroke-width: 0px;
+}
+</style>

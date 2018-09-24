@@ -179,7 +179,7 @@ export default {
           )
         // }
 
-        console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
+        // console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
 
         this.stats[name].lastupdate = Date.now()
       }
