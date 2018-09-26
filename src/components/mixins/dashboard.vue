@@ -168,7 +168,7 @@ export default {
           //   this.stats[name].data.shift()
         }
 
-        splice = splice || this.seconds
+        splice = (isNaN(splice)) ? this.seconds : splice
 
         let length = this.stats[name].data.length
         // if(splice == 1){
@@ -177,13 +177,19 @@ export default {
         // }
         // else{
           splice = (splice == 1) ? 2 : splice
-          this.stats[name].data.splice(
-            (splice * -1) -1,
-            length - splice
-          )
+
+          if(splice == 0){
+            this.$set(this.stats[name], 'data', [])
+          }
+          else{
+            this.stats[name].data.splice(
+              (splice * -1) -1,
+              length - splice
+            )
+          }
         // }
 
-        // console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
+        console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
 
         this.stats[name].lastupdate = Date.now()
       }

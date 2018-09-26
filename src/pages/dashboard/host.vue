@@ -1491,8 +1491,13 @@ export default {
                   },
                   name: chart_name,
                   chart: Object.clone(networkInterfaces_chart),
-                  init: this.__get_stat_for_chart.bind(this),
+                  init: function(payload){
+                    console.log('init ', payload.name, payload)
+                    this.__get_stat_for_chart(payload)
+                  }.bind(this),
                   stop: function(payload){
+                    this.remove_watcher(payload.name)
+                    this.__update_chart_stat(payload.name, [], 1)
                     this.$store.dispatch('stats_tabular/flush', payload.stat)
                     // this.$store.dispatch('stats_tabular/splice', payload.stat)
                   }.bind(this),
@@ -1502,7 +1507,11 @@ export default {
                     // cb: this.__watcher_callback.bind(this)
                     cb: (doc, old, payload) => {
                       // if(this.visibility[payload.name] === true)
-                      this.__update_chart_stat(payload.name, doc.value)
+                      let range = payload.stat.range || [Date.now() - payload.stat.length * 1000, Date.now()]
+
+                      let range_length = (range) ? Math.trunc((range[1] - range[0] / 1000)) : undefined
+
+                      this.__update_chart_stat(payload.name, doc.value, payload.stat.length)
                     }
                   },
 
@@ -1568,12 +1577,12 @@ export default {
     set_range: function(start, end){
       console.log('set_range daterangepicker', start.utc().valueOf(), end.utc().valueOf())
       Object.each(this.available_charts, function(payload, name){
-        payload.stat.range = [start.utc().valueOf(), end.utc().valueOf()]
-        payload.stat.length = (end.utc().valueOf() - start.utc().valueOf()) / 1000
-
+        this.available_charts[name].stat.range = [start.utc().valueOf(), end.utc().valueOf()]
+        this.available_charts[name].stat.length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
+        this.remove_chart(payload, {unwatch: true})
         // if(name.indexOf('networkInterface') == -1)
         if(!payload.init || typeof payload.init != 'function')
-          this.__get_stat_for_chart(payload)
+          this.__get_stat_for_chart(this.available_charts[name])
 
       }.bind(this))
 
@@ -1595,6 +1604,8 @@ export default {
       let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
       let tabular = (stat.tabular) ? stat.tabular : false
 
+      this.remove_watcher(name)
+
       let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
 
       let watch_name = (tabular == true) ? '_tabular' : ''
@@ -1605,7 +1616,9 @@ export default {
         // cb: this.__watcher_callback.bind(this)
         cb: (doc, old, payload) => {
           // if(this.visibility[payload.name] === true)
-          this.__update_chart_stat(payload.name, doc.value, stat.length)
+          // let range = payload.stat.range || [Date.now() - payload.stat.length * 1000, Date.now()]
+          // let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
+          this.__update_chart_stat(payload.name, doc.value, payload.stat.length)
         }
       },
       // //console.log('__get_stat_for_chart', payload.watcher)
@@ -1661,18 +1674,18 @@ export default {
             let all_stats = docs.append(docs_range)
             all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
 
-            let length = all_stats.length
-            all_stats.splice(
-              range_length -1,
-              length - range_length
-            )
+            // let length = all_stats.length
+            // all_stats.splice(
+            //   range_length -1,
+            //   length - range_length
+            // )
 
             // this.__update_chart_stat(name, all_stats, stat.length)
-            console.log('__get_stat_for_chart __update_chart_stat', range, all_stats.length, range_length)
+            console.log('__get_stat_for_chart __update_chart_stat', name, range, all_stats.length, range_length)
             this.__update_chart_stat(name, all_stats, range_length)
 
+            Vue.nextTick(this.add_watcher(payload))
 
-            this.add_watcher(payload)
 
           }.bind(this))
         )

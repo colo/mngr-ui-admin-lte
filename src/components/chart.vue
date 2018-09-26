@@ -19,6 +19,7 @@ export default {
       let unwatch = this.$watch('stat.data', function (val, old) {
 
 
+        // if(val && val.length > 1){
         if(val && val.length > 1){
 
           if(this.$options.__chart_init == false){
@@ -156,7 +157,7 @@ export default {
           /**
           * ensures no "glitches" as a point may be in the incorrect posittion
           */
-          let old_data = this.tabular.data
+          let old_data = Array.clone(this.tabular.data)
           old_data.shift()
           old_data.push(data[0])
           old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )

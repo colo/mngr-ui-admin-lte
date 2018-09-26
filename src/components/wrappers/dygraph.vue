@@ -156,6 +156,7 @@ export default {
     this.$off()
   },
   methods: {
+
     /**
     * UI related
     **/
@@ -230,7 +231,8 @@ export default {
           data.push(row)
         }
         else{
-          data = this.stat.data
+          data = this._get_data()
+          // data = []
         }
 
         // Array.each(this.stat.data, function(row){
@@ -253,11 +255,25 @@ export default {
 
         if(this.chart.init)
           this.chart.init(this, this.$options.graph, 'dygraph')
+
+        // this.update()
       }
     },
+    _get_data: function(data){
+      data = data || Array.clone(this.stat.data)
+
+      data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
+      Array.each(data, function(row){
+        row[0] = new Date(row[0])
+        // data.push(row)
+      })
+
+      return data
+    },
     update (data){
-      data = data || this.stat.data
-      //console.log('dygraph update', data)
+      data = this._get_data(data)
+      console.log('dygraph update', this.id, data)
 
       if(this.$options.visible == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
@@ -315,10 +331,7 @@ export default {
 
 
           // let data = []
-          Array.each(data, function(row){
-            row[0] = new Date(row[0])
-            // data.push(row)
-          })
+
           this.$options.graph.updateOptions(
             Object.merge(
               {
