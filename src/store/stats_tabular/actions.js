@@ -110,7 +110,7 @@ export const get = ({ commit, dispatch }, payload) => {
   // let db = new PouchDB('live_'+payload.host)
   let db = get_db(payload.host)
   let deque = get_queue(payload)
-  //// //console.log('action get...')
+  console.log('action get...', payload)
 
   return new Promise((resolve, reject) => {
     let length = payload.length || deque.length

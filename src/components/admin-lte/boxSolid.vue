@@ -1,12 +1,12 @@
 <template>
   <!-- solid sales graph -->
   <div class="box box-solid" :id="id">
-    <div class="box-header">
+    <div v-if="header == true" class="box-header">
       <i class="fa fa-th"></i>
 
-      <h3 class="box-title">{{title}}</h3>
+      <h3 v-if="title != ''" class="box-title">{{title}}</h3>
 
-      <div class="box-tools pull-right">
+      <div v-if="tools == true" class="box-tools pull-right">
         <button type="button" class="btn bg-white btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
         </button>
         <button type="button" class="btn bg-white btn-sm" data-widget="remove"><i class="fa fa-times"></i>
@@ -60,11 +60,19 @@ export default {
   props: {
     id: {
       type: [String],
-       default: ''
+      default: ''
     },
     title: {
       type: [String],
-       default: ''
+      default: ''
+    },
+    tools: {
+      type: [Boolean],
+      default: true
+    },
+    header: {
+      type: [Boolean],
+      default: true
     },
   },
 

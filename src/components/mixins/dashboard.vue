@@ -23,6 +23,7 @@ export default {
       EventBus: EventBus,
       stats: {},
       charts: {},
+      available_charts: {}
     }
   },
   // updated: function(){
@@ -36,7 +37,7 @@ export default {
     add_chart: function (payload){
       let {name, chart, init, watch, watcher} = payload
 
-      this.$options.charts[name] = payload
+      this.available_charts[name] = payload
       this.$set(this.charts, name, chart)
 
       // if(!this.stats[name])
@@ -59,8 +60,8 @@ export default {
     remove_chart: function (name, options){
       options = options || {}
 
-      if(this.$options.charts[name] && this.$options.charts[name].stop && typeof this.$options.charts[name].stop == 'function')
-        this.$options.charts[name].stop(this.$options.charts[name])
+      if(this.available_charts[name] && this.available_charts[name].stop && typeof this.available_charts[name].stop == 'function')
+        this.available_charts[name].stop(this.available_charts[name])
 
       this.$set(this.charts, name, undefined)
 
