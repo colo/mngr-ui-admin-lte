@@ -1571,7 +1571,8 @@ export default {
         payload.stat.range = [start.utc().valueOf(), end.utc().valueOf()]
         payload.stat.length = (end.utc().valueOf() - start.utc().valueOf()) / 1000
 
-        if(name.indexOf('networkInterface') == -1)
+        // if(name.indexOf('networkInterface') == -1)
+        if(!payload.init || typeof payload.init != 'function')
           this.__get_stat_for_chart(payload)
 
       }.bind(this))
