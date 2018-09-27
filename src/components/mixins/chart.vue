@@ -60,6 +60,10 @@ export default {
     wrapper_props: {
       type: [Object],
       default: () => ({})
+    },
+    merged: {
+      type: [Boolean],
+      default: false
     }
   },
 

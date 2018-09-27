@@ -89,8 +89,8 @@ export default {
       }
     },
     add_chart_stat: function (name){
-      // if(!this.stats[name])
-      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+      if(!this.stats[name])
+        this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
     },
     remove_chart_stat: function (name){
       this.$set(this.stats, name, undefined)

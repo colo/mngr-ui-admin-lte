@@ -15,9 +15,10 @@ export default {
 
   methods: {
     create (){
+      console.log('create chart.tabular', this.stat, this.chart)
 
       let unwatch = this.$watch('stat.data', function (val, old) {
-
+        console.log('create chart.tabular', val)
         if(val && val.length > 1){
 
           if(this.$options.__chart_init == false){
@@ -39,17 +40,16 @@ export default {
 
 
       let generic_data_watcher = function(current){
-        if(current){
+        console.log('chart.tabular generic_data_watcher', current)
+        if(current && this.$options.visible){
 
-          if(this.$options.visible){
-            let data = []
-            Array.each(current, function(row){
-              data.push(row.value)
-            })
+          let data = []
+          Array.each(current, function(row){
+            data.push(row.value)
+          })
 
+          this.update_chart_stat(data)
 
-            this.update_chart_stat(data)
-          }
         }
       }.bind(this)
 
@@ -64,6 +64,7 @@ export default {
     // generic_data_watcher: data_to_tabular,
 
     update_chart_stat (data){
+      console.log('chart.tabular update_chart_stat', data)
 
       if(this.$options.visible && data.length > 0){
         // console.log('update_chart_stat visibility', this.id, data)
@@ -80,6 +81,8 @@ export default {
           this.$set(this.tabular, 'data', data)
 
         }
+
+        this.tabular.lastupdate = Date.now()
 
       }
 
