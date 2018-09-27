@@ -107,12 +107,12 @@ export default {
        this.focus = true
     }.bind(this), false)
 
-    this.create()
+    // this.create()
     // keypath
     let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 
 
-      ////console.log('updated data dygraph', this.id, this.stat.data)
+      console.log('updated data dygraph', this.id, this.stat.data)
 
       // if(val.length > 1 && this.chart == null){
       if(val.length > 1){
@@ -139,9 +139,9 @@ export default {
     // }
     // this.__watcher()
 
-    this.create()
+    // this.create()
   },
-  // updated () {
+  updated () {
   //
   //   // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
   //   //
@@ -150,7 +150,8 @@ export default {
   //   // }
   //   // this.__watcher()
   //
-  // },
+    this.create()
+  },
   destroyed (){
     this.destroy()
     this.$off()
@@ -273,7 +274,7 @@ export default {
     },
     update (data){
       data = this._get_data(data)
-      console.log('dygraph update', this.id, data)
+      // console.log('dygraph update', this.id, data)
 
       if(this.$options.visible == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting

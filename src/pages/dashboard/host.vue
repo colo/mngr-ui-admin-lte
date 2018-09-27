@@ -203,7 +203,7 @@
             :id="host+'_merged'"
             :EventBus="EventBus"
             :chart="charts[host+'_merged']"
-            :stat="stats_merged[host+'_merged']"
+            :stat="stats[host+'_merged']"
           >
           </chart-tabular>
           <!-- v-if="visibility[host+'merged']"
@@ -536,7 +536,7 @@ export default {
 
   data () {
     return {
-      stats_merged:{},
+      // stats_merged:{},
       visibility: {},
       daterangepicker:{
         opens: 'right',
@@ -682,19 +682,24 @@ export default {
 
       // ////console.log('recived doc via Event host', doc, this.$options.charts_objects)
 
-      // let merged_chart = Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times'])
-      // merged_chart.options.labels.push('seconds')
+      let merged_chart = Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times'])
+      Array.each(merged_chart.options.labels, function(label, index){
+        merged_chart.options.labels[index] = 'cpus times '+label
+      })
+      merged_chart.options.labels.push('uptime seconds')
 
       this.available_charts[this.host+'_merged'] = {
         name: this.host+'_merged',
-        chart: [
-          Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-          Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
-        ],
-        // chart: merged_chart,
+        // chart: [
+        //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+        //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
+        // ],
+        chart: merged_chart,
         stop: function(payload){
-          // ////console.log('stoping _os_cpus_times', payload.stat)
-          this.$store.dispatch('stats_tabular/flush', payload.stat)
+          Array.each(payload.stat, function(stat){
+            this.$store.dispatch('stats_tabular/flush', stat)
+          }.bind(this))
+
           // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
         stat: [
@@ -1672,50 +1677,235 @@ export default {
     __get_stat_for_merged_chart: function(payload){
 
 
-      this.$set(this.stats_merged, payload.name, {lastupdate: 0, data:[]})
+      // this.$set(this.stats_merged, payload.name, {lastupdate: 0, data:[]})
+      //
+      // Array.each(payload.stat, function(stat, index){
+      //   let new_payload = {
+      //     name: payload.name+'_'+index,
+      //     stat: stat
+      //   }
+      //
+      //   Object.each(payload, function(old, key){
+      //     if(key != 'stat' && key != 'name'){
+      //       if(Array.isArray(old)){
+      //         new_payload[key] = old[index]
+      //       }
+      //       else{
+      //         new_payload[key] = Object.clone(old)
+      //       }
+      //     }
+      //
+      //
+      //   }.bind(this))
+      //
+      //   this.add_chart_stat(payload.name+'_'+index)
+      //
+      //   this.$set(this.stats_merged[payload.name].data, index, this.stats[payload.name+'_'+index])
+      //
+      //   this.__get_stat_for_chart(new_payload)
+      //
+      //
+      // }.bind(this))
 
-      Array.each(payload.stat, function(stat, index){
-        let new_payload = {
-          name: payload.name+'_'+index,
-          stat: stat
+      // console.log('__get_stat_for_merged_chart', payload)
+
+      let {name, stat, pipeline} = payload
+
+      this.add_chart_stat(name)
+
+      let _merge_docs_data = function(a, b){
+        console.log('_merge_docs_data', a,b )
+        let merged = Array.clone(a)
+        for(let i = 1; i < b.length; i++){//ommit timestamp
+            merged.push(b[i])
+        }
+        return merged
+      }
+
+      let buffer = {}
+      let buffer_length = stat.length
+      let _merge_stats = function(name, indexed_name, data, splice){
+
+        buffer[indexed_name] = data
+        if(Object.getLength(buffer) == buffer_length){
+          let merged = undefined
+          let counter = 0
+          Object.each(buffer, function(doc, name){
+            if(name.indexOf('0') > -1)
+              if(Array.isArray(doc)){
+                merged = Array.clone(doc)
+              }
+              else{
+                merged = Object.clone(doc)
+              }
+          })
+
+          Object.each(buffer, function(doc, name){
+            if(name.indexOf('0') == -1){
+              if(Array.isArray(merged)){
+
+                let to_merge = []
+                if(!Array.isArray(doc)){
+                  to_merge = [doc]
+                }
+                else{
+                  to_merge = Array.clone(doc)
+                }
+
+                Array.each(merged, function(row, index){
+
+                  let found = false
+                  Array.each(to_merge, function(to_merge_row){
+                    if(found == false && row.metadata.timestamp == to_merge_row.metadata.timestamp){
+                      merged[index].data = _merge_docs_data(row.data, to_merge_row.data)
+                      found = true
+                    }
+                  })
+
+
+                })
+              }
+              else{
+                // Array.each(buffer, function(stat, index){
+                  // console.log('DOC', doc)
+                  merged.data = _merge_docs_data(merged.data, doc.data)
+                  // for(let i = 1; i < stat.data.length; i++){
+                  //     merged.data.push(stat.data[i])
+                  // }
+
+                // })
+
+              }
+            }
+            counter++
+          })
+
+
+          // this.__update_chart_stat(name, merged, splice)
+
+          // Array.each(merged, function(merged_row, merged_row_index){
+          //   Array.each(buffer, function(stat, index){
+          //     if(index != 0){//0 = merged, ommit
+          //       let found = false
+          //       Array.each(stat, function(stat_row, stat_row_index){
+          //         if(found == false && merged_row[0] == stat_row[0]){//0 = timestamp of each row
+          //           for(let i = 1; i < stat_row.length; i++)
+          //           merged_row.push(stat_row[i])
+          //           found = true
+          //         }
+          //       })
+          //     }
+          //   })
+          //
+          // })
+
+          this.__update_chart_stat(name, merged, splice)
+
+          buffer = {}
+          console.log('_merge_stats', name, merged)
+        }
+      }.bind(this)
+
+      Array.each(stat, function(stat, index){
+        console.log('__get_stat_for_merged_chart', stat)
+
+        let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
+        let tabular = (stat.tabular) ? stat.tabular : false
+
+        let indexed_name = name+'_'+index
+        let indexed_payload = Object.clone(payload)
+        indexed_payload.name = indexed_name
+        indexed_payload.stat = stat
+
+        this.remove_watcher(indexed_name)
+
+        let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
+
+        let watch_name = (tabular == true) ? '_tabular' : ''
+
+
+        indexed_payload.watcher = indexed_payload.watcher ||  {
+          name: '$store.state.stats'+ watch_name +'.'+stat.host+'.'+stat.path+'.'+stat.key,
+          deep:true,
+          // cb: this.__watcher_callback.bind(this)
+          cb: (doc, old, payload) => {
+            // if(this.visibility[payload.name] === true)
+
+            // this.__update_chart_stat(payload.name, doc.value, payload.stat.length)
+            _merge_stats(name, indexed_name, doc.value, payload.stat.length)
+          }
         }
 
-        // if(Array.isArray(payload.chart)){
-        //   let charts = Array.clone(payload.chart)
-        //   delete payload.chart
-        //   Array.each(charts, function(chart){
-        //     if(!payload.chart){
-        //       payload.chart = chart
-        //     }
-        //     else{
-        //       payload.chart = Object.merge(payload.chart, chart)
-        //     }
-        //   })
-        // }
+        stat.range = range
 
-        Object.each(payload, function(old, key){
-          if(key != 'stat' && key != 'name' && key != 'chart'){
-            if(Array.isArray(old)){
-              new_payload[key] = old[index]
+        this.__get_stat(stat, function(docs){
+
+          let pipe = this.$options.pipelines[pipeline.name]
+          pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
+
+
+          if(
+            docs.length != 0
+            && docs[docs.length - 1].metadata
+            && docs[0].metadata.timestamp > range[0] - 10000
+            && docs[0].metadata.timestamp < range[0] + 10000
+          ){
+
+            let prev = undefined
+            let missing = false
+
+            docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+            Array.each(docs, function(doc){
+              if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+
+                missing = true
+              }
+              prev = doc
+            })
+
+            if(missing == false){
+              range[0] = docs[docs.length - 1].metadata.timestamp
+
             }
             else{
-              new_payload[key] = Object.clone(old)
+              docs = []
             }
+
           }
+          else{
+            docs = []
+          }
+
+          let eventRange = (tabular == true) ? 'tabularRange' : pipeline.path+'Range'
+
+          EventBus.$once(eventRange, () =>
+            this.__get_stat(stat, function(docs_range){
+
+              let all_stats = docs.append(docs_range)
+              all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+              console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
+
+              _merge_stats(name, indexed_name, all_stats, range_length)
+              // this.__update_chart_stat(name, all_stats, range_length)
+
+              Vue.nextTick(this.add_watcher(indexed_payload))
+
+
+            }.bind(this))
+          )
+
+          if(pipeline.range && pipeline.range == true)
+            pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
 
         }.bind(this))
 
-        this.add_chart_stat(payload.name+'_'+index)
-
-        this.$set(this.stats_merged[payload.name].data, index, this.stats[payload.name+'_'+index])
-
-        this.__get_stat_for_chart(new_payload)
-
-
       }.bind(this))
 
-      console.log('__get_stat_for_merged_chart', this.stats_merged)
+
+
     },
 
     __get_stat_for_chart: function(payload){

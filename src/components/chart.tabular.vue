@@ -15,10 +15,10 @@ export default {
 
   methods: {
     create (){
-      console.log('create chart.tabular', this.stat, this.chart)
+      console.log('create chart.tabular', this.id, this.stat, this.chart)
 
       let unwatch = this.$watch('stat.data', function (val, old) {
-        console.log('create chart.tabular', val)
+        // console.log('create chart.tabular', val)
         if(val && val.length > 1){
 
           if(this.$options.__chart_init == false){

@@ -79,9 +79,9 @@ export default {
   // mounted () {
   //   this.create()
   // },
-  updated () {
-    this.create()
-  },
+  // updated () {
+  //   this.create()
+  // },
   destroyed (){
     this.destroy()
     this.$off()
