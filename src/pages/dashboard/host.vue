@@ -682,7 +682,7 @@ export default {
 
       // ////console.log('recived doc via Event host', doc, this.$options.charts_objects)
 
-      let merged_chart = Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times'])
+      let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
       Array.each(merged_chart.options.labels, function(label, index){
         merged_chart.options.labels[index] = 'cpus times '+label
       })
@@ -755,27 +755,31 @@ export default {
       // //   }
       // // }
       //
-      // this.available_charts[this.host+'_os_cpus_times'] = Object.merge(
-      //   this.get_payload(charts_payloads,{
-      //     name: 'os_cpus_times',
-      //     host: this.host,
-      //     seconds: this.seconds
-      //   }),
-      //   {
-      //     wrapper: {
-      //       type: 'dygraph',
-      //       props: {}
-      //     },
-      //     chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-      //     stop: function(payload){
-      //       ////console.log('stoping _os_cpus_times', payload.stat)
-      //       this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //
-      //       // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //     }.bind(this),
-      //   }
-      // )
-      //
+      this.available_charts[this.host+'_os_cpus_times'] = Object.merge(
+        this.get_payload(charts_payloads,{
+          name: 'os_cpus_times',
+          host: this.host,
+          seconds: this.seconds
+        }),
+        {
+          wrapper: {
+            type: 'dygraph',
+            props: {}
+          },
+          chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+          stop: function(payload){
+            ////console.log('stoping _os_cpus_times', payload.stat)
+            this.$store.dispatch('stats_tabular/flush', payload.stat)
+
+            // this.$store.dispatch('stats_tabular/splice', payload.stat)
+          }.bind(this),
+          pipeline: {
+            range: true
+          }
+        }
+      )
+      this.__get_stat_for_merged_chart(this.available_charts[this.host+'_os_cpus_times'])
+
       // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
       //
       // /**
@@ -1676,138 +1680,24 @@ export default {
 
     __get_stat_for_merged_chart: function(payload){
 
-
-      // this.$set(this.stats_merged, payload.name, {lastupdate: 0, data:[]})
-      //
-      // Array.each(payload.stat, function(stat, index){
-      //   let new_payload = {
-      //     name: payload.name+'_'+index,
-      //     stat: stat
-      //   }
-      //
-      //   Object.each(payload, function(old, key){
-      //     if(key != 'stat' && key != 'name'){
-      //       if(Array.isArray(old)){
-      //         new_payload[key] = old[index]
-      //       }
-      //       else{
-      //         new_payload[key] = Object.clone(old)
-      //       }
-      //     }
-      //
-      //
-      //   }.bind(this))
-      //
-      //   this.add_chart_stat(payload.name+'_'+index)
-      //
-      //   this.$set(this.stats_merged[payload.name].data, index, this.stats[payload.name+'_'+index])
-      //
-      //   this.__get_stat_for_chart(new_payload)
-      //
-      //
-      // }.bind(this))
-
-      // console.log('__get_stat_for_merged_chart', payload)
-
       let {name, stat, pipeline} = payload
+
+      /**
+      * if stat is not array convert it, so we can manage both cases with the same code
+      **/
+      if(!Array.isArray(stat))
+        stat = [stat]
 
       this.add_chart_stat(name)
 
-      let _merge_docs_data = function(a, b){
-        console.log('_merge_docs_data', a,b )
-        let merged = Array.clone(a)
-        for(let i = 1; i < b.length; i++){//ommit timestamp
-            merged.push(b[i])
-        }
-        return merged
-      }
-
+      /**
+      * buffer for _merge_stats
+      **/
       let buffer = {}
       let buffer_length = stat.length
-      let _merge_stats = function(name, indexed_name, data, splice){
-
-        buffer[indexed_name] = data
-        if(Object.getLength(buffer) == buffer_length){
-          let merged = undefined
-          let counter = 0
-          Object.each(buffer, function(doc, name){
-            if(name.indexOf('0') > -1)
-              if(Array.isArray(doc)){
-                merged = Array.clone(doc)
-              }
-              else{
-                merged = Object.clone(doc)
-              }
-          })
-
-          Object.each(buffer, function(doc, name){
-            if(name.indexOf('0') == -1){
-              if(Array.isArray(merged)){
-
-                let to_merge = []
-                if(!Array.isArray(doc)){
-                  to_merge = [doc]
-                }
-                else{
-                  to_merge = Array.clone(doc)
-                }
-
-                Array.each(merged, function(row, index){
-
-                  let found = false
-                  Array.each(to_merge, function(to_merge_row){
-                    if(found == false && row.metadata.timestamp == to_merge_row.metadata.timestamp){
-                      merged[index].data = _merge_docs_data(row.data, to_merge_row.data)
-                      found = true
-                    }
-                  })
-
-
-                })
-              }
-              else{
-                // Array.each(buffer, function(stat, index){
-                  // console.log('DOC', doc)
-                  merged.data = _merge_docs_data(merged.data, doc.data)
-                  // for(let i = 1; i < stat.data.length; i++){
-                  //     merged.data.push(stat.data[i])
-                  // }
-
-                // })
-
-              }
-            }
-            counter++
-          })
-
-
-          // this.__update_chart_stat(name, merged, splice)
-
-          // Array.each(merged, function(merged_row, merged_row_index){
-          //   Array.each(buffer, function(stat, index){
-          //     if(index != 0){//0 = merged, ommit
-          //       let found = false
-          //       Array.each(stat, function(stat_row, stat_row_index){
-          //         if(found == false && merged_row[0] == stat_row[0]){//0 = timestamp of each row
-          //           for(let i = 1; i < stat_row.length; i++)
-          //           merged_row.push(stat_row[i])
-          //           found = true
-          //         }
-          //       })
-          //     }
-          //   })
-          //
-          // })
-
-          this.__update_chart_stat(name, merged, splice)
-
-          buffer = {}
-          console.log('_merge_stats', name, merged)
-        }
-      }.bind(this)
 
       Array.each(stat, function(stat, index){
-        console.log('__get_stat_for_merged_chart', stat)
+        // console.log('__get_stat_for_merged_chart', stat)
 
         let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
         let tabular = (stat.tabular) ? stat.tabular : false
@@ -1832,7 +1722,15 @@ export default {
             // if(this.visibility[payload.name] === true)
 
             // this.__update_chart_stat(payload.name, doc.value, payload.stat.length)
-            _merge_stats(name, indexed_name, doc.value, payload.stat.length)
+            // this._merge_stats(buffer, buffer_length, name, indexed_name, doc.value, payload.stat.length)
+            buffer = this._merge_stats({
+              buffer: buffer,
+              length: buffer_length,
+              stat_name: name,
+              data_name: indexed_name,
+              data: doc.value,
+              splice: payload.stat.length
+            })
           }
         }
 
@@ -1887,7 +1785,14 @@ export default {
 
               console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
 
-              _merge_stats(name, indexed_name, all_stats, range_length)
+              buffer = this._merge_stats({
+                buffer: buffer,
+                length: buffer_length,
+                stat_name: name,
+                data_name: indexed_name,
+                data: all_stats,
+                splice: range_length
+              })
               // this.__update_chart_stat(name, all_stats, range_length)
 
               Vue.nextTick(this.add_watcher(indexed_payload))
@@ -1907,7 +1812,75 @@ export default {
 
 
     },
+    _merge_stats: function(payload){
+      let {buffer, length, stat_name, data_name, data, splice} = payload
 
+      buffer[data_name] = data
+      if(Object.getLength(buffer) == length){
+        let merged = undefined
+        // let counter = 0
+        Object.each(buffer, function(doc, name){
+          if(name.indexOf('0') > -1)
+            if(Array.isArray(doc)){
+              merged = Array.clone(doc)
+            }
+            else{
+              merged = Object.clone(doc)
+            }
+        })
+
+        Object.each(buffer, function(doc, name){
+          if(name.indexOf('0') == -1){
+            if(Array.isArray(merged)){
+
+              let to_merge = []
+              if(!Array.isArray(doc)){
+                to_merge = [doc]
+              }
+              else{
+                to_merge = Array.clone(doc)
+              }
+
+              Array.each(merged, function(row, index){
+
+                let found = false
+                Array.each(to_merge, function(to_merge_row){
+                  if(found == false && row.metadata.timestamp == to_merge_row.metadata.timestamp){
+                    merged[index].data = this._merge_tabular_data(row.data, to_merge_row.data)
+                    found = true
+                  }
+                }.bind(this))
+
+              }.bind(this))
+            }
+            else{
+
+              merged.data = this._merge_tabular_data(merged.data, doc.data)
+
+            }
+          }
+          // counter++
+        }.bind(this))
+
+        this.__update_chart_stat(stat_name, merged, splice)
+
+        buffer = {}
+        console.log('_merge_stats', stat_name, merged)
+      }
+
+      return buffer
+    },
+    /**
+    * merge second doc.data (ommiting [0] possition, timestamp) on first one
+    **/
+    _merge_tabular_data: function(a, b){
+
+      let merged = Array.clone(a)
+      for(let i = 1; i < b.length; i++){//ommit timestamp
+          merged.push(b[i])
+      }
+      return merged
+    },
     __get_stat_for_chart: function(payload){
       console.log('__get_stat_for_chart', payload)
 
