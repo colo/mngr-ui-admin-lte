@@ -68,8 +68,17 @@ export default {
       // if(options.clean && options.clean == true)
       //   this.$set(this.stats, name, undefined)
 
-      if(options.unwatch && options.unwatch == true)
-        this.remove_watcher(name)
+      if(options.unwatch && options.unwatch == true){
+        if(Array.isArray(this.available_charts[name].stat)){
+          Array.each(this.available_charts[name].stat, function(stat, index){
+            let indexed_name = name+'_'+index
+            this.remove_watcher(indexed_name)
+          }.bind(this))
+        }
+        else{
+          this.remove_watcher(name)
+        }
+      }
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
