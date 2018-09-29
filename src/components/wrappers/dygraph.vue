@@ -80,22 +80,22 @@ export default {
   watch: {
     visible: function (val) {
       this.container_class_helper = (val == false) ? 'invisible' : ''
-      // ////console.log('class visible', val, this.container_class_helper)
+      // //////console.log('class visible', val, this.container_class_helper)
     }
   },
 
   created () {
-    ////console.log('created', this.id, this.stat.data)
+    //////console.log('created', this.id, this.stat.data)
     // this.$set(stat, 'data', [[]])
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
       EventBus.$on('highlightCallback', params => {
         this.highlighted = true
-        // ////////console.log('event highlightCallback', params)
+        // //////////console.log('event highlightCallback', params)
   		})
       EventBus.$on('unhighlightCallback', event => {
         this.highlighted = false
-        // ////////console.log('event unhighlightCallback', event)
+        // //////////console.log('event unhighlightCallback', event)
   		})
     }
 
@@ -112,7 +112,7 @@ export default {
     let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 
 
-      console.log('updated data dygraph', this.id, this.stat.data)
+      //console.log('updated data dygraph', this.id, this.stat.data)
 
       // if(val.length > 1 && this.chart == null){
       if(val.length > 1){
@@ -167,10 +167,10 @@ export default {
         this.__create_dygraph()
     },
     destroy: function(){
-      //console.log('dygraph destroy', this.id)
+      ////console.log('dygraph destroy', this.id)
 
       if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
-        // ////console.log('destroying ...', this.id)
+        // //////console.log('destroying ...', this.id)
         this.$options.graph.destroy()
 
       }
@@ -184,7 +184,7 @@ export default {
 
     },
     create (){
-      // //console.log('dygraph __watcher', this.stat.data, this.stat.data.length)
+      // ////console.log('dygraph __watcher', this.stat.data, this.stat.data.length)
       // if(this.$options.__unwatcher){
       //   this.$options.__unwatcher()//unwatch
       //   this.$options.__unwatcher = undefined
@@ -196,7 +196,7 @@ export default {
       // this.$options.__unwatcher = this.$watch('stat.data', function (val, old) {
       //
       //
-      //   //console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
+      //   ////console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
       //
       //   // if(val.length > 1 && this.chart == null){
       //   if(this.stat.data.length >= 1){
@@ -241,7 +241,7 @@ export default {
         //   data.push(row)
         // })
 
-        //console.log('__create_dygraph', data, options.labels)
+        ////console.log('__create_dygraph', data, options.labels)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div
@@ -250,7 +250,7 @@ export default {
         )
 
         this.$options.graph.ready(function(){
-          // ////////console.log('chart '+this.id+' ready')
+          // //////////console.log('chart '+this.id+' ready')
           this.ready = true
         }.bind(this))
 
@@ -274,12 +274,12 @@ export default {
     },
     update (data){
       data = this._get_data(data)
-      // console.log('dygraph update', this.id, data)
+      // //console.log('dygraph update', this.id, data)
 
       if(this.$options.visible == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
         if(this.focus === true){
-          //console.log('focus, frameDebounce...')
+          ////console.log('focus, frameDebounce...')
           frameDebounce(
             this.updateOptions(
               data,
@@ -290,7 +290,7 @@ export default {
           )
         }
         else{
-          //console.log('no focus, forcing...', new Date())
+          ////console.log('no focus, forcing...', new Date())
           this.updateOptions(
             data,
             // {},
@@ -305,7 +305,7 @@ export default {
       }
     },
     updateOptions (data, options, block_redraw){
-      //console.log('updateOptions', data, this.ready)
+      ////console.log('updateOptions', data, this.ready)
       // let self = this
 
       if(

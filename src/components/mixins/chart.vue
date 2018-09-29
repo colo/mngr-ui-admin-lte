@@ -88,7 +88,7 @@ export default {
   },
   methods: {
     destroy: function(){
-      //console.log('destroy  chart vue', this.id)
+      console.log('destroy  chart vue', this.id)
 
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
@@ -96,7 +96,7 @@ export default {
       this.$set(this.tabular, 'data', [[]])
 
       // this.$refs[this.id].destroy()
-      this.$options.__chart_init == false
+      this.$options.__chart_init = false
 
     },
     __create_watcher(name, chart){},
@@ -106,6 +106,8 @@ export default {
     **/
     visibilityChanged (isVisible, entry) {
       this.$options.visible = isVisible
+      // if(isVisible == false)
+      //   this.$destroy()
     },
   }
 }

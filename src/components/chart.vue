@@ -12,9 +12,27 @@ export default {
 
   name: 'chart',
 
-
+  // updated () {
+  //   if(this.stat.data.length > 0)
+  //     this.__process_stat(this.chart, this.id, this.stat.data)
+  // },
   methods: {
+    visibilityChanged (isVisible, entry) {
+      if(
+        isVisible == true
+      ){
+          // this.__process_stat(this.chart, this.id, this.stat.data)
+          this.create()
+      }
+      else{
+        this.destroy()
+      }
+      
+      this.$options.visible = isVisible
+    },
+
     create (){
+      console.log('chart.vue create', this.id)
 
       let unwatch = this.$watch('stat.data', function (val, old) {
 
@@ -91,7 +109,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_chart (chart, name, stat){
-      //console.log('__process_chart', this.stat.data, name, stat)
+      console.log('__process_chart', this.stat.data, name, stat)
 
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
@@ -146,7 +164,7 @@ export default {
 
     update_chart_stat (name, data){
 
-      // //console.log('update_chart_stat visibility', name, data)
+      console.log('update_chart_stat visibility', name, data)
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
@@ -172,6 +190,8 @@ export default {
           //   )
 
           data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+
+          // console.log('update_chart_stat visibility', name, data)
 
           this.$set(this.tabular, 'data', data)
 

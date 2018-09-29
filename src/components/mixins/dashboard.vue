@@ -49,7 +49,7 @@ export default {
       if(watch == true && watcher)
         this.add_watcher(payload)
 
-      //console.log('add_chart', name)
+      ////console.log('add_chart', name)
 
       // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
 
@@ -63,7 +63,7 @@ export default {
       if(this.available_charts[name] && this.available_charts[name].stop && typeof this.available_charts[name].stop == 'function')
         this.available_charts[name].stop(this.available_charts[name])
 
-      this.$set(this.charts, name, undefined)
+      this.$delete(this.charts, name)
 
       // if(options.clean && options.clean == true)
       //   this.$set(this.stats, name, undefined)
@@ -82,7 +82,7 @@ export default {
 
       // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
 
-      //console.log('remove_chart', name)
+      ////console.log('remove_chart', name)
     },
     remove_charts: function(options){
       Object.each(this.charts, function(chart, name){
@@ -90,7 +90,7 @@ export default {
       }.bind(this))
     },
     remove_watcher: function(name){
-      //console.log('remove_watcher', name)
+      ////console.log('remove_watcher', name)
 
       if(this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name]()
@@ -102,7 +102,7 @@ export default {
       this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
     },
     remove_chart_stat: function (name){
-      this.$set(this.stats, name, undefined)
+      this.$delete(this.stats, name)
     },
     remove_chart_stats: function(){
       // Object.each(this.stats, function(stat, name){
@@ -112,12 +112,12 @@ export default {
     },
     add_watcher: function(payload){
       let {name, watcher} = payload
-      // //console.log('add_watcher', name, watch)
+      // ////console.log('add_watcher', name, watch)
 
       this.remove_watcher(name)
       // if(!this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
-          // //console.log('add_watcher', name)
+          // ////console.log('add_watcher', name)
           if(watcher.cb)
             watcher.cb(doc, old, payload)
 
@@ -130,7 +130,7 @@ export default {
     * @move to stat mixin
     **/
     __get_stat: function(payload, cb){
-      ////console.log('__get_stat', payload)
+      //////console.log('__get_stat', payload)
       if(payload.tabular == true){
         this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
       }
@@ -198,7 +198,7 @@ export default {
           }
         // }
 
-        console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
+        //console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
 
         this.stats[name].lastupdate = Date.now()
       }
@@ -211,13 +211,13 @@ export default {
     * UI
     **/
     showCollapsible (collapsible){
-      ////console.log('showCollapsible', collapsible)
+      //////console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
 
     },
     hideCollapsible (collapsible){
-      ////console.log('hideCollapsible', collapsible)
+      //////console.log('hideCollapsible', collapsible)
       // let name = collapsible.replace('-collapsible', '')
       // this.$options.has_no_data[name] = 61
       // this.$set(this.hide, name, true)
