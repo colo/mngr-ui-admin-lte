@@ -80,9 +80,10 @@ export default {
         }
       }
 
-      // if(this.$refs[name] && typeof this.$refs[name].destroy == 'function' ) this.$refs[name].destroy()
+      if(this.$refs[name] && this.$refs[name][0] && typeof this.$refs[name][0].reset == 'function' )
+        this.$refs[name][0].reset()
 
-      ////console.log('remove_chart', name)
+      console.log('remove_chart', name, this.$refs[name])
     },
     remove_charts: function(options){
       Object.each(this.charts, function(chart, name){

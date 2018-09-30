@@ -18,16 +18,16 @@ export default {
   // },
   methods: {
     visibilityChanged (isVisible, entry) {
-      if(
-        isVisible == true
-      ){
-          // this.__process_stat(this.chart, this.id, this.stat.data)
-          this.create()
-      }
-      else{
-        this.destroy()
-      }
-      
+      // if(
+      //   isVisible == true
+      // ){
+      //     // this.__process_stat(this.chart, this.id, this.stat.data)
+      //     this.create()
+      // }
+      // else{
+      //   this.destroy()
+      // }
+
       this.$options.visible = isVisible
     },
 
@@ -146,7 +146,7 @@ export default {
               data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
             }
             else{//send last only
-              //console.log('generic_data_watcher send last', name, current)
+              // console.log('generic_data_watcher send last', name, current)
               data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
             }
 
@@ -164,7 +164,7 @@ export default {
 
     update_chart_stat (name, data){
 
-      console.log('update_chart_stat visibility', name, data)
+      // console.log('update_chart_stat visibility', name, data)
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){

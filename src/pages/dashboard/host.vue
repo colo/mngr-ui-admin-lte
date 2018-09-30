@@ -684,103 +684,103 @@ export default {
       /**
       * remove for testing
       **/
-      // let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
-      // Array.each(merged_chart.options.labels, function(label, index){
-      //   merged_chart.options.labels[index] = 'cpus times '+label
-      // })
-      // merged_chart.options.labels.push('uptime seconds')
-      //
-      // this.available_charts[this.host+'_merged'] = {
-      //   name: this.host+'_merged',
-      //   // chart: [
-      //   //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-      //   //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
-      //   // ],
-      //   chart: merged_chart,
-      //   stop: function(payload){
-      //     Array.each(payload.stat, function(stat){
-      //       this.$store.dispatch('stats_tabular/flush', stat)
-      //     }.bind(this))
-      //
-      //     // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //   }.bind(this),
-      //   stat: [
-      //     {
-      //       host: this.host,
-      //       path: 'cpus_times',
-      //       key: 'os_cpus',
-      //       length: this.seconds || 300,
-      //       tabular: true
-      //       // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //     },
-      //     {
-      //       host: this.host,
-      //       path: 'uptime',
-      //       key: 'os_uptime',
-      //       length: this.seconds || 300,
-      //       tabular: true
-      //       // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //     }
-      //   ],
-      //   /**
-      //   * for __get_stat_for_chart
-      //   **/
-      //   pipeline: {
-      //     name: 'input.os',
-      //     path: 'os',
-      //     range: true
-      //   }
-      // }
-      //
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
+      let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
+      Array.each(merged_chart.options.labels, function(label, index){
+        merged_chart.options.labels[index] = 'cpus times '+label
+      })
+      merged_chart.options.labels.push('uptime seconds')
 
-      // this.available_charts[this.host+'_os_cpus_times'] = Object.merge(
-      //   this.get_payload(charts_payloads,{
-      //     name: 'os_cpus_times',
-      //     host: this.host,
-      //     seconds: this.seconds
-      //   }),
-      //   {
-      //     wrapper: {
-      //       type: 'dygraph',
-      //       props: {}
-      //     },
-      //     chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-      //     stop: function(payload){
-      //       //////console.log('stoping _os_cpus_times', payload.stat)
-      //       this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //
-      //       // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //     }.bind(this),
-      //     pipeline: {
-      //       range: true
-      //     }
-      //   }
-      // )
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
+      this.available_charts[this.host+'_merged'] = {
+        name: this.host+'_merged',
+        // chart: [
+        //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+        //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
+        // ],
+        chart: merged_chart,
+        stop: function(payload){
+          Array.each(payload.stat, function(stat){
+            this.$store.dispatch('stats_tabular/flush', stat)
+          }.bind(this))
+
+          // this.$store.dispatch('stats_tabular/splice', payload.stat)
+        }.bind(this),
+        stat: [
+          {
+            host: this.host,
+            path: 'cpus_times',
+            key: 'os_cpus',
+            length: this.seconds || 300,
+            tabular: true
+            // range: [Date.now() - this.seconds * 1000, Date.now()]
+          },
+          {
+            host: this.host,
+            path: 'uptime',
+            key: 'os_uptime',
+            length: this.seconds || 300,
+            tabular: true
+            // range: [Date.now() - this.seconds * 1000, Date.now()]
+          }
+        ],
+        /**
+        * for __get_stat_for_chart
+        **/
+        pipeline: {
+          name: 'input.os',
+          path: 'os',
+          range: true
+        }
+      }
+
+      this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
+
+      this.available_charts[this.host+'_os_cpus_times'] = Object.merge(
+        this.get_payload(charts_payloads,{
+          name: 'os_cpus_times',
+          host: this.host,
+          seconds: this.seconds
+        }),
+        {
+          wrapper: {
+            type: 'dygraph',
+            props: {}
+          },
+          chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+          stop: function(payload){
+            //////console.log('stoping _os_cpus_times', payload.stat)
+            this.$store.dispatch('stats_tabular/flush', payload.stat)
+
+            // this.$store.dispatch('stats_tabular/splice', payload.stat)
+          }.bind(this),
+          pipeline: {
+            range: true
+          }
+        }
+      )
+      this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
 
 
-      // this.available_charts[this.host+'_os_cpus_percentage'] = Object.merge(
-      //   this.get_payload(charts_payloads,{
-      //     name: 'os_cpus_percentage',
-      //     host: this.host,
-      //     seconds: this.seconds
-      //   }),
-      //   {
-      //     wrapper: {
-      //       type: 'dygraph',
-      //       props: {}
-      //     },
-      //     chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
-      //     stop: function(payload){
-      //       this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //       // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //     }.bind(this),
-      //   }
-      // )
-      //
-      //
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_percentage'])
+      this.available_charts[this.host+'_os_cpus_percentage'] = Object.merge(
+        this.get_payload(charts_payloads,{
+          name: 'os_cpus_percentage',
+          host: this.host,
+          seconds: this.seconds
+        }),
+        {
+          wrapper: {
+            type: 'dygraph',
+            props: {}
+          },
+          chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
+          stop: function(payload){
+            this.$store.dispatch('stats_tabular/flush', payload.stat)
+            // this.$store.dispatch('stats_tabular/splice', payload.stat)
+          }.bind(this),
+        }
+      )
+
+
+      this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_percentage'])
 
       /**
       * remove for testing
@@ -890,164 +890,164 @@ export default {
       /**
       * remove for testing
       **/
-      // this.available_charts[this.host+'_os_cpus_percentage_gauge'] = Object.merge(
-      //   this.get_payload(charts_payloads,{
-      //     name: 'os_cpus_percentage',
-      //     host: this.host,
-      //     seconds: 1
-      //   }),
-      //   {
-      //     name: this.host+'_os_cpus_percentage_gauge',
-      //     chart: highchartsVueGauge,
-      //     init: this.__get_stat_for_chart.bind(this),
-      //     stop: function(payload){
-      //       this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //     }.bind(this),
-      //     pipeline: {
-      //       range: true
-      //     }
-      //   }
-      // )
+      this.available_charts[this.host+'_os_cpus_percentage_gauge'] = Object.merge(
+        this.get_payload(charts_payloads,{
+          name: 'os_cpus_percentage',
+          host: this.host,
+          seconds: 1
+        }),
+        {
+          name: this.host+'_os_cpus_percentage_gauge',
+          chart: highchartsVueGauge,
+          init: this.__get_stat_for_chart.bind(this),
+          stop: function(payload){
+            this.$store.dispatch('stats_tabular/flush', payload.stat)
+          }.bind(this),
+          pipeline: {
+            range: true
+          }
+        }
+      )
 
 
 
-      // this.available_charts[this.host+'_os_uptime'] = Object.merge(
-      //   this.get_payload(charts_payloads,{
-      //     name: 'os_uptime',
-      //     host: this.host,
-      //     seconds: this.seconds
-      //   }),
-      //   {
-      //     wrapper: {
-      //       type: 'dygraph',
-      //       props: {}
-      //     },
-      //     chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
-      //     stop: function(payload){
-      //       this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //       // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //     }.bind(this),
-      //   }
-      // )
-      //
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_uptime'])
+      this.available_charts[this.host+'_os_uptime'] = Object.merge(
+        this.get_payload(charts_payloads,{
+          name: 'os_uptime',
+          host: this.host,
+          seconds: this.seconds
+        }),
+        {
+          wrapper: {
+            type: 'dygraph',
+            props: {}
+          },
+          chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
+          stop: function(payload){
+            this.$store.dispatch('stats_tabular/flush', payload.stat)
+            // this.$store.dispatch('stats_tabular/splice', payload.stat)
+          }.bind(this),
+        }
+      )
 
-      //
-      // this.available_charts[this.host+'_os_loadavg'] = Object.merge(
-      //   this.get_payload(charts_payloads,{
-      //     name: 'os_loadavg',
-      //     host: this.host,
-      //     seconds: this.seconds
-      //   }),
-      //   {
-      //     wrapper: {
-      //       type: 'dygraph',
-      //       props: {}
-      //     },
-      //     chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
-      //     stop: function(payload){
-      //       this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //       // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //     }.bind(this),
-      //   }
-      // )
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_loadavg'])
-      //
-      // let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
-      //
-      //   // ////////console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
-      //
-      //   if(val !== undefined && Object.getLength(val) > 0){
-      //
-      //     let dev_counter = 0
-      //     Object.each(val, function(dev, key){
-      //       ////////console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
-      //       let chart_name = this.host+'_os_blockdevices_stats_'+key
-      //
-      //       this.available_charts[chart_name] = Object.merge(
-      //         Object.clone(this.get_payload(charts_payloads,{
-      //           name: 'os_blockdevices_stats',
-      //           host: this.host,
-      //           seconds: this.seconds
-      //         })),
-      //         Object.clone({
-      //           wrapper: {
-      //             type: 'dygraph',
-      //             props: {}
-      //           },
-      //           name: chart_name,
-      //           chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.$options.charts_objects['blockdevices_stats'])),
-      //           stop: function(payload){
-      //             this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //             // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //           }.bind(this),
-      //           stat: {
-      //             key: 'os_blockdevices_'+key,
-      //           },
-      //           pipeline: {
-      //             range: (dev_counter == Object.getLength(val) -1 ) ? true : false
-      //           }
-      //         })
-      //       )
-      //
-      //       this.__get_stat_for_chart(this.available_charts[chart_name])
-      //       dev_counter++
-      //
-      //     }.bind(this))
-      //
-      //     unwatch_blockdevices()
-      //   }
-      // }.bind(this),{
-      //   deep:true
-      // })
-      //
+      this.__get_stat_for_chart(this.available_charts[this.host+'_os_uptime'])
 
-      // let unwatch_mounts = this.$watch('mounts', function(val, old){
-      //
-      //   // ////////console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
-      //
-      //   if(val !== undefined && Object.getLength(val) > 0){
-      //
-      //     let mount_counter = 0
-      //     Object.each(val, function(mount, key){
-      //       ////////console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
-      //       let chart_name = this.host+'_os_mounts_percentage_'+key
-      //
-      //       this.available_charts[chart_name] = Object.clone(Object.merge(
-      //         this.get_payload(charts_payloads,{
-      //           name: 'os_mounts_percentage',
-      //           host: this.host,
-      //           seconds: this.seconds
-      //         }),
-      //         {
-      //           wrapper: {
-      //             type: 'dygraph',
-      //             props: {}
-      //           },
-      //           name: chart_name,
-      //           chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.$options.charts_objects['mounts_percentage'])),
-      //           stop: function(payload){
-      //             this.$store.dispatch('stats_tabular/flush', payload.stat)
-      //             // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //           }.bind(this),
-      //           stat: {
-      //             key: 'os_mounts_'+key,
-      //           },
-      //           pipeline: {
-      //             range: (mount_counter == Object.getLength(val) -1 ) ? true : false
-      //           }
-      //         }
-      //       ))
-      //       this.__get_stat_for_chart(this.available_charts[chart_name])
-      //
-      //       mount_counter++
-      //     }.bind(this))
-      //
-      //     unwatch_mounts()
-      //   }
-      // }.bind(this),{
-      //   deep:true
-      // })
+
+      this.available_charts[this.host+'_os_loadavg'] = Object.merge(
+        this.get_payload(charts_payloads,{
+          name: 'os_loadavg',
+          host: this.host,
+          seconds: this.seconds
+        }),
+        {
+          wrapper: {
+            type: 'dygraph',
+            props: {}
+          },
+          chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
+          stop: function(payload){
+            this.$store.dispatch('stats_tabular/flush', payload.stat)
+            // this.$store.dispatch('stats_tabular/splice', payload.stat)
+          }.bind(this),
+        }
+      )
+      this.__get_stat_for_chart(this.available_charts[this.host+'_os_loadavg'])
+
+      let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
+
+        // ////////console.log('$watch blockdevices ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+        if(val !== undefined && Object.getLength(val) > 0){
+
+          let dev_counter = 0
+          Object.each(val, function(dev, key){
+            ////////console.log('adding blockdevice chart '+this.host+'_os_blockdevices_stats_'+key)
+            let chart_name = this.host+'_os_blockdevices_stats_'+key
+
+            this.available_charts[chart_name] = Object.merge(
+              Object.clone(this.get_payload(charts_payloads,{
+                name: 'os_blockdevices_stats',
+                host: this.host,
+                seconds: this.seconds
+              })),
+              Object.clone({
+                wrapper: {
+                  type: 'dygraph',
+                  props: {}
+                },
+                name: chart_name,
+                chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.$options.charts_objects['blockdevices_stats'])),
+                stop: function(payload){
+                  this.$store.dispatch('stats_tabular/flush', payload.stat)
+                  // this.$store.dispatch('stats_tabular/splice', payload.stat)
+                }.bind(this),
+                stat: {
+                  key: 'os_blockdevices_'+key,
+                },
+                pipeline: {
+                  range: (dev_counter == Object.getLength(val) -1 ) ? true : false
+                }
+              })
+            )
+
+            this.__get_stat_for_chart(this.available_charts[chart_name])
+            dev_counter++
+
+          }.bind(this))
+
+          unwatch_blockdevices()
+        }
+      }.bind(this),{
+        deep:true
+      })
+
+
+      let unwatch_mounts = this.$watch('mounts', function(val, old){
+
+        // ////////console.log('$watch mounts ', JSON.parse(JSON.stringify(val)), Object.getLength(val) )
+
+        if(val !== undefined && Object.getLength(val) > 0){
+
+          let mount_counter = 0
+          Object.each(val, function(mount, key){
+            ////////console.log('adding mount chart '+this.host+'_os_mounts_percentage_'+key)
+            let chart_name = this.host+'_os_mounts_percentage_'+key
+
+            this.available_charts[chart_name] = Object.clone(Object.merge(
+              this.get_payload(charts_payloads,{
+                name: 'os_mounts_percentage',
+                host: this.host,
+                seconds: this.seconds
+              }),
+              {
+                wrapper: {
+                  type: 'dygraph',
+                  props: {}
+                },
+                name: chart_name,
+                chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.$options.charts_objects['mounts_percentage'])),
+                stop: function(payload){
+                  this.$store.dispatch('stats_tabular/flush', payload.stat)
+                  // this.$store.dispatch('stats_tabular/splice', payload.stat)
+                }.bind(this),
+                stat: {
+                  key: 'os_mounts_'+key,
+                },
+                pipeline: {
+                  range: (mount_counter == Object.getLength(val) -1 ) ? true : false
+                }
+              }
+            ))
+            this.__get_stat_for_chart(this.available_charts[chart_name])
+
+            mount_counter++
+          }.bind(this))
+
+          unwatch_mounts()
+        }
+      }.bind(this),{
+        deep:true
+      })
 
       // Object.each(this.$options.charts, function(chart, id){
       //   this.add_chart(chart, id)
@@ -1097,161 +1097,161 @@ export default {
     /**
     * remove for testing
     **/
-    // let unwatch_freemem = this.$watch('os_stats', (val, old) => {
-    //
-    //   if(this.os_stats.totalmem && this.os_stats.totalmem.value){
-    //   //console.log('this.os_stats.totalmem', this.os_stats.totalmem)
-    //     this.available_charts[this.host+'_os_freemem'] = Object.merge(
-    //       this.get_payload(charts_payloads,{
-    //         name: 'os_freemem',
-    //         host: this.host,
-    //         seconds: this.seconds
-    //       }),
-    //       {
-    //         wrapper: {
-    //           type: 'dygraph',
-    //           props: {}
-    //         },
-    //         chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.os_stats.totalmem.value.data}),
-    //         stop: function(payload){
-    //           this.$store.dispatch('stats_tabular/flush', payload.stat)
-    //           // this.$store.dispatch('stats_tabular/splice', payload.stat)
-    //         }.bind(this),
-    //         pipeline: {
-    //           range: true
-    //         }
-    //       }
-    //     )
-    //     this.__get_stat_for_chart(this.available_charts[this.host+'_os_freemem'])
-    //
-    //     /**
-    //     * pie
-    //     **/
-    //     // this.available_charts[this.host+'_os_freemem_pie'] = {
-    //     //   name: this.host+'_os_freemem_pie',
-    //     //   chart: Object.merge(Object.clone(pie_chart), {
-    //     //     totalmem: this.os_stats.totalmem.value.data,
-    //     //     watch: {
-    //     //       /**
-    //     //       * @trasnform: diff between each value against its prev one
-    //     //       */
-    //     //       transform: function(values, caller, chart){
-    //     //         let last = values[values.length - 1]
-    //     //         last.value = last.value * 100 / chart.totalmem
-    //     //         // //console.log('_os_freemem_pie transform', values, chart.totalmem, last)
-    //     //         return values
-    //     //       }
-    //     //     },
-    //     //     options:{
-    //     //       // 'track-color': false,
-    //     //       size: 80,
-    //     //       // animated: false,
-    //     //       'font-size': '14px',
-    //     //       "bar-color": function(percentage){
-    //     //         if(percentage > 0 && percentage < 33){
-    //     //           return '#ff704d'
-    //     //         }
-    //     //         else if(percentage > 33 && percentage < 66){
-    //     //           return '#f6d95b'
-    //     //         }
-    //     //         else{
-    //     //           return '#86b300'
-    //     //         }
-    //     //       }
-    //     //     }
-    //     //   }),
-    //     //   init: this.__get_stat_for_chart.bind(this),
-    //     //   stop: function(payload){
-    //     //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
-    //     //   }.bind(this),
-    //     //   stat: {
-    //     //     host: this.host,
-    //     //     path: 'os',
-    //     //     key: 'freemem',
-    //     //     length: 1,
-    //     //     // tabular:true
-    //     //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-    //     //   },
-    //     //   pipeline: {
-    //     //     name: 'input.os',
-    //     //     path: 'os',
-    //     //     range: true
-    //     //   }
-    //     // }
-    //
-    //     /**
-    //     * knob
-    //     */
-    //     // this.available_charts[this.host+'_os_freemem_knob'] = {
-    //     //   name: this.host+'_os_freemem_knob',
-    //     //   chart: Object.merge(Object.clone(jqueryKnob), {
-    //     //     totalmem: this.os_stats.totalmem.value.data,
-    //     //     watch: {
-    //     //       /**
-    //     //       * @trasnform: diff between each value against its prev one
-    //     //       */
-    //     //       transform: function(values, caller, chart){
-    //     //         let last = values[values.length - 1]
-    //     //         last.value = last.value * 100 / chart.totalmem
-    //     //         // //console.log('_os_freemem_knob transform', values, chart.totalmem, last)
-    //     //         return values
-    //     //       }
-    //     //     },
-    //     //     options:{
-    //     //       readOnly: true,
-    //     //       displayPrevious: true,
-    //     //       thickness: 0.1,
-    //     //       width: 80,
-    //     //       skin: 'tron',
-    //     //       // bgColor: 'black',
-    //     //       fgColor: function(percentage){
-    //     //         if(percentage > 0 && percentage < 33){
-    //     //           return '#ff704d'
-    //     //         }
-    //     //         else if(percentage > 33 && percentage < 66){
-    //     //           return '#f6d95b'
-    //     //         }
-    //     //         else{
-    //     //           return '#86b300'
-    //     //         }
-    //     //       },
-    //     //       inputColor: function(percentage){
-    //     //         if(percentage > 0 && percentage < 33){
-    //     //           return '#ff704d'
-    //     //         }
-    //     //         else if(percentage > 33 && percentage < 66){
-    //     //           return '#f6d95b'
-    //     //         }
-    //     //         else{
-    //     //           return '#86b300'
-    //     //         }
-    //     //       }
-    //     //     }
-    //     //   }),
-    //     //   init: this.__get_stat_for_chart.bind(this),
-    //     //   stop: function(payload){
-    //     //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
-    //     //   }.bind(this),
-    //     //   stat: {
-    //     //     host: this.host,
-    //     //     path: 'os',
-    //     //     key: 'freemem',
-    //     //     length: 1,
-    //     //     // tabular:true
-    //     //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-    //     //   },
-    //     //   pipeline: {
-    //     //     name: 'input.os',
-    //     //     path: 'os',
-    //     //     range: true
-    //     //   }
-    //     // }
-    //
-    //     unwatch_freemem()
-    //   }
-    // },{
-    //   deep: true
-    // })
+    let unwatch_freemem = this.$watch('os_stats', (val, old) => {
+
+      if(this.os_stats.totalmem && this.os_stats.totalmem.value){
+      //console.log('this.os_stats.totalmem', this.os_stats.totalmem)
+        this.available_charts[this.host+'_os_freemem'] = Object.merge(
+          this.get_payload(charts_payloads,{
+            name: 'os_freemem',
+            host: this.host,
+            seconds: this.seconds
+          }),
+          {
+            wrapper: {
+              type: 'dygraph',
+              props: {}
+            },
+            chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.os_stats.totalmem.value.data}),
+            stop: function(payload){
+              this.$store.dispatch('stats_tabular/flush', payload.stat)
+              // this.$store.dispatch('stats_tabular/splice', payload.stat)
+            }.bind(this),
+            pipeline: {
+              range: true
+            }
+          }
+        )
+        this.__get_stat_for_chart(this.available_charts[this.host+'_os_freemem'])
+
+        /**
+        * pie
+        **/
+        // this.available_charts[this.host+'_os_freemem_pie'] = {
+        //   name: this.host+'_os_freemem_pie',
+        //   chart: Object.merge(Object.clone(pie_chart), {
+        //     totalmem: this.os_stats.totalmem.value.data,
+        //     watch: {
+        //       /**
+        //       * @trasnform: diff between each value against its prev one
+        //       */
+        //       transform: function(values, caller, chart){
+        //         let last = values[values.length - 1]
+        //         last.value = last.value * 100 / chart.totalmem
+        //         // //console.log('_os_freemem_pie transform', values, chart.totalmem, last)
+        //         return values
+        //       }
+        //     },
+        //     options:{
+        //       // 'track-color': false,
+        //       size: 80,
+        //       // animated: false,
+        //       'font-size': '14px',
+        //       "bar-color": function(percentage){
+        //         if(percentage > 0 && percentage < 33){
+        //           return '#ff704d'
+        //         }
+        //         else if(percentage > 33 && percentage < 66){
+        //           return '#f6d95b'
+        //         }
+        //         else{
+        //           return '#86b300'
+        //         }
+        //       }
+        //     }
+        //   }),
+        //   init: this.__get_stat_for_chart.bind(this),
+        //   stop: function(payload){
+        //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
+        //   }.bind(this),
+        //   stat: {
+        //     host: this.host,
+        //     path: 'os',
+        //     key: 'freemem',
+        //     length: 1,
+        //     // tabular:true
+        //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+        //   },
+        //   pipeline: {
+        //     name: 'input.os',
+        //     path: 'os',
+        //     range: true
+        //   }
+        // }
+
+        /**
+        * knob
+        */
+        // this.available_charts[this.host+'_os_freemem_knob'] = {
+        //   name: this.host+'_os_freemem_knob',
+        //   chart: Object.merge(Object.clone(jqueryKnob), {
+        //     totalmem: this.os_stats.totalmem.value.data,
+        //     watch: {
+        //       /**
+        //       * @trasnform: diff between each value against its prev one
+        //       */
+        //       transform: function(values, caller, chart){
+        //         let last = values[values.length - 1]
+        //         last.value = last.value * 100 / chart.totalmem
+        //         // //console.log('_os_freemem_knob transform', values, chart.totalmem, last)
+        //         return values
+        //       }
+        //     },
+        //     options:{
+        //       readOnly: true,
+        //       displayPrevious: true,
+        //       thickness: 0.1,
+        //       width: 80,
+        //       skin: 'tron',
+        //       // bgColor: 'black',
+        //       fgColor: function(percentage){
+        //         if(percentage > 0 && percentage < 33){
+        //           return '#ff704d'
+        //         }
+        //         else if(percentage > 33 && percentage < 66){
+        //           return '#f6d95b'
+        //         }
+        //         else{
+        //           return '#86b300'
+        //         }
+        //       },
+        //       inputColor: function(percentage){
+        //         if(percentage > 0 && percentage < 33){
+        //           return '#ff704d'
+        //         }
+        //         else if(percentage > 33 && percentage < 66){
+        //           return '#f6d95b'
+        //         }
+        //         else{
+        //           return '#86b300'
+        //         }
+        //       }
+        //     }
+        //   }),
+        //   init: this.__get_stat_for_chart.bind(this),
+        //   stop: function(payload){
+        //     // this.$store.dispatch('stats_tabular/flush', payload.stat)
+        //   }.bind(this),
+        //   stat: {
+        //     host: this.host,
+        //     path: 'os',
+        //     key: 'freemem',
+        //     length: 1,
+        //     // tabular:true
+        //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+        //   },
+        //   pipeline: {
+        //     name: 'input.os',
+        //     path: 'os',
+        //     range: true
+        //   }
+        // }
+
+        unwatch_freemem()
+      }
+    },{
+      deep: true
+    })
     /**
     * remove for testing
     **/
@@ -1301,7 +1301,7 @@ export default {
                   //   this.__get_stat_for_chart(payload)
                   // }.bind(this),
                   stop: function(payload){
-                    // this.remove_watcher(payload.name)
+                    this.remove_watcher(payload.name)
                     // this.__update_chart_stat(payload.name, [], 1)
                     this.$store.dispatch('stats_tabular/flush', payload.stat)
                     // this.remove_chart(payload.name, {unwatch: true})
@@ -1313,7 +1313,7 @@ export default {
                     // cb: this.__watcher_callback.bind(this)
                     cb: (doc, old, payload) => {
                       // if(this.visibility[payload.name] === true)
-                      console.log('WATCHER', payload.stat)
+                      // console.log('WATCHER', payload.stat)
                       // let range = payload.stat.range || [Date.now() - payload.stat.length * 1000, Date.now()]
                       //
                       // let range_length = (range) ? Math.trunc((range[1] - range[0] / 1000)) : undefined

@@ -87,13 +87,18 @@ export default {
     this.$off()
   },
   methods: {
+    reset: function(){
+      console.log('chart.vue mixing reset', this.id)
+      this.destroy()
+      this.create()
+    },
     destroy: function(){
-      console.log('destroy  chart vue', this.id)
+      console.log('chart.vue mixing destroy', this.id)
 
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
 
-      this.$set(this.tabular, 'data', [[]])
+      // this.$set(this.tabular, 'data', [[]])
 
       // this.$refs[this.id].destroy()
       this.$options.__chart_init = false
