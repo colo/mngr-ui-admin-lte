@@ -84,6 +84,7 @@ export default {
   // },
   destroyed (){
     this.destroy()
+    this.$delete(this.tabular, 'data')
     this.$off()
   },
   methods: {
@@ -98,7 +99,7 @@ export default {
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
 
-      // this.$set(this.tabular, 'data', [[]])
+      this.$set(this.tabular, 'data', [[]])
 
       // this.$refs[this.id].destroy()
       this.$options.__chart_init = false
@@ -112,7 +113,7 @@ export default {
     visibilityChanged (isVisible, entry) {
       this.$options.visible = isVisible
       // if(isVisible == false)
-      //   this.$destroy()
+      //   this.reset()
     },
   }
 }

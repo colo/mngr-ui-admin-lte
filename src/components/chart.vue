@@ -164,7 +164,7 @@ export default {
 
     update_chart_stat (name, data){
 
-      // console.log('update_chart_stat visibility', name, data)
+      console.log('chart update_chart_stat', this.id, this.$refs[this.id])
 
       if(this.$options.visible && data.length > 0){
         if(data.length == 1){
@@ -198,6 +198,8 @@ export default {
         }
 
         this.tabular.lastupdate = Date.now()
+        if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function')
+          this.$refs[this.id].update(this.tabular.data)
 
         // if(data.length == 1){
         //

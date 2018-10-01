@@ -698,6 +698,7 @@ export default {
         // ],
         chart: merged_chart,
         stop: function(payload){
+
           Array.each(payload.stat, function(stat){
             this.$store.dispatch('stats_tabular/flush', stat)
           }.bind(this))
@@ -1301,7 +1302,9 @@ export default {
                   //   this.__get_stat_for_chart(payload)
                   // }.bind(this),
                   stop: function(payload){
+                    this.remove_chart_stat(payload.name)
                     this.remove_watcher(payload.name)
+                    // this.add_chart_stat(payload.name)
                     // this.__update_chart_stat(payload.name, [], 1)
                     this.$store.dispatch('stats_tabular/flush', payload.stat)
                     // this.remove_chart(payload.name, {unwatch: true})

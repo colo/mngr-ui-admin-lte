@@ -64,14 +64,24 @@ export default {
     // generic_data_watcher: data_to_tabular,
 
     update_chart_stat (data){
-      console.log('chart.tabular update_chart_stat', data)
+      console.log('chart.tabular update_chart_stat', this.id, this.$refs[this.id])
+
 
       if(this.$options.visible && data.length > 0){
         // console.log('update_chart_stat visibility', this.id, data)
         if(data.length == 1){
 
-          this.tabular.data.shift()
-          this.tabular.data.push(data[0])
+          // this.tabular.data.shift()
+          // this.tabular.data.push(data[0])
+          /**
+          * ensures no "glitches" as a point may be in the incorrect posittion
+          */
+          let old_data = Array.clone(this.tabular.data)
+          old_data.shift()
+          old_data.push(data[0])
+          old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          this.$set(this.tabular, 'data', old_data)
+
 
         }
         else{
@@ -83,6 +93,8 @@ export default {
         }
 
         this.tabular.lastupdate = Date.now()
+        if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function')
+          this.$refs[this.id].update(this.tabular.data)
 
       }
 

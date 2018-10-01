@@ -80,8 +80,8 @@ export default {
         }
       }
 
-      if(this.$refs[name] && this.$refs[name][0] && typeof this.$refs[name][0].reset == 'function' )
-        this.$refs[name][0].reset()
+      // if(this.$refs[name] && this.$refs[name][0] && typeof this.$refs[name][0].reset == 'function' )
+      //   this.$refs[name][0].reset()
 
       console.log('remove_chart', name, this.$refs[name])
     },
@@ -109,6 +109,7 @@ export default {
       // Object.each(this.stats, function(stat, name){
       //   this.remove_chart_stat(name)
       // }.bind(this))
+      // this.$delete(this, 'stats')
       this.$set(this, 'stats', {})
     },
     add_watcher: function(payload){

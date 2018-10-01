@@ -108,27 +108,8 @@ export default {
     }.bind(this), false)
 
     // this.create()
-    // keypath
-    let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 
 
-      //console.log('updated data dygraph', this.id, this.stat.data)
-
-      // if(val.length > 1 && this.chart == null){
-      if(val.length > 1){
-
-        if(this.$options.graph == null){
-
-          this.__create_dygraph()
-
-        }
-        // this.__create_dygraph()
-        //
-        // __unwatcher()
-        this.update()
-      }
-
-    })
   },
   mounted () {
 
@@ -139,7 +120,7 @@ export default {
     // }
     // this.__watcher()
 
-    // this.create()
+    this.create()
   },
   updated () {
   //
@@ -154,6 +135,13 @@ export default {
   },
   destroyed (){
     this.destroy()
+    if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
+      // //////console.log('destroying ...', this.id)
+      this.$options.graph.destroy()
+
+    }
+
+    this.$options.graph = undefined
     this.$off()
   },
   methods: {
@@ -163,19 +151,24 @@ export default {
     **/
     visibilityChanged (isVisible, entry) {
       this.$options.visible = isVisible
-      if(isVisible == true && !this.$options.graph)
-        this.__create_dygraph()
+      // if(isVisible == true && !this.$options.graph)
+      if(isVisible == false)
+        this.reset()
+    },
+    reset: function(){
+      this.destroy()
+      this.create()
     },
     destroy: function(){
       ////console.log('dygraph destroy', this.id)
 
-      if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
-        // //////console.log('destroying ...', this.id)
-        this.$options.graph.destroy()
-
-      }
-
-      this.$options.graph = undefined
+      // if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
+      //   // //////console.log('destroying ...', this.id)
+      //   this.$options.graph.destroy()
+      //
+      // }
+      //
+      // this.$options.graph = undefined
 
       if(this.$options.__unwatcher){
         this.$options.__unwatcher()
@@ -184,35 +177,29 @@ export default {
 
     },
     create (){
-      // ////console.log('dygraph __watcher', this.stat.data, this.stat.data.length)
-      // if(this.$options.__unwatcher){
-      //   this.$options.__unwatcher()//unwatch
-      //   this.$options.__unwatcher = undefined
-      // }
-      this.destroy()
+      let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 
 
+        //console.log('updated data dygraph', this.id, this.stat.data)
 
-      // this.$options.__unwatcher = this.$watch('stat.data', function (val, old) {
-      //
-      //
-      //   ////console.log('updated stat data dygraph', this.id, this.stat.data, this.stat.data.length)
-      //
-      //   // if(val.length > 1 && this.chart == null){
-      //   if(this.stat.data.length >= 1){
-      //
-      //     if(!this.$options.graph){
-      //
-      //       this.__create_dygraph()
-      //
-      //     }
-      //     // this.__create_dygraph()
-      //     //
-      //     // __unwatcher()
-      //     this.update()
-      //   }
-      //
-      // }, {deep : true})
+        // if(val.length > 1 && this.chart == null){
+        if(val.length > 1){
+
+          if(!this.$options.graph){
+
+            this.__create_dygraph()
+            // __unwatcher()
+
+          }{
+            // this.__create_dygraph()
+            //
+
+            // this.update()
+
+          }
+        }
+
+      })
     },
     __create_dygraph (){
 
@@ -252,6 +239,7 @@ export default {
         this.$options.graph.ready(function(){
           // //////////console.log('chart '+this.id+' ready')
           this.ready = true
+          // this.update()
         }.bind(this))
 
         if(this.chart.init)
@@ -273,10 +261,10 @@ export default {
       return data
     },
     update (data){
+      console.log('dygraph update', this.id, data)
       data = this._get_data(data)
-      // //console.log('dygraph update', this.id, data)
 
-      if(this.$options.visible == true){
+      if(this.$options.visible == true && this.ready == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
         if(this.focus === true){
           ////console.log('focus, frameDebounce...')
