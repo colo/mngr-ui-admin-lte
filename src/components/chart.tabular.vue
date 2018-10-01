@@ -48,7 +48,7 @@ export default {
             data.push(row.value)
           })
 
-          this.update_chart_stat(data)
+          this.update_chart_stat(this.id, data)
 
         }
       }.bind(this)
@@ -63,11 +63,11 @@ export default {
 
     // generic_data_watcher: data_to_tabular,
 
-    update_chart_stat (data){
+    update_chart_stat (name, data){
       console.log('chart.tabular update_chart_stat', this.id, this.$refs[this.id])
 
 
-      if(this.$options.visible && data.length > 0){
+      if(this.$options.visible == true && data.length > 0){
         // console.log('update_chart_stat visibility', this.id, data)
         if(data.length == 1){
 
@@ -76,25 +76,35 @@ export default {
           /**
           * ensures no "glitches" as a point may be in the incorrect posittion
           */
-          let old_data = Array.clone(this.tabular.data)
-          old_data.shift()
-          old_data.push(data[0])
-          old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-          this.$set(this.tabular, 'data', old_data)
+          // let old_data = Array.clone(this.tabular.data)
+          // old_data.shift()
+          // old_data.push(data[0])
+          // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          // this.$set(this.tabular, 'data', old_data)
 
+          this.$options.tabular.data.shift()
+          this.$options.tabular.data.push(data[0])
+          this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          // this.$set(this.tabular, 'data', old_data)
 
         }
         else{
 
           data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
-          this.$set(this.tabular, 'data', data)
+          // this.$set(this.tabular, 'data', data)
+          this.$options.tabular.data = data
 
         }
 
-        this.tabular.lastupdate = Date.now()
-        if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function')
-          this.$refs[this.id].update(this.tabular.data)
+        // this.tabular.lastupdate = Date.now()
+        this.$options.tabular.lastupdate = Date.now()
+        if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function'){
+          this.$refs[this.id].update(this.$options.tabular.data)
+        }
+        else{
+          this.$set(this, 'tabular', this.$options.tabular)
+        }
 
       }
 

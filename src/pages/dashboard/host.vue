@@ -198,6 +198,7 @@
         >
 
           <chart-tabular
+            v-if="visibility[host+'_merged']"
             :type="'dygraph'"
             :ref="host+'_merged'"
             :id="host+'_merged'"
@@ -206,8 +207,7 @@
             :stat="stats[host+'_merged']"
           >
           </chart-tabular>
-          <!-- v-if="visibility[host+'merged']"
-          <chart-empty-container v-else></chart-empty-container> -->
+          <chart-empty-container v-else></chart-empty-container>
 
 
         </admin-lte-box-solid>
@@ -2110,7 +2110,7 @@ export default {
         && this.available_charts[id]
         && (this.visibility[id] == undefined || this.visibility[id] == false)
       ){
-
+        console.log('isVisible', id)
         this.$set(this.visibility, id, true)
         this.add_chart(this.available_charts[id], id)
       }

@@ -351,6 +351,7 @@ export const flush = ({ commit, state }, payload) => {
     ////console.log('action flushing...', length, payload.host, payload.path, payload.key,docs, deque.toArray())
 
     // db.flushing = true
+
     db.bulkDocs(docs)
     .then(function (status) {
       ////console.log('flushed', docs, status, deque.toArray())

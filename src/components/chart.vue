@@ -10,6 +10,11 @@ import chart from 'components/mixins/chart'
 export default {
   mixins: [chart],
 
+  tabular: {
+    lastupdate: 0,
+    data: []
+  },
+
   name: 'chart',
 
   // updated () {
@@ -166,7 +171,7 @@ export default {
 
       console.log('chart update_chart_stat', this.id, this.$refs[this.id])
 
-      if(this.$options.visible && data.length > 0){
+      if(this.$options.visible == true && data.length > 0){
         if(data.length == 1){
 
           // this.tabular.data.shift()

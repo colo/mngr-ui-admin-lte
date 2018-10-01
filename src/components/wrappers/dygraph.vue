@@ -53,10 +53,10 @@ export default {
       default: () => ({})
     },
 
-    stat: {
-      type: [Object],
-      default: () => ({})
-    },
+    // stat: {
+    //   type: [Object],
+    //   default: () => ({})
+    // },
 
     freezed: {
       type: [Boolean],
@@ -75,6 +75,9 @@ export default {
       highlighted: false,
       ready: false,
       // to_suspend: false,
+      stat: {
+        data: [[]]
+      }
     }
   },
   watch: {
@@ -162,13 +165,14 @@ export default {
     destroy: function(){
       ////console.log('dygraph destroy', this.id)
 
-      // if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
-      //   // //////console.log('destroying ...', this.id)
-      //   this.$options.graph.destroy()
-      //
-      // }
-      //
-      // this.$options.graph = undefined
+      if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
+        // //////console.log('destroying ...', this.id)
+        this.$options.graph.destroy()
+
+      }
+
+      this.$options.graph = undefined
+      this.ready = false
 
       if(this.$options.__unwatcher){
         this.$options.__unwatcher()
@@ -177,29 +181,30 @@ export default {
 
     },
     create (){
-      let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
-
-
-        //console.log('updated data dygraph', this.id, this.stat.data)
-
-        // if(val.length > 1 && this.chart == null){
-        if(val.length > 1){
-
-          if(!this.$options.graph){
-
-            this.__create_dygraph()
-            // __unwatcher()
-
-          }{
-            // this.__create_dygraph()
-            //
-
-            // this.update()
-
-          }
-        }
-
-      })
+      this.__create_dygraph()
+      // this.$options.__unwatcher = this.$watch('stat.data', function (val, oldVal) {
+      //
+      //
+      //   //console.log('updated data dygraph', this.id, this.stat.data)
+      //
+      //   // if(val.length > 1 && this.chart == null){
+      //   if(val.length > 1){
+      //
+      //     if(!this.$options.graph){
+      //
+      //       this.__create_dygraph()
+      //       // __unwatcher()
+      //       this.$options.__unwatcher()
+      //     }{
+      //       // this.__create_dygraph()
+      //       //
+      //
+      //       // this.update()
+      //
+      //     }
+      //   }
+      //
+      // })
     },
     __create_dygraph (){
 
@@ -220,6 +225,7 @@ export default {
         }
         else{
           data = this._get_data()
+          // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
           // data = []
         }
 
@@ -277,19 +283,19 @@ export default {
             )
           )
         }
-        else{
-          ////console.log('no focus, forcing...', new Date())
-          this.updateOptions(
-            data,
-            // {},
-            { 'dateWindow': this.$options.graph.xAxisExtremes() },
-            false
-          )
-          // setTimeout(this.updateOptions(
-          //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
-          //   false
-          // ), 50)
-        }
+        // else{
+        //   ////console.log('no focus, forcing...', new Date())
+        //   this.updateOptions(
+        //     data,
+        //     // {},
+        //     { 'dateWindow': this.$options.graph.xAxisExtremes() },
+        //     false
+        //   )
+        //   // setTimeout(this.updateOptions(
+        //   //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
+        //   //   false
+        //   // ), 50)
+        // }
       }
     },
     updateOptions (data, options, block_redraw){

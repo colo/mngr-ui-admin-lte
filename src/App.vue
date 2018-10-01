@@ -128,7 +128,7 @@ import Pipeline from 'js-pipeline'
 // let count_pipeline = new Pipeline(CountPipeline)
 
 import AppPipeline from '@libs/pipelines/app'
-let app_pipeline = new Pipeline(AppPipeline)
+// let app_pipeline = new Pipeline(AppPipeline)
 
 import { mapState } from 'vuex'
 
@@ -143,6 +143,7 @@ export default {
   name: 'App',
 
   intervals: [],
+  pipeline: undefined,
 
   data () {
     return {
@@ -233,8 +234,24 @@ export default {
       }
     }
   },
+  beforeDestroy: function(){
+    let pipe = this.$options.pipeline
+    pipe.fireEvent('onSuspend')
+    pipe.fireEvent('onExit')
+    pipe.removeEvents()
+    this.$options.pipeline = undefined
+
+  },
   created: function(){
     let self = this
+
+    if(this.$options.pipeline == undefined){
+      this.$options.pipeline = new Pipeline(AppPipeline)
+    }
+    else{
+      this.$options.pipeline.fireEvent('onResume')
+    }
+
     // this.$options.intervals.push(
     //   setInterval(function(){
     //     //console.log('flushing...')

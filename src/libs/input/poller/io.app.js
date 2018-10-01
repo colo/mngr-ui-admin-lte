@@ -7,6 +7,8 @@ const App = require ( 'node-app-socket.io-client/index' )
 export default new Class({
   Extends: App,
 
+  types: ['count', 'hosts', 'paths'],
+  recived: [],
 
   options: {
 
@@ -127,7 +129,14 @@ export default new Class({
 
   app_doc: function(socket, next){
     this.fireEvent('onPeriodicalDoc', [arguments[2], {type: 'periodical', input_type: this, app: null}]);
-		// console.log('app_doc...', socket, arguments[2])
+		console.log('app_doc...', arguments[2])
+
+    if(this.types.contains(arguments[2].type) && !this.recived.contains(arguments[2].type))
+      this.recived.push(arguments[2].type)
+
+    if(this.recived.length == this.types.length)
+      this.io.close()
+      
 		// arguments[1]()
 		// this.io.to('root').emit('response', 'a new user has joined the room saying '+arguments[2]);
 		// next(socket)
@@ -138,6 +147,12 @@ export default new Class({
 
 		this.profile('root_init');//start profiling
 
+    this.addEvent('onExit', function(){
+      //console.log('EXITING...')
+
+      if(this.io.disconnected == false)
+        this.io.close()
+    })
 
 		this.profile('root_init');//end profiling
 
