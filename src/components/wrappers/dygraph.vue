@@ -155,8 +155,8 @@ export default {
     visibilityChanged (isVisible, entry) {
       this.$options.visible = isVisible
       // if(isVisible == true && !this.$options.graph)
-      if(isVisible == false)
-        this.reset()
+      // if(isVisible == false)
+      //   this.reset()
     },
     reset: function(){
       this.destroy()
@@ -210,7 +210,7 @@ export default {
 
 
       let options = Object.clone(this.chart.options)
-      if(options.labels){
+      if(options.labels && document.getElementById(this.id)){
         if(options.labelsDiv)
           options.labelsDiv = this.id+'-'+options.labelsDiv
 

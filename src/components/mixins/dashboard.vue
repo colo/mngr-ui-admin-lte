@@ -80,8 +80,12 @@ export default {
         }
       }
 
-      // if(this.$refs[name] && this.$refs[name][0] && typeof this.$refs[name][0].reset == 'function' )
+      // if(this.$refs[name] && typeof this.$refs[name].reset == 'function'){
+      //    this.$refs[name].reset()
+      // }
+      // else if (this.$refs[name] && this.$refs[name][0] && typeof this.$refs[name][0].reset == 'function' ){
       //   this.$refs[name][0].reset()
+      // }
 
       console.log('remove_chart', name, this.$refs[name])
     },

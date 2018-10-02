@@ -37,6 +37,11 @@ export default {
     },
 
     create (){
+      this.$options.tabular = {
+        lastupdate: 0,
+        data: []
+      }
+
       console.log('chart.vue create', this.id)
 
       let unwatch = this.$watch('stat.data', function (val, old) {
@@ -166,6 +171,7 @@ export default {
     },
 
     // generic_data_watcher: data_to_tabular,
+    
 
     // update_chart_stat (name, data){
     //

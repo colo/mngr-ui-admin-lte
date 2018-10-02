@@ -381,7 +381,7 @@
         <template v-for="(iface, name) in networkInterfaces">
           <template v-for="(data, messure) in iface">
             <admin-lte-box-solid v-if="messure == 'bytes' || messure == 'packets' || messure == 'errs'"
-              :key="'networkInterfaces_stats'+name+'_'+messure"
+              :key="'networkInterfaces_stats'+name+'_'+messure+'_box'"
               :title="'Network Interface '+name+' : '+messure"
               :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
               v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
@@ -1302,7 +1302,7 @@ export default {
                   //   this.__get_stat_for_chart(payload)
                   // }.bind(this),
                   stop: function(payload){
-                    this.remove_chart_stat(payload.name)
+                    // this.remove_chart_stat(payload.name)
                     this.remove_watcher(payload.name)
                     // this.add_chart_stat(payload.name)
                     // this.__update_chart_stat(payload.name, [], 1)
