@@ -167,81 +167,81 @@ export default {
 
     // generic_data_watcher: data_to_tabular,
 
-    update_chart_stat (name, data){
-
-      console.log('chart update_chart_stat', this.id, this.$refs[this.id])
-
-      if(this.$options.visible == true && data.length > 0){
-        if(data.length == 1){
-
-          // this.tabular.data.shift()
-          // this.tabular.data.push(data[0])
-
-          /**
-          * ensures no "glitches" as a point may be in the incorrect posittion
-          */
-          let old_data = Array.clone(this.tabular.data)
-          old_data.shift()
-          old_data.push(data[0])
-          old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-          this.$set(this.tabular, 'data', old_data)
-        }
-        else{
-          // let length = this.stat.data.length
-          // if(data.length > length)
-          //   data.splice(
-          //     -length -1,
-          //     data.length - length
-          //   )
-
-          data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-
-          // console.log('update_chart_stat visibility', name, data)
-
-          this.$set(this.tabular, 'data', data)
-
-        }
-
-        this.tabular.lastupdate = Date.now()
-        if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function')
-          this.$refs[this.id].update(this.tabular.data)
-
-        // if(data.length == 1){
-        //
-        //   // this.tabular.data.shift()
-        //   // this.tabular.data.push(data[0])
-        //   // data = Array.clone(this.$options.data).push(data[0])
-        //   this.$options.data.push(data[0])
-        // }
-        // else{
-        //   // let length = this.stat.data.length
-        //   // if(data.length > length)
-        //   //   data.splice(
-        //   //     -length -1,
-        //   //     data.length - length
-        //   //   )
-        //
-        //   this.$options.data = data
-        // }
-        //
-        // this.$options.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-        //
-        // let length = this.stat.data.length
-        // if(this.$options.data.length > length)
-        //   this.$options.data.splice(
-        //     -length -1,
-        //     this.$options.data.length - length
-        //   )
-        //
-        //
-        //
-        // this.$refs[this.id].update(this.$options.data)
-        //
-        // this.tabular.lastupdate = Date.now()
-      }
-
-
-    },
+    // update_chart_stat (name, data){
+    //
+    //   console.log('chart update_chart_stat', this.id, this.$refs[this.id])
+    //
+    //   if(this.$options.visible == true && data.length > 0){
+    //     if(data.length == 1){
+    //
+    //       // this.tabular.data.shift()
+    //       // this.tabular.data.push(data[0])
+    //
+    //       /**
+    //       * ensures no "glitches" as a point may be in the incorrect posittion
+    //       */
+    //       let old_data = Array.clone(this.tabular.data)
+    //       old_data.shift()
+    //       old_data.push(data[0])
+    //       old_data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+    //       this.$set(this.tabular, 'data', old_data)
+    //     }
+    //     else{
+    //       // let length = this.stat.data.length
+    //       // if(data.length > length)
+    //       //   data.splice(
+    //       //     -length -1,
+    //       //     data.length - length
+    //       //   )
+    //
+    //       data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+    //
+    //       // console.log('update_chart_stat visibility', name, data)
+    //
+    //       this.$set(this.tabular, 'data', data)
+    //
+    //     }
+    //
+    //     this.tabular.lastupdate = Date.now()
+    //     if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function')
+    //       this.$refs[this.id].update(this.tabular.data)
+    //
+    //     // if(data.length == 1){
+    //     //
+    //     //   // this.tabular.data.shift()
+    //     //   // this.tabular.data.push(data[0])
+    //     //   // data = Array.clone(this.$options.data).push(data[0])
+    //     //   this.$options.data.push(data[0])
+    //     // }
+    //     // else{
+    //     //   // let length = this.stat.data.length
+    //     //   // if(data.length > length)
+    //     //   //   data.splice(
+    //     //   //     -length -1,
+    //     //   //     data.length - length
+    //     //   //   )
+    //     //
+    //     //   this.$options.data = data
+    //     // }
+    //     //
+    //     // this.$options.data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+    //     //
+    //     // let length = this.stat.data.length
+    //     // if(this.$options.data.length > length)
+    //     //   this.$options.data.splice(
+    //     //     -length -1,
+    //     //     this.$options.data.length - length
+    //     //   )
+    //     //
+    //     //
+    //     //
+    //     // this.$refs[this.id].update(this.$options.data)
+    //     //
+    //     // this.tabular.lastupdate = Date.now()
+    //   }
+    //
+    //
+    // },
 
 
   }

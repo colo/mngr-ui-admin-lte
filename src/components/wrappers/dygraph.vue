@@ -53,10 +53,10 @@ export default {
       default: () => ({})
     },
 
-    // stat: {
-    //   type: [Object],
-    //   default: () => ({})
-    // },
+    stat: {
+      type: [Object],
+      default: () => ({})
+    },
 
     freezed: {
       type: [Boolean],
@@ -75,9 +75,9 @@ export default {
       highlighted: false,
       ready: false,
       // to_suspend: false,
-      stat: {
-        data: [[]]
-      }
+      // stat: {
+      //   data: [[]]
+      // }
     }
   },
   watch: {

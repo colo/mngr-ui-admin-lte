@@ -103,6 +103,8 @@ export default {
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
 
+      this.$options.tabular.data = [[]]
+
       this.$set(this.tabular, 'data', [[]])
 
       // this.$refs[this.id].destroy()
@@ -110,52 +112,57 @@ export default {
 
     },
     __create_watcher(name, chart){},
-    // update_chart_stat (name, data){
-    //   console.log('chart mixin update_chart_stat', name, this.id, this.$refs[this.id])
-    //
-    //
-    //   if(this.$options.visible == true && data.length > 0){
-    //     // console.log('update_chart_stat visibility', this.id, data)
-    //     if(data.length == 1){
-    //
-    //       // this.tabular.data.shift()
-    //       // this.tabular.data.push(data[0])
-    //       /**
-    //       * ensures no "glitches" as a point may be in the incorrect posittion
-    //       */
-    //       // let old_data = Array.clone(this.tabular.data)
-    //       // old_data.shift()
-    //       // old_data.push(data[0])
-    //       // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-    //       // this.$set(this.tabular, 'data', old_data)
-    //
-    //       this.$options.tabular.data.shift()
-    //       this.$options.tabular.data.push(data[0])
-    //       this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-    //       // this.$set(this.tabular, 'data', old_data)
-    //
-    //     }
-    //     else{
-    //
-    //       data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-    //
-    //       // this.$set(this.tabular, 'data', data)
-    //       this.$options.tabular.data = data
-    //
-    //     }
-    //
-    //     // this.tabular.lastupdate = Date.now()
-    //     this.$options.tabular.lastupdate = Date.now()
-    //     if(this.$refs[name] && typeof this.$refs[name].update == 'function'){
-    //       this.$refs[name].update(this.$options.tabular.data)
-    //     }
-    //     else{
-    //       this.$set(this, 'tabular', this.$options.tabular)
-    //     }
-    //
-    //   }
-    //
-    // },
+    update_chart_stat (name, data){
+      
+      // console.log('chart mixin update_chart_stat', name, this.id, this.$refs[this.id])
+
+
+      if(this.$options.visible == true && data.length > 0){
+        // console.log('update_chart_stat visibility', this.id, data)
+        if(data.length == 1){
+
+          // this.tabular.data.shift()
+          // this.tabular.data.push(data[0])
+          /**
+          * ensures no "glitches" as a point may be in the incorrect posittion
+          */
+          // let old_data = Array.clone(this.tabular.data)
+          // old_data.shift()
+          // old_data.push(data[0])
+          // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          // this.$set(this.tabular, 'data', old_data)
+
+          this.$options.tabular.data.shift()
+          this.$options.tabular.data.push(data[0])
+
+          // this.$set(this.tabular, 'data', old_data)
+
+        }
+        else{
+
+          // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
+          // this.$set(this.tabular, 'data', data)
+          this.$options.tabular.data = data
+
+        }
+
+        this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
+        console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
+
+        // this.tabular.lastupdate = Date.now()
+        this.$options.tabular.lastupdate = Date.now()
+        if(this.$refs[name] && typeof this.$refs[name].update == 'function'){
+          this.$refs[name].update(this.$options.tabular.data)
+        }
+        else{
+          this.$set(this, 'tabular', this.$options.tabular)
+        }
+
+      }
+
+    },
     /**
     * UI related
     **/

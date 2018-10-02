@@ -40,7 +40,7 @@ export default {
 
 
       let generic_data_watcher = function(current){
-        console.log('chart.tabular generic_data_watcher', current)
+        // console.log('chart.tabular generic_data_watcher', current)
         if(current && this.$options.visible){
 
           let data = []
