@@ -1,11 +1,11 @@
 <template>
   <div
-    v-observe-visibility="visibilityChanged"
     :id="id+'-container'"
     class="netdata-container-with-legend"
     v-bind:class="container_class_helper"
     :style="chart.style"
   >
+  <!-- v-observe-visibility="visibilityChanged" -->
      <div
        :ref="id"
        :id="id"
@@ -80,10 +80,10 @@ export default {
     }
   },
   watch: {
-    visible: function (val) {
-      this.container_class_helper = (val == false) ? 'invisible' : ''
-      // //////console.log('class visible', val, this.container_class_helper)
-    }
+    // visible: function (val) {
+    //   this.container_class_helper = (val == false) ? 'invisible' : ''
+    //   // //////console.log('class visible', val, this.container_class_helper)
+    // }
   },
 
   created () {
@@ -151,12 +151,12 @@ export default {
     /**
     * UI related
     **/
-    visibilityChanged (isVisible, entry) {
-      this.$options.visible = isVisible
-      // if(isVisible == true && !this.$options.graph)
-      // if(isVisible == false)
-      //   this.reset()
-    },
+    // visibilityChanged (isVisible, entry) {
+    //   this.$options.visible = isVisible
+    //   // if(isVisible == true && !this.$options.graph)
+    //   // if(isVisible == false)
+    //   //   this.reset()
+    // },
     reset: function(){
       console.log('dygraph reset')
       this.destroy()
@@ -270,8 +270,8 @@ export default {
       console.log('dygraph update', this.id, data)
       data = this._get_data(data)
 
-      if(this.$options.visible == true && this.ready == true){
-        // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
+      // if(this.$options.visible == true && this.ready == true){
+      if(this.ready == true){
 
         this.updateOptions(
           data,

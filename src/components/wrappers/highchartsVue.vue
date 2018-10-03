@@ -1,11 +1,11 @@
 <template>
 
     <div v-if="chart.class"
-      v-observe-visibility="visibilityChanged"
       :id="id+'-container'"
       :style="chart.style"
       v-bind:class="container_class_helper"
     >
+    <!-- v-observe-visibility="visibilityChanged" -->
     <!--class="netdata-container-with-legend"   -->
     <highcharts
       :ref="id"
@@ -23,9 +23,9 @@
     </div>
 
     <div v-else
-      v-observe-visibility="visibilityChanged"
       :id="id+'-container'"
     >
+    <!-- v-observe-visibility="visibilityChanged" -->
       <highcharts
         :ref="id"
         :id="id"
@@ -108,10 +108,10 @@ export default {
     }
   },
   watch: {
-    visible: function (val) {
-      this.container_class_helper = (val == false) ? 'invisible' : ''
-      // console.log('class visible', val, this.container_class_helper)
-    }
+    // visible: function (val) {
+    //   this.container_class_helper = (val == false) ? 'invisible' : ''
+    //   // console.log('class visible', val, this.container_class_helper)
+    // }
   },
 
   created () {
@@ -123,20 +123,20 @@ export default {
     //    this.focus = true
     // }.bind(this), false)
 
-    let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
-
-      if(val.length > 1){
-
-        // if(this.$options.graph == null){
-        //
-        //   this.__create_dygraph()
-        //
-        // }
-
-        this.update()
-      }
-
-    })
+    // let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
+    //
+    //   if(val.length > 1){
+    //
+    //     // if(this.$options.graph == null){
+    //     //
+    //     //   this.__create_dygraph()
+    //     //
+    //     // }
+    //
+    //     this.update()
+    //   }
+    //
+    // })
   },
   // mounted () {
   //
@@ -155,7 +155,7 @@ export default {
     update (data){
       data = data || this.stat.data
       // console.log('highcharts-vue update', data)
-      if(this.$options.visible == true){
+      // if(this.$options.visible == true){
 
         if(this.gauge == true){
           let value = data.getLast()[1]
@@ -207,7 +207,7 @@ export default {
 
         }
 
-      }
+      // }
 
 
     },
@@ -217,11 +217,11 @@ export default {
     /**
     * UI related
     **/
-    visibilityChanged (isVisible, entry) {
-      this.$options.visible = isVisible
-      // if(isVisible == true && !this.$options.graph)
-      //   this.__create_dygraph()
-    },
+    // visibilityChanged (isVisible, entry) {
+    //   this.$options.visible = isVisible
+    //   // if(isVisible == true && !this.$options.graph)
+    //   //   this.__create_dygraph()
+    // },
   }
 }
 </script>

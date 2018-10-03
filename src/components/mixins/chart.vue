@@ -1,7 +1,6 @@
 <template>
 
   <component
-    v-observe-visibility="visibilityChanged"
     :is="type+'-wrapper'"
     :id="id"
     :ref="id"
@@ -11,6 +10,8 @@
     v-bind="wrapper_props"
   />
   </component>
+
+  <!-- v-observe-visibility="visibilityChanged" -->
 
 </template>
 
@@ -112,8 +113,8 @@ export default {
     },
     create: function(){
       // console.log('chart.vue mixing create', this.id, this.$refs[this.id])
-      // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
-      //   this.$refs[this.id].create()
+      if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
+        this.$refs[this.id].create()
     },
     destroy: function(){
       console.log('chart.vue mixing destroy', this.id)
@@ -121,12 +122,12 @@ export default {
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
 
-      // this.$options.tabular.data = [[]]
-      //
-      // this.$set(this.tabular, 'data', [[]])
+      this.$options.tabular.data = [[]]
 
-      // if(this.$refs[this.id] && typeof this.$refs[this.id].destroy == 'function')
-      //   this.$refs[this.id].destroy()
+      this.$set(this.tabular, 'data', [[]])
+
+      if(this.$refs[this.id] && typeof this.$refs[this.id].destroy == 'function')
+        this.$refs[this.id].destroy()
 
       this.$options.__chart_init = false
 
@@ -190,11 +191,24 @@ export default {
     /**
     * UI related
     **/
-    visibilityChanged (isVisible, entry) {
-      this.$options.visible = isVisible
-      // if(isVisible == false)
-      //   this.reset()
-    },
+    // visibilityChanged (isVisible, entry) {
+    //   // this.$options.visible = isVisible
+    //   if(
+    //     isVisible == false
+    //     && (this.$options.visible == undefined || this.$options.visible == true)
+    //   ){
+    //     this.reset()
+    //   }
+    //   // else if (
+    //   //   isVisible == true
+    //   //   && this.available_charts[id]
+    //   //   && (this.visibility[id] == undefined || this.visibility[id] == false)
+    //   // ){
+    //   //   this.$set(this.visibility, id, true)
+    //   //   this.add_chart(this.available_charts[id], id)
+    //   // }
+    //   this.$options.visible = isVisible
+    // },
   }
 }
 </script>

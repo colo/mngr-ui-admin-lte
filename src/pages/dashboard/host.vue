@@ -1,18 +1,18 @@
 <template>
   <section class="content">
     <div class="row">
-      <section class="col-lg-12 connectedSortable">
+      <section class="col-xs-12 col-sm-12 col-lg-12 connectedSortable">
 
         <admin-lte-box-solid
           :header="false"
         >
-          <div class="col-md-3 col-sm-6 col-xs-12">
+          <!-- <div class="col-md-3 col-sm-6 col-xs-12"> -->
             <bootstrap-daterangepicker-wrapper
               @click="update_daterangepicker"
               @range="set_range"
               :options="daterangepicker"
             />
-          </div>
+          <!-- </div> -->
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
@@ -25,7 +25,7 @@
 
         <!-- <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_freemem_pie-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
         >
           <chart
             v-if="visibility[host+'_os_freemem_pie']"
@@ -46,7 +46,7 @@
 
         <!-- <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_cpus_percentage_pie-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
         >
           <chart-tabular
            available_chartsty[host+'_os_cpus_percentage_pie']"
@@ -67,7 +67,7 @@
 
         <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_freemem_knob-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
         >
 
           <div class="description-block border-right">
@@ -93,7 +93,7 @@
 
         <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_cpus_percentage_knob-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
         >
 
           <div class="description-block border-right">
@@ -119,7 +119,7 @@
 
         <div class="col-md-3 col-sm-6 col-xs-12"
         :id="host+'_os_cpus_percentage_gauge-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+        v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
         >
 
           <div class="description-block border-right">
@@ -134,6 +134,13 @@
               :stat="stats[host+'_os_cpus_percentage_gauge']"
             >
             </chart-tabular>
+            <!-- <chart-tabular v-else
+              :type="'highcharts-vue'"
+              :wrapper_props="{'decimals': 1, 'gauge': true}"
+              :id="host+'_os_cpus_percentage_gauge_empty'"
+              :chart="available_charts[host+'_os_cpus_percentage_gauge']"
+            >
+            </chart-tabular> -->
             <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span> -->
             <h5 class="description-header">cpus utilization</h5>
             <!-- <span class="description-text">CPUS Consumption</span> -->
@@ -152,7 +159,7 @@
             v-if="chart.wrapper && chart.wrapper.type == 'dygraph'"
             :title="name"
             :id="name+'-collapsible'"
-            v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -192,11 +199,10 @@
         <admin-lte-box-solid
           title="merged"
           :id="host+'_merged-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
-
           <chart-tabular
             v-if="visibility[host+'_merged']"
             :type="'dygraph'"
@@ -207,7 +213,13 @@
             :stat="stats[host+'_merged']"
           >
           </chart-tabular>
-          <chart-empty-container v-else></chart-empty-container>
+          <chart-tabular v-else
+            :type="'dygraph'"
+            :id="host+'_merged_empty'"
+            :chart="charts[host+'_merged']"
+          >
+          </chart-tabular>
+          <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
         </admin-lte-box-solid>
@@ -215,7 +227,7 @@
         <admin-lte-box-solid
           title="CPU Times"
           :id="host+'_os_cpus_times-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -230,7 +242,13 @@
             :stat="stats[host+'_os_cpus_times']"
           >
           </chart-tabular>
-          <chart-empty-container v-else></chart-empty-container>
+          <chart-tabular v-else
+            :type="'dygraph'"
+            :id="host+'_os_cpus_times_empty'"
+            :chart="charts[host+'_os_cpus_times']"
+          >
+          </chart-tabular>
+          <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
         </admin-lte-box-solid>
@@ -238,7 +256,7 @@
         <admin-lte-box-solid
           title="CPU Percentage"
           :id="host+'_os_cpus_percentage-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -253,7 +271,13 @@
             :stat="stats[host+'_os_cpus_percentage']"
           >
           </chart-tabular>
-          <chart-empty-container v-else></chart-empty-container>
+          <chart-tabular v-else
+            :type="'dygraph'"
+            :id="host+'_os_cpus_percentage_empty'"
+            :chart="charts[host+'_os_cpus_percentage']"
+          >
+          </chart-tabular>
+          <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
         </admin-lte-box-solid>
@@ -261,7 +285,7 @@
         <admin-lte-box-solid
           title="Freemem"
           :id="host+'_os_freemem-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -276,7 +300,13 @@
             :stat="stats[host+'_os_freemem']"
           >
           </chart>
-          <chart-empty-container v-else></chart-empty-container>
+          <chart v-else
+            :type="'dygraph'"
+            :id="host+'_os_freemem_empty'"
+            :chart="charts[host+'_os_freemem']"
+          >
+          </chart>
+          <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
         </admin-lte-box-solid>
@@ -284,7 +314,7 @@
         <admin-lte-box-solid
           title="Uptime"
           :id="host+'_os_uptime-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -299,14 +329,20 @@
             :stat="stats[host+'_os_uptime']"
           >
           </chart-tabular>
-          <chart-empty-container v-else></chart-empty-container>
+          <chart-tabular v-else
+            :type="'dygraph'"
+            :id="host+'_os_uptime_empty'"
+            :chart="charts[host+'_os_uptime']"
+          >
+          </chart-tabular>
+          <!-- <chart-empty-container v-else></chart-empty-container> -->
 
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
           title="Load Average"
           :id="host+'_os_loadavg-collapsible'"
-          v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+          v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
@@ -321,7 +357,13 @@
             :stat="stats[host+'_os_loadavg']"
           >
           </chart-tabular>
-          <chart-empty-container v-else></chart-empty-container>
+          <chart-tabular v-else
+            :type="'dygraph'"
+            :id="host+'_os_loadavg_empty'"
+            :chart="charts[host+'_os_loadavg']"
+          >
+          </chart-tabular>
+          <!-- <chart-empty-container v-else></chart-empty-container> -->
 
         </admin-lte-box-solid>
 
@@ -331,7 +373,7 @@
             :key="'blockdevice_stats_'+index"
             :title="'Blockdevice stats['+index+']'"
             :id="host+'_os_blockdevices_stats_'+index+'-collapsible'"
-            v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -346,7 +388,13 @@
               :stat="stats[host+'_os_blockdevices_stats_'+index]"
             >
             </chart-tabular>
-            <chart-empty-container v-else></chart-empty-container>
+            <chart-tabular v-else
+              :type="'dygraph'"
+              :id="host+'_os_blockdevices_stats_'+index+'_empty'"
+              :chart="charts[host+'_os_blockdevices_stats_'+index]"
+            >
+            </chart-tabular>
+            <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
           </admin-lte-box-solid>
@@ -357,7 +405,7 @@
             :key="'mounts_percentage_'+index"
             :title="'Mounts Percetange usage '+index"
             :id="host+'_os_mounts_percentage_'+index+'-collapsible'"
-            v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+            v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
@@ -372,7 +420,13 @@
               :stat="stats[host+'_os_mounts_percentage_'+index]"
             >
             </chart-tabular>
-            <chart-empty-container v-else></chart-empty-container>
+            <chart-tabular v-else
+              :type="'dygraph'"
+              :id="host+'_os_mounts_percentage_'+index+'_empty'"
+              :chart="charts[host+'_os_mounts_percentage_'+index]"
+            >
+            </chart-tabular>
+            <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
           </admin-lte-box-solid>
@@ -384,7 +438,7 @@
               :key="'networkInterfaces_stats'+name+'_'+messure+'_box'"
               :title="'Network Interface '+name+' : '+messure"
               :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
-              v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+              v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
               v-on:show="el => showCollapsible(el)"
               v-on:hide="el => hideCollapsible(el)"
             >
@@ -399,7 +453,13 @@
                 :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
               >
               </chart>
-              <chart-empty-container v-else></chart-empty-container>
+              <chart v-else
+                :type="'dygraph'"
+                :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'_empty'"
+                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+              >
+              </chart>
+              <!-- <chart-empty-container v-else></chart-empty-container> -->
 
 
             </admin-lte-box-solid>
@@ -487,6 +547,7 @@ export default {
 
   name: 'admin-lte-dashboard-host',
 
+  collapsibles: {},
   charts_objects: {},
   // charts: {},
   pipelines: {},
@@ -2089,17 +2150,15 @@ export default {
     **/
     visibilityChanged (isVisible, entry) {
       // let {path, list} = this.name_to_module(entry.target.id.replace('-card',''))
-
-      let id = entry.target.id.replace('-collapsible', '')
-      // let name = id.replace(this.host+'_', '')
-
-      // //console.log('visibilityChanged', isVisible, id, name, this.available_charts[id])
-
-      this.set_chart_visibility(id, isVisible)
+      if(this.$options.collapsibles[entry.target.id] == undefined || this.$options.collapsibles[entry.target.id] == true){
+        let id = entry.target.id.replace('-collapsible', '')
+        this.set_chart_visibility(id, isVisible)
+      }
     },
 
     showCollapsible (collapsible){
       console.log('showCollapsible', $(collapsible).attr('id'))
+      this.$options.collapsibles[$(collapsible).attr('id')] = true
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
       let id = $(collapsible).attr('id').replace('-collapsible', '')
@@ -2108,6 +2167,8 @@ export default {
     },
     hideCollapsible (collapsible){
       console.log('hideCollapsible', $(collapsible).attr('id'))
+      this.$options.collapsibles[$(collapsible).attr('id')] = false
+
       let id = $(collapsible).attr('id').replace('-collapsible', '')
 
       this.set_chart_visibility(id, false)
@@ -2121,6 +2182,7 @@ export default {
 
     },
     set_chart_visibility (id, isVisible){
+      console.log('set_chart_visibility', id, isVisible, this.visibility[id])
       if(
         isVisible == false
         && this.available_charts[id]
