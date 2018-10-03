@@ -15,12 +15,17 @@ export default {
 
   methods: {
     create (){
+      console.log('create chart.tabular', this.id)
+
+      // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
+      //   this.$refs[this.id].create()
+
       this.$options.tabular = {
         lastupdate: 0,
         data: []
       }
 
-      console.log('create chart.tabular', this.id, this.stat, this.chart)
+
 
       let unwatch = this.$watch('stat.data', function (val, old) {
         // console.log('create chart.tabular', val)

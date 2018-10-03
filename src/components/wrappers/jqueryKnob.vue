@@ -20,7 +20,7 @@
 
 <script>
 
-import { frameDebounce } from 'quasar'
+// import { frameDebounce } from 'quasar'
 
 import jqueryKnob from 'jquery-knob'
 // import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
@@ -94,13 +94,13 @@ export default {
 
   created () {
     // this.chart = this
-    window.addEventListener('blur', function() {
-       this.focus = false
-    }.bind(this), false)
-
-    window.addEventListener('focus', function() {
-       this.focus = true
-    }.bind(this), false)
+    // window.addEventListener('blur', function() {
+    //    this.focus = false
+    // }.bind(this), false)
+    //
+    // window.addEventListener('focus', function() {
+    //    this.focus = true
+    // }.bind(this), false)
 
     let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 

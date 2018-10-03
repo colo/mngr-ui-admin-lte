@@ -18,7 +18,7 @@
 
 <script>
 
-import { frameDebounce } from 'quasar'
+// import { frameDebounce } from 'quasar'
 
 import VueEasyPieChart from 'vue-easy-pie-chart'
 import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
@@ -86,13 +86,13 @@ export default {
 
   created () {
     // this.chart = this
-    window.addEventListener('blur', function() {
-       this.focus = false
-    }.bind(this), false)
-
-    window.addEventListener('focus', function() {
-       this.focus = true
-    }.bind(this), false)
+    // window.addEventListener('blur', function() {
+    //    this.focus = false
+    // }.bind(this), false)
+    //
+    // window.addEventListener('focus', function() {
+    //    this.focus = true
+    // }.bind(this), false)
 
     let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 
@@ -151,17 +151,17 @@ export default {
       if(this.$options.visible == true && value != null){
 
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
-        if(this.focus === true){
-          //console.log('focus, frameDebounce...')
-          frameDebounce(
+        // if(this.focus === true){
+        //   //console.log('focus, frameDebounce...')
+        //   frameDebounce(
             this.percentage = value.toFixed(this.decimals) * 1
-          )
-        }
-        else{
-
-          this.percentage = value.toFixed(this.decimals) * 1
-
-        }
+        //   )
+        // }
+        // else{
+        //
+        //   this.percentage = value.toFixed(this.decimals) * 1
+        //
+        // }
       }
     },
   }

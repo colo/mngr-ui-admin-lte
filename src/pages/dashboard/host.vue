@@ -2095,6 +2095,32 @@ export default {
 
       // //console.log('visibilityChanged', isVisible, id, name, this.available_charts[id])
 
+      this.set_chart_visibility(id, isVisible)
+    },
+
+    showCollapsible (collapsible){
+      console.log('showCollapsible', $(collapsible).attr('id'))
+      // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
+      // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
+      let id = $(collapsible).attr('id').replace('-collapsible', '')
+
+      this.set_chart_visibility(id, true)
+    },
+    hideCollapsible (collapsible){
+      console.log('hideCollapsible', $(collapsible).attr('id'))
+      let id = $(collapsible).attr('id').replace('-collapsible', '')
+
+      this.set_chart_visibility(id, false)
+
+      // let name = collapsible.replace('-collapsible', '')
+      // this.$options.has_no_data[name] = 61
+      // this.$set(this.hide, name, true)
+      //
+      // // delete this.stats[name].data
+      // // this.$set(this.stats[name], 'data', [])
+
+    },
+    set_chart_visibility (id, isVisible){
       if(
         isVisible == false
         && this.available_charts[id]
@@ -2110,15 +2136,16 @@ export default {
         && this.available_charts[id]
         && (this.visibility[id] == undefined || this.visibility[id] == false)
       ){
-        console.log('isVisible', id)
         this.$set(this.visibility, id, true)
         this.add_chart(this.available_charts[id], id)
       }
+
     },
     /**
     * @end UI related
     **/
   },
+
 
 
 }

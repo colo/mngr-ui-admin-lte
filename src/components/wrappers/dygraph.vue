@@ -23,7 +23,6 @@
 
 <script>
 
-import { frameDebounce } from 'quasar'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -69,7 +68,7 @@ export default {
   },
   data () {
     return {
-      focus: true,
+      // focus: true,
       container_class_helper: '',
       // graph: null,
       highlighted: false,
@@ -102,13 +101,13 @@ export default {
   		})
     }
 
-    window.addEventListener('blur', function() {
-       this.focus = false
-    }.bind(this), false)
-
-    window.addEventListener('focus', function() {
-       this.focus = true
-    }.bind(this), false)
+    // window.addEventListener('blur', function() {
+    //    this.focus = false
+    // }.bind(this), false)
+    //
+    // window.addEventListener('focus', function() {
+    //    this.focus = true
+    // }.bind(this), false)
 
     // this.create()
 
@@ -159,6 +158,7 @@ export default {
       //   this.reset()
     },
     reset: function(){
+      console.log('dygraph reset')
       this.destroy()
       this.create()
     },
@@ -272,17 +272,15 @@ export default {
 
       if(this.$options.visible == true && this.ready == true){
         // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
-        if(this.focus === true){
-          ////console.log('focus, frameDebounce...')
-          frameDebounce(
-            this.updateOptions(
-              data,
-              // {},
-              { 'dateWindow': this.$options.graph.xAxisExtremes() },
-              false
-            )
-          )
-        }
+
+        this.updateOptions(
+          data,
+          // {},
+          { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          false
+        )
+
+
         // else{
         //   ////console.log('no focus, forcing...', new Date())
         //   this.updateOptions(

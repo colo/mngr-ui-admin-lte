@@ -44,7 +44,7 @@
 * highcharts sync
 * https://www.highcharts.com/blog/snippets/synchronisation-of-multiple-charts/
 **/
-import { frameDebounce } from 'quasar'
+// import { frameDebounce } from 'quasar'
 
 export default {
   name: 'highcharts-vue-wrapper',
@@ -115,13 +115,13 @@ export default {
   },
 
   created () {
-    window.addEventListener('blur', function() {
-       this.focus = false
-    }.bind(this), false)
-
-    window.addEventListener('focus', function() {
-       this.focus = true
-    }.bind(this), false)
+    // window.addEventListener('blur', function() {
+    //    this.focus = false
+    // }.bind(this), false)
+    //
+    // window.addEventListener('focus', function() {
+    //    this.focus = true
+    // }.bind(this), false)
 
     let __unwatcher = this.$watch('stat.data', function (val, oldVal) {
 
@@ -160,11 +160,11 @@ export default {
         if(this.gauge == true){
           let value = data.getLast()[1]
           if (value != null)
-            frameDebounce(
+            // frameDebounce(
               this.$set(this.chart.options.series[0].data, 0, value.toFixed(this.decimals) * 1)
               // this.chart.options.series[0].data.push(value.toFixed(this.decimals) * 1)
               // this.chart.options.series[0].data.shift()
-            )
+            // )
         }
         else{
 

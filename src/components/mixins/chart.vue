@@ -16,6 +16,8 @@
 
 <script>
 
+import { frameDebounce } from 'quasar'
+
 import dygraphWrapper from 'components/wrappers/dygraph'
 import vueEasyPieChartWrapper from 'components/wrappers/vueEasyPieChart'
 import jqueryKnobWrapper from 'components/wrappers/jqueryKnob'
@@ -34,6 +36,8 @@ export default {
     lastupdate: 0,
     data: []
   },
+
+  focus: true,
 
   __unwatcher: undefined,
   __chart_init: false,
@@ -78,6 +82,14 @@ export default {
   },
 
   created () {
+    window.addEventListener('blur', function() {
+       this.$options.focus = false
+    }.bind(this), false)
+
+    window.addEventListener('focus', function() {
+       this.$options.focus = true
+    }.bind(this), false)
+
     this.create()
   },
   // mounted () {
@@ -93,9 +105,15 @@ export default {
   },
   methods: {
     reset: function(){
-      console.log('chart.vue mixing reset', this.id)
+      console.log('chart.vue mixing reset', this.id, this.$refs[this.id])
+      // this.$refs[this.id].reset()
       this.destroy()
       this.create()
+    },
+    create: function(){
+      // console.log('chart.vue mixing create', this.id, this.$refs[this.id])
+      // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
+      //   this.$refs[this.id].create()
     },
     destroy: function(){
       console.log('chart.vue mixing destroy', this.id)
@@ -103,21 +121,23 @@ export default {
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
 
-      this.$options.tabular.data = [[]]
+      // this.$options.tabular.data = [[]]
+      //
+      // this.$set(this.tabular, 'data', [[]])
 
-      this.$set(this.tabular, 'data', [[]])
+      // if(this.$refs[this.id] && typeof this.$refs[this.id].destroy == 'function')
+      //   this.$refs[this.id].destroy()
 
-      // this.$refs[this.id].destroy()
       this.$options.__chart_init = false
 
     },
     __create_watcher(name, chart){},
     update_chart_stat (name, data){
-      
+
       // console.log('chart mixin update_chart_stat', name, this.id, this.$refs[this.id])
 
 
-      if(this.$options.visible == true && data.length > 0){
+      if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // console.log('update_chart_stat visibility', this.id, data)
         if(data.length == 1){
 
@@ -149,16 +169,20 @@ export default {
 
         this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
-        console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
+        // console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
 
         // this.tabular.lastupdate = Date.now()
+
+
+        // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
         this.$options.tabular.lastupdate = Date.now()
         if(this.$refs[name] && typeof this.$refs[name].update == 'function'){
-          this.$refs[name].update(this.$options.tabular.data)
+          frameDebounce(this.$refs[name].update(this.$options.tabular.data))
         }
         else{
-          this.$set(this, 'tabular', this.$options.tabular)
+          frameDebounce(this.$set(this, 'tabular', this.$options.tabular))
         }
+
 
       }
 
