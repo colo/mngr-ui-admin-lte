@@ -170,9 +170,10 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      path: 'os',
-      key: 'networkInterfaces',
+      path: 'networkInterfaces_stats',
+      key: 'os_networkInterfaces_stats_',
       length: 300,
+      tabular: true,
       range: undefined
     },
     watcher: undefined,
@@ -181,7 +182,7 @@ export default {
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os',
+      path: 'os.networkInterfaces_stats',
       range: true
     }
   }
