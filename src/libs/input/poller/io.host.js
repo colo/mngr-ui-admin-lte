@@ -139,7 +139,7 @@ export default new Class({
   // },
   host: function(socket, next){
     let {host, status, charts} = arguments[2]
-    //console.log('IO.HOST host', host, status, charts)
+    console.log('IO.HOST host', host, status, charts)
     this.status = status
 
     this.fireEvent('onDoc', [{type: 'host', host: host, charts: charts}, {type: 'doc', input_type: this, app: null}]);
