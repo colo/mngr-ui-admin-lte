@@ -583,6 +583,7 @@ export default {
   charts_objects: {},
   // charts: {},
   pipelines: {},
+  pipelines_events: {},
 
   daterangepicker:{
     opens: 'right',
@@ -884,7 +885,7 @@ export default {
         }
       }
 
-      this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
+      // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
 
       this.available_charts[this.host+'_os_cpus_times'] = Object.merge(
         this.get_payload(charts_payloads,{
@@ -909,7 +910,7 @@ export default {
           }
         }
       )
-      this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
+      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
 
 
       this.available_charts[this.host+'_os_cpus_percentage'] = Object.merge(
@@ -932,7 +933,7 @@ export default {
       )
 
 
-      this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_percentage'])
+      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_percentage'])
 
       /**
       * remove for testing
@@ -1082,7 +1083,7 @@ export default {
         }
       )
 
-      this.__get_stat_for_chart(this.available_charts[this.host+'_os_uptime'])
+      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_uptime'])
 
 
       this.available_charts[this.host+'_os_loadavg'] = Object.merge(
@@ -1103,7 +1104,7 @@ export default {
           }.bind(this),
         }
       )
-      this.__get_stat_for_chart(this.available_charts[this.host+'_os_loadavg'])
+      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_loadavg'])
 
 
       let unwatch_blockdevices = this.$watch('blockdevices', function(val, old){
@@ -1143,7 +1144,7 @@ export default {
               })
             )
 
-            this.__get_stat_for_chart(this.available_charts[chart_name])
+            // this.__get_stat_for_chart(this.available_charts[chart_name])
             dev_counter++
 
           }.bind(this))
@@ -1191,7 +1192,7 @@ export default {
                 }
               }
             ))
-            this.__get_stat_for_chart(this.available_charts[chart_name])
+            // this.__get_stat_for_chart(this.available_charts[chart_name])
 
             mount_counter++
           }.bind(this))
@@ -1266,7 +1267,7 @@ export default {
                   })
                 )
 
-                 this.__get_stat_for_chart(this.available_charts[chart_name])
+                 // this.__get_stat_for_chart(this.available_charts[chart_name])
               }
             }.bind(this))
           }.bind(this))
@@ -1277,6 +1278,7 @@ export default {
         deep:true
       })
 
+      this.set_range(moment().subtract(5, 'minute'), moment())
       /**
       * remove for testing
       **/
@@ -1346,7 +1348,7 @@ export default {
             }
           }
         )
-        this.__get_stat_for_chart(this.available_charts[this.host+'_os_freemem'])
+        // this.__get_stat_for_chart(this.available_charts[this.host+'_os_freemem'])
 
         /**
         * pie
@@ -1608,7 +1610,8 @@ export default {
 
     },
     set_range: function(start, end){
-      //console.log('set_range daterangepicker', start.utc().valueOf(), end.utc().valueOf())
+      console.log('set_range', start.utc().valueOf(), end.utc().valueOf())
+
       Object.each(this.available_charts, function(payload, name){
         let range = [start.utc().valueOf(), end.utc().valueOf()]
         let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
@@ -1638,7 +1641,7 @@ export default {
 
       }.bind(this))
 
-
+      this.fire_pipelines_events()
     },
     get_payload: function(payloads, payload){
       let {name, host, seconds, range} = payload
@@ -1745,14 +1748,36 @@ export default {
           let pipe = undefined
           let eventRange = undefined
           if(Array.isArray(pipeline)){
-            pipe = this.$options.pipelines[pipeline[index].name]
-            pipe.inputs[0].options.conn[0].module.options.paths = [pipeline[index].path]
+            // pipe = this.$options.pipelines[pipeline[index].name]
+            // pipe.inputs[0].options.conn[0].module.options.paths = [pipeline[index].path]
             eventRange = (tabular == true) ? 'tabularRange' : pipeline[index].path+'Range'
+
+            if(pipeline[index].range && pipeline[index].range == true)
+              this._set_pipelines_events({
+                pipeline: {
+                  name: pipeline[index].name,
+                  options: "inputs[0].options.conn[0].module.options.paths = ['"+pipeline[index].path+"']"
+                },
+                event:{
+                  'onRange' : { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' }
+                }
+              })
           }
           else{
-            pipe = this.$options.pipelines[pipeline.name]
-            pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
+            // pipe = this.$options.pipelines[pipeline.name]
+            // pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
             eventRange = (tabular == true) ? 'tabularRange' : pipeline.path+'Range'
+
+            if(pipeline.range && pipeline.range == true)
+              this._set_pipelines_events({
+                pipeline: {
+                  name: pipeline.name,
+                  options: "inputs[0].options.conn[0].module.options.paths = ['"+pipeline.path+"']"
+                },
+                event:{
+                  'onRange' : { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' }
+                }
+              })
           }
 
 
@@ -1838,14 +1863,14 @@ export default {
           // 	count_events++
           // })
 
-          if(Array.isArray(pipeline)){
-            if(pipeline[index].range && pipeline[index].range == true)
-              pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-          }
-          else{
-            if(pipeline.range && pipeline.range == true)
-              pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-          }
+          // if(Array.isArray(pipeline)){
+          //   if(pipeline[index].range && pipeline[index].range == true)
+          //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // }
+          // else{
+          //   if(pipeline.range && pipeline.range == true)
+          //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+          // }
 
 
 
@@ -1856,6 +1881,54 @@ export default {
 
 
 
+    },
+    fire_pipelines_events(){
+      console.log('fire_pipelines_events',this.$options.pipelines_events)
+      Object.each(this.$options.pipelines_events, function(pipeline, name){
+        let pipe = this.$options.pipelines[name]
+        Array.each(pipeline, function(obj){
+          let {options, event} = obj
+          eval('pipe.'+options)
+          let event_name = Object.keys(event)[0]
+          pipe.fireEvent(event_name, event[event_name])
+
+          console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
+
+        })
+      }.bind(this))
+    },
+    _set_pipelines_events (payload){
+      let {pipeline, event} = payload
+      if(!this.$options.pipelines_events[pipeline.name])
+        this.$options.pipelines_events[pipeline.name] = []
+
+      let obj = {options: pipeline.options, event}
+      if(this.$options.pipelines_events[pipeline.name].length == 0){
+        this.$options.pipelines_events[pipeline.name].push(obj)
+      }
+      else{
+        let found = false
+        Array.each(this.$options.pipelines_events[pipeline.name], function(pipe){
+          // found = false
+          if(pipe.options == obj.options){
+            // found = true
+            // console.log('_set_pipelines_events', pipe.options, obj.options)
+            let pipe_event_name = Object.keys(pipe.event)[0]
+            let obj_event_name = Object.keys(obj.event)[0]
+
+
+            if(pipe_event_name == obj_event_name)
+              found = true
+          }
+
+
+        }.bind(this))
+
+        if(found == false )
+          this.$options.pipelines_events[pipeline.name].push(obj)
+      }
+
+      console.log('_set_pipelines_events', this.$options.pipelines_events)
     },
     /**
     * based on docs (obtained from local DB) and range, defined if we can update stat with this

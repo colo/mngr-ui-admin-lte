@@ -20,7 +20,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os',
-      range: false
+      range: true
     }
   },
 
@@ -43,7 +43,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os',
-      range: false
+      range: true
     }
   },
 
@@ -66,7 +66,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os',
-      range: false
+      range: true
     }
   },
 
@@ -90,7 +90,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os',
-      range: false
+      range: true
     }
   },
 
@@ -113,7 +113,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os.blockdevices',
-      range: false
+      range: true
     }
   },
 
@@ -136,7 +136,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os.mounts',
-      range: false
+      range: true
     }
   },
 
@@ -159,7 +159,7 @@ export default {
     pipeline: {
       name: 'input.os',
       path: 'os',
-      range: false
+      range: true
     }
   },
 
