@@ -64,27 +64,41 @@ let get_queue = function(payload, arr){
   if(!queues[payload.host][payload.path])
     queues[payload.host][payload.path] = {}
 
-  if(!queues[payload.host][payload.path][payload.key])
-    queues[payload.host][payload.path][payload.key] = new Deque()
-
-  if(arr)
-    queues[payload.host][payload.path][payload.key] = new Deque(arr)
+  if(!queues[payload.host][payload.path][payload.key]){
+    if(arr){
+      queues[payload.host][payload.path][payload.key] = new Deque(arr)
+    }
+    else{
+      queues[payload.host][payload.path][payload.key] = new Deque()
+    }
+  }
 
   return queues[payload.host][payload.path][payload.key]
 }
 
-let get_db = function(host){
+let get_db = function(payload){
+  let {host, path} = payload
   ////console.log('ACTIONS get_db', host)
+  // if(!dbs[host])
+  //   dbs[host] = new PouchDB('tabular_live_'+host)
+  //
+  //
+  // return dbs[host]
   if(!dbs[host])
-    dbs[host] = new PouchDB('live_'+host)
+    dbs[host] = {}
+
+  if(!dbs[host][path])
+    dbs[host][path] = new PouchDB('tabular_live_'+host+'_'+path)
 
 
-  return dbs[host]
+  return dbs[host][path]
 }
-let close_db = function(host, cb){
+
+let close_db = function(payload, cb){
+  let {host, path} = payload
   // ////console.log('ACTIONS get_db', host)
-  if(dbs[host])
-    dbs[host].close(() => {delete dbs[host]; cb()})
+  if(dbs[host][path])
+    dbs[host][path].close(() => {delete dbs[host][path]; cb()})
 
   // return dbs[host]
 }
@@ -108,7 +122,8 @@ export const list_queues = ({ commit, dispatch }, payload) => {
 
 export const get = ({ commit, dispatch }, payload) => {
   // let db = new PouchDB('live_'+payload.host)
-  let db = get_db(payload.host)
+  // let db = get_db(payload.host)
+  let db = get_db(payload)
   let deque = get_queue(payload)
   //// ////console.log('action get...')
 
@@ -287,7 +302,7 @@ export const add = ({ commit, dispatch }, payload) => {
   }
 
   if(deque.length >= QUEUE_SIZE){
-    ////console.log('actions add FLUSH', deque.length)
+    console.log('actions add FLUSH', deque.length)
     payload.remaing = 0 //QUEUE_SIZE
     dispatch('flush', payload)
   }
@@ -320,7 +335,8 @@ export const flush_all = ({ commit, dispatch }, payload) => {
 
 export const flush = ({ commit, state }, payload) => {
   // let db = new PouchDB('tabular_live_'+payload.host)
-  let db = get_db(payload.host)
+  // let db = get_db(payload.host)
+  let db = get_db(payload)
   let length = payload.remaing
   let deque = get_queue(payload)
   // ////console.log('action flushing...', payload.host, payload.path, payload.key)
@@ -366,7 +382,8 @@ export const flush = ({ commit, state }, payload) => {
 
 export const splice = ({ commit, state }, payload) => {
   // let db = new PouchDB('live_'+payload.host)
-  let db = get_db(payload.host)
+  // let db = get_db(payload.host)
+  let db = get_db(payload)
   let length = payload.length
   // let deque = get_queue(payload)
 
@@ -404,7 +421,8 @@ export const splice = ({ commit, state }, payload) => {
       // db.close()
       // db = new PouchDB('live_'+payload.host)
       close_db(payload.host,() => {
-        db = get_db(payload.host)
+        // db = get_db(payload.host)
+        db = get_db(payload)
 
 
         // ////console.log('splice DOCS', res.rows)

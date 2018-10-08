@@ -433,30 +433,30 @@
         </template>
 
         <!-- <template v-for="(iface, name) in networkInterfaces">
-          <template v-for="(data, messure) in iface">
-            <admin-lte-box-solid v-if="messure == 'bytes' || messure == 'packets' || messure == 'errs'"
-              :key="'networkInterfaces_stats'+name+'_'+messure+'_box'"
-              :title="'Network Interface '+name+' : '+messure"
-              :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
+          <template v-for="(data, measure) in iface">
+            <admin-lte-box-solid v-if="measure == 'bytes' || measure == 'packets' || measure == 'errs'"
+              :key="'networkInterfaces_stats'+name+'_'+measure+'_box'"
+              :title="'Network Interface '+name+' : '+measure"
+              :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'-collapsible'"
               v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
               v-on:show="el => showCollapsible(el)"
               v-on:hide="el => hideCollapsible(el)"
             >
 
               <chart
-                v-if="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                v-if="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
                 :type="'dygraph'"
-                :ref="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                :ref="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
+                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
                 :EventBus="EventBus"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
-                :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
+                :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
               >
               </chart>
               <chart v-else
                 :type="'dygraph'"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'_empty'"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'_empty'"
+                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
               >
               </chart>
 
@@ -465,30 +465,30 @@
           </template>
         </template> -->
         <template v-for="(iface, name) in networkInterfaces">
-          <template v-for="(data, messure) in iface">
-            <admin-lte-box-solid v-if="messure == 'bytes' || messure == 'packets' || messure == 'errs'"
-              :key="'networkInterfaces_stats'+name+'_'+messure+'_box'"
-              :title="'Network Interface '+name+' : '+messure"
-              :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'-collapsible'"
+          <template v-for="(data, measure) in iface">
+            <admin-lte-box-solid v-if="measure == 'bytes' || measure == 'packets' || measure == 'errs'"
+              :key="'networkInterfaces_stats'+name+'_'+measure+'_box'"
+              :title="'Network Interface '+name+' : '+measure"
+              :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'-collapsible'"
               v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
               v-on:show="el => showCollapsible(el)"
               v-on:hide="el => hideCollapsible(el)"
             >
 
               <chart-tabular
-                v-if="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                v-if="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
                 :type="'dygraph'"
-                :ref="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure"
+                :ref="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
+                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
                 :EventBus="EventBus"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
-                :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
+                :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
               >
               </chart-tabular>
               <chart v-else
                 :type="'dygraph'"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+messure+'_empty'"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+messure]"
+                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'_empty'"
+                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
               >
               </chart>
 
@@ -688,6 +688,7 @@ export default {
 
       os_stats: function(state){
         if(state.stats && state.stats[this.host]){
+          console.log('os_stats', state.stats[this.host].os)
           return state.stats[this.host].os
         }
         else{
@@ -698,6 +699,7 @@ export default {
       mounts: function(state){
         // let host = this.$route.params.host || this.$store.state.hosts.current
         if(state.stats && state.stats[this.host]){
+          console.log('mounts', state.stats[this.host].os_mounts)
           return state.stats[this.host].os_mounts
         }
         else{
@@ -708,6 +710,7 @@ export default {
       blockdevices: function(state){
         // let host = this.$route.params.host || this.$store.state.hosts.current
         if(state.stats && state.stats[this.host]){
+          console.log('blockdevices', state.stats[this.host].os_blockdevices)
           return state.stats[this.host].os_blockdevices
         }
         else{
@@ -718,97 +721,104 @@ export default {
       /**
       * @merge: copied to worker/apps/os/info/filters/networkInterfaces.js
       **/
+      networkInterfaces: function(state){
+        if(state['host_'+this.host] && state['host_'+this.host].networkInterfaces){
+          console.log('networkInterfaces', state['host_'+this.host].networkInterfaces)
+          return state['host_'+this.host].networkInterfaces
+        }
+        else{
+          // let host = this.$route.params.host || state.hosts.current
+          if(state.stats && state.stats[this.host]){
+            // return state.stats[this.host].os_networkInterfaces
+            let networkInterfaces = {}
+            let val = state.stats[this.host].os.networkInterfaces.value.data
+            let ifaces = Object.keys(val)
+            let properties = Object.keys(val[ifaces[0]])
+
+            /**
+            * properties[0] is "if", we want recived | transmited only
+            **/
+            let measures = Object.keys(val[ifaces[0]][properties[1]])
+
+            Array.each(ifaces, function(iface){
+              if(!networkInterfaces[iface])
+                networkInterfaces[iface] = {}
+              /**
+              * turn data property->measure (ex: transmited { bytes: .. }),
+              * to: measure->property (ex: bytes {transmited:.., recived: ... })
+              **/
+              Array.each(measures, function(measure){// "bytes" | "packets"
+                if(!networkInterfaces[iface][measure])
+                  networkInterfaces[iface][measure] = {}
+
+                Array.each(properties, function(property, index){
+                  /**
+                  * properties[0] is "if", we want recived | transmited only
+                  **/
+                  if(index != 0){
+                    networkInterfaces[iface][measure][property] = val[iface][property][measure] * 1
+                  }
+
+                })
+
+              })
+
+            })
+
+            console.log('computed networkInterfaces', networkInterfaces)
+            this.$store.commit('host_'+this.host+'/networkInterfaces', networkInterfaces)
+            return networkInterfaces
+          }
+          else{
+            return {}
+          }
+        }
+      },
       // networkInterfaces: function(state){
       //   // let host = this.$route.params.host || state.hosts.current
       //   if(state.stats && state.stats[this.host]){
-      //     // return state.stats[this.host].os_networkInterfaces
       //     let networkInterfaces = {}
-      //     let val = state.stats[this.host].os.networkInterfaces.value.data
-      //     let ifaces = Object.keys(val)
-      //     let properties = Object.keys(val[ifaces[0]])
+      //     let val = state.stats[this.host].os_networkInterfaces_stats
+      //     let ifaces_mesures = Object.keys(val)
       //
-      //     /**
-      //     * properties[0] is "if", we want recived | transmited only
-      //     **/
-      //     let messures = Object.keys(val[ifaces[0]][properties[1]])
+      //     Array.each(ifaces_mesures, function(iface_mesure){
+      //       let iface = iface_mesure.split('_')[0]
+      //       let measure = iface_mesure.split('_')[1]
       //
-      //     Array.each(ifaces, function(iface){
       //       if(!networkInterfaces[iface])
       //         networkInterfaces[iface] = {}
-      //       /**
-      //       * turn data property->messure (ex: transmited { bytes: .. }),
-      //       * to: messure->property (ex: bytes {transmited:.., recived: ... })
-      //       **/
-      //       Array.each(messures, function(messure){// "bytes" | "packets"
-      //         if(!networkInterfaces[iface][messure])
-      //           networkInterfaces[iface][messure] = {}
       //
-      //         Array.each(properties, function(property, index){
+      //       if(!networkInterfaces[iface][measure])
+      //         networkInterfaces[iface][measure] = {}
+      //       /**
+      //       * turn data property->measure (ex: transmited { bytes: .. }),
+      //       * to: measure->property (ex: bytes {transmited:.., recived: ... })
+      //       **/
+      //       // Object.each(val[iface_mesure].value.data, function(value, measure){// "bytes" | "packets"
+      //       //   if(!networkInterfaces[iface][measure])
+      //       //     networkInterfaces[iface][measure] = {}
+      //
+      //         Object.each(val[iface_mesure].value.data, function(value, property){
       //           /**
       //           * properties[0] is "if", we want recived | transmited only
       //           **/
-      //           if(index != 0){
-      //             networkInterfaces[iface][messure][property] = val[iface][property][messure] * 1
+      //           if(value != 0){
+      //             networkInterfaces[iface][measure][property] = undefined //value * 1
       //           }
       //
       //         })
       //
-      //       })
+      //       // })
       //
-      //     })
+      //     }.bind(this))
       //
-      //     ////////console.log('networkInterfaces', networkInterfaces)
+      //     console.log('networkInterfaces', networkInterfaces)
       //     return networkInterfaces
       //   }
       //   else{
       //     return {}
       //   }
       // }
-      networkInterfaces: function(state){
-        // let host = this.$route.params.host || state.hosts.current
-        if(state.stats && state.stats[this.host]){
-          let networkInterfaces = {}
-          let val = state.stats[this.host].os_networkInterfaces_stats
-          let ifaces_mesures = Object.keys(val)
-
-          Array.each(ifaces_mesures, function(iface_mesure){
-            let iface = iface_mesure.split('_')[0]
-            let messure = iface_mesure.split('_')[1]
-
-            if(!networkInterfaces[iface])
-              networkInterfaces[iface] = {}
-
-            if(!networkInterfaces[iface][messure])
-              networkInterfaces[iface][messure] = {}
-            /**
-            * turn data property->messure (ex: transmited { bytes: .. }),
-            * to: messure->property (ex: bytes {transmited:.., recived: ... })
-            **/
-            // Object.each(val[iface_mesure].value.data, function(value, messure){// "bytes" | "packets"
-            //   if(!networkInterfaces[iface][messure])
-            //     networkInterfaces[iface][messure] = {}
-
-              Object.each(val[iface_mesure].value.data, function(value, property){
-                /**
-                * properties[0] is "if", we want recived | transmited only
-                **/
-                if(value != 0){
-                  networkInterfaces[iface][messure][property] = value * 1
-                }
-
-              })
-
-            // })
-
-          }.bind(this))
-
-          console.log('networkInterfaces', networkInterfaces)
-          return networkInterfaces
-        }
-        else{
-          return {}
-        }
-      }
 
     }),
 
@@ -850,8 +860,10 @@ export default {
         // ],
         chart: merged_chart,
         stop: function(payload){
-
-          Array.each(payload.stat, function(stat){
+          // console.log('merged stop', payload)
+          Array.each(payload.stat, function(stat, index){
+            let indexed_name = payload.name+'_'+index
+            //this.remove_watcher(indexed_name)
             this.$store.dispatch('stats_tabular/flush', stat)
           }.bind(this))
 
@@ -901,6 +913,7 @@ export default {
           chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
           stop: function(payload){
             //////console.log('stoping _os_cpus_times', payload.stat)
+            //this.remove_watcher(payload.name)
             this.$store.dispatch('stats_tabular/flush', payload.stat)
 
             // this.$store.dispatch('stats_tabular/splice', payload.stat)
@@ -926,6 +939,7 @@ export default {
           },
           chart: Object.merge(cpus_percentage_chart, this.$options.charts_objects['cpus_percentage']),
           stop: function(payload){
+            //this.remove_watcher(payload.name)
             this.$store.dispatch('stats_tabular/flush', payload.stat)
             // this.$store.dispatch('stats_tabular/splice', payload.stat)
           }.bind(this),
@@ -1054,6 +1068,7 @@ export default {
           chart: highchartsVueGauge,
           init: this.__get_stat_for_chart.bind(this),
           stop: function(payload){
+            //this.remove_watcher(payload.name)
             this.$store.dispatch('stats_tabular/flush', payload.stat)
           }.bind(this),
           pipeline: {
@@ -1077,6 +1092,7 @@ export default {
           },
           chart: Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
           stop: function(payload){
+            //this.remove_watcher(payload.name)
             this.$store.dispatch('stats_tabular/flush', payload.stat)
             // this.$store.dispatch('stats_tabular/splice', payload.stat)
           }.bind(this),
@@ -1099,6 +1115,7 @@ export default {
           },
           chart: Object.merge(loadavg_chart, this.$options.charts_objects['loadavg']),
           stop: function(payload){
+            //this.remove_watcher(payload.name)
             this.$store.dispatch('stats_tabular/flush', payload.stat)
             // this.$store.dispatch('stats_tabular/splice', payload.stat)
           }.bind(this),
@@ -1132,6 +1149,7 @@ export default {
                 name: chart_name,
                 chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.$options.charts_objects['blockdevices_stats'])),
                 stop: function(payload){
+                  //this.remove_watcher(payload.name)
                   this.$store.dispatch('stats_tabular/flush', payload.stat)
                   // this.$store.dispatch('stats_tabular/splice', payload.stat)
                 }.bind(this),
@@ -1181,6 +1199,7 @@ export default {
                 name: chart_name,
                 chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.$options.charts_objects['mounts_percentage'])),
                 stop: function(payload){
+                  //this.remove_watcher(payload.name)
                   this.$store.dispatch('stats_tabular/flush', payload.stat)
                   // this.$store.dispatch('stats_tabular/splice', payload.stat)
                 }.bind(this),
@@ -1212,11 +1231,11 @@ export default {
           // let iface_index = 0
           Object.each(val, function(iface, name){
 
-            Object.each(iface, function(data, messure){
-              // if(name == 'lo' && messure == 'bytes'){
-              if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
+            Object.each(iface, function(data, measure){
+              // if(name == 'lo' && measure == 'bytes'){
+              if(measure == 'bytes' || measure == 'packets' || measure == 'errs'){
 
-                let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
+                let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+measure
                 console.log('adding networkInterface chart '+chart_name)
 
                 this.available_charts[chart_name] = Object.merge(
@@ -1234,6 +1253,7 @@ export default {
                     chart: Object.merge(Object.clone(networkInterfaces_stats_chart), this.$options.charts_objects['networkInterfaces_stats']),
                     // init: this.__get_stat_for_chart.bind(this),
                     stop: function(payload){
+                      //this.remove_watcher(payload.name)
                       // // this.remove_chart_stat(payload.name)
                       // this.remove_watcher(payload.name)
                       // // this.add_chart_stat(payload.name)
@@ -1244,7 +1264,7 @@ export default {
                     }.bind(this),
 
                     stat: {
-                      key: 'os_networkInterfaces_stats_'+name+'_'+messure,
+                      key: 'os_networkInterfaces_stats_'+name+'_'+measure,
                     },
                     // pipeline: {
                     //   range: (mount_counter == Object.getLength(val) -1 ) ? true : false
@@ -1278,7 +1298,7 @@ export default {
         deep:true
       })
 
-      this.set_range(moment().subtract(5, 'minute'), moment())
+      // this.set_range(moment().subtract(5, 'minute'), moment())
       /**
       * remove for testing
       **/
@@ -1340,6 +1360,7 @@ export default {
             },
             chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.os_stats.totalmem.value.data}),
             stop: function(payload){
+              //this.remove_watcher(payload.name)
               this.$store.dispatch('stats_tabular/flush', payload.stat)
               // this.$store.dispatch('stats_tabular/splice', payload.stat)
             }.bind(this),
@@ -1502,11 +1523,11 @@ export default {
     //     // let iface_index = 0
     //     Object.each(val, function(iface, name){
     //
-    //       Object.each(iface, function(data, messure){
-    //         // if(name == 'lo' && messure == 'bytes'){
-    //         if(messure == 'bytes' || messure == 'packets' || messure == 'errs'){
-    //           ////////console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+messure)
-    //           let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+messure
+    //       Object.each(iface, function(data, measure){
+    //         // if(name == 'lo' && measure == 'bytes'){
+    //         if(measure == 'bytes' || measure == 'packets' || measure == 'errs'){
+    //           ////////console.log('adding networkInterface chart '+this.host+'_os_networkInterfaces_stats_'+name+'_'+measure)
+    //           let chart_name = this.host+'_os_networkInterfaces_stats_'+name+'_'+measure
     //
     //           this.available_charts[chart_name] = Object.merge(
     //             Object.clone(this.get_payload(charts_payloads,{
@@ -1597,6 +1618,7 @@ export default {
   },
   methods: {
     update_daterangepicker: function(){
+      console.log('update_daterangepicker')
       Object.each(this.$options.daterangepicker.ranges, function(range, key){
         // range[1] = moment(new Date())
         // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
@@ -1610,10 +1632,11 @@ export default {
 
     },
     set_range: function(start, end){
-      console.log('set_range', start.utc().valueOf(), end.utc().valueOf())
+      console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
 
+      let counter = 0
       Object.each(this.available_charts, function(payload, name){
-        let range = [start.utc().valueOf(), end.utc().valueOf()]
+        let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
         let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
         if(Array.isArray(this.available_charts[name].stat)){
           Array.each(this.available_charts[name].stat, function(stat, index){
@@ -1625,7 +1648,7 @@ export default {
           }.bind(this))
         }
         else{
-          this.available_charts[name].stat.range = range
+          this.available_charts[name].stat.range = Array.clone(range)
           this.available_charts[name].stat.length = length
           this.remove_watcher(name)
         }
@@ -1639,9 +1662,13 @@ export default {
           //console.log('set_range __get_stat_for_chart', this.available_charts[name])
         }
 
+        // if(counter == Object.getLength(this.available_charts) - 1)
+        //   this.$nextTick(this.fire_pipelines_events())
+
+        counter++
       }.bind(this))
 
-      this.fire_pipelines_events()
+
     },
     get_payload: function(payloads, payload){
       let {name, host, seconds, range} = payload
@@ -1752,7 +1779,7 @@ export default {
             // pipe.inputs[0].options.conn[0].module.options.paths = [pipeline[index].path]
             eventRange = (tabular == true) ? 'tabularRange' : pipeline[index].path+'Range'
 
-            if(pipeline[index].range && pipeline[index].range == true)
+            if(this.visibility[_original_payload.name] === true && pipeline[index].range && pipeline[index].range == true)
               this._set_pipelines_events({
                 pipeline: {
                   name: pipeline[index].name,
@@ -1768,7 +1795,7 @@ export default {
             // pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
             eventRange = (tabular == true) ? 'tabularRange' : pipeline.path+'Range'
 
-            if(pipeline.range && pipeline.range == true)
+            if(this.visibility[_original_payload.name] === true && pipeline.range && pipeline.range == true)
               this._set_pipelines_events({
                 pipeline: {
                   name: pipeline.name,
@@ -1871,7 +1898,9 @@ export default {
           //   if(pipeline.range && pipeline.range == true)
           //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
           // }
-
+          console.log('this.visibility', _original_payload.name, this.visibility[_original_payload.name])
+          if(this.visibility[_original_payload.name] === true)
+             this.$nextTick(this.fire_pipelines_events())
 
 
 
@@ -1882,7 +1911,7 @@ export default {
 
 
     },
-    fire_pipelines_events(){
+    fire_pipelines_events: function(){
       console.log('fire_pipelines_events',this.$options.pipelines_events)
       Object.each(this.$options.pipelines_events, function(pipeline, name){
         let pipe = this.$options.pipelines[name]
@@ -1892,12 +1921,12 @@ export default {
           let event_name = Object.keys(event)[0]
           pipe.fireEvent(event_name, event[event_name])
 
-          console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
+          // console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
 
         })
       }.bind(this))
     },
-    _set_pipelines_events (payload){
+    _set_pipelines_events: function (payload){
       let {pipeline, event} = payload
       if(!this.$options.pipelines_events[pipeline.name])
         this.$options.pipelines_events[pipeline.name] = []
@@ -1908,7 +1937,7 @@ export default {
       }
       else{
         let found = false
-        Array.each(this.$options.pipelines_events[pipeline.name], function(pipe){
+        Array.each(this.$options.pipelines_events[pipeline.name], function(pipe, index){
           // found = false
           if(pipe.options == obj.options){
             // found = true
@@ -1918,14 +1947,18 @@ export default {
 
 
             if(pipe_event_name == obj_event_name)
-              found = true
+              found = index
           }
 
 
         }.bind(this))
 
-        if(found == false )
+        if(found == false ){
           this.$options.pipelines_events[pipeline.name].push(obj)
+        }
+        else{//replace it as ranges get updated
+          this.$options.pipelines_events[pipeline.name][found] = obj
+        }
       }
 
       console.log('_set_pipelines_events', this.$options.pipelines_events)
@@ -2417,7 +2450,7 @@ export default {
 
     },
     set_chart_visibility (id, isVisible){
-      console.log('set_chart_visibility', id, isVisible, this.visibility[id])
+
       if(
         isVisible == false
         && this.available_charts[id]
@@ -2425,6 +2458,7 @@ export default {
       ){
         this.$set(this.visibility, id, false)
         this.remove_chart(id)
+        console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
         // this.$store.dispatch('stats/splice', this.available_charts[id].stat)
         // this.$store.dispatch('stats_tabular/splice', this.available_charts[id].stat)
       }
@@ -2433,6 +2467,7 @@ export default {
         && this.available_charts[id]
         && (this.visibility[id] == undefined || this.visibility[id] == false)
       ){
+        console.log('set_chart_visibility ADD', id, isVisible, this.visibility[id])
         this.$set(this.visibility, id, true)
         this.add_chart(this.available_charts[id], id)
       }

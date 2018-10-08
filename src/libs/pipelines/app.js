@@ -3,8 +3,8 @@
 import InputIOApp from '@libs/input/poller/io.app'
 
 import DefaultConn from '@etc/default.io'
-
-import store from 'src/store'
+//
+// import store from 'src/store'
 
 let buffer = {}
 
@@ -46,10 +46,18 @@ export default  {
 	// 	}
 	// ],
 	output: [
-		function(doc){
-			//console.log('app/doc output', doc)
-			store.commit('app/doc', doc)
-
-		}
+		// function(doc){
+		// 	console.log('app/doc output', doc)
+		// 	if(doc && doc.type){
+		// 		doc[doc.type] = doc
+		// 		// store.commit('app/doc', doc)
+		// 	}
+		// 	Object.each(doc, function(doc){
+		// 		if(doc && doc.type){
+		// 			store.commit('app/doc', doc)
+		// 		}
+		// 	})
+    //
+		// }
 	]
 }

@@ -1,6 +1,7 @@
 <template>
 
   <component
+    v-observe-visibility="visibilityChanged"
     :is="type+'-wrapper'"
     :id="id"
     :ref="id"
@@ -191,7 +192,7 @@ export default {
     /**
     * UI related
     **/
-    // visibilityChanged (isVisible, entry) {
+    visibilityChanged (isVisible, entry) {
     //   // this.$options.visible = isVisible
     //   if(
     //     isVisible == false
@@ -207,8 +208,8 @@ export default {
     //   //   this.$set(this.visibility, id, true)
     //   //   this.add_chart(this.available_charts[id], id)
     //   // }
-    //   this.$options.visible = isVisible
-    // },
+      this.$options.visible = isVisible
+    },
   }
 }
 </script>

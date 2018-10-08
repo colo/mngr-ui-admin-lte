@@ -4,6 +4,8 @@
 const App = require ( 'node-app-socket.io-client/index' )
 
 
+import store from 'src/store'
+
 export default new Class({
   Extends: App,
 
@@ -128,24 +130,49 @@ export default new Class({
   },
 
   app_doc: function(socket, next){
-    this.fireEvent('onPeriodicalDoc', [arguments[2], {type: 'periodical', input_type: this, app: null}]);
-		console.log('app_doc...', arguments[2])
+    if(this.recived.length < this.types.length){
+      let docs = arguments[2]
+      console.log('app_doc...', docs)
+      if(docs && docs.type){
+        docs = [docs]
+        // store.commit('app/doc', doc)
+      }
+      Array.each(docs, function(doc){
+        if(doc && doc.type){
+          this.fireEvent('onPeriodicalDoc', [doc, {type: 'periodical', input_type: this, app: null}]);
+          if(this.types.contains(doc.type) && !this.recived.contains(doc.type))
+            this.recived.push(doc.type)
 
-    if(this.types.contains(arguments[2].type) && !this.recived.contains(arguments[2].type))
-      this.recived.push(arguments[2].type)
+          store.commit('app/doc', doc)
+        }
+      }.bind(this))
+    }
 
-    if(this.recived.length == this.types.length)
-      this.io.close()
-      
+
+    // if(this.recived.length == this.types.length)
+    //   this.io.close()
+
 		// arguments[1]()
 		// this.io.to('root').emit('response', 'a new user has joined the room saying '+arguments[2]);
 		// next(socket)
 	},
 
+  // socket: function(socket){
+  //   console.log('node-app-socker.io-client/socket')
+  //   this.parent(socket)
+  //
+  //   socket.emit('get')
+  // },
   initialize: function(options){
 		this.parent(options);//override default options
 
 		this.profile('root_init');//start profiling
+
+
+    this.addEvent('onConnect', function(){
+      console.log('node-app-socker.io-client/socket')
+      this.io.emit('get')
+    })
 
     this.addEvent('onExit', function(){
       //console.log('EXITING...')
