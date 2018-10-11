@@ -60,16 +60,27 @@ export default new Class({
 			],
       once: [
         {
-					host: function(req, next, app){
+					charts: function(req, next, app){
 
             if(app.options.stat_host){
 
-              this.io.emit('host', app.options.stat_host)
+              this.io.emit('charts', app.options.stat_host)
 
             }
 
 					}
-				}
+				},
+        {
+					stats: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('stats', app.options.stat_host)
+
+            }
+
+					}
+				},
         // {
 				// 	charts_by_host: function(req, next, app){
         //
@@ -109,16 +120,16 @@ export default new Class({
         // 'charts':[{
         //   callbacks: ['charts']
         // }],
-        'host': [{
+        'charts': [{
 					// path: ':param',
 					// once: true, //socket.once
-					callbacks: ['host'],
+					callbacks: ['charts'],
 					// middlewares: [], //socket.use(fn)
 				}],
-				'os': [{
+				'stats': [{
 					// path: ':param',
 					// once: true, //socket.once
-					callbacks: ['os'],
+					callbacks: ['stats'],
 					// middlewares: [], //socket.use(fn)
 				}],
 				// '*': [{// catch all
@@ -137,12 +148,12 @@ export default new Class({
   //
   //   this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
   // },
-  host: function(socket, next){
+  charts: function(socket, next){
     let {host, status, charts} = arguments[2]
-    console.log('IO.HOST host', host, status, charts)
+    console.log('IO.HOST charts', host, status, charts)
     this.status = status
 
-    this.fireEvent('onDoc', [{type: 'host', host: host, charts: charts}, {type: 'doc', input_type: this, app: null}]);
+    this.fireEvent('onDoc', [Object.merge({type: 'charts'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
 
     // this.charts(socket, next, {host: host, charts: charts})
     // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
@@ -150,12 +161,12 @@ export default new Class({
     // if(status == 'ok')
     //   this.io.emit('range', )
   },
-  os: function(socket, next){
+  stats: function(socket, next){
     let {type, doc, tabular} = arguments[2]
-    //console.log('IO.HOST os', arguments[2])
+    console.log('IO.HOST stats', arguments[2])
 
     // if(tabular != true)
-      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [arguments[2], {type: type, input_type: this, app: null}]);
+      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge({type: 'stats'}, arguments[2]), {type: type, input_type: this, app: null}]);
 
 		// //console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()

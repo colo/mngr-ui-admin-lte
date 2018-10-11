@@ -47,16 +47,18 @@ export default  {
 	// ],
 	output: [
 		function(payload){
-      //console.log('HOST OUTPUT', payload)
+      console.log('HOST OUTPUT', payload)
 			// //console.log('app/doc output', doc)
 			// store.commit('app/doc', doc)
 
-			if(payload.type == 'host'){
-				EventBus.$emit('host', payload)
-			}
-			else{
-				EventBus.$emit('os', payload)
-			}
+			// if(payload.type == 'host'){
+			if(!payload.err)
+				EventBus.$emit(payload.type, payload)
+				
+			// }
+			// else{
+			// 	EventBus.$emit('os', payload)
+			// }
 
 
 

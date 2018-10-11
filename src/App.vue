@@ -167,10 +167,10 @@ export default {
       deep: true
     }
   },
-  // mounted: function(){
-  //   this.process_paths_doc(this.$store.state.app.docs.paths)
-  //   this.process_hosts_doc(this.$store.state.app.docs.hosts)
-  // },
+  mounted: function(){
+    this.process_paths_doc(this.$store.state.app.docs.paths)
+    this.process_hosts_doc(this.$store.state.app.docs.hosts)
+  },
   methods: {
     process_paths_doc: function(doc){
       console.log('process_paths_doc', doc)

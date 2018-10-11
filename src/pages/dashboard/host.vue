@@ -827,8 +827,8 @@ export default {
   created: function(){
     // //////console.log('life cycle created')
 
-    EventBus.$once('host', doc => {
-      console.log('recived doc via Event host', doc)
+    EventBus.$once('charts', doc => {
+      console.log('recived doc via Event charts', doc)
       Object.each(doc.charts, function(data, name){
         // if(data['_instances']){
         //   console.log('recived doc via Event host', doc)
@@ -846,6 +846,7 @@ export default {
       /**
       * remove for testing
       **/
+      // console.log('this.$options.charts_objects[cpus_times])', this.$options.charts_objects['cpus_times'])
       let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
       Array.each(merged_chart.options.labels, function(label, index){
         merged_chart.options.labels[index] = 'cpus times '+label
@@ -1304,15 +1305,16 @@ export default {
       **/
     })
 
-    EventBus.$on('os', payload => {
-      // //////console.log('recived doc via Event os', payload)
+    EventBus.$on('stats', payload => {
+      console.log('recived doc via Event stats', payload)
         // if(this.$options.tabular_range_started === true && payload.tabular == true){
-        if(payload.tabular == true){
+        if(payload.host == this.host && payload.tabular == true){
           this.process_os_tabular(payload.doc)
         }
         // else if(this.$options.range_started === true && payload.tabular != true){
-        else{
-          this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
+        else if(payload.host == this.host){
+          // this.process_os_doc(payload.doc, this.__add_os_doc_stats.bind(this))
+          this.__add_os_doc_stats(payload.stats)
         }
 
         // if(payload.type == 'range')
@@ -2283,7 +2285,7 @@ export default {
 
     },
     __add_os_doc_stats(paths){
-      // //////console.log('__add_os_doc_stats', paths)
+      console.log('__add_os_doc_stats', paths)
       Object.each(paths, function(keys, path){
         // ////////console.log('stat process_os_doc', path)
 
