@@ -107,18 +107,18 @@ export default {
   },
   methods: {
     reset: function(){
-      console.log('chart.vue mixing reset', this.id, this.$refs[this.id])
+      //console.log('chart.vue mixing reset', this.id, this.$refs[this.id])
       // this.$refs[this.id].reset()
       this.destroy()
       this.create()
     },
     create: function(){
-      // console.log('chart.vue mixing create', this.id, this.$refs[this.id])
+      // //console.log('chart.vue mixing create', this.id, this.$refs[this.id])
       if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
         this.$refs[this.id].create()
     },
     destroy: function(){
-      console.log('chart.vue mixing destroy', this.id)
+      //console.log('chart.vue mixing destroy', this.id)
 
       if(this.$options.__unwatcher)
         this.$options.__unwatcher()
@@ -136,11 +136,11 @@ export default {
     __create_watcher(name, chart){},
     update_chart_stat (name, data){
 
-      // console.log('chart mixin update_chart_stat', name, this.id, this.$refs[this.id])
+      // //console.log('chart mixin update_chart_stat', name, this.id, this.$refs[this.id])
 
 
       if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
-        // console.log('update_chart_stat visibility', this.id, data)
+        // //console.log('update_chart_stat visibility', this.id, data)
         if(data.length == 1){
 
           // this.tabular.data.shift()
@@ -171,7 +171,7 @@ export default {
 
         this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
-        // console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
+        // //console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
 
         // this.tabular.lastupdate = Date.now()
 

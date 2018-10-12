@@ -80,7 +80,7 @@ let get_queue = function(payload, arr){
 
 let get_db = function(payload){
   let {host, path} = payload
-  ////console.log('ACTIONS get_db', host)
+  console.log('ACTIONS get_db', payload)
   // if(!dbs[host])
   //   dbs[host] = new PouchDB('tabular_live_'+host)
   //

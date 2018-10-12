@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import hosts from './hosts'
 import app from './app'
 import stats from './stats'
-import stats_tabular from './stats_tabular'
+// import stats_tabular from './stats_tabular'
 
 Vue.use(Vuex)
 //
@@ -45,7 +45,7 @@ const store = new Vuex.Store({
     hosts,
     app,
     stats,
-    stats_tabular
+    // stats_tabular
     // stats: {
     //   namespaced: true,
     //   state: function() {

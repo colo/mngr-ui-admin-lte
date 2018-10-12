@@ -82,22 +82,22 @@ export default {
   watch: {
     // visible: function (val) {
     //   this.container_class_helper = (val == false) ? 'invisible' : ''
-    //   // //////console.log('class visible', val, this.container_class_helper)
+    //   // ////////console.log('class visible', val, this.container_class_helper)
     // }
   },
 
   created () {
-    //////console.log('created', this.id, this.stat.data)
+    ////////console.log('created', this.id, this.stat.data)
     // this.$set(stat, 'data', [[]])
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
       EventBus.$on('highlightCallback', params => {
         this.highlighted = true
-        // //////////console.log('event highlightCallback', params)
+        // ////////////console.log('event highlightCallback', params)
   		})
       EventBus.$on('unhighlightCallback', event => {
         this.highlighted = false
-        // //////////console.log('event unhighlightCallback', event)
+        // ////////////console.log('event unhighlightCallback', event)
   		})
     }
 
@@ -138,7 +138,7 @@ export default {
   destroyed (){
     this.destroy()
     if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
-      // //////console.log('destroying ...', this.id)
+      // ////////console.log('destroying ...', this.id)
       this.$options.graph.destroy()
 
     }
@@ -158,15 +158,15 @@ export default {
     //   //   this.reset()
     // },
     reset: function(){
-      console.log('dygraph reset')
+      //console.log('dygraph reset')
       this.destroy()
       this.create()
     },
     destroy: function(){
-      ////console.log('dygraph destroy', this.id)
+      //////console.log('dygraph destroy', this.id)
 
       if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
-        // //////console.log('destroying ...', this.id)
+        // ////////console.log('destroying ...', this.id)
         this.$options.graph.destroy()
 
       }
@@ -185,7 +185,7 @@ export default {
       // this.$options.__unwatcher = this.$watch('stat.data', function (val, oldVal) {
       //
       //
-      //   //console.log('updated data dygraph', this.id, this.stat.data)
+      //   ////console.log('updated data dygraph', this.id, this.stat.data)
       //
       //   // if(val.length > 1 && this.chart == null){
       //   if(val.length > 1){
@@ -234,7 +234,7 @@ export default {
         //   data.push(row)
         // })
 
-        ////console.log('__create_dygraph', data, options.labels)
+        //////console.log('__create_dygraph', data, options.labels)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div
@@ -243,7 +243,7 @@ export default {
         )
 
         this.$options.graph.ready(function(){
-          // //////////console.log('chart '+this.id+' ready')
+          // ////////////console.log('chart '+this.id+' ready')
           this.ready = true
           // this.update()
         }.bind(this))
@@ -267,7 +267,7 @@ export default {
       return data
     },
     update (data){
-      console.log('dygraph update', this.id, data, this.$options.graph.numRows())
+      // //console.log('dygraph update', this.id, data, this.$options.graph.numRows())
       data = this._get_data(data)
       // let options = (this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
       // if(this.$options.visible == true && this.ready == true){
@@ -282,7 +282,7 @@ export default {
 
 
         // else{
-        //   ////console.log('no focus, forcing...', new Date())
+        //   //////console.log('no focus, forcing...', new Date())
         //   this.updateOptions(
         //     data,
         //     // {},
@@ -324,7 +324,7 @@ export default {
 
 
           // let data = []
-          console.log('updateOptions', data, options)
+          //console.log('updateOptions', data, options)
 
           this.$options.graph.updateOptions(
             Object.merge(

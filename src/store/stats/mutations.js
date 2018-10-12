@@ -1,50 +1,65 @@
 import Vue from 'vue'
 
 export const add = function(state, payload) {//generic mutation
-  // console.log('MUTATION', payload.data)
+  //console.log('MUTATIONS add', payload)
 
-  if(!state[payload.host])
-    Vue.set(state, payload.host, {})
+  let {host, path, key, data, tabular} = payload
 
-  if(!state[payload.host][payload.path])
-    Vue.set(state[payload.host], payload.path, {})
+  let type = (tabular == true) ? 'tabular' : 'stat'
 
-  if(!state[payload.host][payload.path][payload.key])
-    Vue.set(state[payload.host][payload.path], payload.key, undefined)
+  if(!state[host])
+    Vue.set(state, host, {})
+
+  if(!state[host][type])
+    Vue.set(state[host], type, {})
+
+
+  if(!state[host][type][path])
+    Vue.set(state[host][type], path, {})
+
+  if(!state[host][type][path][key])
+    Vue.set(state[host][type][path], key, undefined)
+
 
   let value = undefined
-  if(Array.isArray(payload.data)){
-    // Vue.set(state[payload.host][payload.path], payload.key, payload.value)
+  if(Array.isArray(data)){
+    // Vue.set(state[host][path], key, value)
 
     //get doc with highest timestamp
-    value = Math.max.apply(Math, payload.data.map(function(o) { return o.timestamp; }))
+    value = Math.max.apply(Math, data.map(function(o) { return o.timestamp; }))
   }
   else{
-    value = payload.data
+    value = data
   }
   // else {
-  //   if(!state[payload.host][payload.path][payload.key])
-  //     Vue.set(state[payload.host][payload.path], payload.key, [])
+  //   if(!state[host][path][key])
+  //     Vue.set(state[host][path], key, [])
   //
   //
   // }
 
-  // Vue.set(state[payload.host][payload.path], payload.key, value)
-  state[payload.host][payload.path][payload.key] = value
+  // Vue.set(state[host][path], key, value)
+  state[host][type][path][key] = value
 }
 
 export const clear = (state, payload) => {
-  //console.log('clear mutation')
+  let {host, path, key, tabular} = payload
 
-  if(!state[payload.host])
-    Vue.set(state, payload.host, {})
+  let type = (tabular == true) ? 'tabular' : 'stat'
+  ////console.log('clear mutation')
 
-  if(!state[payload.host][payload.path])
-    Vue.set(state[payload.host], payload.path, {})
+  if(!state[host])
+    Vue.set(state, host, {})
 
-  if(!state[payload.host][payload.path][payload.key])
-    Vue.set(state[payload.host][payload.path], payload.key, undefined)
+  if(!state[host][type])
+    Vue.set(state[host], type, {})
 
+
+  if(!state[host][type][path])
+    Vue.set(state[host][type], path, {})
+
+  if(!state[host][type][path][key])
+    Vue.set(state[host][type][path], key, undefined)
 
 }
 //

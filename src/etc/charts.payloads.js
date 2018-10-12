@@ -9,7 +9,7 @@ export default {
     stat: {
       host: undefined,
       path: 'cpus_percentage',
-      key: 'os_cpus',
+      key: 'cpus',
       length: 300,
       tabular: true,
       range: undefined
@@ -55,7 +55,7 @@ export default {
     stat: {
       host: undefined,
       path: 'uptime',
-      key: 'os_uptime',
+      key: 'uptime',
       length: 300,
       tabular: true,
       range: undefined
@@ -79,7 +79,7 @@ export default {
     stat: {
       host: undefined,
       path: 'loadavg',
-      key: 'os_loadavg',
+      key: 'loadavg',
       length: 300,
       tabular: true,
       range: undefined
@@ -102,7 +102,7 @@ export default {
     stat: {
       host: undefined,
       path: 'blockdevices_stats',
-      key: 'os_blockdevices',
+      key: '',
       length: 300,
       tabular: true,
       range: undefined
@@ -125,7 +125,7 @@ export default {
     stat: {
       host: undefined,
       path: 'mounts_percentage',
-      key: 'os_mounts_',
+      key: '',
       length: 300,
       tabular: true,
       range: undefined
@@ -151,7 +151,8 @@ export default {
       path: 'os',
       key: 'freemem',
       length: 300,
-      range: undefined
+      range: undefined,
+      tabular: false
     },
     /**
     * for __get_stat_for_chart
@@ -171,7 +172,7 @@ export default {
     stat: {
       host: undefined,
       path: 'networkInterfaces_stats',
-      key: 'os_networkInterfaces_stats_',
+      key: '',
       length: 300,
       tabular: true,
       range: undefined

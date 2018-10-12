@@ -49,7 +49,7 @@ export default {
       if(watch == true && watcher)
         this.add_watcher(payload)
 
-      ////console.log('add_chart', name)
+      //////console.log('add_chart', name)
 
       // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
 
@@ -87,7 +87,7 @@ export default {
       //   this.$refs[name][0].reset()
       // }
 
-      console.log('remove_chart', name, this.$refs[name])
+      //console.log('remove_chart', name, this.$refs[name])
     },
     remove_charts: function(options){
       Object.each(this.charts, function(chart, name){
@@ -95,7 +95,7 @@ export default {
       }.bind(this))
     },
     remove_watcher: function(name){
-      ////console.log('remove_watcher', name)
+      //////console.log('remove_watcher', name)
 
       if(this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name]()
@@ -118,12 +118,12 @@ export default {
     },
     add_watcher: function(payload){
       let {name, watcher} = payload
-      // ////console.log('add_watcher', name, watch)
+      // //////console.log('add_watcher', name, watch)
 
       this.remove_watcher(name)
       // if(!this.$options.__unwatchers__[name]){
         this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
-          // ////console.log('add_watcher', name)
+          // //////console.log('add_watcher', name)
           if(watcher.cb)
             watcher.cb(doc, old, payload)
 
@@ -136,13 +136,13 @@ export default {
     * @move to stat mixin
     **/
     __get_stat: function(payload, cb){
-      //////console.log('__get_stat', payload)
-      if(payload.tabular == true){
-        this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
-      }
-      else{
+      ////////console.log('__get_stat', payload)
+      // if(payload.tabular == true){
+      //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
+      // }
+      // else{
         this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
-      }
+      // }
     },
     __update_chart_stat: function(name, doc, splice){
 
@@ -204,7 +204,7 @@ export default {
           }
         // }
 
-        //console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
+        ////console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
 
         this.stats[name].lastupdate = Date.now()
       }
@@ -217,13 +217,13 @@ export default {
     * UI
     **/
     showCollapsible (collapsible){
-      //////console.log('showCollapsible', collapsible)
+      ////////console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
 
     },
     hideCollapsible (collapsible){
-      //////console.log('hideCollapsible', collapsible)
+      ////////console.log('hideCollapsible', collapsible)
       // let name = collapsible.replace('-collapsible', '')
       // this.$options.has_no_data[name] = 61
       // this.$set(this.hide, name, true)
