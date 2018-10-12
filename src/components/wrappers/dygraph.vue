@@ -267,16 +267,16 @@ export default {
       return data
     },
     update (data){
-      console.log('dygraph update', this.id, data)
+      console.log('dygraph update', this.id, data, this.$options.graph.numRows())
       data = this._get_data(data)
-
+      // let options = (this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
       // if(this.$options.visible == true && this.ready == true){
       if(this.ready == true){
 
         this.updateOptions(
           data,
-          // {},
-          { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          {},
+          // { 'dateWindow': this.$options.graph.xAxisExtremes() },
           false
         )
 
@@ -297,7 +297,7 @@ export default {
       }
     },
     updateOptions (data, options, block_redraw){
-      ////console.log('updateOptions', data, this.ready)
+
       // let self = this
 
       if(
@@ -320,10 +320,11 @@ export default {
         //     }
         //
         //   })
-          // self.stat.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 
           // let data = []
+          console.log('updateOptions', data, options)
 
           this.$options.graph.updateOptions(
             Object.merge(
@@ -335,7 +336,12 @@ export default {
             block_redraw
           );
 
-          // data.empty()
+          this.$options.graph.updateOptions(
+            { 'dateWindow': this.$options.graph.xAxisExtremes() },
+            block_redraw
+          );
+
+
           this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)
 
 

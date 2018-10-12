@@ -22,27 +22,35 @@ export default new Class({
     		{
 					// sort_by_path: throttle(function(req, next, app){
           sort_by_path: function(req, next, app){
-            console.log('SORT_BY_PATH RANGE', app.options.paths, new Date(req.opt.range.start), new Date(req.opt.range.end))
+            console.log('SORT_BY_PATH RANGE', app.options.paths, req, new Date(req.opt.range.start), new Date(req.opt.range.end))
 
             if(app.options.stat_host && this.status == 'ok'){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
               // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
 
 
-              // let CHUNK = 60000
-              let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
-              // let start = ((end - CHUNK) < req.opt.range.start) ? req.opt.range.start : end - CHUNK
-              let start = req.opt.range.start
-
-              // do {
+              // // let CHUNK = 60000
+              // let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
+              // // let start = ((end - CHUNK) < req.opt.range.start) ? req.opt.range.start : end - CHUNK
+              // let start = req.opt.range.start
+              //
+              // // do {
 
                 Array.each(app.options.paths, function(path){
+
                   if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
 
-                    this.io.emit('range', {
+                    // this.io.emit('stats', {
+                    //   host: app.options.stat_host,
+                    //   path: path,
+                    //   range: req.opt.range
+        						// })
+                    this.io.emit('stats', {
                       host: app.options.stat_host,
-                      path: path,
-                      range: req.opt.range
+                      stat: path,
+                      format: 'tabular',
+                      // range: req.opt.range
+                      range: req.Range
         						})
                   }
 
@@ -166,7 +174,7 @@ export default new Class({
     console.log('IO.HOST stats', arguments[2])
 
     // if(tabular != true)
-      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge({type: 'stats'}, arguments[2]), {type: type, input_type: this, app: null}]);
+      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge(arguments[2], {type: 'stats', range: (type == 'range') ? true : false}), {type: type, input_type: this, app: null}]);
 
 		// //console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()

@@ -32,7 +32,7 @@ export default {
     stat: {
       host: undefined,
       path: 'cpus_times',
-      key: 'os_cpus',
+      key: 'cpus',
       length: 300,
       tabular: true,
       range: undefined
