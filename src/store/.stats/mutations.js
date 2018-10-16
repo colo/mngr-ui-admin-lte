@@ -1,133 +1,78 @@
- import Vue from 'vue'
+import Vue from 'vue'
 
- export const timestamp = (state, payload) => {
-   if(Array.isArray(payload)){
-     state.timestamps = payload
-   }
-   else {
-     state.timestamps.push(payload)
-   }
- }
+export const add = function(state, payload) {//generic mutation
+  console.log('MUTATIONS add', payload)
 
- export const loadavg = (state, payload) => {
-   if(Array.isArray(payload)){
-     state.loadavg = payload
-   }
-   else {
-     state.loadavg.push(payload)
-   }
- }
+  let {host, path, key, data, tabular} = payload
 
- export const uptime = (state, payload) => {
-   if(Array.isArray(payload)){
-     state.uptime = payload
-   }
-   else {
-     state.uptime.push(payload)
-   }
- }
+  let type = (tabular == true) ? 'tabular' : 'stat'
 
- export const networkInterfaces = (state, payload) => {
-   if(Array.isArray(payload)){
-     // state.networkInterfaces = payload
-     Vue.set(state, 'networkInterfaces', payload)
+  if(!state[host])
+    Vue.set(state, host, {})
 
-     // console.log(state.networkInterfaces)
-   }
-   else {
-     state.networkInterfaces.push(payload)
-   }
- }
- // export const networkInterfaces = (state, networkInterfaces) => {
- //   if(Array.isArray(networkInterfaces)){
- //     Array.each(networkInterfaces, function(networkInterface){
- //       if(!state.networkInterfaces.contains(networkInterface))
- //         state.networkInterfaces.push(networkInterface)
- //     })
- //     Array.each(state.networkInterfaces, function(networkInterface){
- //       if(!networkInterfaces.contains(networkInterface))
- //         state.networkInterfaces.erase(networkInterface)
- //     })
- //  }
- //  else {
- //    state.networkInterfaces.push(networkInterfaces)
- //  }
- //   // Vue.set(state, 'all', hosts)
- // }
+  if(!state[host][type])
+    Vue.set(state[host], type, {})
 
 
- // export const mem = (state, payload) => {
- //   if(Array.isArray(payload)){
- //     state.mem = payload
- //   }
- //   else {
- //     state.mem.push(payload)
- //   }
- // }
- export const freemem = (state, payload) => {
-   if(Array.isArray(payload)){
-     state.freemem = payload
-   }
-   else {
-     state.freemem.push(payload)
-   }
- }
+  if(!state[host][type][path])
+    Vue.set(state[host][type], path, {})
 
- export const totalmem = (state, payload) => {
-   if(Array.isArray(payload)){
-     state.totalmem = payload
-   }
-   else {
-     state.totalmem.push(payload)
-   }
- }
+  if(!state[host][type][path][key])
+    Vue.set(state[host][type][path], key, undefined)
 
- export const cpus = (state, payload) => {
-   if(Array.isArray(payload)){
-     state.cpus = payload
-   }
-   else {
-     state.cpus.push(payload)
-   }
- }
 
- // export const cpu_simple = (state, payload) => {
- //   if(Array.isArray(payload)){
- //     state.cpu_simple = payload
- //   }
- //   else {
- //     state.cpu_simple.push(payload)
- //   }
- // }
+  let value = undefined
+  if(Array.isArray(data)){
+    // Vue.set(state[host][path], key, value)
 
- // export const reset = (state, payload) => {
- //   if(!payload){
- //     Object.each(state, function(value, key){
- //       console.log('reseting state key', key)
- //       if(Array.isArray(value)){
- //         state[key] = []
- //       }
- //       else{
- //         state[key] = {}
- //       }
- //     })
- //   }
- //   else{
- //     if(Array.isArray(state[payload])){
- //       state[payload] = []
- //     }
- //     else{
- //       state[payload] = {}
- //     }
- //   }
- //
- //   console.log('reseting state', state)
- // }
+    //get doc with highest timestamp
+    value = Math.max.apply(Math, data.map(function(o) { return o.timestamp; }))
+  }
+  else{
+    value = data
+  }
+  // else {
+  //   if(!state[host][path][key])
+  //     Vue.set(state[host][path], key, [])
+  //
+  //
+  // }
 
- export const splice = (state, payload) => {
-   let length = state[payload.stat].length
-   state[payload.stat].splice(
-     -payload.length -1,
-     length - payload.length
-   )
- }
+  // Vue.set(state[host][path], key, value)
+  state[host][type][path][key] = value
+}
+
+export const clear = (state, payload) => {
+  let {host, path, key, tabular} = payload
+
+  let type = (tabular == true) ? 'tabular' : 'stat'
+  ////console.log('clear mutation')
+
+  if(!state[host])
+    Vue.set(state, host, {})
+
+  if(!state[host][type])
+    Vue.set(state[host], type, {})
+
+
+  if(!state[host][type][path])
+    Vue.set(state[host][type], path, {})
+
+  if(!state[host][type][path][key])
+    Vue.set(state[host][type][path], key, undefined)
+
+}
+//
+// export const splice = (state, payload) => {
+//
+//   if(state[payload.host]
+//     && state[payload.host][payload.path]
+//     && state[payload.host][payload.path][payload.key]
+//   ){
+//     let length = state[payload.host][payload.path][payload.key].length
+//     state[payload.host][payload.path][payload.key].splice(
+//       -payload.length -1,
+//       length - payload.length
+//     )
+//   }
+// }

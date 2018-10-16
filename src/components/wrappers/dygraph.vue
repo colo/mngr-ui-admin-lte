@@ -52,9 +52,9 @@ export default {
       default: () => ({})
     },
 
-    stat: {
-      type: [Object],
-      default: () => ({})
+    data: {
+      type: [Array],
+      default: () => ([])
     },
 
     freezed: {
@@ -87,7 +87,7 @@ export default {
   },
 
   created () {
-    ////////console.log('created', this.id, this.stat.data)
+    ////////console.log('created', this.id, this.data)
     // this.$set(stat, 'data', [[]])
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
@@ -115,7 +115,7 @@ export default {
   },
   mounted () {
 
-    // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
+    // if(this.$options.graph == null && this.data && this.data.length > 1){
     //
     //   this.__create_dygraph()
     //
@@ -126,7 +126,7 @@ export default {
   },
   updated () {
   //
-  //   // if(this.$options.graph == null && this.stat.data && this.stat.data.length > 1){
+  //   // if(this.$options.graph == null && this.data && this.data.length > 1){
   //   //
   //   //   this.__create_dygraph()
   //   //
@@ -182,10 +182,10 @@ export default {
     },
     create (){
       this.__create_dygraph()
-      // this.$options.__unwatcher = this.$watch('stat.data', function (val, oldVal) {
+      // this.$options.__unwatcher = this.$watch('data', function (val, oldVal) {
       //
       //
-      //   ////console.log('updated data dygraph', this.id, this.stat.data)
+      //   ////console.log('updated data dygraph', this.id, this.data)
       //
       //   // if(val.length > 1 && this.chart == null){
       //   if(val.length > 1){
@@ -215,7 +215,7 @@ export default {
           options.labelsDiv = this.id+'-'+options.labelsDiv
 
         let data = []
-        if(this.stat.data[0].length == 0){
+        if(this.data[0].length == 0){
 
           let row = []
           Array.each(options.labels, function(label){
@@ -229,7 +229,7 @@ export default {
           // data = []
         }
 
-        // Array.each(this.stat.data, function(row){
+        // Array.each(this.data, function(row){
         //   row[0] = new Date(row[0])
         //   data.push(row)
         // })
@@ -255,7 +255,7 @@ export default {
       }
     },
     _get_data: function(data){
-      data = data || Array.clone(this.stat.data)
+      data = data || Array.clone(this.data)
 
       data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
@@ -275,8 +275,8 @@ export default {
 
         this.updateOptions(
           data,
-          {},
-          // { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          // {},
+          { 'dateWindow': this.$options.graph.xAxisExtremes() },
           false
         )
 
@@ -303,20 +303,20 @@ export default {
       if(
         this.highlighted == false
         && this.ready == true
-        // && this.stat.data.length > 1
-        // && this.stat.data[0].length > 1
+        // && this.data.length > 1
+        // && this.data[0].length > 1
         // && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
         // && this.freezed == false
       ){
 
-        // if(self.stat.data[0][0] == undefined && self.chart.options && self.chart.options.labels)//dygraph code, should be would
+        // if(self.data[0][0] == undefined && self.chart.options && self.chart.options.labels)//dygraph code, should be would
         //   Array.each(self.chart.options.labels, function(label, index){
         //     if(index == 0){
-        //       self.stat.data[0].push(Date.now())
+        //       self.data[0].push(Date.now())
         //     }
         //     else{
         //       // data[0].push(0)
-        //       self.stat.data[0].push(null)
+        //       self.data[0].push(null)
         //     }
         //
         //   })
@@ -336,10 +336,10 @@ export default {
             block_redraw
           );
 
-          this.$options.graph.updateOptions(
-            { 'dateWindow': this.$options.graph.xAxisExtremes() },
-            block_redraw
-          );
+          // this.$options.graph.updateOptions(
+          //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          //   block_redraw
+          // );
 
 
           this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)

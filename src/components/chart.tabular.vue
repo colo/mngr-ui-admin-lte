@@ -6,16 +6,19 @@
 // let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
 
-import chart from 'components/mixins/chart'
+import graph from 'components/mixins/graph'
+import stat from 'components/mixins/stat'
 
 export default {
-  mixins: [chart],
+  mixins: [graph, stat],
 
   name: 'chart-tabular',
 
+  type: 'tabular',
+
   methods: {
     create (){
-      console.log('create chart.tabular', this.id)
+      console.log('create chart.tabular', this.id, this.chart)
 
       // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
       //   this.$refs[this.id].create()
@@ -27,10 +30,10 @@ export default {
 
 
 
-      let unwatch = this.$watch('stat.data', function (val, old) {
+      let unwatch = this.$watch('stat_data', function (val, old) {
         // console.log('create chart.tabular', val)
-        if(val && val.length > 1){
-
+        // if(val && val.length > 1){
+        if(val){
           if(this.$options.__chart_init == false){
 
             this.__create_watcher(this.id)
@@ -50,9 +53,9 @@ export default {
 
 
       let generic_data_watcher = function(current){
-        // console.log('chart.tabular generic_data_watcher', current)
-        if(current && this.$options.visible){
-
+        console.log('chart.tabular generic_data_watcher', current)
+        // if(current && this.$options.visible){
+         if(current){
           let data = []
           Array.each(current, function(row){
             data.push(row.value)
@@ -64,61 +67,14 @@ export default {
       }.bind(this)
 
       // //console.log('gonna watch...', name, this.stat.data)
-      if(this.stat.data.length > 0)
-        generic_data_watcher(this.stat.data)
+      if(this.stat_data[0].value.length > 0)
+        generic_data_watcher(this.stat_data)
 
-      this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
+      this.$options.__data_unwatcher = this.$watch('stat_data', generic_data_watcher)
 
     },
 
-    // generic_data_watcher: data_to_tabular,
 
-    // update_chart_stat (name, data){
-    //   console.log('chart.tabular update_chart_stat', this.id, this.$refs[this.id])
-    //
-    //
-    //   if(this.$options.visible == true && data.length > 0){
-    //     // console.log('update_chart_stat visibility', this.id, data)
-    //     if(data.length == 1){
-    //
-    //       // this.tabular.data.shift()
-    //       // this.tabular.data.push(data[0])
-    //       /**
-    //       * ensures no "glitches" as a point may be in the incorrect posittion
-    //       */
-    //       // let old_data = Array.clone(this.tabular.data)
-    //       // old_data.shift()
-    //       // old_data.push(data[0])
-    //       // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-    //       // this.$set(this.tabular, 'data', old_data)
-    //
-    //       this.$options.tabular.data.shift()
-    //       this.$options.tabular.data.push(data[0])
-    //       this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-    //       // this.$set(this.tabular, 'data', old_data)
-    //
-    //     }
-    //     else{
-    //
-    //       data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-    //
-    //       // this.$set(this.tabular, 'data', data)
-    //       this.$options.tabular.data = data
-    //
-    //     }
-    //
-    //     // this.tabular.lastupdate = Date.now()
-    //     this.$options.tabular.lastupdate = Date.now()
-    //     if(this.$refs[this.id] && typeof this.$refs[this.id].update == 'function'){
-    //       this.$refs[this.id].update(this.$options.tabular.data)
-    //     }
-    //     else{
-    //       this.$set(this, 'tabular', this.$options.tabular)
-    //     }
-    //
-    //   }
-    //
-    // },
 
 
   }

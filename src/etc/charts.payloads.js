@@ -24,8 +24,8 @@ export default {
     }
   },
 
-  os_cpus_times: {
-    name: 'os_cpus_times',
+  'cpus_times.cpus': {
+    name: 'cpus_times.cpus',
     chart: undefined,
     init: undefined,
     stop: undefined,

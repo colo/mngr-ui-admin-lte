@@ -1,14 +1,13 @@
 <template>
 
   <component
-    v-observe-visibility="visibilityChanged"
-    :is="type+'-wrapper'"
+    :is="wrapper.type+'-wrapper'"
     :id="id"
     :ref="id"
     :EventBus="EventBus"
     :chart="chart"
-    :stat="tabular"
-    v-bind="wrapper_props"
+    :data="tabular.data"
+    v-bind="wrapper.opts"
   />
   </component>
 
@@ -41,7 +40,7 @@ export default {
 
   focus: true,
 
-  __unwatcher: undefined,
+  __data_unwatcher: undefined,
   __chart_init: false,
   visible: true,
   data: [],
@@ -55,26 +54,33 @@ export default {
       type: [Object],
       default: () => ({})
     },
-    stat: {
-      type: [Object],
-      default: () => ({})
-    },
-    type:{
-      type: [String],
-      default: 'dygraph'
-    },
+    // stat: {
+    //   type: [Object],
+    //   default: () => ({})
+    // },
+    // type:{
+    //   type: [String],
+    //   default: 'dygraph'
+    // },
     id:{
       type: [String],
       default: ''
     },
-    wrapper_props: {
+    wrapper: {
       type: [Object],
-      default: () => ({})
+      default: () => ({
+        type: 'dygraph',
+        opts: {}
+      })
     },
-    merged: {
-      type: [Boolean],
-      default: false
-    }
+    // wrapper_props: {
+    //   type: [Object],
+    //   default: () => ({})
+    // },
+    // merged: {
+    //   type: [Boolean],
+    //   default: false
+    // }
   },
 
   data () {
@@ -136,11 +142,11 @@ export default {
     __create_watcher(name, chart){},
     update_chart_stat (name, data){
 
-      // //console.log('chart mixin update_chart_stat', name, this.id, this.$refs[this.id])
+      console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
 
 
       if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
-        // //console.log('update_chart_stat visibility', this.id, data)
+        console.log('update_chart_stat visibility', this.id, data)
         if(data.length == 1){
 
           // this.tabular.data.shift()

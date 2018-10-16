@@ -5,10 +5,11 @@
 // let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
 let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
-import chart from 'components/mixins/chart'
+import graph from 'components/mixins/graph'
+import stat from 'components/mixins/stat'
 
 export default {
-  mixins: [chart],
+  mixins: [graph, stat],
 
   tabular: {
     lastupdate: 0,
@@ -16,6 +17,8 @@ export default {
   },
 
   name: 'chart',
+
+  type: 'stat',
 
   // updated () {
   //   if(this.stat.data.length > 0)
@@ -146,9 +149,9 @@ export default {
       watcher.value = watcher.value || ''
       watcher.transform = watcher.transform || ''
 
-      if(this.$options.__unwatcher){
-        this.$options.__unwatcher()
-        this.$options.__unwatcher == undefined
+      if(this.$options.__data_unwatcher){
+        this.$options.__data_unwatcher()
+        this.$options.__data_unwatcher == undefined
       }
 
       let generic_data_watcher = function(current){
@@ -170,7 +173,7 @@ export default {
 
       //console.log('gonna watch...', name, this.stat.data)
 
-      this.$options.__unwatcher = this.$watch('stat.data', generic_data_watcher)
+      this.$options.__data_unwatcher = this.$watch('stat.data', generic_data_watcher)
 
     },
 

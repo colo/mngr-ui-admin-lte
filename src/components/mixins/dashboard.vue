@@ -37,7 +37,7 @@ export default {
     add_chart: function (payload){
       let {name, chart, init, watch, watcher} = payload
 
-      this.available_charts[name] = payload
+      // this.available_charts[name] = payload
       this.$set(this.charts, name, chart)
 
       // if(!this.stats[name])
@@ -136,18 +136,21 @@ export default {
     * @move to stat mixin
     **/
     __get_stat: function(payload, cb){
-      ////////console.log('__get_stat', payload)
-      // if(payload.tabular == true){
-      //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
-      // }
-      // else{
-        this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
-      // }
+      // ////////console.log('__get_stat', payload)
+      // // if(payload.tabular == true){
+      // //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
+      // // }
+      // // else{
+      //   this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
+      // // }
     },
     __update_chart_stat: function(name, doc, splice){
+      console.log('__update_chart_stat', name, doc, splice)
 
-
-      if(this.stats[name]){
+      /**
+      * @config option this.visibility
+      **/
+      if(this.stats[name] && this.visibility[name] == true){
 
         if(Array.isArray(doc) && doc.length > 0){
           let data = []
