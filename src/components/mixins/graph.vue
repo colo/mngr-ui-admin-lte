@@ -126,8 +126,8 @@ export default {
     destroy: function(){
       //console.log('chart.vue mixing destroy', this.id)
 
-      if(this.$options.__unwatcher)
-        this.$options.__unwatcher()
+      if(this.$options.__data_unwatcher)
+        this.$options.__data_unwatcher()
 
       this.$options.tabular.data = [[]]
 

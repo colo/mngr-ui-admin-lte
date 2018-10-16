@@ -192,27 +192,32 @@
         </template> -->
 
         <admin-lte-box-solid
-          title="merged"
-          :id="host+'_merged-collapsible'"
+          title="CPUS Times / Uptime"
+          :id="host+'.cpus_times.uptime-collapsible'"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
           <chart-tabular
-            v-if="visibility[host+'_merged']"
-            :type="'dygraph'"
-            :ref="host+'_merged'"
-            :id="host+'_merged'"
+            :wrapper="{type: 'dygraph'}"
+            :ref="host+'.cpus_times.uptime'"
+            :id="host+'.cpus_times.uptime'"
             :EventBus="EventBus"
-            :chart="charts[host+'_merged']"
-            :stat="stats[host+'_merged']"
+            :chart="charts[host+'.cpus_times.uptime']"
+            :stat="{
+              range: range,
+              merged: true,
+              data: [tabulars[host+'.cpus_times.cpus'], tabulars[host+'.uptime.uptime']]
+            }"
           >
           </chart-tabular>
-          <chart-tabular v-else
-            :type="'dygraph'"
-            :id="host+'_merged_empty'"
-            :chart="charts[host+'_merged']"
+          <!-- <chart-tabular v-else
+            :wrapper="{type: 'dygraph'}"
+            :ref="host+'.merged_empty'"
+            :id="host+'.merged'"
+            :chart="charts[host+'.merged']"
           >
-          </chart-tabular>
+          </chart-tabular> -->
+          <!-- v-if="visibility[host+'.merged']" -->
           <!-- <chart-empty-container v-else></chart-empty-container> -->
         </admin-lte-box-solid>
         <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
@@ -235,7 +240,7 @@
           >
           </chart-tabular>
           <chart-tabular v-else
-            :type="'dygraph'"
+            :wrapper="{type: 'dygraph'}"
             :id="host+'.cpus_times.cpus'"
             :ref="host+'.cpus_times.cpus_empty'"
             :chart="charts[host+'.cpus_times.cpus']"
@@ -563,7 +568,7 @@ export default {
   // charts: {},
   pipelines: {},
   pipelines_events: {},
-  __active_stats: {},
+  // __active_stats: {},
 
   daterangepicker:{
     opens: 'right',
@@ -611,7 +616,6 @@ export default {
   data () {
     return {
       // stats_merged:{},
-      tabulars: {},
       visibility: {},
       daterangepicker:{
         opens: 'right',
@@ -829,88 +833,88 @@ export default {
       * remove for testing
       **/
 
-      // let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
-      // Array.each(merged_chart.options.labels, function(label, index){
-      //   merged_chart.options.labels[index] = 'cpus times '+label
-      // })
-      // merged_chart.options.labels.push('uptime seconds')
-      //
-      // this.available_charts[this.host+'_merged'] = {
-      //   name: this.host+'_merged',
-      //   // chart: [
-      //   //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-      //   //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
-      //   // ],
-      //   chart: merged_chart,
-      //   stop: function(payload){
-      //     // ////console.log('merged stop', payload)
-      //     Array.each(payload.stat, function(stat, index){
-      //       let indexed_name = payload.name+'_'+index
-      //       //this.remove_watcher(indexed_name)
-      //       this.$store.dispatch('stats/flush', stat)
-      //     }.bind(this))
-      //
-      //     // this.$store.dispatch('stats_tabular/splice', payload.stat)
-      //   }.bind(this),
-      //   stat: [
-      //     {
-      //       host: this.host,
-      //       path: 'cpus_times',
-      //       key: 'cpus',
-      //       length: this.seconds || 300,
-      //       tabular: true
-      //       // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //     },
-      //     {
-      //       host: this.host,
-      //       path: 'uptime',
-      //       key: 'uptime',
-      //       length: this.seconds || 300,
-      //       tabular: true
-      //       // range: [Date.now() - this.seconds * 1000, Date.now()]
-      //     }
-      //   ],
-      //   /**
-      //   * for __get_stat_for_chart
-      //   **/
-      //   pipeline: {
-      //     name: 'input.os',
-      //     path: 'os',
-      //     range: true
-      //   }
-      // }
-      //
+      let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
+      Array.each(merged_chart.options.labels, function(label, index){
+        merged_chart.options.labels[index] = 'cpus times '+label
+      })
+      merged_chart.options.labels.push('uptime seconds')
+
+      this.available_charts[this.host+'.cpus_times.uptime'] = {
+        name: this.host+'.cpus_times.uptime',
+        // chart: [
+        //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+        //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
+        // ],
+        chart: merged_chart,
+        stop: function(payload){
+          // // ////console.log('merged stop', payload)
+          // Array.each(payload.stat, function(stat, index){
+          //   let indexed_name = payload.name+'_'+index
+          //   //this.remove_watcher(indexed_name)
+          //   this.$store.dispatch('stats/flush', stat)
+          // }.bind(this))
+          //
+          // // this.$store.dispatch('stats_tabular/splice', payload.stat)
+        }.bind(this),
+        // stat: [
+        //   {
+        //     host: this.host,
+        //     path: 'cpus_times',
+        //     key: 'cpus',
+        //     length: this.seconds || 300,
+        //     tabular: true
+        //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+        //   },
+        //   {
+        //     host: this.host,
+        //     path: 'uptime',
+        //     key: 'uptime',
+        //     length: this.seconds || 300,
+        //     tabular: true
+        //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+        //   }
+        // ],
+        /**
+        * for __get_stat_for_chart
+        **/
+        // pipeline: {
+        //   name: 'input.os',
+        //   path: 'os',
+        //   range: true
+        // }
+      }
+
       // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
-      // this.set_chart_visibility(this.host+'_merged', true)
+      this.set_chart_visibility(this.host+'.cpus_times.uptime', true)
 
-      this.available_charts[this.host+'.cpus_times.cpus'] = Object.merge(
-        this.get_payload(charts_payloads,{
-          name: 'cpus_times.cpus',
-          host: this.host,
-          seconds: this.seconds
-        }),
-        {
-          wrapper: {
-            type: 'dygraph',
-            props: {}
-          },
-          chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-          stop: function(payload){
-            //////////console.log('stoping _os_cpus_times', payload.stat)
-            //this.remove_watcher(payload.name)
-            this.remove_active_stat(payload.stat)
-            // //this.$store.dispatch('stats/flush', payload.stat)
-
-            // this.$store.dispatch('stats/splice', payload.stat)
-          }.bind(this),
-          pipeline: {
-            range: true
-          }
-        }
-      )
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
-      console.log('CPUS_TIMES', this.available_charts[this.host+'.cpus_times.cpus'])
-      this.set_chart_visibility(this.host+'.cpus_times.cpus', true)
+      // this.available_charts[this.host+'.cpus_times.cpus'] = Object.merge(
+      //   this.get_payload(charts_payloads,{
+      //     name: 'cpus_times.cpus',
+      //     host: this.host,
+      //     seconds: this.seconds
+      //   }),
+      //   {
+      //     wrapper: {
+      //       type: 'dygraph',
+      //       props: {}
+      //     },
+      //     chart: Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+      //     stop: function(payload){
+      //       //////////console.log('stoping _os_cpus_times', payload.stat)
+      //       //this.remove_watcher(payload.name)
+      //       // this.remove_active_stat(payload.stat)
+      //       // //this.$store.dispatch('stats/flush', payload.stat)
+      //
+      //       // this.$store.dispatch('stats/splice', payload.stat)
+      //     }.bind(this),
+      //     pipeline: {
+      //       range: true
+      //     }
+      //   }
+      // )
+      // // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
+      // console.log('CPUS_TIMES', this.available_charts[this.host+'.cpus_times.cpus'])
+      // this.set_chart_visibility(this.host+'.cpus_times.cpus', true)
 
       // this.available_charts[this.host+'_os_cpus_percentage'] = Object.merge(
       //   this.get_payload(charts_payloads,{
@@ -1610,12 +1614,12 @@ export default {
 
     this.destroy_host_pipelines()
 
-
-    this.remove_charts({
-      // clean: true,
-      unwatch: true,
-    })
-    this.remove_chart_stats()
+    this.remove_charts()
+    // this.remove_charts({
+    //   // clean: true,
+    //   unwatch: true,
+    // })
+    // this.remove_chart_stats()
 
     // this.$store.dispatch('stats/flush_all', {host: this.host})
     // this.$store.dispatch('stats_tabular/flush_all', {host: this.host})

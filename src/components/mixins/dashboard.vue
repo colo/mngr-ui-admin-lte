@@ -22,6 +22,7 @@ export default {
     return {
       EventBus: EventBus,
       stats: {},
+      tabulars: {},
       charts: {},
       available_charts: {}
     }
@@ -46,8 +47,8 @@ export default {
       if(init && typeof init == 'function')
         init(payload)
 
-      if(watch == true && watcher)
-        this.add_watcher(payload)
+      // if(watch == true && watcher)
+      //   this.add_watcher(payload)
 
       //////console.log('add_chart', name)
 
@@ -68,17 +69,17 @@ export default {
       // if(options.clean && options.clean == true)
       //   this.$set(this.stats, name, undefined)
 
-      if(options.unwatch && options.unwatch == true){
-        if(Array.isArray(this.available_charts[name].stat)){
-          Array.each(this.available_charts[name].stat, function(stat, index){
-            let indexed_name = name+'_'+index
-            this.remove_watcher(indexed_name)
-          }.bind(this))
-        }
-        else{
-          this.remove_watcher(name)
-        }
-      }
+      // if(options.unwatch && options.unwatch == true){
+      //   if(Array.isArray(this.available_charts[name].stat)){
+      //     Array.each(this.available_charts[name].stat, function(stat, index){
+      //       let indexed_name = name+'_'+index
+      //       this.remove_watcher(indexed_name)
+      //     }.bind(this))
+      //   }
+      //   else{
+      //     this.remove_watcher(name)
+      //   }
+      // }
 
       // if(this.$refs[name] && typeof this.$refs[name].reset == 'function'){
       //    this.$refs[name].reset()
@@ -94,56 +95,56 @@ export default {
         this.remove_chart(name, options)
       }.bind(this))
     },
-    remove_watcher: function(name){
-      //////console.log('remove_watcher', name)
-
-      if(this.$options.__unwatchers__[name]){
-        this.$options.__unwatchers__[name]()
-        delete this.$options.__unwatchers__[name]
-      }
-    },
-    add_chart_stat: function (name){
-      // if(!this.stats[name])
-      this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-    },
-    remove_chart_stat: function (name){
-      this.$delete(this.stats, name)
-    },
-    remove_chart_stats: function(){
-      // Object.each(this.stats, function(stat, name){
-      //   this.remove_chart_stat(name)
-      // }.bind(this))
-      // this.$delete(this, 'stats')
-      this.$set(this, 'stats', {})
-    },
-    add_watcher: function(payload){
-      let {name, watcher} = payload
-      // //////console.log('add_watcher', name, watch)
-
-      this.remove_watcher(name)
-      // if(!this.$options.__unwatchers__[name]){
-        this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
-          // //////console.log('add_watcher', name)
-          if(watcher.cb)
-            watcher.cb(doc, old, payload)
-
-        }.bind(this),{
-          deep: watcher.deep || false
-        })
-      // }
-    },
+    // remove_watcher: function(name){
+    //   //////console.log('remove_watcher', name)
+    //
+    //   if(this.$options.__unwatchers__[name]){
+    //     this.$options.__unwatchers__[name]()
+    //     delete this.$options.__unwatchers__[name]
+    //   }
+    // },
+    // add_chart_stat: function (name){
+    //   // if(!this.stats[name])
+    //   this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
+    // },
+    // remove_chart_stat: function (name){
+    //   this.$delete(this.stats, name)
+    // },
+    // remove_chart_stats: function(){
+    //   // Object.each(this.stats, function(stat, name){
+    //   //   this.remove_chart_stat(name)
+    //   // }.bind(this))
+    //   // this.$delete(this, 'stats')
+    //   this.$set(this, 'stats', {})
+    // },
+    // add_watcher: function(payload){
+    //   let {name, watcher} = payload
+    //   // //////console.log('add_watcher', name, watch)
+    //
+    //   this.remove_watcher(name)
+    //   // if(!this.$options.__unwatchers__[name]){
+    //     this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
+    //       // //////console.log('add_watcher', name)
+    //       if(watcher.cb)
+    //         watcher.cb(doc, old, payload)
+    //
+    //     }.bind(this),{
+    //       deep: watcher.deep || false
+    //     })
+    //   // }
+    // },
     /**
     * @move to stat mixin
     **/
-    __get_stat: function(payload, cb){
-      // ////////console.log('__get_stat', payload)
-      // // if(payload.tabular == true){
-      // //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
-      // // }
-      // // else{
-      //   this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
-      // // }
-    },
+    // __get_stat: function(payload, cb){
+    //   ////////console.log('__get_stat', payload)
+    //   // if(payload.tabular == true){
+    //   //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
+    //   // }
+    //   // else{
+    //     this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
+    //   // }
+    // },
     __update_chart_stat: function(name, doc, splice){
       console.log('__update_chart_stat', name, doc, splice)
 
