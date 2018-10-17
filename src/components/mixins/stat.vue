@@ -16,6 +16,8 @@ export default {
   path: undefined,
   key: undefined,
 
+  length: undefined,
+
   props: {
     EventBus: {
       type: [Object],
@@ -25,7 +27,7 @@ export default {
       type: [Object],
       default: () => ({
         range: [],
-        length: 1,
+        length: undefined,
         merged: false,
         data: []
       })
@@ -57,36 +59,48 @@ export default {
   },
   created () {
     const DATA_LENGTH = this.stat.data.length
+    let range_length = (this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
+    this.$options.length = this.stat.length || range_length
+    console.log('CREATED', this.$options.length, range_length)
+
     this.$options.root = this.id.split('.')[0]
     this.$options.path = this.id.split('.')[1]
     this.$options.key = this.id.split('.')[2]
 
     console.log('stat.vue id', this.id, this.$options.type, this.stat.data.length)
 
-    this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
-    this.$store.commit(this.$options.type+'/'+this.id+'/set_id', this.id)
-    this.$store.commit(this.$options.type+'/'+this.id+'/set_type', this.$options.type)
+    if(!this.$store.state[this.$options.type][this.id]){
+      this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
+      this.$store.commit(this.$options.type+'/'+this.id+'/id', this.id)
+      this.$store.commit(this.$options.type+'/'+this.id+'/type', this.$options.type)
+      // this.$store.commit(this.$options.type+'/'+this.id+'/root', this.$options.root)
+      // this.$store.commit(this.$options.type+'/'+this.id+'/path', this.$options.path)
+      // this.$store.commit(this.$options.type+'/'+this.id+'/key', this.$options.key)
+    }
 
     this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
       root: this.$options.root,
       path: this.$options.path,
       key: this.$options.key,
-      length: 300
+      length: this.$options.length,
+      range: this.stat.range
     }).then((docs) => {
       if(docs.length > 0){
         console.log('stats/get', docs)
         let stats = []
         Array.each(docs, function(doc){
-          let stat = {
-           timestamp: doc.data[0],
-           value: doc.data
+          if(doc && doc.data){
+            let stat = {
+             timestamp: doc.metadata.timestamp,
+             value: doc.data
+            }
+            stats.push(stat)
           }
-          stats.push(stat)
         })
 
         console.log('stats/get 2', stats)
-        this.$set(this, 'stat_data', stats)
-        this.stat_lastupdate = Date.now()
+        this.__set_stat_data(stats)
+
       }
     })
 
@@ -137,7 +151,9 @@ export default {
 
 
   },
-
+  beforeDestroy (){
+    this.$store.dispatch(this.$options.type+'/'+this.id+'/flush')
+  },
   destroyed (){
     this.$off()
   },
@@ -218,25 +234,72 @@ export default {
         }
       }
 
-      ////console.log('__add_os_doc_stats', paths)
-      // Object.each(paths, function(keys, path){
-        ////console.log('__add_os_doc_stats PATH', path)
+        ////console.log('__add_os_doc_stats', paths)
+        // Object.each(paths, function(keys, path){
+          ////console.log('__add_os_doc_stats PATH', path)
 
-        // Object.each(keys, function(data, key){
-          ////console.log('__add_os_doc_stats KEY', key, data)
+          // Object.each(keys, function(data, key){
+            ////console.log('__add_os_doc_stats KEY', key, data)
 
 
-          // if(this.check_active_stat(stat) == true)
       this.$store.dispatch(this.$options.type+'/'+this.id+'/add', data)
-      this.stat_data.push( data.data )
-      this.stat_lastupdate = Date.now()
-      console.log('stat.vue __add_stats', this.id, data.data, this.stat.range)
-
+      this.__set_stat_data(data.data)
+      // this.stat_data.push( data.data )
+      // this.stat_lastupdate = Date.now()
+      //
+      // let splice = this.stat.length * 1
+      //
+      // let length = this.stat_data.length
+      //
+      // // splice = (splice == 1) ? 2 : splice
+      //
+      // // if(splice == 0){
+      // //   this.$set(this.stats[name], 'data', [])
+      // // }
+      // // else{
+      //   this.stat_data.splice(
+      //     (splice * -1) -1,
+      //     length - splice
+      //   )
+      // // }
+      //
+      //
+      // // console.log('stat.vue __add_stats', this.id, data.data, this.stat_data.length, splice, length)
+      //
 
       //   }.bind(this))
       //
       // }.bind(this))
     },
+    __set_stat_data(data){
+      if(Array.isArray(data)){
+        this.$set(this, 'stat_data', data)
+      }
+      else{
+        this.stat_data.push( data )
+      }
+
+      this.stat_lastupdate = Date.now()
+
+
+      let splice = this.$options.length
+      let length = this.stat_data.length
+
+      // splice = (splice == 1) ? 2 : splice
+
+      // if(splice == 0){
+      //   this.$set(this.stats[name], 'data', [])
+      // }
+      // else{
+        this.stat_data.splice(
+          (splice * -1) -1,
+          length - splice
+        )
+      // }
+      console.log('stat.vue __set_stat_data', this.id, data, this.stat_data.length, splice)
+
+
+    }
     // get: function(payload, cb){
     //   ////console.log('__get_stat', payload)
     //   if(payload.tabular == true){

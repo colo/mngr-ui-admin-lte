@@ -1294,7 +1294,7 @@ export default {
       //   deep:true
       // })
       //
-      // // this.set_range(moment().subtract(5, 'minute'), moment())
+      this.set_range(moment().subtract(5, 'minute'), moment())
       // /**
       // * remove for testing
       // **/

@@ -54,8 +54,21 @@ let close_db = function(cb){
     db.close(() => {db = undefined; cb()})
 
 }
+
+let get_payload = function(payload, state){
+  payload = payload || {}
+  payload.root = payload.root || state.root
+  payload.path = payload.path || state.path
+  payload.key = payload.key || state.key
+  payload.type = payload.type || state.type
+
+  return payload
+}
+
 export const get = ({ state, commit, dispatch }, payload) => {
-  payload.type = state.type
+  payload = get_payload(payload, state)
+  console.log('ACTIONS get', payload)
+
   let db = get_db(payload)
   let deque = get_queue()
   //// //////console.log('action get...')
@@ -114,10 +127,8 @@ export const get = ({ state, commit, dispatch }, payload) => {
         options.endkey = payload.path+'/'+payload.key+'@'+range[0]
       }
 
-      ////// //////console.log('OPTIONS', options)
-
       db.allDocs(options).then(function (res) {
-
+        console.log('OPTIONS', options, res, length)
 
         res.rows.reverse()
         while (length > 0 && res.rows.length > 0){
@@ -162,8 +173,9 @@ export const get = ({ state, commit, dispatch }, payload) => {
   })
 }
 
-export const add = ({ commit, dispatch }, payload) => {
-  console.log('ACTIONS add', payload)
+export const add = ({ state, commit, dispatch }, payload) => {
+  payload = get_payload(payload, state)
+  // console.log('ACTIONS add', payload)
   let deque = get_queue(payload)
 
 
@@ -264,7 +276,9 @@ export const add = ({ commit, dispatch }, payload) => {
 
 
 
-export const flush = ({ commit, state }, payload) => {
+export const flush = ({ state, commit, dispatch }, payload) => {
+  payload = get_payload(payload, state)
+
   console.log('ACTIONS flush', payload)
 
   payload.type = state.type
@@ -318,7 +332,10 @@ export const flush = ({ commit, state }, payload) => {
 }
 
 export const splice = ({ commit, state }, payload) => {
-  //console.log('ACTIONS splice', payload)
+  payload = get_payload(payload, state)
+
+  console.log('ACTIONS splice', payload)
+
   payload.type = state.type
   let db = get_db(payload)
   let length = payload.length

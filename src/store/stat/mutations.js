@@ -1,12 +1,26 @@
 // import Vue from 'vue'
 
-export const set_id = function(state, id) {//generic mutation
+export const id = function(state, id) {//generic mutation
+  state.root = id.split('.')[0]
+  state.path = id.split('.')[1]
+  state.key = id.split('.')[2]
   state.id = id
 }
 
-export const set_type = function(state, type) {//generic mutation
+export const type = function(state, type) {//generic mutation
   state.type = type
 }
+//
+// export const root = function(state, root) {//generic mutation
+//   state.root = root
+// }
+//
+// export const path = function(state, path) {//generic mutation
+//   state.path = path
+// }
+// export const key = function(state, key) {//generic mutation
+//   state.type = key
+// }
 
 // export const add = function(state, payload) {//generic mutation
 //   console.log('MUTATIONS add', payload)
