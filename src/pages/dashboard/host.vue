@@ -206,7 +206,7 @@
             :stat="{
               range: range,
               merged: true,
-              data: [tabulars[host+'.cpus_times.cpus'], tabulars[host+'.uptime.uptime']]
+              data: [tabulars[host+'.cpus_times.cpus_times'], tabulars[host+'.uptime.uptime']]
             }"
           >
           </chart-tabular>
@@ -224,26 +224,26 @@
 
         <admin-lte-box-solid
           title="CPU Times"
-          :id="host+'.cpus_times.cpus-collapsible'"
+          :id="host+'.cpus_times.cpus_times-collapsible'"
           v-on:show="el => showCollapsible(el)"
           v-on:hide="el => hideCollapsible(el)"
         >
 
           <chart-tabular
-            v-if="visibility[host+'.cpus_times.cpus']"
+            v-if="visibility[host+'.cpus_times.cpus_times']"
             :wrapper="{type: 'dygraph'}"
-            :ref="host+'.cpus_times.cpus'"
-            :id="host+'.cpus_times.cpus'"
+            :ref="host+'.cpus_times.cpus_times'"
+            :id="host+'.cpus_times.cpus_times'"
             :EventBus="EventBus"
-            :chart="charts[host+'.cpus_times.cpus']"
-            :stat="{range: range, data: tabulars[host+'.cpus_times.cpus']}"
+            :chart="charts[host+'.cpus_times.cpus_times']"
+            :stat="{range: range, data: tabulars[host+'.cpus_times.cpus_times']}"
           >
           </chart-tabular>
           <chart-tabular v-else
             :wrapper="{type: 'dygraph'}"
-            :id="host+'.cpus_times.cpus'"
-            :ref="host+'.cpus_times.cpus_empty'"
-            :chart="charts[host+'.cpus_times.cpus']"
+            :id="host+'.cpus_times.cpus_times'"
+            :ref="host+'.cpus_times.cpus_times_empty'"
+            :chart="charts[host+'.cpus_times.cpus_times']"
           >
           </chart-tabular>
           <!-- <chart-empty-container v-else></chart-empty-container> -->
