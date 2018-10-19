@@ -3,6 +3,8 @@ import Vuex from 'vuex'
 
 import hosts from './hosts'
 import app from './app'
+import dashboard from './dashboard'
+
 // import stats from './stats'
 // import stats_tabular from './stats_tabular'
 
@@ -29,7 +31,7 @@ const vuexLocal = new VuexPersistence ({
   storage: window.localStorage,
   // reducer: state => ({app: state.app, hosts : state.hosts, stats: state.stats}), //only save app module
   // modules: ['app', 'hosts', 'stats']
-  modules: ['app', 'hosts']
+  modules: ['app', 'hosts', 'dashboard']
 })
 
 const store = new Vuex.Store({
@@ -44,6 +46,7 @@ const store = new Vuex.Store({
   modules: {
     hosts,
     app,
+    dashboard,
     stat:{
       namespaced: true,
       state: function() {

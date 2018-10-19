@@ -85,8 +85,13 @@ export default {
       length: this.$options.length,
       range: this.stat.range
     }).then((docs) => {
+      let new_docs_range = this.__get_new_range(docs, this.stat.range)
+      docs = new_docs_range.docs
+      let range = new_docs_range.range
+      console.log('stats/get', range)
+
       if(docs.length > 0){
-        console.log('stats/get', docs)
+
         let stats = []
         Array.each(docs, function(doc){
           if(doc && doc.data){
@@ -101,6 +106,9 @@ export default {
         console.log('stats/get 2', stats)
         this.__set_stat_data(stats)
 
+      }
+      else if(range.length > 0){
+        this.$store.commit('dashboard/events/add', {id: this.id, type: 'onRange', 'opts': range})
       }
     })
 
@@ -158,6 +166,50 @@ export default {
     this.$off()
   },
   methods: {
+    /**
+    * based on docs (obtained from local DB) and range, defined if we can update stat with this
+    * plus a shorter remote range, or we need to clear and obtain all new data from remote
+    */
+    __get_new_range: function(docs, range){
+      console.log('__get_new_range', docs, range)
+
+      if(
+        docs.length > 0
+        && docs[docs.length - 1]
+        && docs[docs.length - 1].metadata
+        && docs[0].metadata.timestamp > range[0] - 10000
+        && docs[0].metadata.timestamp < range[0] + 10000
+      ){
+
+
+        let prev = undefined
+        let missing = false
+
+        docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+
+        Array.each(docs, function(doc){
+          if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+
+            missing = true
+          }
+          prev = doc
+        })
+
+        if(missing == false){
+          range[0] = docs[docs.length - 1].metadata.timestamp
+
+        }
+        else{
+          docs = []
+        }
+
+      }
+      else{
+        docs = []
+      }
+
+      return {docs: docs, range: range}
+    },
     // __stat_data_watcher: function(val){
     //   if(val && val.length > 0 && !this.$store.state[this.$options.type][this.id]){
     //     console.log('registerModule stat', this.$options.type, this.id)

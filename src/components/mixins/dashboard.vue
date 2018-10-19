@@ -1,5 +1,10 @@
 <script>
 
+import { mapState } from 'vuex'
+// import { createNamespacedHelpers } from 'vuex'
+// const { mapState, mapActions } = createNamespacedHelpers('some/nested/module')
+
+
 import chart from 'components/chart'
 import chartTabular from 'components/chart.tabular'
 
@@ -10,13 +15,16 @@ import admin_lte_mixin from 'components/mixins/admin-lte'
 export default {
   mixins: [admin_lte_mixin],
 
+  __events_watcher: undefined,
+  __pipelines_events: {},
+
   components: {
     chart,
     chartTabular,
     chartEmptyContainer
   },
 
-  __unwatchers__: {},
+  // __unwatchers__: {},
 
   data () {
     return {
@@ -27,11 +35,133 @@ export default {
       available_charts: {}
     }
   },
-  // updated: function(){
-  //   this.admin_lte_ui()
-  //
-  // },
+
+  computed: Object.merge(
+    mapState({
+      events: state => state.dashboard.events.list,
+    }),
+
+  ),
+  created: function(){
+    this.$options.__events_watcher = this.$watch('events', function(val){
+      console.log('this.$watch events', val)
+      if(val && val.length > 0){
+        Array.each(val, function(event){
+          if(event.id && this.available_charts[event.id]){
+
+            let {id} = event
+            let {stat, pipeline} = this.available_charts[id]
+
+            event = this.__parse_event(event)
+
+            if(!Array.isArray(stat))
+              stat = [stat]
+
+            console.log('this.$watch events chart', pipeline, stat)
+
+            Array.each(stat, function(stat_data, index){
+              let p = undefined
+              if(Array.isArray(pipeline)){
+                p = pipeline[index]
+              }
+              else{
+                p = pipeline
+              }
+
+              let __pipeline = this.__parse_pipeline_opts(p, stat_data)
+              this.__set_pipeline_event({
+                pipeline: __pipeline,
+                event: event
+              })
+
+            }.bind(this))
+
+          }
+
+        }.bind(this))
+      }
+    })
+  },
+  beforeDestroy: function(){
+    if(!this.$options.__events_watcher)
+      this.$options.__events_watcher()
+
+
+  },
+  destroyed: function(){
+    this.$off()
+  },
   methods: {
+    __parse_pipeline_opts: function(pipeline, stat){
+      let {name} = pipeline
+      let {path} = stat
+      return {
+        name: name,
+        options: "inputs[0].options.conn[0].module.options.paths = ['"+path+"']"
+      }
+    },
+    __parse_event: function(event){
+      let {type, opts} = event
+      let e = {}
+      e[type] = opts
+      if(type == 'onRange')
+        e[type] = { Range: 'posix '+ opts[0] +'-'+ opts[0] +'/*' }
+
+      return e
+    },
+    fire_pipelines_events: function(){
+      //console.log('fire_pipelines_events',this.$options.pipelines_events)
+
+      Object.each(this.$options.pipelines_events, function(pipeline, name){
+        let pipe = this.$options.pipelines[name]
+        Array.each(pipeline, function(obj){
+          let {options, event} = obj
+          eval('pipe.'+options)
+          let event_name = Object.keys(event)[0]
+          pipe.fireEvent(event_name, event[event_name])
+
+          // ////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
+
+        })
+      }.bind(this))
+    },
+    __set_pipeline_event: function (payload){
+      let {pipeline, event} = payload
+      if(!this.$options.__pipelines_events[pipeline.name])
+        this.$options.__pipelines_events[pipeline.name] = []
+
+      let obj = {options: pipeline.options, event}
+      if(this.$options.__pipelines_events[pipeline.name].length == 0){
+        this.$options.__pipelines_events[pipeline.name].push(obj)
+      }
+      else{
+        let found = false
+        Array.each(this.$options.__pipelines_events[pipeline.name], function(pipe, index){
+          // found = false
+          if(pipe.options == obj.options){
+            // found = true
+            // ////console.log('_set_pipelines_events', pipe.options, obj.options)
+            let pipe_event_name = Object.keys(pipe.event)[0]
+            let obj_event_name = Object.keys(obj.event)[0]
+
+
+            if(pipe_event_name == obj_event_name)
+              found = index
+          }
+
+
+        }.bind(this))
+
+        if(found == false ){
+          this.$options.__pipelines_events[pipeline.name].push(obj)
+        }
+        else{//replace it as ranges get updated
+          this.$options.__pipelines_events[pipeline.name][found] = obj
+        }
+      }
+
+      console.log('_set_pipelines_events', this.$options.__pipelines_events)
+    },
     /**
     * @start -charting
     **/
@@ -145,74 +275,74 @@ export default {
     //     this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
     //   // }
     // },
-    __update_chart_stat: function(name, doc, splice){
-      console.log('__update_chart_stat', name, doc, splice)
-
-      /**
-      * @config option this.visibility
-      **/
-      if(this.stats[name] && this.visibility[name] == true){
-
-        if(Array.isArray(doc) && doc.length > 0){
-          let data = []
-
-          // doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-
-          Array.each(doc, function(d, index){
-            data.push({ timestamp: d.metadata.timestamp, value: d.data })
-
-            if(index == doc.length -1){
-
-              // let old_data = Array.clone(this.stats[name].data)
-              // data = old_data.combine(data)
-              // data = this.stats[name].data.combine(data)
-              data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-              this.$set(this.stats[name], 'data', data)
-            }
-          }.bind(this))
-
-          // splice = splice || this.seconds
-          // let length = this.stats[name].data.length
-          // this.stats[name].data.splice(
-          //   (splice * -1) -1,
-          //   length - splice
-          // )
-        }
-        else if(doc && !Array.isArray(doc)){
-          let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-          this.stats[name].data.push(data)
-
-
-          // if(length > this.seconds)
-          //   this.stats[name].data.shift()
-        }
-
-        splice = (isNaN(splice)) ? this.seconds : splice
-
-        let length = this.stats[name].data.length
-        // if(splice == 1){
-        //   let last = this.stats[name].data[this.stats[name].data.length -1]
-        //   this.$set(this.stats[name], 'data', [last])
-        // }
-        // else{
-          splice = (splice == 1) ? 2 : splice
-
-          if(splice == 0){
-            this.$set(this.stats[name], 'data', [])
-          }
-          else{
-            this.stats[name].data.splice(
-              (splice * -1) -1,
-              length - splice
-            )
-          }
-        // }
-
-        ////console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
-
-        this.stats[name].lastupdate = Date.now()
-      }
-    },
+    // __update_chart_stat: function(name, doc, splice){
+    //   console.log('__update_chart_stat', name, doc, splice)
+    //
+    //   /**
+    //   * @config option this.visibility
+    //   **/
+    //   if(this.stats[name] && this.visibility[name] == true){
+    //
+    //     if(Array.isArray(doc) && doc.length > 0){
+    //       let data = []
+    //
+    //       // doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+    //
+    //       Array.each(doc, function(d, index){
+    //         data.push({ timestamp: d.metadata.timestamp, value: d.data })
+    //
+    //         if(index == doc.length -1){
+    //
+    //           // let old_data = Array.clone(this.stats[name].data)
+    //           // data = old_data.combine(data)
+    //           // data = this.stats[name].data.combine(data)
+    //           data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
+    //           this.$set(this.stats[name], 'data', data)
+    //         }
+    //       }.bind(this))
+    //
+    //       // splice = splice || this.seconds
+    //       // let length = this.stats[name].data.length
+    //       // this.stats[name].data.splice(
+    //       //   (splice * -1) -1,
+    //       //   length - splice
+    //       // )
+    //     }
+    //     else if(doc && !Array.isArray(doc)){
+    //       let data = { timestamp: doc.metadata.timestamp, value: doc.data }
+    //       this.stats[name].data.push(data)
+    //
+    //
+    //       // if(length > this.seconds)
+    //       //   this.stats[name].data.shift()
+    //     }
+    //
+    //     splice = (isNaN(splice)) ? this.seconds : splice
+    //
+    //     let length = this.stats[name].data.length
+    //     // if(splice == 1){
+    //     //   let last = this.stats[name].data[this.stats[name].data.length -1]
+    //     //   this.$set(this.stats[name], 'data', [last])
+    //     // }
+    //     // else{
+    //       splice = (splice == 1) ? 2 : splice
+    //
+    //       if(splice == 0){
+    //         this.$set(this.stats[name], 'data', [])
+    //       }
+    //       else{
+    //         this.stats[name].data.splice(
+    //           (splice * -1) -1,
+    //           length - splice
+    //         )
+    //       }
+    //     // }
+    //
+    //     ////console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
+    //
+    //     this.stats[name].lastupdate = Date.now()
+    //   }
+    // },
     /**
     * @end - charting
     **/

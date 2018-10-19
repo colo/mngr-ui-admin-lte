@@ -206,7 +206,7 @@
             :stat="{
               range: range,
               merged: true,
-              data: [tabulars[host+'.cpus_times.cpus_times'], tabulars[host+'.uptime.uptime']]
+              data: [tabulars[host+'.os.cpus.times'], tabulars[host+'.os.uptime']]
             }"
           >
           </chart-tabular>
@@ -567,7 +567,7 @@ export default {
   charts_objects: {},
   // charts: {},
   pipelines: {},
-  pipelines_events: {},
+  // pipelines_events: {},
   // __active_stats: {},
 
   daterangepicker:{
@@ -814,26 +814,29 @@ export default {
     // //////////console.log('life cycle created')
 
     EventBus.$once('charts', doc => {
-      ////console.log('recived doc via Event charts', doc)
+      // console.log('recived doc via Event charts', doc)
       Object.each(doc.charts, function(data, name){
-        // if(data['_instances']){
-        //   ////console.log('recived doc via Event host', doc)
-        //
-        //   Object.each(data['_instances'], function(instance, key){
-        //     this.$options.charts_objects[key] = instance
-        //   }.bind(this))
-        // }
-        // else{
+        if(data.chart){
           this.$options.charts_objects[name] = data.chart
-        // }
+        }
+        else{//named chart like os.cpus->times os.cpus->percentage
+          // if(!this.$options.charts_objects[name]) this.$options.charts_objects[name] = {}
+          Object.each(data, function(chart_data, chart_name){
+              this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
+          }.bind(this))
+
+        }
+
       }.bind(this))
+
+      console.log('CHARTS', this.$options.charts_objects)
 
       // //////////console.log('recived doc via Event host', doc, this.$options.charts_objects)
       /**
       * remove for testing
       **/
 
-      let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['cpus_times']))
+      let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['os.cpus.times']))
       Array.each(merged_chart.options.labels, function(label, index){
         merged_chart.options.labels[index] = 'cpus times '+label
       })
@@ -856,32 +859,32 @@ export default {
           //
           // // this.$store.dispatch('stats_tabular/splice', payload.stat)
         }.bind(this),
-        // stat: [
-        //   {
-        //     host: this.host,
-        //     path: 'cpus_times',
-        //     key: 'cpus',
-        //     length: this.seconds || 300,
-        //     tabular: true
-        //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-        //   },
-        //   {
-        //     host: this.host,
-        //     path: 'uptime',
-        //     key: 'uptime',
-        //     length: this.seconds || 300,
-        //     tabular: true
-        //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-        //   }
-        // ],
+        stat: [
+          {
+            host: this.host,
+            path: 'os.cpus',
+            // key: 'cpus',
+            // length: this.seconds || 300,
+            tabular: true
+            // range: [Date.now() - this.seconds * 1000, Date.now()]
+          },
+          {
+            host: this.host,
+            path: 'os.uptime',
+            // key: 'uptime',
+            // length: this.seconds || 300,
+            tabular: true
+            // range: [Date.now() - this.seconds * 1000, Date.now()]
+          }
+        ],
         /**
         * for __get_stat_for_chart
         **/
-        // pipeline: {
-        //   name: 'input.os',
-        //   path: 'os',
-        //   range: true
-        // }
+        pipeline: {
+          name: 'input.os',
+          // path: 'os',
+          // range: true
+        }
       }
 
       // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
@@ -1303,17 +1306,20 @@ export default {
     EventBus.$on('stats', payload => {
       console.log('recived doc via Event stats', payload)
         let type = (payload.tabular == true) ? 'tabulars' : 'stats'
-        Object.each(payload.stats, function(data, path){
-          Object.each(data, function(value, key){
-            // console.log('recived doc via Event stats->value', value)
-            // if(!this[type][payload.host+'.'+path+'.'+key])
-            //   this.$set(this[type], payload.host+'.'+path+'.'+key, undefined)
 
-            this.$set(this[type],payload.host+'.'+path+'.'+key, value)
-            // this[type][payload.host+'.'+path+'.'+key] = value
-          }.bind(this))
+        Object.each(payload.stats, function(data, path){
+          if(Array.isArray(data)){
+            this.$set(this[type],payload.host+'.'+path, data)
+          }
+          else{
+            Object.each(data, function(value, key){
+              this.$set(this[type],payload.host+'.'+path+'.'+key, value)
+
+            }.bind(this))
+          }
         }.bind(this))
 
+        console.log('STATS', this['stats'])
         console.log('TABULARS', this['tabulars'])
         // // if(this.$options.tabular_range_started === true && payload.tabular == true){
         // if(payload.host == this.host && payload.tabular == true){
@@ -1627,9 +1633,9 @@ export default {
     // this.$store.dispatch('stats/splice', {host: this.host, length: 300})
     // this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
   },
-  destroyed: function(){
-    this.$off()
-  },
+  // destroyed: function(){
+  //   this.$off()
+  // },
   methods: {
     update_daterangepicker: function(){
       ////console.log('update_daterangepicker')
@@ -1983,100 +1989,100 @@ export default {
     //     return false
     //   }
     // },
-    fire_pipelines_events: function(){
-      //console.log('fire_pipelines_events',this.$options.pipelines_events)
-
-      Object.each(this.$options.pipelines_events, function(pipeline, name){
-        let pipe = this.$options.pipelines[name]
-        Array.each(pipeline, function(obj){
-          let {options, event} = obj
-          eval('pipe.'+options)
-          let event_name = Object.keys(event)[0]
-          pipe.fireEvent(event_name, event[event_name])
-
-          // ////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
-
-        })
-      }.bind(this))
-    },
-    _set_pipelines_events: function (payload){
-      let {pipeline, event} = payload
-      if(!this.$options.pipelines_events[pipeline.name])
-        this.$options.pipelines_events[pipeline.name] = []
-
-      let obj = {options: pipeline.options, event}
-      if(this.$options.pipelines_events[pipeline.name].length == 0){
-        this.$options.pipelines_events[pipeline.name].push(obj)
-      }
-      else{
-        let found = false
-        Array.each(this.$options.pipelines_events[pipeline.name], function(pipe, index){
-          // found = false
-          if(pipe.options == obj.options){
-            // found = true
-            // ////console.log('_set_pipelines_events', pipe.options, obj.options)
-            let pipe_event_name = Object.keys(pipe.event)[0]
-            let obj_event_name = Object.keys(obj.event)[0]
-
-
-            if(pipe_event_name == obj_event_name)
-              found = index
-          }
-
-
-        }.bind(this))
-
-        if(found == false ){
-          this.$options.pipelines_events[pipeline.name].push(obj)
-        }
-        else{//replace it as ranges get updated
-          this.$options.pipelines_events[pipeline.name][found] = obj
-        }
-      }
-
-      ////console.log('_set_pipelines_events', this.$options.pipelines_events)
-    },
-    /**
-    * based on docs (obtained from local DB) and range, defined if we can update stat with this
-    * plus a shorter remote range, or we need to clear and obtain all new data from remote
-    */
-    __get_new_docs_range: function(docs, range){
-      if(
-        docs.length != 0
-        && docs[docs.length - 1]
-        && docs[docs.length - 1].metadata
-        && docs[0].metadata.timestamp > range[0] - 10000
-        && docs[0].metadata.timestamp < range[0] + 10000
-      ){
-
-        let prev = undefined
-        let missing = false
-
-        docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-
-        Array.each(docs, function(doc){
-          if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
-
-            missing = true
-          }
-          prev = doc
-        })
-
-        if(missing == false){
-          range[0] = docs[docs.length - 1].metadata.timestamp
-
-        }
-        else{
-          docs = []
-        }
-
-      }
-      else{
-        docs = []
-      }
-
-      return {docs: docs, range: range}
-    },
+    // fire_pipelines_events: function(){
+    //   //console.log('fire_pipelines_events',this.$options.pipelines_events)
+    //
+    //   Object.each(this.$options.pipelines_events, function(pipeline, name){
+    //     let pipe = this.$options.pipelines[name]
+    //     Array.each(pipeline, function(obj){
+    //       let {options, event} = obj
+    //       eval('pipe.'+options)
+    //       let event_name = Object.keys(event)[0]
+    //       pipe.fireEvent(event_name, event[event_name])
+    //
+    //       // ////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
+    //
+    //     })
+    //   }.bind(this))
+    // },
+    // _set_pipelines_events: function (payload){
+    //   let {pipeline, event} = payload
+    //   if(!this.$options.pipelines_events[pipeline.name])
+    //     this.$options.pipelines_events[pipeline.name] = []
+    //
+    //   let obj = {options: pipeline.options, event}
+    //   if(this.$options.pipelines_events[pipeline.name].length == 0){
+    //     this.$options.pipelines_events[pipeline.name].push(obj)
+    //   }
+    //   else{
+    //     let found = false
+    //     Array.each(this.$options.pipelines_events[pipeline.name], function(pipe, index){
+    //       // found = false
+    //       if(pipe.options == obj.options){
+    //         // found = true
+    //         // ////console.log('_set_pipelines_events', pipe.options, obj.options)
+    //         let pipe_event_name = Object.keys(pipe.event)[0]
+    //         let obj_event_name = Object.keys(obj.event)[0]
+    //
+    //
+    //         if(pipe_event_name == obj_event_name)
+    //           found = index
+    //       }
+    //
+    //
+    //     }.bind(this))
+    //
+    //     if(found == false ){
+    //       this.$options.pipelines_events[pipeline.name].push(obj)
+    //     }
+    //     else{//replace it as ranges get updated
+    //       this.$options.pipelines_events[pipeline.name][found] = obj
+    //     }
+    //   }
+    //
+    //   ////console.log('_set_pipelines_events', this.$options.pipelines_events)
+    // },
+    // /**
+    // * based on docs (obtained from local DB) and range, defined if we can update stat with this
+    // * plus a shorter remote range, or we need to clear and obtain all new data from remote
+    // */
+    // __get_new_docs_range: function(docs, range){
+    //   if(
+    //     docs.length != 0
+    //     && docs[docs.length - 1]
+    //     && docs[docs.length - 1].metadata
+    //     && docs[0].metadata.timestamp > range[0] - 10000
+    //     && docs[0].metadata.timestamp < range[0] + 10000
+    //   ){
+    //
+    //     let prev = undefined
+    //     let missing = false
+    //
+    //     docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+    //
+    //     Array.each(docs, function(doc){
+    //       if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
+    //
+    //         missing = true
+    //       }
+    //       prev = doc
+    //     })
+    //
+    //     if(missing == false){
+    //       range[0] = docs[docs.length - 1].metadata.timestamp
+    //
+    //     }
+    //     else{
+    //       docs = []
+    //     }
+    //
+    //   }
+    //   else{
+    //     docs = []
+    //   }
+    //
+    //   return {docs: docs, range: range}
+    // },
     _merge_stats: function(payload){
       let {buffer, length, stat_name, data_name, data, splice, range} = payload
       //////console.log('_merge_stats', stat_name, buffer, range, data)
