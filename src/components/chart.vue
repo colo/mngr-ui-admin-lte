@@ -25,19 +25,19 @@ export default {
   //     this.__process_stat(this.chart, this.id, this.stat.data)
   // },
   methods: {
-    visibilityChanged (isVisible, entry) {
-      // if(
-      //   isVisible == true
-      // ){
-      //     // this.__process_stat(this.chart, this.id, this.stat.data)
-      //     this.create()
-      // }
-      // else{
-      //   this.destroy()
-      // }
-
-      this.$options.visible = isVisible
-    },
+    // visibilityChanged (isVisible, entry) {
+    //   // if(
+    //   //   isVisible == true
+    //   // ){
+    //   //     // this.__process_stat(this.chart, this.id, this.stat.data)
+    //   //     this.create()
+    //   // }
+    //   // else{
+    //   //   this.destroy()
+    //   // }
+    //
+    //   this.$options.visible = isVisible
+    // },
 
     create (){
       console.log('chart.vue create', this.id)
@@ -51,7 +51,7 @@ export default {
 
 
 
-      let unwatch = this.$watch('stat.data', function (val, old) {
+      let unwatch = this.$watch('stat_data', function (val, old) {
 
 
         // if(val && val.length > 1){
@@ -59,7 +59,7 @@ export default {
 
           if(this.$options.__chart_init == false){
 
-            this.__process_stat(this.chart, this.id, this.stat.data)
+            this.__process_stat(this.chart, this.id, this.stat_data)
             this.$options.__chart_init = true
 
           }
@@ -126,7 +126,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_chart (chart, name, stat){
-      console.log('__process_chart', this.stat.data, name, stat)
+      console.log('__process_chart', this.stat_data, name, stat)
 
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, name, stat, 'chart')
@@ -134,9 +134,9 @@ export default {
       /**
       * first update
       **/
-      if(this.stat.data.length > 0){
+      if(this.stat_data.length > 0){
 
-        data_to_tabular(this.stat.data, chart, name, this.update_chart_stat.bind(this))
+        data_to_tabular(this.stat_data, chart, name, this.update_chart_stat.bind(this))
       }
 
       this.__create_watcher(name, chart)
@@ -155,25 +155,26 @@ export default {
       }
 
       let generic_data_watcher = function(current){
+        // console.log('generic_data_watcher...', name, current)
         if(current){
-
-          if(this.$options.visible){
-            if(chart.watch && chart.watch.cumulative == true){//send all values
+          // current = Array.clone(current)
+          // if(this.$options.visible){
+            // if(chart.watch && chart.watch.cumulative == true){//send all values
               //console.log('generic_data_watcher send all', name)
               data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
-            }
-            else{//send last only
-              // console.log('generic_data_watcher send last', name, current)
-              data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
-            }
+            // }
+            // else{//send last only
+            //   // console.log('generic_data_watcher send last', name, current)
+            //   data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
+            // }
 
-          }
+          // }
         }
       }
 
       //console.log('gonna watch...', name, this.stat.data)
 
-      this.$options.__data_unwatcher = this.$watch('stat.data', generic_data_watcher)
+      this.$options.__data_unwatcher = this.$watch('stat_data', generic_data_watcher)
 
     },
 

@@ -31,7 +31,8 @@ const vuexLocal = new VuexPersistence ({
   storage: window.localStorage,
   // reducer: state => ({app: state.app, hosts : state.hosts, stats: state.stats}), //only save app module
   // modules: ['app', 'hosts', 'stats']
-  modules: ['app', 'hosts', 'dashboard']
+  // modules: ['app', 'hosts', 'dashboard']
+  modules: ['app', 'hosts']
 })
 
 const store = new Vuex.Store({

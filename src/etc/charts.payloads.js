@@ -1,86 +1,109 @@
 'use strict'
 
 export default {
-  os_cpus_percentage: {
-    name: 'os_cpus_percentage',
+  'os.cpus.percentage': {
+    name: 'os.cpus.percentage',
     chart: undefined,
     init: undefined,
     stop: undefined,
     stat: {
       host: undefined,
-      path: 'cpus_percentage',
-      key: 'cpus',
-      length: 300,
+      path: 'os.cpus',
+      // key: 'cpus',
+      // length: 300,
       tabular: true,
-      range: undefined
+      // range: undefined
     },
     /**
     * for __get_stat_for_chart
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os',
-      range: true
+      // path: 'os',
+      // range: true
     }
   },
 
-  'cpus_times.cpus': {
-    name: 'cpus_times.cpus',
+  'os.cpus.times': {
+    name: 'os.cpus.times',
     chart: undefined,
     init: undefined,
     stop: undefined,
     stat: {
       host: undefined,
-      path: 'cpus_times',
-      key: 'cpus',
-      length: 300,
+      path: 'os.cpus',
+      // key: 'cpus',
+      // length: 300,
       tabular: true,
-      range: undefined
+      // range: undefined
     },
     /**
     * for __get_stat_for_chart
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os',
-      range: true
+      // path: 'os',
+      // range: true
     }
   },
 
-  os_uptime: {
-    name: 'os_uptime',
+  'os.uptime': {
+    name: 'os.uptime',
     chart: undefined,
     init: undefined,
     stop: undefined,
     stat: {
       host: undefined,
-      path: 'uptime',
-      key: 'uptime',
-      length: 300,
+      path: 'os.uptime',
+      // key: 'uptime',
+      // length: 300,
       tabular: true,
-      range: undefined
+      // range: undefined
     },
     /**
     * for __get_stat_for_chart
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os',
+      // path: 'os',
       range: true
     }
   },
 
-  os_loadavg: {
-    name: 'os_loadavg',
+  'os.loadavg': {
+    name: 'os.loadavg',
     chart: undefined,
     init: undefined,
     stop: undefined,
     //
     stat: {
       host: undefined,
-      path: 'loadavg',
-      key: 'loadavg',
-      length: 300,
+      path: 'os.loadavg',
+      // key: 'loadavg',
+      // length: 300,
+      tabular: true,
+      // range: undefined
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // path: 'os',
+      range: true
+    }
+  },
+
+  'os_blockdevices.stats': {
+    name: 'os_blockdevices.stats',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    stat: {
+      host: undefined,
+      path: 'os_blockdevices',
+      // key: '',
+      // length: 300,
       tabular: true,
       range: undefined
     },
@@ -89,69 +112,46 @@ export default {
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os',
+      // path: 'os.blockdevices',
       range: true
     }
   },
 
-  os_blockdevices_stats: {
-    name: 'os_blockdevices_stats',
+  'os_mounts.percentage': {
+    name: 'os_mounts.percentage',
     chart: undefined,
     init: undefined,
     stop: undefined,
     stat: {
       host: undefined,
-      path: 'blockdevices_stats',
-      key: '',
-      length: 300,
+      path: 'os_mounts',
+      // key: '',
+      // length: 300,
       tabular: true,
-      range: undefined
+      // range: undefined
     },
     /**
     * for __get_stat_for_chart
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os.blockdevices',
+      // path: 'os.mounts',
       range: true
     }
   },
 
-  os_mounts_percentage: {
-    name: 'os_mounts_percentage_',
-    chart: undefined,
-    init: undefined,
-    stop: undefined,
-    stat: {
-      host: undefined,
-      path: 'mounts_percentage',
-      key: '',
-      length: 300,
-      tabular: true,
-      range: undefined
-    },
-    /**
-    * for __get_stat_for_chart
-    **/
-    pipeline: {
-      name: 'input.os',
-      path: 'os.mounts',
-      range: true
-    }
-  },
-
-  os_freemem:{
-    name: 'os_freemem',
+  'os.freemem':{
+    name: 'os.freemem',
     chart: undefined,
     init: undefined,
     stop: undefined,
 
     stat: {
       host: undefined,
-      path: 'os',
-      key: 'freemem',
-      length: 300,
-      range: undefined,
+      path: 'os.freemem',
+      // key: 'freemem',
+      // length: 300,
+      // range: undefined,
       tabular: false
     },
     /**
@@ -159,32 +159,32 @@ export default {
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os',
-      range: true
+      // path: 'os',
+      // range: true
     }
   },
 
-  os_networkInterfaces_stats: {
-    name: 'os_networkInterfaces_stats',
+  'os_networkInterfaces_stats.properties': {
+    name: 'os_networkInterfaces_stats.properties',
     chart: undefined,
     init: undefined,
     stop: undefined,
     stat: {
       host: undefined,
-      path: 'networkInterfaces_stats',
-      key: '',
-      length: 300,
+      path: 'os_networkInterfaces_stats',
+      // key: '',
+      // length: 300,
       tabular: true,
-      range: undefined
+      // range: undefined
     },
-    watcher: undefined,
+    // watcher: undefined,
     /**
     * for __get_stat_for_chart
     **/
     pipeline: {
       name: 'input.os',
-      path: 'os.networkInterfaces_stats',
-      range: true
+      // path: 'os.networkInterfaces_stats',
+      // range: true
     }
   }
 

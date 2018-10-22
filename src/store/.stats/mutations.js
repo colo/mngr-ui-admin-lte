@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 export const add = function(state, payload) {//generic mutation
-  console.log('MUTATIONS add', payload)
+  //console.log('MUTATIONS add', payload)
 
   let {host, path, key, data, tabular} = payload
 
@@ -46,7 +46,7 @@ export const clear = (state, payload) => {
   let {host, path, key, tabular} = payload
 
   let type = (tabular == true) ? 'tabular' : 'stat'
-  ////console.log('clear mutation')
+  //////console.log('clear mutation')
 
   if(!state[host])
     Vue.set(state, host, {})
