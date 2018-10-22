@@ -44,6 +44,7 @@
     "pouchdb-browser": "^7.0.0",
     "pouchdb-find": "^7.0.0",
     "pouchdb-live-find": "^0.4.0",
+    "qrate": "^1.0.2",
     "vue-2-crumbs": "^0.5.2",
     "vue-easy-pie-chart": "^1.0.3",
     "vue-echarts-v3": "^1.0.19",

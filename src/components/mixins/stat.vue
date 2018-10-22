@@ -10,7 +10,12 @@ export default {
   components: {
   },
 
-  // __deque: undefined,
+  /**
+  * set/modified by graph.vue or your own logic
+  **/
+  focus: true,
+  visible: true,
+
   __stat_unwatcher: undefined,
   root: undefined,
   path: undefined,
@@ -61,13 +66,13 @@ export default {
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
     this.$options.length = this.stat.length || range_length
-    //console.log('CREATED', this.$options.length, range_length)
+    ////console.log('CREATED', this.$options.length, range_length)
 
     this.$options.root = this.id.split('.')[0]
     this.$options.path = this.id.split('.')[1]
     this.$options.key = this.id.split('.')[2]
 
-    //console.log('stat.vue id', this.id, this.$options.type, this.stat)
+    ////console.log('stat.vue id', this.id, this.$options.type, this.stat)
 
     if(!this.$store.state[this.$options.type][this.id]){
       this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
@@ -88,9 +93,10 @@ export default {
       let new_docs_range = this.__get_new_range(docs, this.stat.range)
       docs = new_docs_range.docs
       let range = new_docs_range.range
-      //console.log('stats/get', range)
+
 
       if(docs.length > 0){
+        console.log('stats/get', docs, range)
 
         let stats = []
         Array.each(docs, function(doc){
@@ -103,11 +109,12 @@ export default {
           }
         })
 
-        //console.log('stats/get 2', stats)
+        ////console.log('stats/get 2', stats)
         this.__set_stat_data(stats)
 
       }
-      else if(range.length > 0){
+
+      if(range.length > 0){
         this.$store.commit('dashboard/events/add', {id: this.id, type: 'onRange', 'opts': range})
       }
     })
@@ -116,7 +123,7 @@ export default {
     if(this.stat.merged == true){
       // this.$options.deque = new Deque(this.stat.data.length * 1)
       //
-      // //console.log('stat.vue id', this.id, this.$options.type, this.stat.range, this.$options.deque, this.$options.deque.length, QUEUE_SIZE)
+      // ////console.log('stat.vue id', this.id, this.$options.type, this.stat.range, this.$options.deque, this.$options.deque.length, QUEUE_SIZE)
       // if(this.stat.data && this.stat.data[0]){
         this.$options.__stat_unwatcher = this.$watch('stat.data', function(stats, old){
           /**
@@ -124,7 +131,7 @@ export default {
           **/
           stats = Object.clone(stats)//now we are safe to modify
           let val = (stats) ? stats[0] : undefined
-          //console.log('stat.data.0', val)
+          ////console.log('stat.data.0', val)
 
           if(val && val.length > 0){
 
@@ -141,7 +148,7 @@ export default {
               let matched_columns = false
               Array.each(val, function(row, index){
                 Array.each(columns, function(column, col_index){
-                  //console.log('COLUMN',column)
+                  ////console.log('COLUMN',column)
                   if(column){
                     if(Array.isArray(column[0])){//array of array, range data
                       val[index] = this._merge_tabular_data(row, column[index])//match columns/rows
@@ -156,7 +163,7 @@ export default {
 
               }.bind(this))
 
-              //console.log('__stat_unwatcher merged ', val)
+              ////console.log('__stat_unwatcher merged ', val)
 
               if(matched_columns == true)
                 this.__add_stats(val)
@@ -167,7 +174,7 @@ export default {
     }
     else{
       this.$options.__stat_unwatcher = this.$watch('stat.data', function(val, old){
-        console.log('__stat_unwatcher', this.id, this.$options.type, val)
+        //console.log('__stat_unwatcher', this.id, this.$options.type, val)
         // this.__stat_data_watcher(val)
         if(val && val.length > 0){
           this.__add_stats(Array.clone(val))
@@ -189,7 +196,7 @@ export default {
     * plus a shorter remote range, or we need to clear and obtain all new data from remote
     */
     __get_new_range: function(docs, range){
-      //console.log('__get_new_range', docs, range)
+      ////console.log('__get_new_range', docs, range)
 
       if(
         docs.length > 0
@@ -230,7 +237,7 @@ export default {
     },
     // __stat_data_watcher: function(val){
     //   if(val && val.length > 0 && !this.$store.state[this.$options.type][this.id]){
-    //     //console.log('registerModule stat', this.$options.type, this.id)
+    //     ////console.log('registerModule stat', this.$options.type, this.id)
     //     this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
     //     this.$store.commit(this.$options.type+'/'+this.id+'/set_id', this.id)
     //     this.$store.commit(this.$options.type+'/'+this.id+'/set_type', this.$options.type)
@@ -270,7 +277,7 @@ export default {
 
           // result.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
-          ////////////console.log('process_os_tabular', path, key, result)
+          //////////////console.log('process_os_tabular', path, key, result)
           data = {
             tabular:true,
             root: this.$options.root,
@@ -304,12 +311,12 @@ export default {
         }
       }
 
-        //////console.log('__add_os_doc_stats', paths)
+        ////////console.log('__add_os_doc_stats', paths)
         // Object.each(paths, function(keys, path){
-          //////console.log('__add_os_doc_stats PATH', path)
+          ////////console.log('__add_os_doc_stats PATH', path)
 
           // Object.each(keys, function(data, key){
-            //////console.log('__add_os_doc_stats KEY', key, data)
+            ////////console.log('__add_os_doc_stats KEY', key, data)
 
 
       this.$store.dispatch(this.$options.type+'/'+this.id+'/add', data)
@@ -334,7 +341,7 @@ export default {
       // // }
       //
       //
-      // // //console.log('stat.vue __add_stats', this.id, data.data, this.stat_data.length, splice, length)
+      // // ////console.log('stat.vue __add_stats', this.id, data.data, this.stat_data.length, splice, length)
       //
 
       //   }.bind(this))
@@ -342,36 +349,37 @@ export default {
       // }.bind(this))
     },
     __set_stat_data(data){
-      if(Array.isArray(data)){
-        this.$set(this, 'stat_data', data)
-      }
-      else{
-        this.stat_data.push( data )
-      }
 
-      this.stat_lastupdate = Date.now()
+      /**
+      * @config: this should be config options
+      * this.$options.focus
+      * this.$options.visible
+      */
+      // if(this.$options.focus == true && this.$options.visible == true && data){
+      //   console.log('__set_stat_data visibility', this.id, this.$options.focus, this.$options.visible)
 
+        if(Array.isArray(data)){
+          this.$set(this, 'stat_data', data)
+        }
+        else{
+          this.stat_data.push( data )
+        }
 
-      let splice = this.$options.length
-      let length = this.stat_data.length
+        this.stat_lastupdate = Date.now()
 
-      // splice = (splice == 1) ? 2 : splice
+        let splice = this.$options.length
+        let length = this.stat_data.length
 
-      // if(splice == 0){
-      //   this.$set(this.stats[name], 'data', [])
-      // }
-      // else{
         this.stat_data.splice(
           (splice * -1) -1,
           length - splice
         )
-      // }
-      //console.log('stat.vue __set_stat_data', this.id, data, this.stat_data.length, splice)
 
+      // }
 
     }
     // get: function(payload, cb){
-    //   //////console.log('__get_stat', payload)
+    //   ////////console.log('__get_stat', payload)
     //   if(payload.tabular == true){
     //     this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
     //   }

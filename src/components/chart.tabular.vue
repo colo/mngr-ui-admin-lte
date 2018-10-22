@@ -18,7 +18,7 @@ export default {
 
   methods: {
     create (){
-      //console.log('create chart.tabular', this.id, this.chart)
+      ////console.log('create chart.tabular', this.id, this.chart)
 
       // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
       //   this.$refs[this.id].create()
@@ -31,7 +31,7 @@ export default {
 
 
       let unwatch = this.$watch('stat_data', function (val, old) {
-        // //console.log('create chart.tabular', val)
+        // ////console.log('create chart.tabular', val)
         // if(val && val.length > 1){
         if(val){
           if(this.$options.__chart_init == false){
@@ -53,7 +53,7 @@ export default {
 
 
       let generic_data_watcher = function(current){
-        // console.log('chart.tabular generic_data_watcher', current)
+        // //console.log('chart.tabular generic_data_watcher', current)
         // if(current && this.$options.visible){
          if(current){
           let data = []
@@ -66,7 +66,7 @@ export default {
         }
       }.bind(this)
 
-      // ////console.log('gonna watch...', name, this.stat.data)
+      // //////console.log('gonna watch...', name, this.stat.data)
       if(this.stat_data[0].value.length > 0)
         generic_data_watcher(this.stat_data)
 
