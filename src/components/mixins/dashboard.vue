@@ -46,18 +46,21 @@ import qrate from 'qrate'
 // }, 1)
 
 let __events_queue = qrate(function(task, callback) {
-  let {pipeline, event} = task
+  let {pipeline, obj} = task
+  let {options, event} = obj
+  eval('pipeline.'+options)
+
   let event_name = Object.keys(event)[0]
   let __callback = function(){
     pipeline.removeEvent(event_name, __callback)
-    callback(event)
+    callback(event, options)
   }
 
 
   pipeline.addEvent(event_name, __callback)
   pipeline.fireEvent(event_name, event[event_name])
 
-}, 1, 2)
+}, 1, 1)
 
 
 export default {
@@ -176,11 +179,11 @@ export default {
           let pipe = this.$options.pipelines[name]
           while(pipeline.length > 0){
             let obj = pipeline.shift()
-            let {options, event} = obj
-            eval('pipe.'+options)
-            let event_name = Object.keys(event)[0]
-            pipe.fireEvent(event_name, event[event_name])
-            __events_queue.push({pipeline: pipe, event}, function(event){
+            // let {options, event} = obj
+            // eval('pipe.'+options)
+            // let event_name = Object.keys(event)[0]
+            // pipe.fireEvent(event_name, event[event_name])
+            __events_queue.push({pipeline: pipe, obj: obj}, function(event, options){
               console.log('EVENT fired', options, new Date())
             })
           }

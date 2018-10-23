@@ -1,7 +1,7 @@
 <template>
 
   <component
-    v-observe-visibility="visibilityChanged"
+    v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
     :is="wrapper.type+'-wrapper'"
     :id="id"
     :ref="id"
@@ -143,14 +143,10 @@ export default {
     __create_watcher(name, chart){},
     update_chart_stat (name, data){
 
-      //console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
+      console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
 
-      /**
-      * @config: this should be config options
-      * this.$options.focus
-      * this.$options.visible
-      */
-      if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
+
+      // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // console.log('update_chart_stat visibility', this.id, data)
         if(data.length == 1){
 
@@ -171,7 +167,7 @@ export default {
           // this.$set(this.tabular, 'data', old_data)
 
         }
-        else{
+        else if(data.length > 0){
 
           // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
@@ -187,17 +183,28 @@ export default {
         // this.tabular.lastupdate = Date.now()
 
 
-        // https://stackoverflow.com/questions/17218938/requestanimationframe-and-knowing-when-the-browser-is-re-painting
+
         this.$options.tabular.lastupdate = Date.now()
-        if(this.$refs[name] && typeof this.$refs[name].update == 'function'){
-          frameDebounce(this.$refs[name].update(this.$options.tabular.data))
-        }
-        else{
-          frameDebounce(this.$set(this, 'tabular', this.$options.tabular))
+
+        /**
+        * @config: this should be config options
+        * this.$options.focus
+        * this.$options.visible
+        */
+        // this.$options.focus == true &&
+        if(this.$options.visible == true){
+          if(this.$refs[name] && typeof this.$refs[name].update == 'function' && this.$options.tabular.data.length > 0){
+            frameDebounce(this.$refs[name].update(this.$options.tabular.data))
+            // this.$refs[name].update(this.$options.tabular.data)
+          }
+          else{
+            frameDebounce(this.$set(this, 'tabular', this.$options.tabular))
+            // this.$set(this, 'tabular', this.$options.tabular)
+          }
         }
 
 
-      }
+      // }
 
     },
     /**
@@ -219,7 +226,18 @@ export default {
     //   //   this.$set(this.visibility, id, true)
     //   //   this.add_chart(this.available_charts[id], id)
     //   // }
+
+      /**
+      * update with current data is visibility changed from "unvisible" to visible
+      **/
+      let __visible = this.$options.visible
       this.$options.visible = isVisible
+      if((!__visible || __visible == false) && isVisible == true){
+        this.update_chart_stat(this.id, this.$options.tabular.data)
+      }
+
+
+
     },
   }
 }

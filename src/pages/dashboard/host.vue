@@ -841,58 +841,60 @@ export default {
       **/
 
       let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.$options.charts_objects['os.cpus.times']))
-      Array.each(merged_chart.options.labels, function(label, index){
-        merged_chart.options.labels[index] = 'cpus times '+label
-      })
-      merged_chart.options.labels.push('uptime seconds')
+      if(merged_chart.options.labels){
+        Array.each(merged_chart.options.labels, function(label, index){
+          merged_chart.options.labels[index] = 'cpus times '+label
+        })
+        merged_chart.options.labels.push('uptime seconds')
 
-      this.available_charts[this.host+'.cpus_times.uptime'] = {
-        name: this.host+'.cpus_times.uptime',
-        // chart: [
-        //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
-        //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
-        // ],
-        chart: merged_chart,
-        stop: function(payload){
-          // // ////////console.log('merged stop', payload)
-          // Array.each(payload.stat, function(stat, index){
-          //   let indexed_name = payload.name+'_'+index
-          //   //this.remove_watcher(indexed_name)
-          //   this.$store.dispatch('stats/flush', stat)
-          // }.bind(this))
-          //
-          // // this.$store.dispatch('stats_tabular/splice', payload.stat)
-        }.bind(this),
-        stat: [
-          {
-            host: this.host,
-            path: 'os.cpus',
-            // key: 'cpus',
-            // length: this.seconds || 300,
-            tabular: true
-            // range: [Date.now() - this.seconds * 1000, Date.now()]
-          },
-          {
-            host: this.host,
-            path: 'os.uptime',
-            // key: 'uptime',
-            // length: this.seconds || 300,
-            tabular: true
-            // range: [Date.now() - this.seconds * 1000, Date.now()]
+        this.available_charts[this.host+'.cpus_times.uptime'] = {
+          name: this.host+'.cpus_times.uptime',
+          // chart: [
+          //   Object.merge(cpus_times_chart, this.$options.charts_objects['cpus_times']),
+          //   Object.merge(uptime_chart, this.$options.charts_objects['uptime']),
+          // ],
+          chart: merged_chart,
+          stop: function(payload){
+            // // ////////console.log('merged stop', payload)
+            // Array.each(payload.stat, function(stat, index){
+            //   let indexed_name = payload.name+'_'+index
+            //   //this.remove_watcher(indexed_name)
+            //   this.$store.dispatch('stats/flush', stat)
+            // }.bind(this))
+            //
+            // // this.$store.dispatch('stats_tabular/splice', payload.stat)
+          }.bind(this),
+          stat: [
+            {
+              host: this.host,
+              path: 'os.cpus',
+              // key: 'cpus',
+              // length: this.seconds || 300,
+              tabular: true
+              // range: [Date.now() - this.seconds * 1000, Date.now()]
+            },
+            {
+              host: this.host,
+              path: 'os.uptime',
+              // key: 'uptime',
+              // length: this.seconds || 300,
+              tabular: true
+              // range: [Date.now() - this.seconds * 1000, Date.now()]
+            }
+          ],
+          /**
+          * for __get_stat_for_chart
+          **/
+          pipeline: {
+            name: 'input.os',
+            // path: 'os',
+            // range: true
           }
-        ],
-        /**
-        * for __get_stat_for_chart
-        **/
-        pipeline: {
-          name: 'input.os',
-          // path: 'os',
-          // range: true
         }
-      }
 
-      // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
-      this.set_chart_visibility(this.host+'.cpus_times.uptime', true)
+        // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
+        this.set_chart_visibility(this.host+'.cpus_times.uptime', true)
+      }
 
       this.available_charts[this.host+'.os.cpus.times'] = Object.merge(
         this.get_payload(charts_payloads,{
@@ -1303,7 +1305,7 @@ export default {
       //   deep:true
       // })
       //
-      this.set_range(moment().subtract(5, 'minute'), moment())
+      // this.set_range(moment().subtract(5, 'minute'), moment())
       // /**
       // * remove for testing
       // **/
@@ -1430,7 +1432,13 @@ export default {
           // this.__get_stat_for_chart(this.available_charts[this.host+'.os.freemem'])
           this.set_chart_visibility(this.host+'.os.freemem', true)
         }
+        unwatch_stats()
+      }
+    },{
+      deep: true
+    })
 
+    let unwatch_mounts = this.$watch('tabulars', (val, old) => {
         let mount = /os_mounts/
         // let mount_counter = 0
         Object.each(val, function(stat, key){
@@ -1473,9 +1481,16 @@ export default {
               this.set_chart_visibility(chart_name, true)
             }
             // mount_counter++
+
+            unwatch_mounts()
           }
         }.bind(this))
 
+      },{
+        deep: true
+      })
+
+      let unwatch_blockdevices = this.$watch('tabulars', (val, old) => {
         let blockdevice = /os_blockdevices/
 
         // let dev_counter = 0
@@ -1521,10 +1536,16 @@ export default {
 
               // dev_counter++
             }
+
+            unwatch_blockdevices()
           }
         }.bind(this))
 
+      },{
+        deep: true
+      })
 
+      let unwatch_networkInterfaces = this.$watch('tabulars', (val, old) => {
         let networkInterface = /os_networkInterfaces_stats/g
 
         // let dev_counter = 0
@@ -1570,9 +1591,13 @@ export default {
               this.set_chart_visibility(chart_name, true)
             }
             // dev_counter++
+            unwatch_networkInterfaces()
           }
         }.bind(this))
 
+      },{
+        deep: true
+      })
 
         /**
         * pie
@@ -1697,11 +1722,7 @@ export default {
         //   }
         // }
 
-        unwatch_stats()
-      }
-    },{
-      deep: true
-    })
+    
     /**
     * remove for testing
     **/

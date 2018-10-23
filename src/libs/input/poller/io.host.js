@@ -83,7 +83,23 @@ export default new Class({
 
             if(app.options.stat_host){
 
-              this.io.emit('stats', app.options.stat_host)
+              this.io.emit('stats', {
+                host: app.options.stat_host
+              })
+
+            }
+
+					}
+				},
+        {
+					stats: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('stats', {
+                host: app.options.stat_host,
+                format: 'tabular',
+              })
 
             }
 

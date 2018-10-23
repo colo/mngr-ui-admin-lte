@@ -269,14 +269,15 @@ export default {
     update (data){
       // //console.log('dygraph update', this.id, data, this.$options.graph.numRows())
       data = this._get_data(data)
-      // let options = (this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
+      // let options = (this.ready == true && this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
       // if(this.$options.visible == true && this.ready == true){
       if(this.ready == true){
 
         this.updateOptions(
           data,
-          // {},
-          { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          // options,
+          {},
+          // { 'dateWindow': this.$options.graph.xAxisExtremes() },
           false
         )
 
