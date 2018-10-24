@@ -121,14 +121,13 @@
 
           <div class="description-block border-right">
             <chart-tabular
-              v-if="visibility[host+'_os_cpus_percentage_gauge']"
-              :type="'highcharts-vue'"
-              :wrapper_props="{'decimals': 1, 'gauge': true}"
-              :ref="host+'_os_cpus_percentage_gauge'"
-              :id="host+'_os_cpus_percentage_gauge'"
+              v-if="charts[host+'.os.cpus.percentage_gauge']"
+              :wrapper="{type: 'highcharts-vue', opts: {'decimals': 1, 'gauge': true}}"
+              :ref="host+'.os.cpus.percentage_gauge'"
+              :id="host+'.os.cpus.percentage_gauge'"
               :EventBus="EventBus"
-              :chart="charts[host+'_os_cpus_percentage_gauge']"
-              :stat="stats[host+'_os_cpus_percentage_gauge']"
+              :chart="charts[host+'.os.cpus.percentage_gauge']"
+              :stat="{length: 1, data: tabulars[host+'.os.cpus.percentage']}"
             >
             </chart-tabular>
             <!-- <chart-tabular v-else
@@ -921,6 +920,8 @@ export default {
     let unwatch_all_init = this.$watch('all_init', function(val){
       console.log('all_init', val)
       if(val == true){
+        this.set_range(moment().subtract(5, 'minute'), moment())
+
         console.log('all_init STATS',this['stats'])
         console.log('all_init TABULARS', this['tabulars'])
         console.log('all_init CHARTS', this.$options.charts_objects)
@@ -1145,28 +1146,29 @@ export default {
         // /**
         // * remove for testing
         // **/
-        // // this.available_charts[this.host+'_os_cpus_percentage_gauge'] = Object.merge(
-        // //   this.get_payload(charts_payloads,{
-        // //     name: 'os_cpus_percentage',
-        // //     host: this.host,
-        // //     seconds: 1
-        // //   }),
-        // //   {
-        // //     name: this.host+'_os_cpus_percentage_gauge',
-        // //     chart: highchartsVueGauge,
-        // //     init: this.__get_stat_for_chart.bind(this),
-        // //     stop: function(payload){
-        // //       //this.remove_watcher(payload.name)
-        // //       //this.$store.dispatch('stats/flush', payload.stat)
-        // //     }.bind(this),
-        // //     pipeline: {
-        // //       range: true
-        // //     }
-        // //   }
-        // // )
-        //
-        //
-        //
+        this.available_charts[this.host+'.os.cpus.percentage_gauge'] = Object.merge(
+          this.get_payload(charts_payloads,{
+            name: 'os.cpus.percentage',
+            host: this.host,
+            seconds: 1
+          }),
+          {
+            name: this.host+'.os.cpus.percentage_gauge',
+            chart: highchartsVueGauge,
+            // init: this.__get_stat_for_chart.bind(this),
+            stop: function(payload){
+              //this.remove_watcher(payload.name)
+              //this.$store.dispatch('stats/flush', payload.stat)
+            }.bind(this),
+            pipeline: {
+              range: true
+            }
+          }
+        )
+
+        this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
+
+
         this.available_charts[this.host+'.os.uptime'] = Object.merge(
           this.get_payload(charts_payloads,{
             name: 'os.uptime',

@@ -16,6 +16,7 @@ export default {
   focus: true,
   visible: true,
 
+  __range_init: false,
   __stat_unwatcher: undefined,
   root: undefined,
   path: undefined,
@@ -64,13 +65,17 @@ export default {
   },
   created () {
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
-    let range_length = (this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
+    let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
+    if(range_length == undefined || range_length <= 1)
+      this.$options.__range_init = true
+
     this.$options.length = this.stat.length || range_length
     ////console.log('CREATED', this.$options.length, range_length)
 
     this.$options.root = this.id.split('.')[0]
     this.$options.path = this.id.split('.')[1]
-    this.$options.key = this.id.split('.')[2]
+    // this.$options.key = this.id.split('.')[2]
+    this.$options.key = this.id.substring(this.id.lastIndexOf('.') + 1)
 
     ////console.log('stat.vue id', this.id, this.$options.type, this.stat)
 
@@ -83,53 +88,57 @@ export default {
       // this.$store.commit(this.$options.type+'/'+this.id+'/key', this.$options.key)
     }
 
-    this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
-      root: this.$options.root,
-      path: this.$options.path,
-      key: this.$options.key,
-      length: this.$options.length,
-      range: this.stat.range
-    }).then((docs) => {
-      // let new_docs_range = this.__get_new_range(docs, this.stat.range)
-      /**
-      * @testing - avoid locals
-      **/
-      let new_docs_range = this.__get_new_range([], this.stat.range)
-      docs = new_docs_range.docs
-      let range = new_docs_range.range
+    if(this.stat.range && this.$options.length > 1){
+      this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
+        root: this.$options.root,
+        path: this.$options.path,
+        key: this.$options.key,
+        length: this.$options.length,
+        range: this.stat.range
+      }).then((docs) => {
+        /**
+        * @testing - avoid locals
+
+        **/
+        // let new_docs_range = this.__get_new_range([], this.stat.range)
+        let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
+        docs = new_docs_range.docs
+        let range = new_docs_range.range
 
 
-      if(docs.length > 0){
-        console.log('stats/get', docs, range)
+        if(docs.length > 0){
+          console.log('stats/get', docs, range)
 
-        let stats = []
-        Array.each(docs, function(doc){
-          if(doc && doc.data){
-            let stat = {
-             timestamp: doc.metadata.timestamp,
-             value: doc.data
+          let stats = []
+          Array.each(docs, function(doc){
+            if(doc && doc.data){
+              let stat = {
+               timestamp: doc.metadata.timestamp,
+               value: doc.data
+              }
+              stats.push(stat)
             }
-            stats.push(stat)
-          }
-        })
+          })
 
-        ////console.log('stats/get 2', stats)
-        this.__set_stat_data(stats)
+          ////console.log('stats/get 2', stats)
+          this.__set_stat_data(stats)
 
-      }
+        }
 
-      if(range.length > 0){
-        this.$store.commit('dashboard/events/add', {
-          id: this.id,
-          type: 'onRange',
-          'opts': {
-            range: range,
-            // tabular: (this.$options.type == 'tabular') ? true : false
-          }
-        })
-      }
-    })
+        if(range.length > 0){
+          this.$options.__range_init = false
 
+          this.$store.commit('dashboard/events/add', {
+            id: this.id,
+            type: 'onRange',
+            'opts': {
+              range: range,
+              // tabular: (this.$options.type == 'tabular') ? true : false
+            }
+          })
+        }
+      })
+    }
 
     if(this.stat.merged == true){
       // this.$options.deque = new Deque(this.stat.data.length * 1)
@@ -176,8 +185,15 @@ export default {
 
               ////console.log('__stat_unwatcher merged ', val)
 
-              if(matched_columns == true)
-                this.__add_stats(val)
+              if(matched_columns == true){
+                if(this.$options.length == 1){
+                  this.__add_stats(val[val.length -1])
+                }
+                else{
+                  this.__add_stats(val)
+                }
+              }
+
             }
           }
         },{deep: true})
@@ -188,7 +204,13 @@ export default {
         //console.log('__stat_unwatcher', this.id, this.$options.type, val)
         // this.__stat_data_watcher(val)
         if(val && val.length > 0){
-          this.__add_stats(Array.clone(val))
+          let __cloned = Array.clone(val)
+          if(this.$options.length == 1){
+            this.__add_stats(__cloned[__cloned.length -1])
+          }
+          else{
+            this.__add_stats(__cloned)
+          }
         }
       },{deep: true})
     }
@@ -207,7 +229,8 @@ export default {
     * plus a shorter remote range, or we need to clear and obtain all new data from remote
     */
     __get_new_range: function(docs, range){
-      ////console.log('__get_new_range', docs, range)
+
+      // console.log('__get_new_range', docs, Array.clone(range))
 
       if(
         docs.length > 0
@@ -217,6 +240,7 @@ export default {
         && docs[0].metadata.timestamp < range[0] + 10000
       ){
 
+        console.log('__get_new_range', docs, Array.clone(range))
 
         let prev = undefined
         let missing = false
@@ -360,7 +384,7 @@ export default {
       // }.bind(this))
     },
     __set_stat_data(data){
-
+      // console.log('__set_stat_data', data)
       /**
       * @config: this should be config options
       * this.$options.focus
@@ -369,12 +393,44 @@ export default {
       // if(this.$options.focus == true && this.$options.visible == true && data){
       //   console.log('__set_stat_data visibility', this.id, this.$options.focus, this.$options.visible)
 
+        // docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
+        // let __stat_data = Array.clone(this.stat_data)
+        //
+        // if(!Array.isArray(data) && this.$options.__range_init == true){
+        //   __stat_data.push(Object.clone(data))
+        // }
+        // else{
+        //   __stat_data = __stat_data.append(Array.clone(data))
+        //   this.$options.__range_init = true
+        // }
+        //
+        // __stat_data.sort(function(a,b) {
+        //   return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);
+        // })
+        // let splice = this.$options.length
+        // let length = __stat_data.length
+        //
+        // __stat_data.splice(
+        //   (splice * -1) -1,
+        //   length - splice
+        // )
+        //
+        // this.$set(this, 'stat_data', __stat_data)
+
         if(Array.isArray(data)){
-          this.$set(this, 'stat_data', data)
+          this.$set(this, 'stat_data', this.stat_data.append(data))
+          // Array.each(Array.clone(data), function(val){
+          //   this.stat_data.push( val )
+          // }.bind(this))
+          this.$options.__range_init = true
         }
-        else{
+        else if(this.$options.__range_init == true){
           this.stat_data.push( data )
         }
+
+        this.stat_data.sort(function(a,b) {
+          return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);
+        })
 
         this.stat_lastupdate = Date.now()
 

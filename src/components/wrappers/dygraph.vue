@@ -355,7 +355,10 @@ export default {
         //
         //   })
 
-          data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          /**
+          * should be sorted already
+          **/
+          // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 
           // let data = []

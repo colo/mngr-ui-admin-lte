@@ -67,7 +67,7 @@ export default {
       }.bind(this)
 
       // //////console.log('gonna watch...', name, this.stat.data)
-      if(this.stat_data[0].value.length > 0)
+      if(this.stat_data[0] && this.stat_data[0].value.length > 0)
         generic_data_watcher(this.stat_data)
 
       this.$options.__data_unwatcher = this.$watch('stat_data', generic_data_watcher)
