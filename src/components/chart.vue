@@ -155,7 +155,7 @@ export default {
       }
 
       let generic_data_watcher = function(current){
-        // //console.log('generic_data_watcher...', name, current)
+        console.log('generic_data_watcher...', name, current)
         if(current){
           // current = Array.clone(current)
           // if(this.$options.visible){

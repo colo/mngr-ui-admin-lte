@@ -22,7 +22,7 @@ export default new Class({
     		{
 					// sort_by_path: throttle(function(req, next, app){
           sort_by_path: function(req, next, app){
-            console.log('SORT_BY_PATH RANGE', app.options.paths, req, new Date(req.opt.range.start), new Date(req.opt.range.end))
+            console.log('SORT_BY_PATH RANGE', req, new Date(req.opt.range.start), new Date(req.opt.range.end))
 
             if(app.options.stat_host && this.status == 'ok'){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
@@ -36,9 +36,9 @@ export default new Class({
               //
               // // do {
 
-                Array.each(app.options.paths, function(path){
+                // Array.each(app.options.paths, function(path){
 
-                  if(!app.options.paths_blacklist || app.options.paths_blacklist.test( path ) == false){
+                  if(!app.options.paths_blacklist || app.options.paths_blacklist.test( req.path ) == false){
 
                     // this.io.emit('stats', {
                     //   host: app.options.stat_host,
@@ -47,14 +47,14 @@ export default new Class({
         						// })
                     this.io.emit('stats', {
                       host: app.options.stat_host,
-                      stat: path,
-                      format: 'tabular',
+                      stat: req.path,
+                      format: (req.tabular == true) ? 'tabular' : undefined,
                       // range: req.opt.range
                       range: req.Range
         						})
                   }
 
-                }.bind(app))
+                // }.bind(app))
 
             }
 
@@ -92,7 +92,7 @@ export default new Class({
 					}
 				},
         {
-					stats: function(req, next, app){
+					tabulars: function(req, next, app){
 
             if(app.options.stat_host){
 

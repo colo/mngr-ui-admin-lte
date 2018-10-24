@@ -49,7 +49,7 @@ export default {
     },
     chart: {
       type: [Object],
-      default: () => ({})
+      // default: () => ({})
     },
 
     data: {
@@ -123,6 +123,20 @@ export default {
     // this.__watcher()
 
     this.create()
+    // if(this.chart && this.chart.options){
+    //   console.log('mounted dygraph', this.id, this.chart)
+    //   this.create()
+    // }
+    // else{
+    //   let unwatch = this.$watch('chart', function(val){
+    //     if(val && Object.getLength(val) > 0 && val.options){
+    //       // this.__create_dygraph()
+    //       this.create()
+    //       unwatch()
+    //     }
+    //
+    //   })
+    // }
   },
   updated () {
   //
@@ -181,7 +195,22 @@ export default {
 
     },
     create (){
-      this.__create_dygraph()
+      // this.__create_dygraph()
+      if(this.chart && this.chart.options){
+        console.log('create dygraph', this.id, this.chart)
+        // this.create()
+        this.__create_dygraph()
+      }
+      else{
+        let unwatch = this.$watch('chart', function(val){
+          if(val && Object.getLength(val) > 0 && val.options){
+            this.__create_dygraph()
+            // this.create()
+            unwatch()
+          }
+
+        })
+      }
       // this.$options.__unwatcher = this.$watch('data', function (val, oldVal) {
       //
       //
@@ -207,15 +236,16 @@ export default {
       // })
     },
     __create_dygraph (){
-
-
       let options = Object.clone(this.chart.options)
+
+      console.log('__create_dygraph', this.id, options)
+
       if(options.labels && document.getElementById(this.id)){
         if(options.labelsDiv)
           options.labelsDiv = this.id+'-'+options.labelsDiv
 
         let data = []
-        if(this.data[0].length == 0){
+        if(this.data[0] && this.data[0].length == 0){
 
           let row = []
           Array.each(options.labels, function(label){
@@ -234,7 +264,7 @@ export default {
         //   data.push(row)
         // })
 
-        //////console.log('__create_dygraph', data, options.labels)
+        // console.log('__create_dygraph', this.id, options.labels)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div
@@ -260,7 +290,8 @@ export default {
       data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
       Array.each(data, function(row){
-        row[0] = new Date(row[0])
+        if(row)
+          row[0] = new Date(row[0])
         // data.push(row)
       })
 
@@ -269,14 +300,16 @@ export default {
     update (data){
       // //console.log('dygraph update', this.id, data, this.$options.graph.numRows())
       data = this._get_data(data)
-      // let options = (this.ready == true && this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
+      let options = (this.ready == true && this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
       // if(this.$options.visible == true && this.ready == true){
-      if(this.ready == true){
+      if(this.ready == true && data && data[0]){
+
+        // console.log('updateOptions', this.id, data)
 
         this.updateOptions(
           data,
-          // options,
-          {},
+          options,
+          // {},
           // { 'dateWindow': this.$options.graph.xAxisExtremes() },
           false
         )
@@ -321,6 +354,7 @@ export default {
         //     }
         //
         //   })
+
           data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 

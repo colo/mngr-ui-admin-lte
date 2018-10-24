@@ -90,7 +90,11 @@ export default {
       length: this.$options.length,
       range: this.stat.range
     }).then((docs) => {
-      let new_docs_range = this.__get_new_range(docs, this.stat.range)
+      // let new_docs_range = this.__get_new_range(docs, this.stat.range)
+      /**
+      * @testing - avoid locals
+      **/
+      let new_docs_range = this.__get_new_range([], this.stat.range)
       docs = new_docs_range.docs
       let range = new_docs_range.range
 
@@ -115,7 +119,14 @@ export default {
       }
 
       if(range.length > 0){
-        this.$store.commit('dashboard/events/add', {id: this.id, type: 'onRange', 'opts': range})
+        this.$store.commit('dashboard/events/add', {
+          id: this.id,
+          type: 'onRange',
+          'opts': {
+            range: range,
+            // tabular: (this.$options.type == 'tabular') ? true : false
+          }
+        })
       }
     })
 

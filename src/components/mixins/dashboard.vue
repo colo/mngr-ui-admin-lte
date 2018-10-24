@@ -46,14 +46,14 @@ import qrate from 'qrate'
 // }, 1)
 
 let __events_queue = qrate(function(task, callback) {
-  let {pipeline, obj} = task
-  let {options, event} = obj
-  eval('pipeline.'+options)
+  let {pipeline, event} = task
+  // let {options, event} = obj
+  // eval('pipeline.'+options)
 
   let event_name = Object.keys(event)[0]
   let __callback = function(){
     pipeline.removeEvent(event_name, __callback)
-    callback(event, options)
+    callback(event)
   }
 
 
@@ -104,7 +104,7 @@ export default {
             let {id} = event
             let {stat, pipeline} = this.available_charts[id]
 
-            event = this.__parse_event(event)
+            // event = this.__parse_event(event)
 
             if(!Array.isArray(stat))
               stat = [stat]
@@ -120,9 +120,11 @@ export default {
                 p = pipeline
               }
 
-              let __pipeline = this.__parse_pipeline_opts(p, stat_data)
+              // let __pipeline = this.__parse_pipeline_opts(p, stat_data)
+              console.log('PRE __parse_event', id, stat_data)
+              event = this.__parse_event(event, stat_data)
               this.__set_pipeline_event({
-                pipeline: __pipeline,
+                pipeline: p.name,
                 event: event
               })
 
@@ -156,12 +158,31 @@ export default {
         options: "inputs[0].options.conn[0].module.options.paths = ['"+path+"']"
       }
     },
-    __parse_event: function(event){
+    __parse_event: function(event, stat){
       let {type, opts} = event
+      let {path, tabular} = stat
       let e = {}
-      e[type] = opts
-      if(type == 'onRange')
-        e[type] = { Range: 'posix '+ opts[0] +'-'+ opts[1] +'/*' }
+      e[type] = {}
+
+      if(type == 'onRange'){
+
+        Object.each(opts, function(opt, name){
+          if(name == 'range'){
+            e[type].Range = 'posix '+ opt[0] +'-'+ opt[1] +'/*'
+          }
+          else{
+            e[type][name] = opt
+          }
+
+        })
+
+      }
+      else if(opts){
+        e[type] = opts
+      }
+
+      e[type]['path'] = path
+      e[type]['tabular'] = tabular
 
       return e
     },
@@ -178,13 +199,14 @@ export default {
         Object.each(this.$options.__pipelines_events, function(pipeline, name){
           let pipe = this.$options.pipelines[name]
           while(pipeline.length > 0){
-            let obj = pipeline.shift()
+            let event = pipeline.shift()
             // let {options, event} = obj
             // eval('pipe.'+options)
             // let event_name = Object.keys(event)[0]
             // pipe.fireEvent(event_name, event[event_name])
-            __events_queue.push({pipeline: pipe, obj: obj}, function(event, options){
-              console.log('EVENT fired', options, new Date())
+
+            __events_queue.push({pipeline: pipe, event: event}, function(event){
+              console.log('EVENT fired', event, new Date())
             })
           }
 
@@ -210,40 +232,51 @@ export default {
 
     __set_pipeline_event: function (payload){
       let {pipeline, event} = payload
-      if(!this.$options.__pipelines_events[pipeline.name])
-        this.$options.__pipelines_events[pipeline.name] = []
 
-      let obj = {options: pipeline.options, event}
-      if(this.$options.__pipelines_events[pipeline.name].length == 0){
-        this.$options.__pipelines_events[pipeline.name].push(obj)
+      // console.log('__set_pipeline_event', payload)
+      if(!this.$options.__pipelines_events[pipeline])
+        this.$options.__pipelines_events[pipeline] = []
+
+      // let obj = {options: pipeline.options, event}
+      if(this.$options.__pipelines_events[pipeline].length == 0){
+        this.$options.__pipelines_events[pipeline].push(event)
       }
       else{
         let found = false
-        Array.each(this.$options.__pipelines_events[pipeline.name], function(pipe, index){
+        Array.each(this.$options.__pipelines_events[pipeline], function(pipe_event, index){
           // found = false
-          if(pipe.options == obj.options){
+          // if(pipe_event == event){
             // found = true
-            // ////////console.log('_set_pipelines_events', pipe.options, obj.options)
-            let pipe_event_name = Object.keys(pipe.event)[0]
-            let obj_event_name = Object.keys(obj.event)[0]
+            // console.log('_set_pipelines_events', pipe_event, event)
+            let pipe_event_name = Object.keys(pipe_event)[0]
+            let event_name = Object.keys(event)[0]
 
+            let prop_matched = true
+            if(pipe_event_name == event_name){
+              Object.each(event[event_name], function(val, prop){
+                if(prop != 'Range' || prop != 'opt'){
+                   if(!pipe_event[pipe_event_name][prop] || pipe_event[pipe_event_name][prop] != val)
+                    prop_matched = false
+                }
+              })
 
-            if(pipe_event_name == obj_event_name)
-              found = index
-          }
+              if(prop_matched == true)
+                found = index
+            }
+          // }
 
 
         }.bind(this))
 
         if(found == false ){
-          this.$options.__pipelines_events[pipeline.name].push(obj)
+          this.$options.__pipelines_events[pipeline].push(event)
         }
         else{//replace it as ranges get updated
-          this.$options.__pipelines_events[pipeline.name][found] = obj
+          this.$options.__pipelines_events[pipeline][found] = event
         }
       }
 
-      ////console.log('_set_pipelines_events', this.$options.__pipelines_events)
+      // console.log('_set_pipelines_events', this.$options.__pipelines_events[pipeline])
     },
     /**
     * @start -charting

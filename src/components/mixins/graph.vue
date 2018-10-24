@@ -53,7 +53,7 @@ export default {
     },
     chart: {
       type: [Object],
-      default: () => ({})
+      // default: () => ({})
     },
     // stat: {
     //   type: [Object],
@@ -143,8 +143,8 @@ export default {
     __create_watcher(name, chart){},
     update_chart_stat (name, data){
 
-      console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
-
+      // console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
+      console.log('chart mixin update_chart_stat', name, this.$options.focus, this.$options.visible)
 
       // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // console.log('update_chart_stat visibility', this.id, data)
@@ -191,8 +191,9 @@ export default {
         * this.$options.focus
         * this.$options.visible
         */
-        // this.$options.focus == true &&
-        if(this.$options.visible == true){
+
+        // if(this.$options.visible == true){
+        if(this.$options.focus == true && this.$options.visible == true){
           if(this.$refs[name] && typeof this.$refs[name].update == 'function' && this.$options.tabular.data.length > 0){
             frameDebounce(this.$refs[name].update(this.$options.tabular.data))
             // this.$refs[name].update(this.$options.tabular.data)
