@@ -96,7 +96,7 @@ export default {
   ),
   created: function(){
     this.$options.__events_watcher = this.$watch('events', function(val){
-      ////console.log('this.$watch events', val)
+      //////console.log('this.$watch events', val)
       if(val && val.length > 0){
         Array.each(val, function(event){
           if(event.id && this.available_charts[event.id]){
@@ -109,7 +109,7 @@ export default {
             if(!Array.isArray(stat))
               stat = [stat]
 
-            ////console.log('this.$watch events chart', pipeline, stat)
+            //////console.log('this.$watch events chart', pipeline, stat)
 
             Array.each(stat, function(stat_data, index){
               let p = undefined
@@ -121,7 +121,7 @@ export default {
               }
 
               // let __pipeline = this.__parse_pipeline_opts(p, stat_data)
-              console.log('PRE __parse_event', id, stat_data)
+              //console.log('PRE __parse_event', id, stat_data)
               event = this.__parse_event(event, stat_data)
               this.__set_pipeline_event({
                 pipeline: p.name,
@@ -187,7 +187,7 @@ export default {
       return e
     },
     fire_pipelines_events: debounce(function(){
-      console.log('fire_pipelines_events',this.$options.__pipelines_events, this.paths)
+      //console.log('fire_pipelines_events',this.$options.__pipelines_events, this.paths)
 
       /**
       * first match app.paths with options path, if all matched, remove'em,
@@ -206,7 +206,7 @@ export default {
             // pipe.fireEvent(event_name, event[event_name])
 
             __events_queue.push({pipeline: pipe, event: event}, function(event){
-              console.log('EVENT fired', event, new Date())
+              //console.log('EVENT fired', event, new Date())
             })
           }
 
@@ -217,10 +217,10 @@ export default {
           //   let event_name = Object.keys(event)[0]
           //   pipe.fireEvent(event_name, event[event_name])
           //   __events_queue.push({pipeline: pipe, event}, function(event){
-          //     console.log('EVENT fired', options, new Date())
+          //     //console.log('EVENT fired', options, new Date())
           //
           //   })
-          //   // ////////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
+          //   // //////////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
           //
           //
           // })
@@ -233,7 +233,7 @@ export default {
     __set_pipeline_event: function (payload){
       let {pipeline, event} = payload
 
-      // console.log('__set_pipeline_event', payload)
+      // //console.log('__set_pipeline_event', payload)
       if(!this.$options.__pipelines_events[pipeline])
         this.$options.__pipelines_events[pipeline] = []
 
@@ -247,7 +247,7 @@ export default {
           // found = false
           // if(pipe_event == event){
             // found = true
-            // console.log('_set_pipelines_events', pipe_event, event)
+            // //console.log('_set_pipelines_events', pipe_event, event)
             let pipe_event_name = Object.keys(pipe_event)[0]
             let event_name = Object.keys(event)[0]
 
@@ -276,7 +276,7 @@ export default {
         }
       }
 
-      // console.log('_set_pipelines_events', this.$options.__pipelines_events[pipeline])
+      // //console.log('_set_pipelines_events', this.$options.__pipelines_events[pipeline])
     },
     /**
     * @start -charting
@@ -296,7 +296,7 @@ export default {
       // if(watch == true && watcher)
       //   this.add_watcher(payload)
 
-      //////////console.log('add_chart', name)
+      ////////////console.log('add_chart', name)
 
       // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
 
@@ -334,7 +334,7 @@ export default {
       //   this.$refs[name][0].reset()
       // }
 
-      //////console.log('remove_chart', name, this.$refs[name])
+      ////////console.log('remove_chart', name, this.$refs[name])
     },
     remove_charts: function(options){
       Object.each(this.charts, function(chart, name){
@@ -342,7 +342,7 @@ export default {
       }.bind(this))
     },
     // remove_watcher: function(name){
-    //   //////////console.log('remove_watcher', name)
+    //   ////////////console.log('remove_watcher', name)
     //
     //   if(this.$options.__unwatchers__[name]){
     //     this.$options.__unwatchers__[name]()
@@ -365,12 +365,12 @@ export default {
     // },
     // add_watcher: function(payload){
     //   let {name, watcher} = payload
-    //   // //////////console.log('add_watcher', name, watch)
+    //   // ////////////console.log('add_watcher', name, watch)
     //
     //   this.remove_watcher(name)
     //   // if(!this.$options.__unwatchers__[name]){
     //     this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
-    //       // //////////console.log('add_watcher', name)
+    //       // ////////////console.log('add_watcher', name)
     //       if(watcher.cb)
     //         watcher.cb(doc, old, payload)
     //
@@ -383,7 +383,7 @@ export default {
     * @move to stat mixin
     **/
     // __get_stat: function(payload, cb){
-    //   ////////////console.log('__get_stat', payload)
+    //   //////////////console.log('__get_stat', payload)
     //   // if(payload.tabular == true){
     //   //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
     //   // }
@@ -392,7 +392,7 @@ export default {
     //   // }
     // },
     // __update_chart_stat: function(name, doc, splice){
-    //   ////console.log('__update_chart_stat', name, doc, splice)
+    //   //////console.log('__update_chart_stat', name, doc, splice)
     //
     //   /**
     //   * @config option this.visibility
@@ -454,7 +454,7 @@ export default {
     //       }
     //     // }
     //
-    //     ////////console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
+    //     //////////console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
     //
     //     this.stats[name].lastupdate = Date.now()
     //   }
@@ -467,13 +467,13 @@ export default {
     * UI
     **/
     showCollapsible (collapsible){
-      ////////////console.log('showCollapsible', collapsible)
+      //////////////console.log('showCollapsible', collapsible)
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
 
     },
     hideCollapsible (collapsible){
-      ////////////console.log('hideCollapsible', collapsible)
+      //////////////console.log('hideCollapsible', collapsible)
       // let name = collapsible.replace('-collapsible', '')
       // this.$options.has_no_data[name] = 61
       // this.$set(this.hide, name, true)

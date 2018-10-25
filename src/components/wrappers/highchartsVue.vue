@@ -157,11 +157,11 @@ export default {
       // console.log('highcharts-vue update', data)
       // if(this.$options.visible == true){
 
-        if(this.gauge == true){
-          let value = data.getLast()[1]
-          if (value != null)
+        if(this.gauge == true && data.length > 0){
+          let value = data.getLast()
+          if (value && Array.isArray(value) && value[1])
             // frameDebounce(
-              this.$set(this.chart.options.series[0].data, 0, value.toFixed(this.decimals) * 1)
+              this.$set(this.chart.options.series[0].data, 0, value[1].toFixed(this.decimals) * 1)
               // this.chart.options.series[0].data.push(value.toFixed(this.decimals) * 1)
               // this.chart.options.series[0].data.shift()
             // )

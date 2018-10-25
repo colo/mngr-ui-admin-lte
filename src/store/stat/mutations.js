@@ -10,6 +10,10 @@ export const id = function(state, id) {//generic mutation
 export const type = function(state, type) {//generic mutation
   state.type = type
 }
+
+export const db = function(state, db) {//generic mutation
+  state.db = db
+}
 //
 // export const root = function(state, root) {//generic mutation
 //   state.root = root

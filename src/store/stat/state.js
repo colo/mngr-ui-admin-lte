@@ -4,6 +4,7 @@ export default function() {
     type: undefined,
     root: undefined,
     path: undefined,
-    key: undefined
+    key: undefined,
+    db: undefined
   }
 }

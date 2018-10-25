@@ -667,7 +667,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // //////////////console.log('state.app.range', state.app.range)
+        // ////////////////console.log('state.app.range', state.app.range)
 
         let end = Date.now()
         if(state.app.range[1] && state.app.range[1] != null)
@@ -691,7 +691,7 @@ export default {
 
       os_stats: function(state){
         // if(state.stats && state.stats[this.host] && state.stats[this.host].stat){
-        //   ////////console.log('os_stats', state.stats[this.host].os)
+        //   //////////console.log('os_stats', state.stats[this.host].os)
         //   return state.stats[this.host].stat.os
         // }
         // else{
@@ -702,7 +702,7 @@ export default {
       // mounts: function(state){
       //   // // let host = this.$route.params.host || this.$store.state.hosts.current
       //   // if(state.stats && state.stats[this.host] && state.stats[this.host].stat){
-      //   //   ////////console.log('mounts', state.stats[this.host].os_mounts)
+      //   //   //////////console.log('mounts', state.stats[this.host].os_mounts)
       //   //   return state.stats[this.host].stat.os_mounts
       //   // }
       //   // else{
@@ -713,7 +713,7 @@ export default {
       // blockdevices: function(state){
       //   // // let host = this.$route.params.host || this.$store.state.hosts.current
       //   // if(state.stats && state.stats[this.host] && state.stats[this.host].stat){
-      //   //   ////////console.log('blockdevices', state.stats[this.host].os_blockdevices)
+      //   //   //////////console.log('blockdevices', state.stats[this.host].os_blockdevices)
       //   //   return state.stats[this.host].stat.os_blockdevices
       //   // }
       //   // else{
@@ -726,7 +726,7 @@ export default {
       **/
       // networkInterfaces: function(state){
       //   // if(state['host_'+this.host] && state['host_'+this.host].networkInterfaces){
-      //   //   ////////console.log('networkInterfaces', state['host_'+this.host].networkInterfaces)
+      //   //   //////////console.log('networkInterfaces', state['host_'+this.host].networkInterfaces)
       //   //   return state['host_'+this.host].networkInterfaces
       //   // }
       //   // else{
@@ -768,7 +768,7 @@ export default {
       //   //
       //   //     })
       //   //
-      //   //     ////////console.log('computed networkInterfaces', networkInterfaces)
+      //   //     //////////console.log('computed networkInterfaces', networkInterfaces)
       //   //     this.$store.commit('host_'+this.host+'/networkInterfaces', networkInterfaces)
       //   //     return networkInterfaces
       //   //   }
@@ -815,7 +815,7 @@ export default {
       //
       //     }.bind(this))
       //
-      //     ////////console.log('networkInterfaces', networkInterfaces)
+      //     //////////console.log('networkInterfaces', networkInterfaces)
       //     return networkInterfaces
       //   }
       //   else{
@@ -837,10 +837,10 @@ export default {
   ),
 
   created: function(){
-    // //////////////console.log('life cycle created')
+    // ////////////////console.log('life cycle created')
 
     EventBus.$once('charts', doc => {
-      console.log('recived doc via Event charts', doc)
+      //console.log('recived doc via Event charts', doc)
       let counter = 0
       Object.each(doc.charts, function(data, name){
         if(data.chart){
@@ -864,7 +864,7 @@ export default {
     })
 
     EventBus.$on('stats', payload => {
-      console.log('recived doc via Event stats', payload)
+      //console.log('recived doc via Event stats', payload)
         let type = (payload.tabular == true) ? 'tabulars' : 'stats'
         let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
         // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
@@ -881,7 +881,7 @@ export default {
           }
           else{
             // if(type == 'stats')
-            //   //console.log('DATA', data)
+            //   ////console.log('DATA', data)
 
             Object.each(data, function(value, key){
               if(Array.isArray(value)){
@@ -918,13 +918,13 @@ export default {
 
 
     let unwatch_all_init = this.$watch('all_init', function(val){
-      console.log('all_init', val)
+      //console.log('all_init', val)
       if(val == true){
         this.set_range(moment().subtract(5, 'minute'), moment())
 
-        console.log('all_init STATS',this['stats'])
-        console.log('all_init TABULARS', this['tabulars'])
-        console.log('all_init CHARTS', this.$options.charts_objects)
+        //console.log('all_init STATS',this['stats'])
+        //console.log('all_init TABULARS', this['tabulars'])
+        //console.log('all_init CHARTS', this.$options.charts_objects)
 
         unwatch_all_init()
 
@@ -943,7 +943,7 @@ export default {
             // ],
             chart: merged_chart,
             stop: function(payload){
-              // // ////////console.log('merged stop', payload)
+              // // //////////console.log('merged stop', payload)
               // Array.each(payload.stat, function(stat, index){
               //   let indexed_name = payload.name+'_'+index
               //   //this.remove_watcher(indexed_name)
@@ -997,7 +997,7 @@ export default {
             },
             chart: Object.merge(cpus_times_chart, this.$options.charts_objects['os.cpus.times']),
             stop: function(payload){
-              //////////////console.log('stoping _os_cpus_times', payload.stat)
+              ////////////////console.log('stoping _os_cpus_times', payload.stat)
               //this.remove_watcher(payload.name)
               // this.remove_active_stat(payload.stat)
               // //this.$store.dispatch('stats/flush', payload.stat)
@@ -1010,7 +1010,7 @@ export default {
           }
         )
         // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
-        // ////console.log('CPUS_TIMES', this.available_charts[this.host+'.cpus_times.cpus'])
+        // //////console.log('CPUS_TIMES', this.available_charts[this.host+'.cpus_times.cpus'])
         this.set_chart_visibility(this.host+'.os.cpus.times', true)
 
         this.available_charts[this.host+'.os.cpus.percentage'] = Object.merge(
@@ -1217,7 +1217,7 @@ export default {
 
 
         // if(val[this.host+'.os.totalmem'] && val[this.host+'.os.totalmem'][0]){
-        // //////console.log('this.os_stats.totalmem', this.os_stats.totalmem)
+        // ////////console.log('this.os_stats.totalmem', this.os_stats.totalmem)
           if(!this.available_charts[this.host+'.os.freemem']){
             this.available_charts[this.host+'.os.freemem'] = Object.merge(
               this.get_payload(charts_payloads,{
@@ -1259,7 +1259,7 @@ export default {
             let chart_name = this.host+'.os_mounts.'+_name
 
             if(!this.available_charts[chart_name]){
-              //console.log('adding mount chart ',chart_name)
+              ////console.log('adding mount chart ',chart_name)
               this.available_charts[chart_name] = Object.clone(Object.merge(
                 this.get_payload(charts_payloads,{
                   name: 'os_mounts.percentage',
@@ -1296,13 +1296,13 @@ export default {
           }
 
           if(blockdevice.test(key) && this.$options.charts_objects['os_blockdevices.stats']){
-            console.log('all_init os_blockdevices.stats', this.$options.charts_objects['os_blockdevices.stats'])
+            //console.log('all_init os_blockdevices.stats', this.$options.charts_objects['os_blockdevices.stats'])
             // let chart_name = this.host+'_os_blockdevices_stats_'+key
             let _name = key.substring(key.lastIndexOf('.') + 1)
             let chart_name = this.host+'.os_blockdevices.stats.'+_name
 
             // if(!this.available_charts[chart_name] || Object.getLength(this.available_charts[chart_name]) == 0){
-              //console.log('adding blockdevice chart',chart_name)
+              ////console.log('adding blockdevice chart',chart_name)
 
               this.available_charts[chart_name] = Object.merge(
                 Object.clone(this.get_payload(charts_payloads,{
@@ -1347,7 +1347,7 @@ export default {
             let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
 
             if(!this.available_charts[chart_name]){
-              //console.log('adding os_networkInterfaces_stats.properties chart',chart_name)
+              ////console.log('adding os_networkInterfaces_stats.properties chart',chart_name)
 
 
               this.available_charts[chart_name] = Object.merge(
@@ -1395,10 +1395,10 @@ export default {
     **/
 
     // let unwatch_stats = this.$watch('stats', (val, old) => {
-    //   //console.log('this.stats[this.host.os.totalmem]', val[this.host+'.os.totalmem'])
+    //   ////console.log('this.stats[this.host.os.totalmem]', val[this.host+'.os.totalmem'])
     //
     //   if(val[this.host+'.os.totalmem'] && val[this.host+'.os.totalmem'][0]){
-    //   // //////console.log('this.os_stats.totalmem', this.os_stats.totalmem)
+    //   // ////////console.log('this.os_stats.totalmem', this.os_stats.totalmem)
     //     if(!this.available_charts[this.host+'.os.freemem']){
     //       this.available_charts[this.host+'.os.freemem'] = Object.merge(
     //         this.get_payload(charts_payloads,{
@@ -1443,7 +1443,7 @@ export default {
     //         this.$set(this.mounts, chart_name, 1)
     //         chart_name = this.host+'.os_mounts.'+chart_name
     //         if(!this.available_charts[chart_name]){
-    //           //console.log('adding mount chart ',chart_name)
+    //           ////console.log('adding mount chart ',chart_name)
     //           this.available_charts[chart_name] = Object.clone(Object.merge(
     //             this.get_payload(charts_payloads,{
     //               name: 'os_mounts.percentage',
@@ -1495,7 +1495,7 @@ export default {
       //       chart_name = this.host+'.os_blockdevices.stats.'+chart_name
       //
       //       if(!this.available_charts[chart_name]){
-      //         //console.log('adding blockdevice chart',chart_name)
+      //         ////console.log('adding blockdevice chart',chart_name)
       //
       //         this.available_charts[chart_name] = Object.merge(
       //           Object.clone(this.get_payload(charts_payloads,{
@@ -1550,7 +1550,7 @@ export default {
       //       chart_name = this.host+'.os_networkInterfaces_stats.properties.'+chart_name
       //
       //       if(!this.available_charts[chart_name]){
-      //         //console.log('adding os_networkInterfaces_stats.properties chart',chart_name)
+      //         ////console.log('adding os_networkInterfaces_stats.properties chart',chart_name)
       //
       //
       //         this.available_charts[chart_name] = Object.merge(
@@ -1606,7 +1606,7 @@ export default {
         //       transform: function(values, caller, chart){
         //         let last = values[values.length - 1]
         //         last.value = last.value * 100 / chart.totalmem
-        //         // //////////console.log('_os_freemem_pie transform', values, chart.totalmem, last)
+        //         // ////////////console.log('_os_freemem_pie transform', values, chart.totalmem, last)
         //         return values
         //       }
         //     },
@@ -1661,7 +1661,7 @@ export default {
         //       transform: function(values, caller, chart){
         //         let last = values[values.length - 1]
         //         last.value = last.value * 100 / chart.totalmem
-        //         // //////////console.log('_os_freemem_knob transform', values, chart.totalmem, last)
+        //         // ////////////console.log('_os_freemem_knob transform', values, chart.totalmem, last)
         //         return values
         //       }
         //     },
@@ -1730,7 +1730,7 @@ export default {
   },
 
   beforeCreate: function(){
-    //////////////console.log('life cycle beforeCreate')
+    ////////////////console.log('life cycle beforeCreate')
     EventBus.$off('host')
     EventBus.$off('os')
   },
@@ -1756,7 +1756,7 @@ export default {
   // },
   methods: {
     update_daterangepicker: function(){
-      ////////console.log('update_daterangepicker')
+      //////////console.log('update_daterangepicker')
       Object.each(this.$options.daterangepicker.ranges, function(range, key){
         // range[1] = moment(new Date())
         // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
@@ -1765,12 +1765,12 @@ export default {
             this.$set(this.daterangepicker.ranges[key], index, this.$options.daterangepicker.ranges[key][index]())
 
         }.bind(this))
-        //////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
+        ////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
       }.bind(this))
 
     },
     set_range: function(start, end){
-      // ////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
+      // //////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
       let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
       let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
       this.$store.commit('app/range', range)
@@ -1801,7 +1801,7 @@ export default {
       //   // // if(name.indexOf('networkInterface') == -1)
       //   // if(!payload.init || typeof payload.init != 'function'){
       //   //   this.__get_stat_for_chart(this.available_charts[name])
-      //   //   //////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
+      //   //   ////////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
       //   // }
       //
       //   // if(counter == Object.getLength(this.available_charts) - 1)
@@ -1848,7 +1848,7 @@ export default {
     //
     //   // let count_events = 0
     //   Array.each(stat, function(stat, index){
-    //     // //////////console.log('__get_stat_for_chart', stat)
+    //     // ////////////console.log('__get_stat_for_chart', stat)
     //
     //     let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
     //     let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
@@ -1869,12 +1869,12 @@ export default {
     //       indexed_payload.watcher = _original_payload.watcher
     //     }
     //
-    //     //////////console.log('_original_payload.watcher', indexed_payload.watcher)
+    //     ////////////console.log('_original_payload.watcher', indexed_payload.watcher)
     //
     //     this.remove_watcher(indexed_name)
     //
     //
-    //     //////console.log('watcher', '$store.state.stats.'+stat.host+'.'+stat_type+'.'+stat.path+'.'+stat.key)
+    //     ////////console.log('watcher', '$store.state.stats.'+stat.host+'.'+stat_type+'.'+stat.path+'.'+stat.key)
     //
     //     indexed_payload.watcher = indexed_payload.watcher ||  {
     //       name: '$store.state.stats.'+stat.host+'.'+stat_type+'.'+stat.path+'.'+stat.key,
@@ -1883,7 +1883,7 @@ export default {
     //       cb: (doc, old, payload) => {
     //         // if(this.visibility[payload.name] === true)
     //
-    //         // //////console.log('watcher', doc)
+    //         // ////////console.log('watcher', doc)
     //         /**
     //         * check original stat, if it's not array, just update as there is nothing to merge
     //         **/
@@ -1907,7 +1907,7 @@ export default {
     //
     //     this.__get_stat(stat, function(docs){
     //       this.add_active_stat(indexed_payload.stat)
-    //       //////console.log('__get_stat', stat, docs)
+    //       ////////console.log('__get_stat', stat, docs)
     //
     //       let new_docs_range = this.__get_new_docs_range(docs, range)
     //       docs = new_docs_range.docs
@@ -1955,19 +1955,19 @@ export default {
     //
     //
     //       EventBus.$once(eventRange, () => this.__get_stat(stat, function(docs_range){
-    //         //////console.log('__get_stat', stat, docs_range)
+    //         ////////console.log('__get_stat', stat, docs_range)
     //
     //           let all_stats = docs.append(docs_range)
     //           all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
     //
-    //           // //////////console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
-    //           // ////////console.log('__get_stat_for_chart __update_chart_stat', payload.stat, range_length, all_stats)
+    //           // ////////////console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
+    //           // //////////console.log('__get_stat_for_chart __update_chart_stat', payload.stat, range_length, all_stats)
     //
     //           /**
     //           * check original stat, if it's not array, just update as there is nothing to merge
     //           **/
     //           if(!Array.isArray(_original_payload.stat)){
-    //             //////////console.log('_original_payload.stat', _original_payload)
+    //             ////////////console.log('_original_payload.stat', _original_payload)
     //             this.__update_chart_stat(name, all_stats, range_length)
     //           }
     //           else{
@@ -1995,14 +1995,14 @@ export default {
     //       // 			let all_stats = docs.append(docs_range)
     //       // 			all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
     //       //
-    //       // 			// //////////console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
-    //       // 			// //////////console.log('__get_stat_for_chart __update_chart_stat', payload.stat)
+    //       // 			// ////////////console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
+    //       // 			// ////////////console.log('__get_stat_for_chart __update_chart_stat', payload.stat)
     //       //
     //       // 			/**
     //       // 			* check original stat, if it's not array, just update as there is nothing to merge
     //       // 			**/
     //       // 			if(!Array.isArray(_original_payload.stat)){
-    //       // 				//////////console.log('_original_payload.stat', _original_payload)
+    //       // 				////////////console.log('_original_payload.stat', _original_payload)
     //       // 				this.__update_chart_stat(name, all_stats, range_length)
     //       // 			}
     //       // 			else{
@@ -2026,7 +2026,7 @@ export default {
     //       //
     //       // EventBus.$on(eventRange, () => {
     //       // 	eventHandler()
-    //       // 	//////////console.log('$off', indexed_name, eventRange, eventHandler)
+    //       // 	////////////console.log('$off', indexed_name, eventRange, eventHandler)
     //       // 	if(
     //       // 		!Array.isArray(_original_payload.stat)
     //       // 		|| count_events == _original_payload.stat.length -1
@@ -2045,7 +2045,7 @@ export default {
     //       //   if(pipeline.range && pipeline.range == true)
     //       //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
     //       // }
-    //       ////////console.log('this.visibility', _original_payload.name, this.visibility[_original_payload.name])
+    //       //////////console.log('this.visibility', _original_payload.name, this.visibility[_original_payload.name])
     //       if(this.visibility[_original_payload.name] === true)
     //          this.$nextTick(this.fire_pipelines_events())
     //
@@ -2108,7 +2108,7 @@ export default {
     //   }
     // },
     // fire_pipelines_events: function(){
-    //   //////console.log('fire_pipelines_events',this.$options.pipelines_events)
+    //   ////////console.log('fire_pipelines_events',this.$options.pipelines_events)
     //
     //   Object.each(this.$options.pipelines_events, function(pipeline, name){
     //     let pipe = this.$options.pipelines[name]
@@ -2118,7 +2118,7 @@ export default {
     //       let event_name = Object.keys(event)[0]
     //       pipe.fireEvent(event_name, event[event_name])
     //
-    //       // ////////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
+    //       // //////////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
     //
     //     })
     //   }.bind(this))
@@ -2138,7 +2138,7 @@ export default {
     //       // found = false
     //       if(pipe.options == obj.options){
     //         // found = true
-    //         // ////////console.log('_set_pipelines_events', pipe.options, obj.options)
+    //         // //////////console.log('_set_pipelines_events', pipe.options, obj.options)
     //         let pipe_event_name = Object.keys(pipe.event)[0]
     //         let obj_event_name = Object.keys(obj.event)[0]
     //
@@ -2158,7 +2158,7 @@ export default {
     //     }
     //   }
     //
-    //   ////////console.log('_set_pipelines_events', this.$options.pipelines_events)
+    //   //////////console.log('_set_pipelines_events', this.$options.pipelines_events)
     // },
     // /**
     // * based on docs (obtained from local DB) and range, defined if we can update stat with this
@@ -2203,7 +2203,7 @@ export default {
     // },
     _merge_stats: function(payload){
       let {buffer, length, stat_name, data_name, data, splice, range} = payload
-      //////////console.log('_merge_stats', stat_name, buffer, range, data)
+      ////////////console.log('_merge_stats', stat_name, buffer, range, data)
 
       if(range == true)
         buffer._range = true
@@ -2277,7 +2277,7 @@ export default {
 
           this.__update_chart_stat(stat_name, merged, splice)
         }
-        // //////////console.log('_merge_stats', stat_name, merged)
+        // ////////////console.log('_merge_stats', stat_name, merged)
       }
 
       return buffer
@@ -2294,7 +2294,7 @@ export default {
       return merged
     },
     // __get_stat_for_chart: function(payload){
-    //   //////////console.log('__get_stat_for_chart', payload)
+    //   ////////////console.log('__get_stat_for_chart', payload)
     //
     //   let {name, stat, pipeline} = payload
     //   let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
@@ -2317,7 +2317,7 @@ export default {
     //       this.__update_chart_stat(payload.name, doc.value, payload.stat.length)
     //     }
     //   },
-    //   // ////////////console.log('__get_stat_for_chart', payload.watcher)
+    //   // //////////////console.log('__get_stat_for_chart', payload.watcher)
     //
     //   stat.range = range
     //
@@ -2377,7 +2377,7 @@ export default {
     //         // )
     //
     //         // this.__update_chart_stat(name, all_stats, stat.length)
-    //         //////////console.log('__get_stat_for_chart __update_chart_stat', name, range, all_stats.length, range_length)
+    //         ////////////console.log('__get_stat_for_chart __update_chart_stat', name, range, all_stats.length, range_length)
     //         this.__update_chart_stat(name, all_stats, range_length)
     //
     //         Vue.nextTick(this.add_watcher(payload))
@@ -2394,7 +2394,7 @@ export default {
     // },
 
     process_os_tabular: function(doc){
-      //////////////console.log('process_os_tabular', doc)
+      ////////////////console.log('process_os_tabular', doc)
       if(doc.metadata != null && doc.metadata.host == this.host){
         Object.each(doc.data, function(row, path){
           Object.each(row, function(data, key){
@@ -2413,7 +2413,7 @@ export default {
 
                 }.bind(this))
 
-                //////////////console.log('process_os_tabular', path, key, result)
+                ////////////////console.log('process_os_tabular', path, key, result)
 
                 this.$store.dispatch('stats_tabular/add', {
                   host: this.host,
@@ -2452,14 +2452,14 @@ export default {
           if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
 
-            // ////////////////console.log('ROW', keys, path)
+            // //////////////////console.log('ROW', keys, path)
 
             if(!paths[path])
               paths[path] = {}
 
 
             Object.each(keys, function(data, key){
-              // ////////////////console.log('ROW', key, data)
+              // //////////////////console.log('ROW', key, data)
               if(!paths[path][key])
                 paths[path][key] = []
 
@@ -2481,12 +2481,12 @@ export default {
 
     },
     __add_os_doc_stats_tabular(paths){
-      ////////console.log('__add_os_doc_stats_tabular', paths)
+      //////////console.log('__add_os_doc_stats_tabular', paths)
       Object.each(paths, function(keys, path){
-        ////////console.log('__add_os_doc_stats_tabular PATH', path)
+        //////////console.log('__add_os_doc_stats_tabular PATH', path)
 
         Object.each(keys, function(data, key){
-          ////////console.log('__add_os_doc_stats_tabular KEY', key, data)
+          //////////console.log('__add_os_doc_stats_tabular KEY', key, data)
           // this.$store.dispatch('stats/add', {
           //   host: this.host,
           //   path: path,
@@ -2509,7 +2509,7 @@ export default {
 
             // result.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
-            //////////////console.log('process_os_tabular', path, key, result)
+            ////////////////console.log('process_os_tabular', path, key, result)
             stat = {
               tabular:true,
               host: this.host,
@@ -2541,12 +2541,12 @@ export default {
       }.bind(this))
     },
     __add_os_doc_stats(paths){
-      ////////console.log('__add_os_doc_stats', paths)
+      //////////console.log('__add_os_doc_stats', paths)
       Object.each(paths, function(keys, path){
-        ////////console.log('__add_os_doc_stats PATH', path)
+        //////////console.log('__add_os_doc_stats PATH', path)
 
         Object.each(keys, function(data, key){
-          ////////console.log('__add_os_doc_stats KEY', key, data)
+          //////////console.log('__add_os_doc_stats KEY', key, data)
           let stat = {
             tabular:false,
             host: this.host,
@@ -2568,7 +2568,7 @@ export default {
     **/
     create_host_pipelines (paths) {
       // paths = ['os.procs']
-      //////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      ////////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$store.state.hosts.current || this.$route.params.host
 
       // let range = Object.clone(this.$store.state.app.range)
@@ -2594,7 +2594,7 @@ export default {
 
               let pipe = new Pipeline(template)
 
-              //////////////////////////////console.log('$store.state.hosts.all', pipe)
+              ////////////////////////////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -2604,17 +2604,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                ////////////////////////console.log('create_hosts_pipelines onRangeDoc',doc);
+                //////////////////////////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  //////////////////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  ////////////////////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  //////////////////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  ////////////////////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -2637,7 +2637,7 @@ export default {
               // pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                //////////////////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                ////////////////////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
 
                 /** manually resume **/
                 // pipe.fireEvent('onResume')
@@ -2687,7 +2687,7 @@ export default {
     },
 
     showCollapsible (collapsible){
-      ////////console.log('showCollapsible', $(collapsible).attr('id'))
+      //////////console.log('showCollapsible', $(collapsible).attr('id'))
       this.$options.collapsibles[$(collapsible).attr('id')] = true
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
@@ -2696,7 +2696,7 @@ export default {
       this.set_chart_visibility(id, true)
     },
     hideCollapsible (collapsible){
-      ////////console.log('hideCollapsible', $(collapsible).attr('id'))
+      //////////console.log('hideCollapsible', $(collapsible).attr('id'))
       this.$options.collapsibles[$(collapsible).attr('id')] = false
 
       let id = $(collapsible).attr('id').replace('-collapsible', '')
@@ -2720,7 +2720,7 @@ export default {
       ){
         this.$set(this.visibility, id, false)
         this.remove_chart(id)
-        ////////console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
+        //////////console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
         // this.$store.dispatch('stats/splice', this.available_charts[id].stat)
         // this.$store.dispatch('stats_tabular/splice', this.available_charts[id].stat)
       }
@@ -2729,7 +2729,7 @@ export default {
         && this.available_charts[id]
         && (this.visibility[id] == undefined || this.visibility[id] == false)
       ){
-        ////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
+        //////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
         this.$set(this.visibility, id, true)
         this.add_chart(this.available_charts[id], id)
       }

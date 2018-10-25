@@ -1,5 +1,5 @@
 
-import PouchDB from 'pouchdb-browser'
+// import PouchDB from 'pouchdb-browser'
 
 
 import Deque from 'double-ended-queue'
@@ -24,7 +24,7 @@ const QUEUE_SIZE = 60 //os = 4 docs...1200 = 300 secs of docs
 
 let deque = undefined
 
-let db = undefined
+// let db = undefined
 
 let get_queue = function(arr){
   if(!deque && arr){
@@ -38,16 +38,17 @@ let get_queue = function(arr){
   return deque
 }
 
-let get_db = function(payload){
-  let {root, path, key, type} = payload
-  if(!db)
-    db = new PouchDB(type+'_'+root+'_'+path+'_'+key)
+// let get_db = function(payload){
+//   let {root, path, key, type} = payload
+//   if(!db)
+//     db = new PouchDB(type+'_'+root+'_'+path+'_'+key)
+//
+//   console.log('get_db', type+'_'+root+'_'+path+'_'+key)
+//   return db
+//
+// }
 
-  return db
-
-}
-
-let close_db = function(cb){
+let close_db = function(db, cb){
   // let {root, path, key, type} = payload
 
   if(db)
@@ -69,7 +70,7 @@ export const get = ({ state, commit, dispatch }, payload) => {
   payload = get_payload(payload, state)
   //console.log('ACTIONS get', payload)
 
-  let db = get_db(payload)
+  // let db = get_db(payload)
   let deque = get_queue()
   //// ////////console.log('action get...')
 
@@ -127,7 +128,7 @@ export const get = ({ state, commit, dispatch }, payload) => {
         options.endkey = payload.path+'/'+payload.key+'@'+range[0]
       }
 
-      db.allDocs(options).then(function (res) {
+      state.db.allDocs(options).then(function (res) {
         //console.log('OPTIONS', options, res, length)
 
         res.rows.reverse()
@@ -189,7 +190,7 @@ export const add = ({ state, commit, dispatch }, payload) => {
       doc.data = data.value
       doc.metadata = new Object()
       doc.metadata.timestamp = data.timestamp
-      doc.metadata.host = payload.host
+      doc.metadata.host = payload.root
       doc.metadata.path = payload.path+'/'+payload.key
       // doc.metadata.key = payload.key
       doc.metadata.type = 'periodical'
@@ -231,7 +232,7 @@ export const add = ({ state, commit, dispatch }, payload) => {
     doc.data = payload.data.value
     doc.metadata = new Object()
     doc.metadata.timestamp = payload.data.timestamp
-    doc.metadata.host = payload.host
+    doc.metadata.host = payload.root
     doc.metadata.path = payload.path+'/'+payload.key
     // doc.metadata.key = payload.key
     doc.metadata.type = 'periodical'
@@ -281,8 +282,8 @@ export const flush = ({ state, commit, dispatch }, payload) => {
 
   //console.log('ACTIONS flush', payload)
 
-  payload.type = state.type
-  let db = get_db(payload)
+  // payload.type = state.type
+  // let db = get_db(payload)
 
   let length = payload.remaing
   let deque = get_queue(payload)
@@ -315,18 +316,18 @@ export const flush = ({ state, commit, dispatch }, payload) => {
 
     // db.flushing = true
 
-    qBulkDocs.push({docs: docs, db: db}, function(err, status){
-      //console.log('qBulkDocs', err, status)
-    })
-
-    // db.bulkDocs(docs)
-    // .then(function (status) {
-    //   ////////console.log('flushed', docs, status, deque.toArray())
-    //   // commit('clear', payload)
-    //   // db.flushing = false
-    // }).catch(function (err) {
-    //   ////////console.log('flushed err', err)
+    // qBulkDocs.push({docs: docs, db: db}, function(err, status){
+    //   console.log('qBulkDocs', err, status)
     // })
+
+    state.db.bulkDocs(docs)
+    .then(function (status) {
+      console.log('flushed', status)
+      // commit('clear', payload)
+      // db.flushing = false
+    }).catch(function (err) {
+      ////////console.log('flushed err', err)
+    })
   }
 
 }
@@ -356,8 +357,8 @@ export const splice = ({ commit, state }, payload) => {
 
   if(payload.range){
     let range = payload.range
-    options.startkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
-    options.endkey = payload.host+'/'+payload.path+'/'+payload.key+'@'+range[0]
+    options.startkey = payload.root+'/'+payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
+    options.endkey = payload.root+'/'+payload.path+'/'+payload.key+'@'+range[0]
   }
 
   ////// ////////console.log('OPTIONS', options)
@@ -374,9 +375,9 @@ export const splice = ({ commit, state }, payload) => {
       // ////////console.log('splice destroy res', status)
       // db.close()
       // db = new PouchDB('live_'+payload.host)
-      close_db(() => {
+      close_db(db, () => {
         // db = get_db(payload.host)
-        payload.type = state.type
+        // payload.type = state.type
         db = get_db(payload)
 
 
