@@ -144,7 +144,7 @@ export default {
     update_chart_stat (name, data){
 
       // //console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
-      //console.log('chart mixin update_chart_stat', name, this.$options.focus, this.$options.visible)
+      // console.log('chart mixin update_chart_stat', name, data)
 
       // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // //console.log('update_chart_stat visibility', this.id, data)
@@ -176,15 +176,15 @@ export default {
 
         }
 
-        this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+        // this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
-        // ////////console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
+        // console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
 
         // this.tabular.lastupdate = Date.now()
 
 
 
-        this.$options.tabular.lastupdate = Date.now()
+
 
         /**
         * @config: this should be config options
@@ -193,7 +193,14 @@ export default {
         */
 
         // if(this.$options.visible == true){
-        if(this.$options.focus == true && this.$options.visible == true){
+        if(
+          this.$options.focus == true
+          && this.$options.visible == true
+          && (
+            !this.chart.interval
+            || (Date.now() - (this.chart.interval * 1000) > this.$options.tabular.lastupdate)
+            )
+        ){
           if(this.$refs[name] && typeof this.$refs[name].update == 'function' && this.$options.tabular.data.length > 0){
             frameDebounce(this.$refs[name].update(this.$options.tabular.data))
             // this.$refs[name].update(this.$options.tabular.data)
@@ -202,6 +209,9 @@ export default {
             frameDebounce(this.$set(this, 'tabular', this.$options.tabular))
             // this.$set(this, 'tabular', this.$options.tabular)
           }
+
+          this.$options.tabular.lastupdate = Date.now()
+          console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate))
         }
 
 

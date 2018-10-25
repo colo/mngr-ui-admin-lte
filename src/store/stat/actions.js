@@ -22,20 +22,29 @@ let qBulkDocs = queue(function(task, callback) {
 const QUEUE_SIZE = 60 //os = 4 docs...1200 = 300 secs of docs
 
 
-let deque = undefined
+// let deque = undefined
 
 // let db = undefined
 
-let get_queue = function(arr){
-  if(!deque && arr){
-    deque = new Deque(arr)
+let get_queue = function({ state, commit }, arr){
+  if(arr){
+    commit('queue', new Deque(arr))
   }
-  else if(!deque){
-    deque = new Deque()
+  else if(!state.queue){
+    commit('queue', new Deque())
   }
 
+  return state.queue
 
-  return deque
+  // if(!deque && arr){
+  //   deque = new Deque(arr)
+  // }
+  // else if(!deque){
+  //   deque = new Deque()
+  // }
+  //
+  //
+  // return deque
 }
 
 // let get_db = function(payload){
@@ -48,13 +57,13 @@ let get_queue = function(arr){
 //
 // }
 
-let close_db = function(db, cb){
-  // let {root, path, key, type} = payload
-
-  if(db)
-    db.close(() => {db = undefined; cb()})
-
-}
+// let close_db = function(db, cb){
+//   // let {root, path, key, type} = payload
+//
+//   if(db)
+//     db.close(() => {db = undefined; cb()})
+//
+// }
 
 let get_payload = function(payload, state){
   payload = payload || {}
@@ -71,7 +80,8 @@ export const get = ({ state, commit, dispatch }, payload) => {
   //console.log('ACTIONS get', payload)
 
   // let db = get_db(payload)
-  let deque = get_queue()
+  let deque = get_queue({ state: state, commit: commit })
+
   //// ////////console.log('action get...')
 
   return new Promise((resolve, reject) => {
@@ -177,7 +187,8 @@ export const get = ({ state, commit, dispatch }, payload) => {
 export const add = ({ state, commit, dispatch }, payload) => {
   payload = get_payload(payload, state)
   // //console.log('ACTIONS add', payload)
-  let deque = get_queue(payload)
+  // let deque = get_queue(payload)
+  let deque = get_queue({ state: state, commit: commit })
 
 
   if(Array.isArray(payload.data) && payload.data.length > 1){
@@ -286,7 +297,9 @@ export const flush = ({ state, commit, dispatch }, payload) => {
   // let db = get_db(payload)
 
   let length = payload.remaing
-  let deque = get_queue(payload)
+  // let deque = get_queue(payload)
+  let deque = get_queue({ state: state, commit: commit })
+
   // ////////console.log('action flushing...', payload.host, payload.path, payload.key)
 
 
@@ -310,24 +323,25 @@ export const flush = ({ state, commit, dispatch }, payload) => {
       deque_arr = deque_arr.clean()
     }
 
-    deque = get_queue(payload, deque_arr)
+    // deque = get_queue(payload, deque_arr)
+    deque = get_queue({ state: state, commit: commit }, deque_arr)
 
     ////////console.log('action flushing...', length, payload.host, payload.path, payload.key,docs, deque.toArray())
 
     // db.flushing = true
 
-    // qBulkDocs.push({docs: docs, db: db}, function(err, status){
-    //   console.log('qBulkDocs', err, status)
-    // })
-
-    state.db.bulkDocs(docs)
-    .then(function (status) {
-      console.log('flushed', status)
-      // commit('clear', payload)
-      // db.flushing = false
-    }).catch(function (err) {
-      ////////console.log('flushed err', err)
+    qBulkDocs.push({docs: docs, db: state.db}, function(err, status){
+      console.log('qBulkDocs', err, status)
     })
+
+    // state.db.bulkDocs(docs)
+    // .then(function (status) {
+    //   console.log('flushed', status)
+    //   // commit('clear', payload)
+    //   // db.flushing = false
+    // }).catch(function (err) {
+    //   ////////console.log('flushed err', err)
+    // })
   }
 
 }

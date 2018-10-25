@@ -14,6 +14,10 @@ export const type = function(state, type) {//generic mutation
 export const db = function(state, db) {//generic mutation
   state.db = db
 }
+
+export const queue = function(state, queue) {//generic mutation
+  state.queue = queue
+}
 //
 // export const root = function(state, root) {//generic mutation
 //   state.root = root

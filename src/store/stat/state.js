@@ -5,6 +5,7 @@ export default function() {
     root: undefined,
     path: undefined,
     key: undefined,
-    db: undefined
+    db: undefined,
+    queue: undefined,
   }
 }

@@ -1204,7 +1204,7 @@ export default {
               type: 'dygraph',
               props: {}
             },
-            chart: Object.merge(loadavg_chart, this.$options.charts_objects['os.loadavg']),
+            chart: Object.merge(this.$options.charts_objects['os.loadavg'], loadavg_chart),
             stop: function(payload){
               //this.remove_watcher(payload.name)
               //this.$store.dispatch('stats/flush', payload.stat)
@@ -2201,98 +2201,98 @@ export default {
     //
     //   return {docs: docs, range: range}
     // },
-    _merge_stats: function(payload){
-      let {buffer, length, stat_name, data_name, data, splice, range} = payload
-      ////////////console.log('_merge_stats', stat_name, buffer, range, data)
-
-      if(range == true)
-        buffer._range = true
-
-      if(
-        (
-          buffer._range && buffer._range == true
-          && data.length > 0
-        )
-        || ( ! buffer._range && Object.getLength(data) > 0 )
-      ){
-        buffer[data_name] = data
-      }
-
-      if(Object.getLength(buffer) >= length){
-        let merged = undefined
-        // let counter = 0
-        Object.each(buffer, function(doc, name){
-          if(name.indexOf('0') > -1)
-            if(Array.isArray(doc)){
-              merged = Array.clone(doc)
-            }
-            else{
-              merged = Object.clone(doc)
-            }
-        })
-
-        let _merged = false
-        Object.each(buffer, function(doc, name){
-          if(name.indexOf('0') == -1 && name != '_range'){
-            if(Array.isArray(merged)){
-
-              let to_merge = []
-              if(!Array.isArray(doc)){
-                to_merge = [doc]
-              }
-              else{
-                to_merge = Array.clone(doc)
-              }
-
-              Array.each(merged, function(row, index){
-
-                let found = false
-                Array.each(to_merge, function(to_merge_row){
-                  if(found == false && row.metadata.timestamp == to_merge_row.metadata.timestamp){
-                    merged[index].data = this._merge_tabular_data(row.data, to_merge_row.data)
-                    found = true
-                    _merged = true
-                  }
-
-                }.bind(this))
-                // if(found == false){
-                //   merged[index].data = this._merge_tabular_data(row.data, [0, 0])
-                // }
-
-              }.bind(this))
-
-            }
-            else if(doc.data){
-
-              merged.data = this._merge_tabular_data(merged.data, doc.data)
-              _merged = true
-            }
-          }
-          // counter++
-          // delete buffer[name]
-        }.bind(this))
-
-        if(_merged == true){
-          buffer = {}
-
-          this.__update_chart_stat(stat_name, merged, splice)
-        }
-        // ////////////console.log('_merge_stats', stat_name, merged)
-      }
-
-      return buffer
-    },
+    // _merge_stats: function(payload){
+    //   let {buffer, length, stat_name, data_name, data, splice, range} = payload
+    //   ////////////console.log('_merge_stats', stat_name, buffer, range, data)
+    //
+    //   if(range == true)
+    //     buffer._range = true
+    //
+    //   if(
+    //     (
+    //       buffer._range && buffer._range == true
+    //       && data.length > 0
+    //     )
+    //     || ( ! buffer._range && Object.getLength(data) > 0 )
+    //   ){
+    //     buffer[data_name] = data
+    //   }
+    //
+    //   if(Object.getLength(buffer) >= length){
+    //     let merged = undefined
+    //     // let counter = 0
+    //     Object.each(buffer, function(doc, name){
+    //       if(name.indexOf('0') > -1)
+    //         if(Array.isArray(doc)){
+    //           merged = Array.clone(doc)
+    //         }
+    //         else{
+    //           merged = Object.clone(doc)
+    //         }
+    //     })
+    //
+    //     let _merged = false
+    //     Object.each(buffer, function(doc, name){
+    //       if(name.indexOf('0') == -1 && name != '_range'){
+    //         if(Array.isArray(merged)){
+    //
+    //           let to_merge = []
+    //           if(!Array.isArray(doc)){
+    //             to_merge = [doc]
+    //           }
+    //           else{
+    //             to_merge = Array.clone(doc)
+    //           }
+    //
+    //           Array.each(merged, function(row, index){
+    //
+    //             let found = false
+    //             Array.each(to_merge, function(to_merge_row){
+    //               if(found == false && row.metadata.timestamp == to_merge_row.metadata.timestamp){
+    //                 merged[index].data = this._merge_tabular_data(row.data, to_merge_row.data)
+    //                 found = true
+    //                 _merged = true
+    //               }
+    //
+    //             }.bind(this))
+    //             // if(found == false){
+    //             //   merged[index].data = this._merge_tabular_data(row.data, [0, 0])
+    //             // }
+    //
+    //           }.bind(this))
+    //
+    //         }
+    //         else if(doc.data){
+    //
+    //           merged.data = this._merge_tabular_data(merged.data, doc.data)
+    //           _merged = true
+    //         }
+    //       }
+    //       // counter++
+    //       // delete buffer[name]
+    //     }.bind(this))
+    //
+    //     if(_merged == true){
+    //       buffer = {}
+    //
+    //       this.__update_chart_stat(stat_name, merged, splice)
+    //     }
+    //     // ////////////console.log('_merge_stats', stat_name, merged)
+    //   }
+    //
+    //   return buffer
+    // },
     /**
     * merge second doc.data (ommiting [0] possition, timestamp) on first one
     **/
-    _merge_tabular_data: function(a, b){
-
-      let merged = Array.clone(a)
-      for(let i = 1; i < b.length; i++){//ommit timestamp
-          merged.push(b[i])
-      }
-      return merged
-    },
+    // _merge_tabular_data: function(a, b){
+    //
+    //   let merged = Array.clone(a)
+    //   for(let i = 1; i < b.length; i++){//ommit timestamp
+    //       merged.push(b[i])
+    //   }
+    //   return merged
+    // },
     // __get_stat_for_chart: function(payload){
     //   ////////////console.log('__get_stat_for_chart', payload)
     //

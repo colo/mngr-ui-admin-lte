@@ -72,7 +72,7 @@ export default {
       this.$options.__range_init = true
 
     this.$options.length = this.stat.length || range_length
-    //////console.log('CREATED', this.$options.length, range_length)
+    console.log('CREATED length', this.$options.length)
 
     this.$options.root = this.id.split('.')[0]
     this.$options.path = this.id.split('.')[1]
@@ -113,7 +113,7 @@ export default {
 
 
         if(docs.length > 0){
-          //console.log('stats/get', docs, range)
+          // console.log('stats/get', docs, range)
 
           let stats = []
           Array.each(docs, function(doc){
@@ -426,14 +426,31 @@ export default {
         // this.$set(this, 'stat_data', __stat_data)
 
         if(Array.isArray(data)){
-          this.$set(this, 'stat_data', this.stat_data.append(data))
-          // Array.each(Array.clone(data), function(val){
-          //   this.stat_data.push( val )
-          // }.bind(this))
+          // this.$set(this, 'stat_data', this.stat_data.append(data))
+          Array.each(Array.clone(data), function(val){
+            let found = false
+            Array.each(this.stat_data, function(stat){
+              if(stat.timestamp == val.timestamp)
+                found = true
+            }.bind(this))
+
+            if(found == false)
+              this.stat_data.push( val )
+
+          }.bind(this))
           this.$options.__range_init = true
         }
         else if(this.$options.__range_init == true){
-          this.stat_data.push( data )
+          let found = false
+          Array.each(this.stat_data, function(stat){
+            if(stat.timestamp == data.timestamp)
+              found = true
+          }.bind(this))
+
+          if(found == false)
+            this.stat_data.push( data )
+
+          // this.stat_data.push( data )
         }
 
         this.stat_data.sort(function(a,b) {
@@ -449,6 +466,8 @@ export default {
           (splice * -1) -1,
           length - splice
         )
+
+        // console.log('stat.vue/splice', splice, length, this.stat_data)
 
       // }
 

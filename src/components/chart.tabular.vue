@@ -53,7 +53,7 @@ export default {
 
 
       let generic_data_watcher = function(current){
-        // ////console.log('chart.tabular generic_data_watcher', current)
+        // console.log('chart.tabular generic_data_watcher', current)
         // if(current && this.$options.visible){
          if(current){
           let data = []
@@ -67,6 +67,7 @@ export default {
       }.bind(this)
 
       // ////////console.log('gonna watch...', name, this.stat.data)
+
       if(this.stat_data[0] && this.stat_data[0].value.length > 0)
         generic_data_watcher(this.stat_data)
 
