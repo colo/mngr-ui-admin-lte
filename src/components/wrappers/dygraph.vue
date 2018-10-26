@@ -358,7 +358,8 @@ export default {
           /**
           * should be sorted already
           **/
-          // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          // if(this.chart.skip > 0)
+          //   data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 
           // let data = []
@@ -378,7 +379,7 @@ export default {
           //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
           //   block_redraw
           // );
-
+          // let selection = (this.chart.skip) ? this.chart.skip: 1
 
           this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)
 

@@ -1,7 +1,7 @@
 <template>
 
   <component
-    v-observe-visibility="{ callback: visibilityChanged, throttle: 50 }"
+    v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
     :is="wrapper.type+'-wrapper'"
     :id="id"
     :ref="id"
@@ -149,78 +149,52 @@ export default {
 
       // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // //console.log('update_chart_stat visibility', this.id, data)
-        if(this.chart.skip)
+
+
+        if( data.length == 1 ){
+
+          this.$options.tabular.data.shift()
+          this.$options.tabular.data.push(data[0])
+
+        }
+        else if(data.length > 0){
+
+          let splice = data.length
+          let length = this.$options.tabular.data.length
+          this.$options.tabular.data = data
+
+          this.$options.tabular.data.splice(
+            (splice * -1) -1,
+            length - splice
+          )
+
+
+        }
+
+        this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+
+        if(this.chart.skip && this.chart.skip > 0){
           this.chart.interval = this.chart.skip
+          let new_data = []
 
-        if(!this.chart.skip || this.chart.skip == 0 || this.chart.skip == this.$options.__skiped -1){
-          // console.log('chart mixin update_chart_stat', name, this.chart.skip, this.$options.__skiped, data)
+          Array.each(this.$options.tabular.data, function(row, index){
+            // if(index == 0)
+            //   this.$options.__skiped = 0
 
-          if( data.length == 1 ){
-
-            // this.tabular.data.shift()
-            // this.tabular.data.push(data[0])
-            /**
-            * ensures no "glitches" as a point may be in the incorrect posittion
-            */
-            // let old_data = Array.clone(this.tabular.data)
-            // old_data.shift()
-            // old_data.push(data[0])
-            // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-            // this.$set(this.tabular, 'data', old_data)
-
-            this.$options.tabular.data.shift()
-            this.$options.tabular.data.push(data[0])
-            this.$options.__skiped = 0
-            // this.$set(this.tabular, 'data', old_data)
-
-          }
-          else if(data.length > 0){
-
-            if(this.chart.skip > 0){
-              let splice = data.length
-              let length = this.$options.tabular.data.length
-
-
-              Array.each(data, function(row, index){
-                if(this.chart.skip == this.$options.__skiped - 1){
-                  // this.$options.tabular.data.shift()
-                  this.$options.tabular.data.push(row)
-                  this.$options.__skiped = 0
-                }
-                else{
-                  this.$options.__skiped++
-                }
-              }.bind(this))
-
-              this.$options.tabular.data.splice(
-                (splice * -1) -1,
-                length - splice
-              )
-
+            if(index == 0 || this.chart.skip -1 == this.$options.__skiped){
+              // console.log('chart mixin update_chart_stat Array', name, this.chart.skip, this.$options.__skiped)
+              new_data.push(row)
+              this.$options.__skiped = 0
             }
             else{
-              this.$options.tabular.data = data
+              // console.log('chart mixin update_chart_stat Array ++', name, this.chart.skip, this.$options.__skiped)
+              this.$options.__skiped++
             }
+          }.bind(this))
 
-
-
-          }
+          this.$options.tabular.data = new_data
+          // this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
         }
-        else if(this.chart.skip && this.chart.skip != 0){
-          this.$options.__skiped++
-        }
-
-        // console.log('chart mixin update_chart_stat', name, this.chart.skip, this.$options.__skiped, this.$options.tabular.data)
-
-
-        // this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-
-        // console.log('chart mixin update_chart_stat', name, this.id, this.$options.tabular.data)
-
-        // this.tabular.lastupdate = Date.now()
-
-
-
 
 
         /**
@@ -237,6 +211,7 @@ export default {
             !this.chart.interval
             || (Date.now() - (this.chart.interval * 1000) > this.$options.tabular.lastupdate)
             )
+          || this.$options.tabular.lastupdate == 0
         ){
           if(this.$refs[name] && typeof this.$refs[name].update == 'function' && this.$options.tabular.data.length > 0){
             frameDebounce(this.$refs[name].update(this.$options.tabular.data))
