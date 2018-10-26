@@ -41,6 +41,7 @@ export default {
 
   focus: true,
 
+  __skiped: 0,
   __data_unwatcher: undefined,
   __chart_init: false,
   visible: true,
@@ -144,37 +145,73 @@ export default {
     update_chart_stat (name, data){
 
       // //console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
-      // console.log('chart mixin update_chart_stat', name, data)
+
 
       // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // //console.log('update_chart_stat visibility', this.id, data)
-        if(data.length == 1){
+        if(this.chart.skip)
+          this.chart.interval = this.chart.skip
 
-          // this.tabular.data.shift()
-          // this.tabular.data.push(data[0])
-          /**
-          * ensures no "glitches" as a point may be in the incorrect posittion
-          */
-          // let old_data = Array.clone(this.tabular.data)
-          // old_data.shift()
-          // old_data.push(data[0])
-          // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-          // this.$set(this.tabular, 'data', old_data)
+        if(!this.chart.skip || this.chart.skip == 0 || this.chart.skip == this.$options.__skiped -1){
+          // console.log('chart mixin update_chart_stat', name, this.chart.skip, this.$options.__skiped, data)
 
-          this.$options.tabular.data.shift()
-          this.$options.tabular.data.push(data[0])
+          if( data.length == 1 ){
 
-          // this.$set(this.tabular, 'data', old_data)
+            // this.tabular.data.shift()
+            // this.tabular.data.push(data[0])
+            /**
+            * ensures no "glitches" as a point may be in the incorrect posittion
+            */
+            // let old_data = Array.clone(this.tabular.data)
+            // old_data.shift()
+            // old_data.push(data[0])
+            // old_data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+            // this.$set(this.tabular, 'data', old_data)
 
+            this.$options.tabular.data.shift()
+            this.$options.tabular.data.push(data[0])
+            this.$options.__skiped = 0
+            // this.$set(this.tabular, 'data', old_data)
+
+          }
+          else if(data.length > 0){
+
+            if(this.chart.skip > 0){
+              let splice = data.length
+              let length = this.$options.tabular.data.length
+
+
+              Array.each(data, function(row, index){
+                if(this.chart.skip == this.$options.__skiped - 1){
+                  // this.$options.tabular.data.shift()
+                  this.$options.tabular.data.push(row)
+                  this.$options.__skiped = 0
+                }
+                else{
+                  this.$options.__skiped++
+                }
+              }.bind(this))
+
+              this.$options.tabular.data.splice(
+                (splice * -1) -1,
+                length - splice
+              )
+
+            }
+            else{
+              this.$options.tabular.data = data
+            }
+
+
+
+          }
         }
-        else if(data.length > 0){
-
-          // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
-
-          // this.$set(this.tabular, 'data', data)
-          this.$options.tabular.data = data
-
+        else if(this.chart.skip && this.chart.skip != 0){
+          this.$options.__skiped++
         }
+
+        // console.log('chart mixin update_chart_stat', name, this.chart.skip, this.$options.__skiped, this.$options.tabular.data)
+
 
         // this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
@@ -211,7 +248,7 @@ export default {
           }
 
           this.$options.tabular.lastupdate = Date.now()
-          console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate))
+          // console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate))
         }
 
 
