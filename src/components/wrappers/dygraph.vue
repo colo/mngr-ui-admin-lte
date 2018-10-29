@@ -358,8 +358,8 @@ export default {
           /**
           * should be sorted already
           **/
-          // if(this.chart.skip > 0)
-          //   data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
+          if(this.chart.skip > 0)
+            data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
 
           // let data = []

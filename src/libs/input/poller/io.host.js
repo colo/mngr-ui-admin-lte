@@ -53,6 +53,13 @@ export default new Class({
                       range: req.Range
         						})
                   }
+                  else if (!req.path) {
+                    this.io.emit('stats', {
+                      host: app.options.stat_host,
+                      format: (req.tabular == true) ? 'tabular' : undefined,
+                      range: req.Range
+        						})
+                  }
 
                 // }.bind(app))
 

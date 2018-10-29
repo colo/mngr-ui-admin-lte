@@ -11,6 +11,6 @@ export const add = function(state, payload) {
     }
   })
 
-  if(found == false)
+  if(found === false)
     state.list.push(payload)
 }

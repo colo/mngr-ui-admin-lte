@@ -864,7 +864,7 @@ export default {
     })
 
     EventBus.$on('stats', payload => {
-      //console.log('recived doc via Event stats', payload)
+      console.log('recived doc via Event stats', payload)
         let type = (payload.tabular == true) ? 'tabulars' : 'stats'
         let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
         // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
@@ -920,6 +920,8 @@ export default {
     let unwatch_all_init = this.$watch('all_init', function(val){
       //console.log('all_init', val)
       if(val == true){
+        console.log('all_init', val)
+
         this.set_range(moment().subtract(5, 'minute'), moment())
 
         //console.log('all_init STATS',this['stats'])
@@ -955,7 +957,7 @@ export default {
             stat: [
               {
                 host: this.host,
-                path: 'os.cpus',
+                // path: 'os.cpus',
                 // key: 'cpus',
                 // length: this.seconds || 300,
                 tabular: true
@@ -963,7 +965,7 @@ export default {
               },
               {
                 host: this.host,
-                path: 'os.uptime',
+                // path: 'os.uptime',
                 // key: 'uptime',
                 // length: this.seconds || 300,
                 tabular: true
@@ -1166,7 +1168,7 @@ export default {
           }
         )
 
-        this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
+        // this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
 
 
         this.available_charts[this.host+'.os.uptime'] = Object.merge(

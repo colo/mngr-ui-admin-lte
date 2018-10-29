@@ -142,7 +142,7 @@ export default {
 
     },
     __create_watcher(name, chart){},
-    update_chart_stat (name, data){
+    update_chart_stat (name, data, inmediate){
 
       // //console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
 
@@ -174,7 +174,7 @@ export default {
         this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
         if(this.chart.skip && this.chart.skip > 0){
-          this.chart.interval = this.chart.skip
+          // this.chart.interval = this.chart.skip
           let new_data = []
 
           Array.each(this.$options.tabular.data, function(row, index){
@@ -205,8 +205,11 @@ export default {
 
         // if(this.$options.visible == true){
         if(
-          this.$options.focus == true
-          && this.$options.visible == true
+          inmediate && inmediate == true
+          || (
+            this.$options.focus == true
+            && this.$options.visible == true
+          )
           && (
             !this.chart.interval
             || (Date.now() - (this.chart.interval * 1000) > this.$options.tabular.lastupdate)
@@ -256,7 +259,7 @@ export default {
       let __visible = this.$options.visible
       this.$options.visible = isVisible
       if((!__visible || __visible == false) && isVisible == true){
-        this.update_chart_stat(this.id, this.$options.tabular.data)
+        this.update_chart_stat(this.id, this.$options.tabular.data, true)
       }
 
 

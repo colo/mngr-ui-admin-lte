@@ -331,7 +331,7 @@ export const flush = ({ state, commit, dispatch }, payload) => {
     // db.flushing = true
 
     qBulkDocs.push({docs: docs, db: state.db}, function(err, status){
-      console.log('qBulkDocs', err, status)
+      // console.log('qBulkDocs', err, status)
     })
 
     // state.db.bulkDocs(docs)
