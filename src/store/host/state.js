@@ -1,6 +1,7 @@
 export default function() {
   return {
-    networkInterfaces: undefined,
+    charts: {},
+    // networkInterfaces: undefined,
     // stats: {}
   }
 }

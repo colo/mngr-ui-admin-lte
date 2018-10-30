@@ -208,7 +208,7 @@ export default {
 
         Array.each(doc, function(host){
           if(!this.$store.state['host_'+host]){
-            console.log('registerModule HOSTS', host)
+            // console.log('registerModule HOSTS', host)
             this.$store.registerModule('host_'+host, Object.clone(hostStore))
           }
           // if(!this.$store.state.stats[host]){
@@ -222,7 +222,7 @@ export default {
         */
         Array.each(this.$store.state, function(host){
           if(!doc.contains(host.replace('host_'))){
-            console.log('UNregisterModule HOSTS', host)
+            // console.log('UNregisterModule HOSTS', host)
             this.$store.unregisterModule('host_'+host)
           }
         }.bind(this))
