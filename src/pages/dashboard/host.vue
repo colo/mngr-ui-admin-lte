@@ -874,7 +874,7 @@ export default {
 
       if(payload.range == true)
         console.log('recived doc via Event stats', payload)
-        
+
       let type = (payload.tabular == true) ? 'tabulars' : 'stats'
       let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
       // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
@@ -1178,7 +1178,7 @@ export default {
           }
         )
 
-        // this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
+        this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
 
 
         this.available_charts[this.host+'.os.uptime'] = Object.merge(
