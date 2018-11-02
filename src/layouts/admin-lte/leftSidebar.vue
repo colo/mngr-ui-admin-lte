@@ -41,14 +41,13 @@
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </router-link>
-          <ul class="treeview-menu" v-for="(host) in hosts">
+          <ul class="treeview-menu">
             <!-- class="active" -->
-            <li
+            <li v-for="(host) in hosts"
               v-bind:class="{ 'active': $route.name == host }"
-              :key="host"
             >
               <!-- <router-link :to="{ name: 'Dashboard', params: { host: host }}"> -->
-              <router-link :to="'/dashboard/'+host">
+              <router-link :key="host" :to="'/dashboard/'+host">
                 <i class="fa fa-circle-o"></i> {{host}}
               </router-link>
             </li>

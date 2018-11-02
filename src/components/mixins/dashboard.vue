@@ -94,6 +94,9 @@ export default {
     }),
 
   ),
+  updated: function(){
+    this.$store.commit('hosts/current', this.$route.params.host || '')
+  },
   created: function(){
     this.$options.__events_watcher = this.$watch('events', debounce(function(val){
 

@@ -54,9 +54,9 @@ export default {
     docs_per_sec: state => state.app.docs.count,
     number_of_hosts: state => state.hosts.all.length,
   })),
-  updated: function(){
-    this.$store.commit('hosts/current', this.$route.params.host || '')
-  }
+  // updated: function(){
+  //   this.$store.commit('hosts/current', this.$route.params.host || '')
+  // }
 
 }
 
