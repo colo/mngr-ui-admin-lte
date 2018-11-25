@@ -36,14 +36,7 @@ const vuexLocal = new VuexPersistence ({
 })
 
 const store = new Vuex.Store({
-  // plugins: [(new VuexPersistence({
-  //   // strictMode: false,
-  //   // asyncStorage: true,
-  //   storage: window.localStorage,
-  // })).plugin],
-  // strict: false,
-  // strict: process.env.NODE_ENV !== 'production'
-  plugins: [vuexLocal.plugin],
+  // plugins: [vuexLocal.plugin],
   modules: {
     hosts,
     app,

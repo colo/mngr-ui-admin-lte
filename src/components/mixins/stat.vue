@@ -109,7 +109,7 @@ export default {
         * @testing - avoid locals
 
         **/
-        // let new_docs_range = this.__get_new_range([], this.stat.range)
+        // let new_docs_range = this.__get_new_range([], JSON.parse(JSON.stringify(this.stat.range)))
         let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
         docs = new_docs_range.docs
         let range = new_docs_range.range
