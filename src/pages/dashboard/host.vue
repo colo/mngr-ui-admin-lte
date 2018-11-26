@@ -967,7 +967,7 @@ export default {
             stat: [
               {
                 host: this.host,
-                // path: 'os.cpus',
+                path: 'os.cpus',
                 // key: 'cpus',
                 // length: this.seconds || 300,
                 tabular: true
@@ -975,7 +975,7 @@ export default {
               },
               {
                 host: this.host,
-                // path: 'os.uptime',
+                path: 'os.uptime',
                 // key: 'uptime',
                 // length: this.seconds || 300,
                 tabular: true

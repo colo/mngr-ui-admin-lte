@@ -1,5 +1,9 @@
 'use strict'
 
+/**
+* use stat.path on rethinkdb (faster), does a range call for each
+* on couchdb grouping all (seting stat.path = undefined) is faster
+*/
 export default {
   'os.cpus.percentage': {
     name: 'os.cpus.percentage',
@@ -8,7 +12,7 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      // path: 'os.cpus',
+      path: 'os.cpus',
       // key: 'cpus',
       // length: 300,
       tabular: true,
@@ -31,7 +35,7 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      // path: 'os.cpus',
+      path: 'os.cpus',
       // key: 'cpus',
       // length: 300,
       tabular: true,
@@ -54,7 +58,7 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      // path: 'os.uptime',
+      path: 'os.uptime',
       // key: 'uptime',
       // length: 300,
       tabular: true,
@@ -78,7 +82,7 @@ export default {
     //
     stat: {
       host: undefined,
-      // path: 'os.loadavg',
+      path: 'os.loadavg',
       // key: 'loadavg',
       // length: 300,
       tabular: true,
@@ -101,7 +105,7 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      // path: 'os_blockdevices',
+      path: 'os_blockdevices',
       // key: '',
       // length: 300,
       tabular: true,
@@ -124,7 +128,7 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      // path: 'os_mounts',
+      path: 'os_mounts',
       // key: '',
       // length: 300,
       tabular: true,
@@ -171,7 +175,7 @@ export default {
     stop: undefined,
     stat: {
       host: undefined,
-      // path: 'os_networkInterfaces_stats',
+      path: 'os_networkInterfaces_stats',
       // key: '',
       // length: 300,
       tabular: true,

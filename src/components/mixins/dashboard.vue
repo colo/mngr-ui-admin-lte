@@ -98,7 +98,8 @@ export default {
     this.$store.commit('hosts/current', this.$route.params.host || '')
   },
   created: function(){
-    this.$options.__events_watcher = this.$watch('events', debounce(function(val){
+    // this.$options.__events_watcher = this.$watch('events', debounce(function(val){
+    this.$options.__events_watcher = this.$watch('events', function(val){
 
       if(val && val.length > 0){
         // console.log('this.$watch events', val)
@@ -150,7 +151,8 @@ export default {
         this.fire_pipelines_events()
 
       }
-    }, 1000))
+    // }, 1000))
+    })
   },
   beforeDestroy: function(){
     if(!this.$options.__events_watcher)
@@ -241,12 +243,15 @@ export default {
               let event = pipeline.shift()
               // let {options, event} = obj
               // eval('pipe.'+options)
-              // let event_name = Object.keys(event)[0]
-              // pipe.fireEvent(event_name, event[event_name])
+              let event_name = Object.keys(event)[0]
+              pipe.fireEvent(event_name, event[event_name])
 
-              __events_queue.push({pipeline: pipe, event: event}, function(event){
-                //// console.log('EVENT fired', event, new Date())
-              })
+              /**
+              * removed queue, works better with rethinkdb lauching all events at once
+              */
+              // __events_queue.push({pipeline: pipe, event: event}, function(event){
+              //   //// console.log('EVENT fired', event, new Date())
+              // })
             }
 
             delete this.$options.__pipelines_events[name]

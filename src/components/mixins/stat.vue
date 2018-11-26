@@ -3,6 +3,13 @@
 
 import PouchDB from 'pouchdb-browser'
 
+/**
+* not working
+import PouchDBMemory from 'pouchdb-adapter-memory'
+PouchDB.plugin(PouchDBMemory)
+**/
+
+
 import statStore from 'src/store/stat'
 
 // import Deque from 'double-ended-queue'
@@ -89,7 +96,13 @@ export default {
       this.$store.commit(this.$options.type+'/'+this.id+'/id', this.id)
       this.$store.commit(this.$options.type+'/'+this.id+'/type', this.$options.type)
       this.$store.commit(this.$options.type+'/'+this.id+'/db',
-        new PouchDB(this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key)
+        // new PouchDB(
+        //   this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
+        //   {adapter: 'memory'}
+        // )
+        new PouchDB(
+          this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key
+        )
       )
 
       // this.$store.commit(this.$options.type+'/'+this.id+'/root', this.$options.root)
@@ -147,6 +160,51 @@ export default {
           })
         }
       })
+
+      /**
+      * @test - no local data
+      **/
+      // let docs = []
+      // let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
+      // docs = new_docs_range.docs
+      // let range = new_docs_range.range
+      //
+      //
+      // if(docs.length > 0){
+      //   // //console.log('stats/get', docs, range)
+      //
+      //   let stats = []
+      //   Array.each(docs, function(doc){
+      //     if(doc && doc.data){
+      //       let stat = {
+      //        timestamp: doc.metadata.timestamp,
+      //        value: doc.data
+      //       }
+      //       stats.push(stat)
+      //     }
+      //   })
+      //
+      //   ////////console.log('stats/get 2', stats)
+      //   this.__set_stat_data(stats)
+      //
+      // }
+      //
+      // if(range.length > 0 && range[0] && range[1]){
+      //   this.$options.__range_init = false
+      //
+      //   this.$store.commit('dashboard/events/add', {
+      //     id: this.id,
+      //     type: 'onRange',
+      //     'opts': {
+      //       range: range,
+      //       // tabular: (this.$options.type == 'tabular') ? true : false
+      //     }
+      //   })
+      // }
+
+      /**
+      * @test - no local data
+      **/
     }
 
     if(this.stat.merged == true){
@@ -364,8 +422,11 @@ export default {
           // Object.each(keys, function(data, key){
             ////////////console.log('__add_os_doc_stats KEY', key, data)
 
-
+      /**
+      * @test - no local data
+      */
       this.$store.dispatch(this.$options.type+'/'+this.id+'/add', data)
+
       this.__set_stat_data(data.data)
       // this.stat_data.push( data.data )
       // this.stat_lastupdate = Date.now()
