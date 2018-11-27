@@ -1,13 +1,17 @@
 
 <script>
 
-import PouchDB from 'pouchdb-browser'
+// import PouchDB from 'pouchdb-browser'
+import PouchDB from 'pouchdb'
+import PouchDBFind from 'pouchdb-find'
+PouchDB.plugin(PouchDBFind)
 
 /**
-* not working
+import PouchDB from 'pouchdb'
 import PouchDBMemory from 'pouchdb-adapter-memory'
 PouchDB.plugin(PouchDBMemory)
 **/
+
 
 
 import statStore from 'src/store/stat'
@@ -95,15 +99,26 @@ export default {
       this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
       this.$store.commit(this.$options.type+'/'+this.id+'/id', this.id)
       this.$store.commit(this.$options.type+'/'+this.id+'/type', this.$options.type)
-      this.$store.commit(this.$options.type+'/'+this.id+'/db',
-        // new PouchDB(
-        //   this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
-        //   {adapter: 'memory'}
-        // )
-        new PouchDB(
-          this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key
-        )
+      /**new PouchDB(
+        this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
+        {adapter: 'memory'}
+      )**/
+      let db = new PouchDB(
+        // this.$options.type+'_'+this.$options.path+'_'+this.$options.key
+        this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
       )
+      db.createIndex({
+    		"index": {
+    			// "fields": ['metadata.host', 'metadata.timestamp'],
+          "fields": ['metadata.timestamp'],
+          "ddoc": 'mango_search',
+	        "name": 'timestamp'
+    		}
+    	}).then(function (result) {
+        console.log('creating index', result)
+      })
+
+      this.$store.commit(this.$options.type+'/'+this.id+'/db',db)
 
       // this.$store.commit(this.$options.type+'/'+this.id+'/root', this.$options.root)
       // this.$store.commit(this.$options.type+'/'+this.id+'/path', this.$options.path)

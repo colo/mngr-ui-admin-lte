@@ -138,30 +138,64 @@ export const get = ({ state, commit, dispatch }, payload) => {
         options.endkey = payload.path+'/'+payload.key+'@'+range[0]
       }
 
-      state.db.allDocs(options).then(function (res) {
-        //console.log('OPTIONS', options, res, length)
-
-        res.rows.reverse()
-        while (length > 0 && res.rows.length > 0){
-          //////// ////////console.log('fetching while...', length)
-          docs[length] = res.rows.pop().doc
-          length--
+      if(typeOf(state.db.find) == 'function'){
+        let query = {
+          selector: {
+            // 'metadata.host': payload.root,
+            'metadata.timestamp': { '$gte': range[0], '$lte': range[1] },
+          },
+          // sort: [{"metadata.timestamp": "asc"}],
+          use_index: ['mango_search', 'timestamp']
         }
+        console.log('db.find', query)
+
+        state.db.find(query).then(function(res){
+          // console.log('db.find result', Array.clone(res.docs))
+          res.docs.reverse()
+          while (length > 0 && res.docs.length > 0){
+            //////// ////////console.log('fetching while...', length)
+            docs[length] = res.docs.pop()
+            length--
+          }
 
 
 
-        docs.sort(function(a,b) {
-          return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+          docs.sort(function(a,b) {
+            return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+          })
+          // // ////////console.log('fetching from db', docs)
+          resolve(Array.clean(docs))
+
+        }.bind(this));
+      }
+      else{
+        state.db.allDocs(options).then(function (res) {
+          //console.log('OPTIONS', options, res, length)
+
+          res.rows.reverse()
+          while (length > 0 && res.rows.length > 0){
+            //////// ////////console.log('fetching while...', length)
+            docs[length] = res.rows.pop().doc
+            length--
+          }
+
+
+
+          docs.sort(function(a,b) {
+            return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+          })
+          // // ////////console.log('fetching from db', docs)
+          resolve(Array.clean(docs))
+        }).catch(function (err) {
+          //////// ////////console.log('fetching from db err', err)
+          docs.sort(function(a,b) {
+            return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+          })
+          resolve(Array.clean(docs))
         })
-        // // ////////console.log('fetching from db', docs)
-        resolve(Array.clean(docs))
-      }).catch(function (err) {
-        //////// ////////console.log('fetching from db err', err)
-        docs.sort(function(a,b) {
-          return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
-        })
-        resolve(Array.clean(docs))
-      })
+      }
+
+
     }
     else{
       if(docs.length > 0){

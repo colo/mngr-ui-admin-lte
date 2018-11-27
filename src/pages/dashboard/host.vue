@@ -1155,30 +1155,31 @@ export default {
         // /**
         // * gauge
         // **/
+        
         // /**
         // * remove for testing
         // **/
-        this.available_charts[this.host+'.os.cpus.percentage_gauge'] = Object.merge(
-          this.get_payload(charts_payloads,{
-            name: 'os.cpus.percentage',
-            host: this.host,
-            seconds: 1
-          }),
-          {
-            name: this.host+'.os.cpus.percentage_gauge',
-            chart: highchartsVueGauge,
-            // init: this.__get_stat_for_chart.bind(this),
-            stop: function(payload){
-              //this.remove_watcher(payload.name)
-              //this.$store.dispatch('stats/flush', payload.stat)
-            }.bind(this),
-            pipeline: {
-              range: true
-            }
-          }
-        )
-
-        this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
+        // this.available_charts[this.host+'.os.cpus.percentage_gauge'] = Object.merge(
+        //   this.get_payload(charts_payloads,{
+        //     name: 'os.cpus.percentage',
+        //     host: this.host,
+        //     seconds: 1
+        //   }),
+        //   {
+        //     name: this.host+'.os.cpus.percentage_gauge',
+        //     chart: highchartsVueGauge,
+        //     // init: this.__get_stat_for_chart.bind(this),
+        //     stop: function(payload){
+        //       //this.remove_watcher(payload.name)
+        //       //this.$store.dispatch('stats/flush', payload.stat)
+        //     }.bind(this),
+        //     pipeline: {
+        //       range: true
+        //     }
+        //   }
+        // )
+        //
+        // this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
 
 
         this.available_charts[this.host+'.os.uptime'] = Object.merge(
