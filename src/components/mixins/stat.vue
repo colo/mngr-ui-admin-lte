@@ -520,6 +520,11 @@ export default {
           }.bind(this))
           this.$options.__range_init = true
 
+          // this.$store.commit('dashboard/events/remove', {
+          //   id: this.id,
+          //   type: 'onRange'
+          // })
+
         }
         else if(this.$options.__range_init == true){
 

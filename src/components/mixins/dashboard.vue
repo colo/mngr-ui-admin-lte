@@ -17,8 +17,7 @@ import admin_lte_mixin from 'components/mixins/admin-lte'
 
 // import queue from 'async/queue'
 import { debounce } from 'quasar'
-
-// import { throttle } from 'quasar'
+import { throttle } from 'quasar'
 
 import qrate from 'qrate'
 
@@ -98,13 +97,14 @@ export default {
     this.$store.commit('hosts/current', this.$route.params.host || '')
   },
   created: function(){
-    // this.$options.__events_watcher = this.$watch('events', debounce(function(val){
-    this.$options.__events_watcher = this.$watch('events', function(val){
+    this.$options.__events_watcher = this.$watch('events', debounce(function(val, old){
+    // this.$options.__events_watcher = this.$watch('events', function(val){
 
+      // if(val && val.length > 0 && val.length > old.length){
       if(val && val.length > 0){
         // console.log('this.$watch events', val)
 
-        Array.each(val, function(event){
+        Array.each(val, function(event, index){
           if(event.id && this.available_charts[event.id]){
 
             let {id} = event
@@ -145,14 +145,17 @@ export default {
 
           }
 
+          // if(index == val.length -1)
+          //   this.fire_pipelines_events()
+
         }.bind(this))
 
         // this.$nextTick(this.fire_pipelines_events())
         this.fire_pipelines_events()
 
       }
-    // }, 1000))
-    })
+    }, 100))
+    // })
   },
   beforeDestroy: function(){
     if(!this.$options.__events_watcher)
@@ -224,6 +227,7 @@ export default {
 
       return e
     },
+    // fire_pipelines_events: throttle(function(){
     fire_pipelines_events: debounce(function(){
     // fire_pipelines_events: function(){
       if(this.all_init){
@@ -243,6 +247,7 @@ export default {
               let event = pipeline.shift()
               // let {options, event} = obj
               // eval('pipe.'+options)
+              // console.log('firing pipe', name)
               let event_name = Object.keys(event)[0]
               pipe.fireEvent(event_name, event[event_name])
 

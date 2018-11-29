@@ -120,55 +120,29 @@ export const get = ({ state, commit, dispatch }, payload) => {
     ////// ////////console.log('fetching doc', docs, range)
 
     if(length > 0 || payload.range){//from db
-      let options = {
-        startkey: payload.path+'/'+payload.key+'\ufff0',
-        endkey: payload.path+'/'+payload.key,
-        inclusive_end: true,
-        descending: true,
-        include_docs: true
-      }
 
-      if(payload.length){
-        options.limit = length
-      }
 
-      if(payload.range){
-        // let range = payload.range
-        options.startkey = payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
-        options.endkey = payload.path+'/'+payload.key+'@'+range[0]
-      }
+      let _do_all_docs = function(){
+        console.log('_do_all_docs');
 
-      if(typeOf(state.db.find) == 'function'){
-        let query = {
-          selector: {
-            // 'metadata.host': payload.root,
-            'metadata.timestamp': { '$gte': range[0], '$lte': range[1] },
-          },
-          // sort: [{"metadata.timestamp": "asc"}],
-          use_index: ['mango_search', 'timestamp']
+        let options = {
+          startkey: payload.path+'/'+payload.key+'\ufff0',
+          endkey: payload.path+'/'+payload.key,
+          inclusive_end: true,
+          descending: true,
+          include_docs: true
         }
-        console.log('db.find', query)
 
-        state.db.find(query).then(function(res){
-          // console.log('db.find result', Array.clone(res.docs))
-          res.docs.reverse()
-          while (length > 0 && res.docs.length > 0){
-            //////// ////////console.log('fetching while...', length)
-            docs[length] = res.docs.pop()
-            length--
-          }
+        if(payload.length){
+          options.limit = length
+        }
 
+        if(payload.range){
+          // let range = payload.range
+          options.startkey = payload.path+'/'+payload.key+'@'+range[1]+'\ufff0'
+          options.endkey = payload.path+'/'+payload.key+'@'+range[0]
+        }
 
-
-          docs.sort(function(a,b) {
-            return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
-          })
-          // // ////////console.log('fetching from db', docs)
-          resolve(Array.clean(docs))
-
-        }.bind(this));
-      }
-      else{
         state.db.allDocs(options).then(function (res) {
           //console.log('OPTIONS', options, res, length)
 
@@ -193,6 +167,64 @@ export const get = ({ state, commit, dispatch }, payload) => {
           })
           resolve(Array.clean(docs))
         })
+      }
+
+      if(typeOf(state.db.find) == 'function'){
+        state.db.getIndexes().then(function (result) {
+          // handle result
+          let found = false
+          Array.each(result.indexes, function(index){
+              if(index.ddoc == '_design/mango_search' && index.name == 'timestamp'){
+                found = true
+              }
+          }.bind(this))
+
+          if(found == true){
+            let query = {
+              selector: {
+                // 'metadata.host': payload.root,
+                'metadata.timestamp': { '$gte': range[0], '$lte': range[1] },
+              },
+              // sort: [{"metadata.timestamp": "asc"}],
+              use_index: ['mango_search', 'timestamp']
+            }
+            console.log('db.find', query)
+
+            state.db.find(query).then(function(res){
+              // console.log('db.find result', Array.clone(res.docs))
+              res.docs.reverse()
+              while (length > 0 && res.docs.length > 0){
+                //////// ////////console.log('fetching while...', length)
+                docs[length] = res.docs.pop()
+                length--
+              }
+
+
+
+              docs.sort(function(a,b) {
+                return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0)
+              })
+
+              console.log('resolving docs', docs)
+
+              resolve(Array.clean(docs))
+
+            }.bind(this));
+          }
+          else{
+            _do_all_docs()
+          }
+
+
+        }).catch(function (err) {
+          console.log('getIndexes', err);
+          _do_all_docs()
+
+        });
+
+      }
+      else{
+        _do_all_docs()
       }
 
 
