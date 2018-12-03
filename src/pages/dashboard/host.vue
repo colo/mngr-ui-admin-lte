@@ -40,26 +40,14 @@
               :id="name"
               :EventBus="EventBus"
               :chart="graph.chart"
-              :stat="{
-                range: range,
-                merged: true,
-                data: function(){
-                  if(graph.data.data){ return graph.data.data }
-                  else {
-                    let data = []
-                    Array.each(graph.data.sources, function(source){
-                      data.push($store.state[source])
-                    })
-                    return data
-                  }
-                }
-                /* data: [tabulars[host+'.os.cpus.times'], tabulars[host+'.os.uptime']] */
-                /* data: [$store.state.tabulars_sources[host+'.os.cpus.times'],$store.state.tabulars_sources[host+'.os.uptime']] */
-              }"
-
-
+              :stat="graph.data"
             >
             </chart-tabular>
+            <!-- :stat="{
+              range: range,
+              merged: true,
+              data: [$store.state.tabulars_sources[host+'.os.cpus.times'],$store.state.tabulars_sources[host+'.os.uptime']]
+            }" -->
             <!-- :stat="{
               range: graph.data.range,
               merged: graph.data.merged,
@@ -625,7 +613,8 @@ export default {
             data: {
               range: this.range,
               merged: true,
-              sources: ['tabulars_sources/'+this.host+'.os.cpus.times','tabulars_sources/'+this.host+'.os.uptime']
+              // sources: [this.$store.state.tabulars_sources[this.host+'.os.cpus.times'],this.$store.state.tabulars_sources[this.host+'.os.uptime']]
+              sources: [{type: 'tabulars', path:this.host+'.os.cpus.times'}, {type: 'tabulars', path: this.host+'.os.uptime'}]
               // data: [this.tabulars[this.host+'.os.cpus.times'], this.tabulars[this.host+'.os.uptime']]
               // data: []
               // sources: [{'tabulars': this.host+'.os.cpus.times'}, {'tabulars': this.host+'.os.uptime'}]

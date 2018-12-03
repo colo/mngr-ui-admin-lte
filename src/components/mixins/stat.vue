@@ -15,6 +15,7 @@ PouchDB.plugin(PouchDBMemory)
 
 
 import statStore from 'src/store/stat'
+// import { mapState } from 'vuex'
 
 // import Deque from 'double-ended-queue'
 
@@ -50,7 +51,8 @@ export default {
         range: [],
         length: undefined,
         merged: false,
-        data: []
+        data: [],
+        sources: undefined
       })
     },
     // type:{
@@ -78,8 +80,39 @@ export default {
     }
 
   },
+  // computed: mapState({
+  //
+  //   // to access local state with `this`, a normal function must be used
+  //   sources (state) {
+  //     let data = []
+  //     if(!Array.isArray(this.stat.sources))
+  //       this.stat.sources = [this.stat.sources]
+  //
+  //     Array.each(this.stat.sources, function(source, index){
+  //       let {type, path} = source
+  //       console.log('this.stat.data', type, path)
+  //       data.push(this.$store.state[type+'_sources'][path])
+  //     }.bind(this))
+  //     return data
+  //   }
+  // }),
   created () {
     this.$options.__buffer_data = []
+    // if(this.stat && this.stat.sources){
+    //   // this.$set(this.stat, 'data', [])
+    //   // if(!Array.isArray(this.stat.sources))
+    //   //   this.stat.sources = [this.stat.sources]
+    //   //
+    //   // Array.each(this.stat.sources, function(source, index){
+    //   //   let {type, path} = source
+    //   //   console.log('this.stat.data', type, path)
+    //   //   this.stat.data.push(this.$store.state[type+'_sources'][path])
+    //   // }.bind(this))
+    //   this.$set(this.stat, 'data', this.sources)
+    // }
+    //
+    // console.log('this.stat.data', this.stat.data)
+
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
     if(range_length == undefined || range_length <= 1)
