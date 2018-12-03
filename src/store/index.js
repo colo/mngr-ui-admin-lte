@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import hosts from './hosts'
 import app from './app'
 import dashboard from './dashboard'
+import source from './source'
 
 // import stats from './stats'
 // import stats_tabular from './stats_tabular'
@@ -59,6 +60,9 @@ const store = new Vuex.Store({
       actions: {},
       mutations: {}
     },
+    stats_sources: source,
+    tabulars_sources: source
+
     // stats,
     // stats_tabular
     // stats: {

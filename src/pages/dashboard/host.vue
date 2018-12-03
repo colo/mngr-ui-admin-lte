@@ -22,175 +22,53 @@
           v-on:hide="el => hideCollapsible(el)"
         >
 
-
-        <!-- <div class="col-md-3 col-sm-6 col-xs-12"
-        :id="host+'_os_freemem_pie-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }"
-        >
-          <chart
-            v-if="visibility[host+'_os_freemem_pie']"
-            :type="'vue-easy-pie-chart'"
-            :wrapper_props="{'decimals': 1}"
-            :ref="host+'_os_freemem_pie'"
-            :id="host+'_os_freemem_pie'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_freemem_pie']"
-            :stat="stats[host+'_os_freemem_pie']"
-          >
-          </chart>
-          <div class="description-block border-right">
-            <span class="description-percentage text-blue"><i class="fa fa-caret-up"></i></span>
-            <h5 class="description-header">free memory</h5>
-          </div>
-        </div> -->
-
-        <!-- <div class="col-md-3 col-sm-6 col-xs-12"
-        :id="host+'_os_cpus_percentage_pie-collapsible'"
-        v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }"
-        >
-          <chart-tabular
-           available_chartsty[host+'_os_cpus_percentage_pie']"
-            :type="'vue-easy-pie-chart'"
-            :wrapper_props="{'decimals': 1}"
-            :ref="host+'_os_cpus_percentage_pie'"
-            :id="host+'_os_cpus_percentage_pie'"
-            :EventBus="EventBus"
-            :chart="charts[host+'_os_cpus_percentage_pie']"
-            :stat="stats[host+'_os_cpus_percentage_pie']"
-          >
-          </chart-tabular>
-          <div class="description-block border-right">
-            <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
-            <h5 class="description-header">cpus utilization</h5>
-          </div>
-        </div> -->
-
-        <div class="col-md-3 col-sm-6 col-xs-12"
-        :id="host+'_os_freemem_knob-collapsible'"
-        >
-
-          <div class="description-block border-right">
-            <chart
-              v-if="visibility[host+'_os_freemem_knob']"
-              :type="'jquery-knob'"
-              :wrapper_props="{'decimals': 1, 'animation': false}"
-              :ref="host+'_os_freemem_knob'"
-              :id="host+'_os_freemem_knob'"
-              :EventBus="EventBus"
-              :chart="charts[host+'_os_freemem_knob']"
-              :stat="stats[host+'_os_freemem_knob']"
-            >
-            </chart>
-            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
-            <h5 class="description-header">freemem</h5> -->
-            <!-- <span class="description-text">CPUS Consumption</span> -->
-          </div>
-          <!-- /.description-block -->
-
-
-        </div>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
-
-        <div class="col-md-3 col-sm-6 col-xs-12"
-        :id="host+'_os_cpus_percentage_knob-collapsible'"
-        >
-
-          <div class="description-block border-right">
-            <chart-tabular
-              v-if="visibility[host+'_os_cpus_percentage_knob']"
-              :type="'jquery-knob'"
-              :wrapper_props="{'decimals': 1, 'animation': false}"
-              :ref="host+'_os_cpus_percentage_knob'"
-              :id="host+'_os_cpus_percentage_knob'"
-              :EventBus="EventBus"
-              :chart="charts[host+'_os_cpus_percentage_knob']"
-              :stat="stats[host+'_os_cpus_percentage_knob']"
-            >
-            </chart-tabular>
-            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span>
-            <h5 class="description-header">cpus utilization</h5> -->
-            <!-- <span class="description-text">CPUS Consumption</span> -->
-          </div>
-          <!-- /.description-block -->
-        </div>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
-
-        <div class="col-md-3 col-sm-6 col-xs-12"
-        :id="host+'_os_cpus_percentage_gauge-collapsible'"
-        >
-
-          <div class="description-block border-right">
-            <chart-tabular
-              v-if="charts[host+'.os.cpus.percentage_gauge']"
-              :wrapper="{type: 'highcharts-vue', opts: {'decimals': 1, 'gauge': true}}"
-              :ref="host+'.os.cpus.percentage_gauge'"
-              :id="host+'.os.cpus.percentage_gauge'"
-              :EventBus="EventBus"
-              :chart="charts[host+'.os.cpus.percentage_gauge']"
-              :stat="{length: 1, data: tabulars[host+'.os.cpus.percentage']}"
-            >
-            </chart-tabular>
-            <!-- <chart-tabular v-else
-              :type="'highcharts-vue'"
-              :wrapper_props="{'decimals': 1, 'gauge': true}"
-              :id="host+'_os_cpus_percentage_gauge_empty'"
-              :chart="available_charts[host+'_os_cpus_percentage_gauge']"
-            >
-            </chart-tabular> -->
-            <!-- <span class="description-percentage text-green"><i class="fa fa-caret-up"></i></span> -->
-            <h5 class="description-header">cpus utilization</h5>
-            <!-- <span class="description-text">CPUS Consumption</span> -->
-          </div>
-          <!-- /.description-block -->
-        </div>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
         </admin-lte-box-solid>
 
 
-
-        <!-- <template v-for="(chart, name) in available_charts">
+        <template v-for="(graph, name) in available_graphs">
+          {{name}}
           <admin-lte-box-solid
-            v-if="chart.wrapper && chart.wrapper.type == 'dygraph'"
-            :title="name"
+            :title="graph.title"
             :id="name+'-collapsible'"
-            v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }"
             v-on:show="el => showCollapsible(el)"
             v-on:hide="el => hideCollapsible(el)"
           >
-            <template v-if="chart.stat.tabular == true">
-              <chart-tabular
-                v-if="visibility[name]"
-                :wrapper_props="chart.wrapper.props"
-                :type="'dygraph'"
-                :ref="name"
-                :id="name"
-                :EventBus="EventBus"
-                :chart="charts[name]"
-                :stat="stats[name]"
-              >
-              </chart-tabular>
-              <chart-empty-container v-else></chart-empty-container>
-            </template>
+            <chart-tabular
+              v-if="charts[name]"
+              :wrapper="graph.wrapper"
+              :ref="name"
+              :id="name"
+              :EventBus="EventBus"
+              :chart="graph.chart"
+              :stat="{
+                range: range,
+                merged: true,
+                data: function(){
+                  if(graph.data.data){ return graph.data.data }
+                  else {
+                    let data = []
+                    Array.each(graph.data.sources, function(source){
+                      data.push($store.state[source])
+                    })
+                    return data
+                  }
+                }
+                /* data: [tabulars[host+'.os.cpus.times'], tabulars[host+'.os.uptime']] */
+                /* data: [$store.state.tabulars_sources[host+'.os.cpus.times'],$store.state.tabulars_sources[host+'.os.uptime']] */
+              }"
 
-            <template v-else>
-              <chart
-                v-if="visibility[name]"
-                :wrapper_props="chart.wrapper.props"
-                :type="'dygraph'"
-                :ref="name"
-                :id="name"
-                :EventBus="EventBus"
-                :chart="charts[name]"
-                :stat="stats[name]"
-              >
-              </chart>
-              <chart-empty-container v-else></chart-empty-container>
-            </template>
 
+            >
+            </chart-tabular>
+            <!-- :stat="{
+              range: graph.data.range,
+              merged: graph.data.merged,
+              /* data: data[name] */
+            }" -->
           </admin-lte-box-solid>
-        </template> -->
+        </template>
 
-        <admin-lte-box-solid
+        <!-- <admin-lte-box-solid
           title="CPUS Times / Uptime"
           :id="host+'.cpus_times.uptime-collapsible'"
           v-on:show="el => showCollapsible(el)"
@@ -210,17 +88,8 @@
             }"
           >
           </chart-tabular>
-          <!-- <chart-tabular v-else
-            :wrapper="{type: 'dygraph'}"
-            :ref="host+'.merged_empty'"
-            :id="host+'.merged'"
-            :chart="charts[host+'.merged']"
-          >
-          </chart-tabular> -->
-          <!-- v-if="visibility[host+'.merged']" -->
-          <!-- <chart-empty-container v-else></chart-empty-container> -->
+
         </admin-lte-box-solid>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
 
         <admin-lte-box-solid
           title="CPUS Times"
@@ -239,17 +108,9 @@
             :stat="{range: range, data: tabulars[host+'.os.cpus.times']}"
           >
           </chart-tabular>
-          <!-- v-if="visibility[host+'.cpus_times.cpus_times']" -->
-          <!-- <chart-tabular v-else
-            :wrapper="{type: 'dygraph'}"
-            :id="host+'.cpus_times.cpus_times'"
-            :ref="host+'.cpus_times.cpus_times_empty'"
-            :chart="charts[host+'.cpus_times.cpus_times']"
-          >
-          </chart-tabular> -->
-          <!-- <chart-empty-container v-else></chart-empty-container> -->
+
         </admin-lte-box-solid>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
+
 
         <admin-lte-box-solid
           title="CPUS Percentage"
@@ -268,17 +129,8 @@
             :stat="{range: range, data: tabulars[host+'.os.cpus.percentage']}"
           >
           </chart-tabular>
-          <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
-          <!-- <chart-tabular v-else
-            :type="'dygraph'"
-            :id="host+'_os_cpus_percentage_empty'"
-            :chart="charts[host+'_os_cpus_percentage']"
-          >
-          </chart-tabular> -->
-          <!-- v-if="visibility[host+'.os.cpus.percentage']" -->
-          <!-- <chart-empty-container v-else></chart-empty-container> -->
+
         </admin-lte-box-solid>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
 
         <admin-lte-box-solid
           title="Freemem"
@@ -297,16 +149,8 @@
             :stat="{range: range, data: stats[host+'.os.freemem']}"
           >
           </chart>
-          <!-- v-if="visibility[host+'.os.freemem']" -->
-          <!-- <chart v-else
-            :type="'dygraph'"
-            :id="host+'_os_freemem_empty'"
-            :chart="charts[host+'_os_freemem']"
-          >
-          </chart> -->
-          <!-- <chart-empty-container v-else></chart-empty-container> -->
+
         </admin-lte-box-solid>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
 
         <admin-lte-box-solid
           title="Uptime"
@@ -325,16 +169,9 @@
             :stat="{range: range, data: tabulars[host+'.os.uptime']}"
           >
           </chart-tabular>
-          <!-- v-if="visibility[host+'.os.uptime']" -->
-          <!-- <chart-tabular v-else
-            :type="'dygraph'"
-            :id="host+'_os_uptime_empty'"
-            :chart="charts[host+'_os_uptime']"
-          >
-          </chart-tabular> -->
-          <!-- <chart-empty-container v-else></chart-empty-container> -->
+
         </admin-lte-box-solid>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
+
 
         <admin-lte-box-solid
           title="Load Average"
@@ -353,17 +190,8 @@
             :stat="{range: range, data: tabulars[host+'.os.loadavg']}"
           >
           </chart-tabular>
-          <!-- v-if="visibility[host+'.os.loadavg']" -->
-          <!-- <chart-tabular v-else
-            :type="'dygraph'"
-            :id="host+'_os_loadavg_empty'"
-            :chart="charts[host+'_os_loadavg']"
-          >
-          </chart-tabular> -->
-          <!-- <chart-empty-container v-else></chart-empty-container> -->
-        </admin-lte-box-solid>
-        <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
 
+        </admin-lte-box-solid>
 
         <template v-for="(blockdevice, index) in blockdevices">
           <admin-lte-box-solid
@@ -384,15 +212,9 @@
               :stat="{range: range, data: tabulars[host+'.os_blockdevices.stats.'+index]}"
             >
             </chart-tabular>
-            <!-- v-if="visibility[host+'.os_blockdevices.stat.'+index]" -->
-            <!-- <chart-tabular v-else
-              :type="'dygraph'"
-              :id="host+'_os_blockdevices_stats_'+index+'_empty'"
-              :chart="charts[host+'_os_blockdevices_stats_'+index]"
-            >
-            </chart-tabular> -->
+
           </admin-lte-box-solid>
-          <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
+
         </template>
 
         <template v-for="(mount, index) in mounts">
@@ -414,51 +236,13 @@
               :stat="{range: range, data: tabulars[host+'.os_mounts.percentage.'+index]}"
             >
             </chart-tabular>
-            <!-- v-if="visibility[host+'_os_mounts_percentage_'+index]" -->
-            <!-- <chart-tabular v-else
-              :type="'dygraph'"
-              :id="host+'_os_mounts_percentage_'+index+'_empty'"
-              :chart="charts[host+'_os_mounts_percentage_'+index]"
-            >
-            </chart-tabular> -->
+
           </admin-lte-box-solid>
-          <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
+
         </template>
 
-        <!-- <template v-for="(iface, name) in networkInterfaces">
-          <template v-for="(data, measure) in iface">
-            <admin-lte-box-solid v-if="measure == 'bytes' || measure == 'packets' || measure == 'errs'"
-              :key="'networkInterfaces_stats'+name+'_'+measure+'_box'"
-              :title="'Network Interface '+name+' : '+measure"
-              :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'-collapsible'"
-              v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }"
-              v-on:show="el => showCollapsible(el)"
-              v-on:hide="el => hideCollapsible(el)"
-            >
-
-              <chart
-                v-if="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
-                :type="'dygraph'"
-                :ref="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure"
-                :EventBus="EventBus"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
-                :stat="stats[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
-              >
-              </chart>
-              <chart v-else
-                :type="'dygraph'"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'_empty'"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
-              >
-              </chart>
-
-
-            </admin-lte-box-solid>
-          </template>
-        </template> -->
         <template v-for="(data, name) in networkInterfaces_properties">
-          <!-- <template v-for="(data, measure) in iface"> -->
+
             <admin-lte-box-solid
               :key="host+'.os_networkInterfaces_stats.properties.'+name"
               :title="'Network Interface '+name"
@@ -466,7 +250,6 @@
               v-on:show="el => showCollapsible(el)"
               v-on:hide="el => hideCollapsible(el)"
             >
-            <!-- v-if="measure == 'bytes' || measure == 'packets' || measure == 'errs'" -->
 
               <chart-tabular
                 v-if="charts[host+'.os_networkInterfaces_stats.properties.'+name]"
@@ -478,17 +261,10 @@
                 :stat="{range: range, data: tabulars[host+'.os_networkInterfaces_stats.properties.'+name]}"
               >
               </chart-tabular>
-              <!-- v-if="host+'.os_networkInterfaces_stats.properties.'+name -->
-              <!-- <chart v-else
-                :type="'dygraph'"
-                :id="host+'_os_networkInterfaces_stats_'+name+'_'+measure+'_empty'"
-                :chart="charts[host+'_os_networkInterfaces_stats_'+name+'_'+measure]"
-              >
-              </chart> -->
+
             </admin-lte-box-solid>
-            <!-- v-observe-visibility="{ callback: visibilityChanged, throttle: 500 }" -->
-          <!-- </template> -->
-        </template>
+
+        </template> -->
 
       </section>
     </div>
@@ -500,6 +276,8 @@
 </style>
 
 <script>
+
+import sourceStore from 'src/store/source'
 
 import moment from 'moment/min/moment-with-locales'
 import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
@@ -693,139 +471,7 @@ export default {
         let host = state.hosts.current || this.$route.params.host
         return state['host_'+host].charts
       },
-      // os_stats: function(state){
-      //   // if(state.stats && state.stats[this.host] && state.stats[this.host].stat){
-      //   //   //////////console.log('os_stats', state.stats[this.host].os)
-      //   //   return state.stats[this.host].stat.os
-      //   // }
-      //   // else{
-      //   //   return {}
-      //   // }
-      // },
 
-      // mounts: function(state){
-      //   // // let host = this.$route.params.host || this.$store.state.hosts.current
-      //   // if(state.stats && state.stats[this.host] && state.stats[this.host].stat){
-      //   //   //////////console.log('mounts', state.stats[this.host].os_mounts)
-      //   //   return state.stats[this.host].stat.os_mounts
-      //   // }
-      //   // else{
-      //   //   return {}
-      //   // }
-      // },
-
-      // blockdevices: function(state){
-      //   // // let host = this.$route.params.host || this.$store.state.hosts.current
-      //   // if(state.stats && state.stats[this.host] && state.stats[this.host].stat){
-      //   //   //////////console.log('blockdevices', state.stats[this.host].os_blockdevices)
-      //   //   return state.stats[this.host].stat.os_blockdevices
-      //   // }
-      //   // else{
-      //   //   return {}
-      //   // }
-      // },
-
-      /**
-      * @merge: copied to worker/apps/os/info/filters/networkInterfaces.js
-      **/
-      // networkInterfaces: function(state){
-      //   // if(state['host_'+this.host] && state['host_'+this.host].networkInterfaces){
-      //   //   //////////console.log('networkInterfaces', state['host_'+this.host].networkInterfaces)
-      //   //   return state['host_'+this.host].networkInterfaces
-      //   // }
-      //   // else{
-      //   //   // let host = this.$route.params.host || state.hosts.current
-      //   //   if(state.stats && state.stats[this.host] && state.stats[this.host].stat && state.stats[this.host].stat.os){
-      //   //     // return state.stats[this.host].os_networkInterfaces
-      //   //     let networkInterfaces = {}
-      //   //     let val = state.stats[this.host].stat.os.networkInterfaces.value.data
-      //   //     let ifaces = Object.keys(val)
-      //   //     let properties = Object.keys(val[ifaces[0]])
-      //   //
-      //   //     /**
-      //   //     * properties[0] is "if", we want recived | transmited only
-      //   //     **/
-      //   //     let measures = Object.keys(val[ifaces[0]][properties[1]])
-      //   //
-      //   //     Array.each(ifaces, function(iface){
-      //   //       if(!networkInterfaces[iface])
-      //   //         networkInterfaces[iface] = {}
-      //   //       /**
-      //   //       * turn data property->measure (ex: transmited { bytes: .. }),
-      //   //       * to: measure->property (ex: bytes {transmited:.., recived: ... })
-      //   //       **/
-      //   //       Array.each(measures, function(measure){// "bytes" | "packets"
-      //   //         if(!networkInterfaces[iface][measure])
-      //   //           networkInterfaces[iface][measure] = {}
-      //   //
-      //   //         Array.each(properties, function(property, index){
-      //   //           /**
-      //   //           * properties[0] is "if", we want recived | transmited only
-      //   //           **/
-      //   //           if(index != 0){
-      //   //             networkInterfaces[iface][measure][property] = val[iface][property][measure] * 1
-      //   //           }
-      //   //
-      //   //         })
-      //   //
-      //   //       })
-      //   //
-      //   //     })
-      //   //
-      //   //     //////////console.log('computed networkInterfaces', networkInterfaces)
-      //   //     this.$store.commit('host_'+this.host+'/networkInterfaces', networkInterfaces)
-      //   //     return networkInterfaces
-      //   //   }
-      //   //   else{
-      //   //     return {}
-      //   //   }
-      //   // }
-      // },
-      // networkInterfaces: function(state){
-      //   // let host = this.$route.params.host || state.hosts.current
-      //   if(state.stats && state.stats[this.host]){
-      //     let networkInterfaces = {}
-      //     let val = state.stats[this.host].os_networkInterfaces_stats
-      //     let ifaces_mesures = Object.keys(val)
-      //
-      //     Array.each(ifaces_mesures, function(iface_mesure){
-      //       let iface = iface_mesure.split('_')[0]
-      //       let measure = iface_mesure.split('_')[1]
-      //
-      //       if(!networkInterfaces[iface])
-      //         networkInterfaces[iface] = {}
-      //
-      //       if(!networkInterfaces[iface][measure])
-      //         networkInterfaces[iface][measure] = {}
-      //       /**
-      //       * turn data property->measure (ex: transmited { bytes: .. }),
-      //       * to: measure->property (ex: bytes {transmited:.., recived: ... })
-      //       **/
-      //       // Object.each(val[iface_mesure].value.data, function(value, measure){// "bytes" | "packets"
-      //       //   if(!networkInterfaces[iface][measure])
-      //       //     networkInterfaces[iface][measure] = {}
-      //
-      //         Object.each(val[iface_mesure].value.data, function(value, property){
-      //           /**
-      //           * properties[0] is "if", we want recived | transmited only
-      //           **/
-      //           if(value != 0){
-      //             networkInterfaces[iface][measure][property] = undefined //value * 1
-      //           }
-      //
-      //         })
-      //
-      //       // })
-      //
-      //     }.bind(this))
-      //
-      //     //////////console.log('networkInterfaces', networkInterfaces)
-      //     return networkInterfaces
-      //   }
-      //   else{
-      //     return {}
-      //   }
-      // }
 
     }),
     {
@@ -882,12 +528,16 @@ export default {
       let counter = 0
       Object.each(payload.stats, function(data, path){
         if(Array.isArray(data)){
-          if(!this[type][payload.host+'.'+path]){
-            this.$set(this[type],payload.host+'.'+path, data)
-          }
-          else{
-            this[type][payload.host+'.'+path] = data
-          }
+          // // if(!this[type][payload.host+'.'+path]){
+          // if(!this.$store.state[type+'_sources'][payload.host+'.'+path]){
+          //   // this.$set(this[type],payload.host+'.'+path, data)
+          //   console.log('registering.... ', type, payload.host+'.'+path)
+          //   this.$store.registerModule([type+'_sources', payload.host+'.'+path], Object.clone(sourceStore))
+          // }
+          // // else{
+          // //   this[type][payload.host+'.'+path] = data
+          // // }
+          this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path, value: data})
         }
         else{
           // if(type == 'stats')
@@ -895,22 +545,36 @@ export default {
 
           Object.each(data, function(value, key){
             if(Array.isArray(value)){
-              if(!this[type][payload.host+'.'+path+'.'+key]){
-                this.$set(this[type],payload.host+'.'+path+'.'+key, value)
-              }
-              else{
-                this[type][payload.host+'.'+path+'.'+key] = value
-              }
+              // // if(!this[type][payload.host+'.'+path+'.'+key]){
+              // //   this.$set(this[type],payload.host+'.'+path+'.'+key, value)
+              // // }
+              // // else{
+              // //   this[type][payload.host+'.'+path+'.'+key] = value
+              // // }
+              // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key]){
+              //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key)
+              //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key], Object.clone(sourceStore))
+              // }
+
+              this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key, value: value})
+
             }
             else{
               //3rd level, there is no need for more
               Object.each(value, function(val, sub_key){
-                if(!this[type][payload.host+'.'+path+'.'+key+'.'+sub_key]){
-                  this.$set(this[type],payload.host+'.'+path+'.'+key+'.'+sub_key, val)
-                }
-                else{
-                  this[type][payload.host+'.'+path+'.'+key+'.'+sub_key] = val
-                }
+                // // if(!this[type][payload.host+'.'+path+'.'+key+'.'+sub_key]){
+                // //   this.$set(this[type],payload.host+'.'+path+'.'+key+'.'+sub_key, val)
+                // // }
+                // // else{
+                // //   this[type][payload.host+'.'+path+'.'+key+'.'+sub_key] = val
+                // // }
+                //
+                // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key+'.'+sub_key]){
+                //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key+'.'+sub_key)
+                //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key+'.'+sub_key], Object.clone(sourceStore))
+                // }
+
+                this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key+'.'+sub_key, value: val})
               }.bind(this))
             }
 
@@ -930,7 +594,7 @@ export default {
     let unwatch_all_init = this.$watch('all_init', function(val){
       //console.log('all_init', val)
       if(val == true){
-        console.log('all_init', val)
+        console.log('all_init', val, this.host_charts)
 
         this.set_range(moment().subtract(5, 'minute'), moment())
 
@@ -947,37 +611,35 @@ export default {
           })
           merged_chart.options.labels.push('uptime seconds')
 
-          this.available_charts[this.host+'.cpus_times.uptime'] = {
+          // this.available_graphs[this.host+'.cpus_times.uptime'] = {
+          this.$set(this.available_graphs, this.host+'.cpus_times.uptime', {
             name: this.host+'.cpus_times.uptime',
-            // chart: [
-            //   Object.merge(cpus_times_chart, this.host_charts['cpus_times']),
-            //   Object.merge(uptime_chart, this.host_charts['uptime']),
-            // ],
+
             chart: merged_chart,
+            wrapper: {
+              type: 'dygraph',
+              props: {}
+            },
             stop: function(payload){
-              // // //////////console.log('merged stop', payload)
-              // Array.each(payload.stat, function(stat, index){
-              //   let indexed_name = payload.name+'_'+index
-              //   //this.remove_watcher(indexed_name)
-              //   this.$store.dispatch('stats/flush', stat)
-              // }.bind(this))
-              //
-              // // this.$store.dispatch('stats_tabular/splice', payload.stat)
             }.bind(this),
+            data: {
+              range: this.range,
+              merged: true,
+              sources: ['tabulars_sources/'+this.host+'.os.cpus.times','tabulars_sources/'+this.host+'.os.uptime']
+              // data: [this.tabulars[this.host+'.os.cpus.times'], this.tabulars[this.host+'.os.uptime']]
+              // data: []
+              // sources: [{'tabulars': this.host+'.os.cpus.times'}, {'tabulars': this.host+'.os.uptime'}]
+            },
             stat: [
               {
                 host: this.host,
                 path: 'os.cpus',
-                // key: 'cpus',
-                // length: this.seconds || 300,
                 tabular: true
                 // range: [Date.now() - this.seconds * 1000, Date.now()]
               },
               {
                 host: this.host,
                 path: 'os.uptime',
-                // key: 'uptime',
-                // length: this.seconds || 300,
                 tabular: true
                 // range: [Date.now() - this.seconds * 1000, Date.now()]
               }
@@ -987,68 +649,54 @@ export default {
             **/
             pipeline: {
               name: 'input.os',
-              // path: 'os',
-              // range: true
             }
-          }
+          })
 
-          // this.__get_stat_for_chart(this.available_charts[this.host+'_merged'])
+          // this.$set(this.available_graphs[this.host+'.cpus_times.uptime'].data, 'data', [])
+          // this.available_graphs[this.host+'.cpus_times.uptime'].data.data.push(this.tabulars[this.host+'.os.cpus.times'])
+          // this.available_graphs[this.host+'.cpus_times.uptime'].data.data.push(this.tabulars[this.host+'.os.uptime'])
+
           this.set_chart_visibility(this.host+'.cpus_times.uptime', true)
         }
 
-        this.available_charts[this.host+'.os.cpus.times'] = Object.merge(
-          this.get_payload(charts_payloads,{
-            name: 'os.cpus.times',
-            host: this.host,
-            seconds: this.seconds
-          }),
-          {
-            wrapper: {
-              type: 'dygraph',
-              props: {}
-            },
-            chart: Object.merge(cpus_times_chart, this.host_charts['os.cpus.times']),
-            stop: function(payload){
-              ////////////////console.log('stoping _os_cpus_times', payload.stat)
-              //this.remove_watcher(payload.name)
-              // this.remove_active_stat(payload.stat)
-              // //this.$store.dispatch('stats/flush', payload.stat)
+        // this.available_graphs[this.host+'.os.cpus.times'] = Object.merge(
+        //   this.get_payload(charts_payloads,{
+        //     name: 'os.cpus.times',
+        //     host: this.host,
+        //     seconds: this.seconds
+        //   }),
+        //   {
+        //     wrapper: {
+        //       type: 'dygraph',
+        //       props: {}
+        //     },
+        //     chart: Object.merge(cpus_times_chart, this.host_charts['os.cpus.times']),
+        //     stop: function(payload){
+        //     }.bind(this),
+        //   }
+        // )
+        // this.set_chart_visibility(this.host+'.os.cpus.times', true)
+        //
+        // this.available_graphs[this.host+'.os.cpus.percentage'] = Object.merge(
+        //   this.get_payload(charts_payloads,{
+        //     name: 'os.cpus.percentage',
+        //     host: this.host,
+        //     seconds: this.seconds
+        //   }),
+        //   {
+        //     wrapper: {
+        //       type: 'dygraph',
+        //       props: {}
+        //     },
+        //     chart: Object.merge(cpus_percentage_chart, this.host_charts['.os.cpus.percentage']),
+        //     stop: function(payload){
+        //     }.bind(this),
+        //   }
+        // )
+        //
+        // this.set_chart_visibility(this.host+'.os.cpus.percentage', true)
 
-              // this.$store.dispatch('stats/splice', payload.stat)
-            }.bind(this),
-            // pipeline: {
-            //   range: true
-            // }
-          }
-        )
-        // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_times'])
-        // //////console.log('CPUS_TIMES', this.available_charts[this.host+'.cpus_times.cpus'])
-        this.set_chart_visibility(this.host+'.os.cpus.times', true)
-
-        this.available_charts[this.host+'.os.cpus.percentage'] = Object.merge(
-          this.get_payload(charts_payloads,{
-            name: 'os.cpus.percentage',
-            host: this.host,
-            seconds: this.seconds
-          }),
-          {
-            wrapper: {
-              type: 'dygraph',
-              props: {}
-            },
-            chart: Object.merge(cpus_percentage_chart, this.host_charts['.os.cpus.percentage']),
-            stop: function(payload){
-              //this.remove_watcher(payload.name)
-              //this.$store.dispatch('stats/flush', payload.stat)
-              // this.$store.dispatch('stats/splice', payload.stat)
-            }.bind(this),
-          }
-        )
-
-        // this.__get_stat_for_chart(this.available_charts[this.host+'_os_cpus_percentage'])
-        this.set_chart_visibility(this.host+'.os.cpus.percentage', true)
-
-
+        console.log('this.available_graphs', this.available_graphs)
         //
         // /**
         // * remove for testing
@@ -1057,7 +705,7 @@ export default {
         // /**
         // * pie
         // **/
-        // // this.available_charts[this.host+'_os_cpus_percentage_pie'] = {
+        // // this.available_graphs[this.host+'_os_cpus_percentage_pie'] = {
         // //   name: this.host+'_os_cpus_percentage_pie',
         // //   chart: Object.merge(Object.clone(pie_chart), {
         // //     options:{
@@ -1097,7 +745,7 @@ export default {
         // //   }
         // // }
         //
-        // // this.available_charts[this.host+'_os_cpus_percentage_knob'] = {
+        // // this.available_graphs[this.host+'_os_cpus_percentage_knob'] = {
         // //   name: this.host+'_os_cpus_percentage_knob',
         // //   chart: Object.merge(Object.clone(jqueryKnob), {
         // //     options:{
@@ -1155,11 +803,11 @@ export default {
         // /**
         // * gauge
         // **/
-        
+
         // /**
         // * remove for testing
         // **/
-        // this.available_charts[this.host+'.os.cpus.percentage_gauge'] = Object.merge(
+        // this.available_graphs[this.host+'.os.cpus.percentage_gauge'] = Object.merge(
         //   this.get_payload(charts_payloads,{
         //     name: 'os.cpus.percentage',
         //     host: this.host,
@@ -1181,225 +829,170 @@ export default {
         //
         // this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
 
+        //
+        // this.available_graphs[this.host+'.os.uptime'] = Object.merge(
+        //   this.get_payload(charts_payloads,{
+        //     name: 'os.uptime',
+        //     host: this.host,
+        //     seconds: this.seconds
+        //   }),
+        //   {
+        //     wrapper: {
+        //       type: 'dygraph',
+        //       props: {}
+        //     },
+        //     chart: Object.merge(uptime_chart, this.host_charts['os.uptime']),
+        //     stop: function(payload){
+        //     }.bind(this),
+        //   }
+        // )
+        //
+        // this.set_chart_visibility(this.host+'.os.uptime', true)
+        //
 
-        this.available_charts[this.host+'.os.uptime'] = Object.merge(
-          this.get_payload(charts_payloads,{
-            name: 'os.uptime',
-            host: this.host,
-            seconds: this.seconds
-          }),
-          {
-            wrapper: {
-              type: 'dygraph',
-              props: {}
-            },
-            chart: Object.merge(uptime_chart, this.host_charts['os.uptime']),
-            stop: function(payload){
-              //this.remove_watcher(payload.name)
-              //this.$store.dispatch('stats/flush', payload.stat)
-              // this.$store.dispatch('stats/splice', payload.stat)
-            }.bind(this),
-          }
-        )
-
-        // this.__get_stat_for_chart(this.available_charts[this.host+'_os_uptime'])
-        this.set_chart_visibility(this.host+'.os.uptime', true)
-
-
-        this.available_charts[this.host+'.os.loadavg'] = Object.merge(
-          this.get_payload(charts_payloads,{
-            name: 'os.loadavg',
-            host: this.host,
-            seconds: this.seconds
-          }),
-          {
-            wrapper: {
-              type: 'dygraph',
-              props: {}
-            },
-            chart: Object.merge(this.host_charts['os.loadavg'], loadavg_chart),
-            stop: function(payload){
-              //this.remove_watcher(payload.name)
-              //this.$store.dispatch('stats/flush', payload.stat)
-              // this.$store.dispatch('stats/splice', payload.stat)
-            }.bind(this),
-          }
-        )
-        // this.__get_stat_for_chart(this.available_charts[this.host+'_os_loadavg'])
-        this.set_chart_visibility(this.host+'.os.loadavg', true)
+        // this.available_graphs[this.host+'.os.loadavg'] = Object.merge(
+        //   this.get_payload(charts_payloads,{
+        //     name: 'os.loadavg',
+        //     host: this.host,
+        //     seconds: this.seconds
+        //   }),
+        //   {
+        //     wrapper: {
+        //       type: 'dygraph',
+        //       props: {}
+        //     },
+        //     chart: Object.merge(this.host_charts['os.loadavg'], loadavg_chart),
+        //     stop: function(payload){
+        //     }.bind(this),
+        //   }
+        // )
+        //
+        // this.set_chart_visibility(this.host+'.os.loadavg', true)
 
 
-        // if(val[this.host+'.os.totalmem'] && val[this.host+'.os.totalmem'][0]){
-        // ////////console.log('this.os_stats.totalmem', this.os_stats.totalmem)
-          if(!this.available_charts[this.host+'.os.freemem']){
-            this.available_charts[this.host+'.os.freemem'] = Object.merge(
-              this.get_payload(charts_payloads,{
-                name: 'os.freemem',
-                host: this.host,
-                seconds: this.seconds
-              }),
-              {
-                wrapper: {
-                  type: 'dygraph',
-                  props: {}
-                },
-                chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.stats[this.host+'.os.totalmem'][0].value}),
-                stop: function(payload){
-                  //this.remove_watcher(payload.name)
-                  //this.$store.dispatch('stats/flush', payload.stat)
-                  // this.$store.dispatch('stats/splice', payload.stat)
-                }.bind(this),
-                pipeline: {
-                  range: true
-                }
-              }
-            )
-            // this.__get_stat_for_chart(this.available_charts[this.host+'.os.freemem'])
-            this.set_chart_visibility(this.host+'.os.freemem', true)
-          }
-
-        // }
-        let mount = /os_mounts/g
-        let blockdevice = /os_blockdevices/g
-        let networkInterface = /os_networkInterfaces_stats/g
-
-        Object.each(this.tabulars, function(stat, key){
-          if(mount.test(key) && this.host_charts['os_mounts.percentage']){
-
-            // let chart_name = this.host+'.os_mounts.percentage.'+key
-
-            let _name = key.substring(key.lastIndexOf('.') + 1)
-            let chart_name = this.host+'.os_mounts.'+_name
-
-            if(!this.available_charts[chart_name]){
-              ////console.log('adding mount chart ',chart_name)
-              this.available_charts[chart_name] = Object.clone(Object.merge(
-                this.get_payload(charts_payloads,{
-                  name: 'os_mounts.percentage',
-                  host: this.host,
-                  seconds: this.seconds
-                }),
-                {
-                  wrapper: {
-                    type: 'dygraph',
-                    props: {}
-                  },
-                  name: chart_name,
-                  chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
-                  stop: function(payload){
-                    //this.remove_watcher(payload.name)
-                    //this.$store.dispatch('stats/flush', payload.stat)
-                    // this.$store.dispatch('stats/splice', payload.stat)
-                  }.bind(this),
-                  // stat: {
-                  //   key: key,
-                  // },
-                  // pipeline: {
-                  //   range: (mount_counter == Object.getLength(val) -1 ) ? true : false
-                  // }
-                }
-              ))
-              // this.__get_stat_for_chart(this.available_charts[chart_name])
-              this.$set(this.mounts, _name, 1)
-              this.set_chart_visibility(chart_name, true)
-            }
-            // mount_counter++
+        // // if(!this.available_graphs[this.host+'.os.freemem']){
+        //   this.available_graphs[this.host+'.os.freemem'] = Object.merge(
+        //     this.get_payload(charts_payloads,{
+        //       name: 'os.freemem',
+        //       host: this.host,
+        //       seconds: this.seconds
+        //     }),
+        //     {
+        //       wrapper: {
+        //         type: 'dygraph',
+        //         props: {}
+        //       },
+        //       chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.stats[this.host+'.os.totalmem'][0].value}),
+        //       stop: function(payload){
+        //       }.bind(this),
+        //       pipeline: {
+        //         range: true
+        //       }
+        //     }
+        //   )
+        //
+        //   this.set_chart_visibility(this.host+'.os.freemem', true)
+        // // }
 
 
-          }
-
-          if(blockdevice.test(key) && this.host_charts['os_blockdevices.stats']){
-            //console.log('all_init os_blockdevices.stats', this.host_charts['os_blockdevices.stats'])
-            // let chart_name = this.host+'_os_blockdevices_stats_'+key
-            let _name = key.substring(key.lastIndexOf('.') + 1)
-            let chart_name = this.host+'.os_blockdevices.stats.'+_name
-
-            // if(!this.available_charts[chart_name] || Object.getLength(this.available_charts[chart_name]) == 0){
-              ////console.log('adding blockdevice chart',chart_name)
-
-              this.available_charts[chart_name] = Object.merge(
-                Object.clone(this.get_payload(charts_payloads,{
-                  name: 'os_blockdevices.stats',
-                  host: this.host,
-                  seconds: this.seconds
-                })),
-                Object.clone({
-                  wrapper: {
-                    type: 'dygraph',
-                    props: {}
-                  },
-                  name: chart_name,
-                  chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_blockdevices.stats'])),
-                  stop: function(payload){
-                    //this.remove_watcher(payload.name)
-                    //this.$store.dispatch('stats/flush', payload.stat)
-                    // this.$store.dispatch('stats/splice', payload.stat)
-                  }.bind(this),
-                  // stat: {
-                  //   key: key,
-                  // },
-                  // pipeline: {
-                  //   range: (dev_counter == Object.getLength(val) -1 ) ? true : false
-                  // }
-                })
-              )
-
-              // this.__get_stat_for_chart(this.available_charts[chart_name])
-              this.$set(this.blockdevices, _name, 1)
-              this.set_chart_visibility(chart_name, true)
-
-              // dev_counter++
-            // }
-
-
-          }
-
-          if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
-            // let chart_name = this.host+'_os_blockdevices_stats_'+key
-            let _name = key.substring(key.lastIndexOf('.') + 1)
-            let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
-
-            if(!this.available_charts[chart_name]){
-              ////console.log('adding os_networkInterfaces_stats.properties chart',chart_name)
-
-
-              this.available_charts[chart_name] = Object.merge(
-                Object.clone(this.get_payload(charts_payloads,{
-                  name: 'os_networkInterfaces_stats.properties',
-                  host: this.host,
-                  seconds: this.seconds
-                })),
-                Object.clone({
-                  wrapper: {
-                    type: 'dygraph',
-                    props: {}
-                  },
-                  name: chart_name,
-                  chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_networkInterfaces_stats.properties'])),
-                  stop: function(payload){
-                    //this.remove_watcher(payload.name)
-                    //this.$store.dispatch('stats/flush', payload.stat)
-                    // this.$store.dispatch('stats/splice', payload.stat)
-                  }.bind(this),
-                  // stat: {
-                  //   key: key,
-                  // },
-                  // pipeline: {
-                  //   range: (dev_counter == Object.getLength(val) -1 ) ? true : false
-                  // }
-                })
-              )
-
-              // this.__get_stat_for_chart(this.available_charts[chart_name])
-              this.$set(this.networkInterfaces_properties, _name, 1)
-              this.set_chart_visibility(chart_name, true)
-            }
-            // dev_counter++
-            // unwatch_networkInterfaces()
-          }
-
-
-        }.bind(this))
+        // let mount = /os_mounts/g
+        // let blockdevice = /os_blockdevices/g
+        // let networkInterface = /os_networkInterfaces_stats/g
+        //
+        // Object.each(this.tabulars, function(stat, key){
+        //   if(mount.test(key) && this.host_charts['os_mounts.percentage']){
+        //
+        //
+        //     let _name = key.substring(key.lastIndexOf('.') + 1)
+        //     let chart_name = this.host+'.os_mounts.'+_name
+        //
+        //     if(!this.available_graphs[chart_name]){
+        //       ////console.log('adding mount chart ',chart_name)
+        //       this.available_graphs[chart_name] = Object.clone(Object.merge(
+        //         this.get_payload(charts_payloads,{
+        //           name: 'os_mounts.percentage',
+        //           host: this.host,
+        //           seconds: this.seconds
+        //         }),
+        //         {
+        //           wrapper: {
+        //             type: 'dygraph',
+        //             props: {}
+        //           },
+        //           name: chart_name,
+        //           chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
+        //           stop: function(payload){
+        //
+        //           }.bind(this),
+        //
+        //         }
+        //       ))
+        //       this.$set(this.mounts, _name, 1)
+        //       this.set_chart_visibility(chart_name, true)
+        //     }
+        //
+        //   }
+        //
+        //   if(blockdevice.test(key) && this.host_charts['os_blockdevices.stats']){
+        //
+        //     let _name = key.substring(key.lastIndexOf('.') + 1)
+        //     let chart_name = this.host+'.os_blockdevices.stats.'+_name
+        //
+        //       this.available_graphs[chart_name] = Object.merge(
+        //         Object.clone(this.get_payload(charts_payloads,{
+        //           name: 'os_blockdevices.stats',
+        //           host: this.host,
+        //           seconds: this.seconds
+        //         })),
+        //         Object.clone({
+        //           wrapper: {
+        //             type: 'dygraph',
+        //             props: {}
+        //           },
+        //           name: chart_name,
+        //           chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_blockdevices.stats'])),
+        //           stop: function(payload){
+        //           }.bind(this),
+        //
+        //         })
+        //       )
+        //
+        //       this.$set(this.blockdevices, _name, 1)
+        //       this.set_chart_visibility(chart_name, true)
+        //   }
+        //
+        //   if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
+        //     let _name = key.substring(key.lastIndexOf('.') + 1)
+        //     let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
+        //
+        //     if(!this.available_graphs[chart_name]){
+        //
+        //       this.available_graphs[chart_name] = Object.merge(
+        //         Object.clone(this.get_payload(charts_payloads,{
+        //           name: 'os_networkInterfaces_stats.properties',
+        //           host: this.host,
+        //           seconds: this.seconds
+        //         })),
+        //         Object.clone({
+        //           wrapper: {
+        //             type: 'dygraph',
+        //             props: {}
+        //           },
+        //           name: chart_name,
+        //           chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_networkInterfaces_stats.properties'])),
+        //           stop: function(payload){
+        //           }.bind(this),
+        //         })
+        //       )
+        //
+        //       this.$set(this.networkInterfaces_properties, _name, 1)
+        //       this.set_chart_visibility(chart_name, true)
+        //     }
+        //
+        //   }
+        //
+        //
+        // }.bind(this))
 
       }
     })
@@ -1411,7 +1004,7 @@ export default {
     /**
     * pie
     **/
-    // this.available_charts[this.host+'_os_freemem_pie'] = {
+    // this.available_graphs[this.host+'_os_freemem_pie'] = {
     //   name: this.host+'_os_freemem_pie',
     //   chart: Object.merge(Object.clone(pie_chart), {
     //     totalmem: this.os_stats.totalmem.value.data,
@@ -1466,7 +1059,7 @@ export default {
     /**
     * knob
     */
-    // this.available_charts[this.host+'_os_freemem_knob'] = {
+    // this.available_graphs[this.host+'_os_freemem_knob'] = {
     //   name: this.host+'_os_freemem_knob',
     //   chart: Object.merge(Object.clone(jqueryKnob), {
     //     totalmem: this.os_stats.totalmem.value.data,
@@ -1592,22 +1185,22 @@ export default {
       this.$store.commit('app/range', range)
 
       // let counter = 0
-      // Object.each(this.available_charts, function(payload, name){
+      // Object.each(this.available_graphs, function(payload, name){
       //   let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
       //   let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
       //   this.$store.commit('app/range', Array.clone(range))
-      //   // if(Array.isArray(this.available_charts[name].stat)){
-      //   //   Array.each(this.available_charts[name].stat, function(stat, index){
-      //   //     this.available_charts[name].stat[index].range = Array.clone(range)//clone it, as each one may modify range
-      //   //     this.available_charts[name].stat[index].length = length
+      //   // if(Array.isArray(this.available_graphs[name].stat)){
+      //   //   Array.each(this.available_graphs[name].stat, function(stat, index){
+      //   //     this.available_graphs[name].stat[index].range = Array.clone(range)//clone it, as each one may modify range
+      //   //     this.available_graphs[name].stat[index].length = length
       //   //
       //   //     let indexed_name = name +'_'+index
       //   //     this.remove_watcher(indexed_name)
       //   //   }.bind(this))
       //   // }
       //   // else{
-      //   //   this.available_charts[name].stat.range = Array.clone(range)
-      //   //   this.available_charts[name].stat.length = length
+      //   //   this.available_graphs[name].stat.range = Array.clone(range)
+      //   //   this.available_graphs[name].stat.length = length
       //   //   this.remove_watcher(name)
       //   // }
       //
@@ -1616,11 +1209,11 @@ export default {
       //
       //   // // if(name.indexOf('networkInterface') == -1)
       //   // if(!payload.init || typeof payload.init != 'function'){
-      //   //   this.__get_stat_for_chart(this.available_charts[name])
-      //   //   ////////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
+      //   //   this.__get_stat_for_chart(this.available_graphs[name])
+      //   //   ////////////console.log('set_range __get_stat_for_chart', this.available_graphs[name])
       //   // }
       //
-      //   // if(counter == Object.getLength(this.available_charts) - 1)
+      //   // if(counter == Object.getLength(this.available_graphs) - 1)
       //   //   this.$nextTick(this.fire_pipelines_events())
       //
       //   counter++
@@ -1639,575 +1232,6 @@ export default {
 
       return result
     },
-
-    // __get_stat_for_chart: function(payload){
-    //
-    //   let {name, stat, pipeline} = payload
-    //
-    //   /**
-    //   * if stat is not array convert it, so we can manage both cases with the same code
-    //   **/
-    //   if(!Array.isArray(stat))
-    //     stat = [stat]
-    //
-    //   // if(!Array.isArray(pipeline))
-    //   //   pipeline = [pipeline]
-    //
-    //   this.add_chart_stat(name)
-    //
-    //   /**
-    //   * buffer for _merge_stats
-    //   **/
-    //   let buffer = {}
-    //   let buffer_length = stat.length
-    //   let _original_payload = Object.clone(payload)
-    //
-    //   // let count_events = 0
-    //   Array.each(stat, function(stat, index){
-    //     // ////////////console.log('__get_stat_for_chart', stat)
-    //
-    //     let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
-    //     let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
-    //     let tabular = (stat.tabular) ? stat.tabular : false
-    //     let stat_type = (tabular == true) ? 'tabular' : 'stat'
-    //
-    //     stat.range = range
-    //
-    //
-    //     let indexed_name = name+'_'+index
-    //     let indexed_payload = Object.clone(_original_payload)
-    //     indexed_payload.name = (Array.isArray(_original_payload.stat)) ? indexed_name : _original_payload.name
-    //     indexed_payload.stat = stat
-    //     if(_original_payload.watcher && Array.isArray(_original_payload.watcher)){
-    //       indexed_payload.watcher = _original_payload.watcher[index]
-    //     }
-    //     else if (_original_payload.watcher){
-    //       indexed_payload.watcher = _original_payload.watcher
-    //     }
-    //
-    //     ////////////console.log('_original_payload.watcher', indexed_payload.watcher)
-    //
-    //     this.remove_watcher(indexed_name)
-    //
-    //
-    //     ////////console.log('watcher', '$store.state.stats.'+stat.host+'.'+stat_type+'.'+stat.path+'.'+stat.key)
-    //
-    //     indexed_payload.watcher = indexed_payload.watcher ||  {
-    //       name: '$store.state.stats.'+stat.host+'.'+stat_type+'.'+stat.path+'.'+stat.key,
-    //       deep:true,
-    //       // cb: this.__watcher_callback.bind(this)
-    //       cb: (doc, old, payload) => {
-    //         // if(this.visibility[payload.name] === true)
-    //
-    //         // ////////console.log('watcher', doc)
-    //         /**
-    //         * check original stat, if it's not array, just update as there is nothing to merge
-    //         **/
-    //         if(!Array.isArray(_original_payload.stat)){
-    //           this.__update_chart_stat(name, doc.value, payload.stat.length)
-    //         }
-    //         else{
-    //           buffer = this._merge_stats({
-    //             buffer: buffer,
-    //             length: buffer_length,
-    //             stat_name: name,
-    //             data_name: indexed_name,
-    //             data: doc.value,
-    //             splice: payload.stat.length
-    //           })
-    //         }
-    //       }
-    //     }
-    //
-    //
-    //
-    //     this.__get_stat(stat, function(docs){
-    //       this.add_active_stat(indexed_payload.stat)
-    //       ////////console.log('__get_stat', stat, docs)
-    //
-    //       let new_docs_range = this.__get_new_docs_range(docs, range)
-    //       docs = new_docs_range.docs
-    //       range = new_docs_range.range
-    //
-    //       /**
-    //       * why not encapsulate al this code under if(pipeline.range == true)??
-    //       * becasue we may want, for example, only one chart fire "osRange" and
-    //       * multiple ones reacting to it
-    //       **/
-    //       let pipe = undefined
-    //       let eventRange = undefined
-    //       if(Array.isArray(pipeline)){
-    //         // pipe = this.$options.pipelines[pipeline[index].name]
-    //         // pipe.inputs[0].options.conn[0].module.options.paths = [pipeline[index].path]
-    //         eventRange = (tabular == true) ? 'tabularRange' : pipeline[index].path+'Range'
-    //
-    //         if(this.visibility[_original_payload.name] === true && pipeline[index].range && pipeline[index].range == true)
-    //           this._set_pipelines_events({
-    //             pipeline: {
-    //               name: pipeline[index].name,
-    //               options: "inputs[0].options.conn[0].module.options.paths = ['"+pipeline[index].path+"']"
-    //             },
-    //             event:{
-    //               'onRange' : { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' }
-    //             }
-    //           })
-    //       }
-    //       else{
-    //         // pipe = this.$options.pipelines[pipeline.name]
-    //         // pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
-    //         eventRange = (tabular == true) ? 'tabularRange' : pipeline.path+'Range'
-    //
-    //         if(this.visibility[_original_payload.name] === true && pipeline.range && pipeline.range == true)
-    //           this._set_pipelines_events({
-    //             pipeline: {
-    //               name: pipeline.name,
-    //               options: "inputs[0].options.conn[0].module.options.paths = ['"+pipeline.path+"']"
-    //             },
-    //             event:{
-    //               'onRange' : { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' }
-    //             }
-    //           })
-    //       }
-    //
-    //
-    //       EventBus.$once(eventRange, () => this.__get_stat(stat, function(docs_range){
-    //         ////////console.log('__get_stat', stat, docs_range)
-    //
-    //           let all_stats = docs.append(docs_range)
-    //           all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //
-    //           // ////////////console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
-    //           // //////////console.log('__get_stat_for_chart __update_chart_stat', payload.stat, range_length, all_stats)
-    //
-    //           /**
-    //           * check original stat, if it's not array, just update as there is nothing to merge
-    //           **/
-    //           if(!Array.isArray(_original_payload.stat)){
-    //             ////////////console.log('_original_payload.stat', _original_payload)
-    //             this.__update_chart_stat(name, all_stats, range_length)
-    //           }
-    //           else{
-    //             buffer = this._merge_stats({
-    //               buffer: buffer,
-    //               length: buffer_length,
-    //               stat_name: name,
-    //               data_name: indexed_name,
-    //               data: all_stats,
-    //               splice: range_length,
-    //               range: true
-    //             })
-    //           }
-    //
-    //           Vue.nextTick(this.add_watcher(indexed_payload))
-    //
-    //
-    //         }.bind(this))
-    //       )
-    //
-    //       // let eventHandler = this.__get_stat.pass([
-    //       // 	stat,
-    //       // 	function(docs_range){
-    //       //
-    //       // 			let all_stats = docs.append(docs_range)
-    //       // 			all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //       //
-    //       // 			// ////////////console.log('__get_stat_for_chart __update_chart_stat', indexed_payload, range, all_stats.length, range_length)
-    //       // 			// ////////////console.log('__get_stat_for_chart __update_chart_stat', payload.stat)
-    //       //
-    //       // 			/**
-    //       // 			* check original stat, if it's not array, just update as there is nothing to merge
-    //       // 			**/
-    //       // 			if(!Array.isArray(_original_payload.stat)){
-    //       // 				////////////console.log('_original_payload.stat', _original_payload)
-    //       // 				this.__update_chart_stat(name, all_stats, range_length)
-    //       // 			}
-    //       // 			else{
-    //       // 				buffer = this._merge_stats({
-    //       // 					buffer: buffer,
-    //       // 					length: buffer_length,
-    //       // 					stat_name: name,
-    //       // 					data_name: indexed_name,
-    //       // 					data: all_stats,
-    //       // 					splice: range_length,
-    //       // 					range: true
-    //       // 				})
-    //       // 			}
-    //       //
-    //       // 			Vue.nextTick(this.add_watcher(indexed_payload))
-    //       //
-    //       //
-    //       // 		}.bind(this)
-    //       // ],this)
-    //       //
-    //       //
-    //       // EventBus.$on(eventRange, () => {
-    //       // 	eventHandler()
-    //       // 	////////////console.log('$off', indexed_name, eventRange, eventHandler)
-    //       // 	if(
-    //       // 		!Array.isArray(_original_payload.stat)
-    //       // 		|| count_events == _original_payload.stat.length -1
-    //       // 	){
-    //       // 		EventBus.$off([eventRange, eventHandler])
-    //       // 	}
-    //       //
-    //       // 	count_events++
-    //       // })
-    //
-    //       // if(Array.isArray(pipeline)){
-    //       //   if(pipeline[index].range && pipeline[index].range == true)
-    //       //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //       // }
-    //       // else{
-    //       //   if(pipeline.range && pipeline.range == true)
-    //       //     pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //       // }
-    //       //////////console.log('this.visibility', _original_payload.name, this.visibility[_original_payload.name])
-    //       if(this.visibility[_original_payload.name] === true)
-    //          this.$nextTick(this.fire_pipelines_events())
-    //
-    //
-    //
-    //     }.bind(this))
-    //
-    //   }.bind(this))
-    //
-    //
-    //
-    // },
-    // add_active_stat(stat){
-    //   let {host, tabular, path, key} = stat
-    //   let stat_type = (tabular == true) ? 'tabular' : 'stat'
-    //   if(!this.$options.__active_stats[stat_type])
-    //     this.$options.__active_stats[stat_type] = {}
-    //
-    //   if(!this.$options.__active_stats[stat_type][host])
-    //     this.$options.__active_stats[stat_type][host] = {}
-    //
-    //   if(!this.$options.__active_stats[stat_type][host][path])
-    //     this.$options.__active_stats[stat_type][host][path] = {}
-    //
-    //   if(!this.$options.__active_stats[stat_type][host][path][key])
-    //     this.$options.__active_stats[stat_type][host][path][key] = []
-    //
-    //   this.$options.__active_stats[stat_type][host][path][key].push(1)
-    //
-    //
-    // },
-    // remove_active_stat(stat){
-    //   let {host, tabular, path, key} = stat
-    //   let stat_type = (tabular == true) ? 'tabular' : 'stat'
-    //   if(
-    //     this.$options.__active_stats[stat_type]
-    //     && this.$options.__active_stats[stat_type][host]
-    //     && this.$options.__active_stats[stat_type][host][path]
-    //     && this.$options.__active_stats[stat_type][host][path][key]
-    //     && this.$options.__active_stats[stat_type][host][path][key].length > 0
-    //   ){
-    //     this.$options.__active_stats[stat_type][host][path][key].pop()
-    //   }
-    //
-    // },
-    // check_active_stat(stat){
-    //   let {host, tabular, path, key} = stat
-    //   let stat_type = (tabular == true) ? 'tabular' : 'stat'
-    //   if(
-    //     this.$options.__active_stats[stat_type]
-    //     && this.$options.__active_stats[stat_type][host]
-    //     && this.$options.__active_stats[stat_type][host][path]
-    //     && this.$options.__active_stats[stat_type][host][path][key]
-    //     && this.$options.__active_stats[stat_type][host][path][key].length > 0
-    //   ){
-    //     return true
-    //   }
-    //   else{
-    //     return false
-    //   }
-    // },
-    // fire_pipelines_events: function(){
-    //   ////////console.log('fire_pipelines_events',this.$options.pipelines_events)
-    //
-    //   Object.each(this.$options.pipelines_events, function(pipeline, name){
-    //     let pipe = this.$options.pipelines[name]
-    //     Array.each(pipeline, function(obj){
-    //       let {options, event} = obj
-    //       eval('pipe.'+options)
-    //       let event_name = Object.keys(event)[0]
-    //       pipe.fireEvent(event_name, event[event_name])
-    //
-    //       // //////////console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
-    //
-    //     })
-    //   }.bind(this))
-    // },
-    // _set_pipelines_events: function (payload){
-    //   let {pipeline, event} = payload
-    //   if(!this.$options.pipelines_events[pipeline.name])
-    //     this.$options.pipelines_events[pipeline.name] = []
-    //
-    //   let obj = {options: pipeline.options, event}
-    //   if(this.$options.pipelines_events[pipeline.name].length == 0){
-    //     this.$options.pipelines_events[pipeline.name].push(obj)
-    //   }
-    //   else{
-    //     let found = false
-    //     Array.each(this.$options.pipelines_events[pipeline.name], function(pipe, index){
-    //       // found = false
-    //       if(pipe.options == obj.options){
-    //         // found = true
-    //         // //////////console.log('_set_pipelines_events', pipe.options, obj.options)
-    //         let pipe_event_name = Object.keys(pipe.event)[0]
-    //         let obj_event_name = Object.keys(obj.event)[0]
-    //
-    //
-    //         if(pipe_event_name == obj_event_name)
-    //           found = index
-    //       }
-    //
-    //
-    //     }.bind(this))
-    //
-    //     if(found == false ){
-    //       this.$options.pipelines_events[pipeline.name].push(obj)
-    //     }
-    //     else{//replace it as ranges get updated
-    //       this.$options.pipelines_events[pipeline.name][found] = obj
-    //     }
-    //   }
-    //
-    //   //////////console.log('_set_pipelines_events', this.$options.pipelines_events)
-    // },
-    // /**
-    // * based on docs (obtained from local DB) and range, defined if we can update stat with this
-    // * plus a shorter remote range, or we need to clear and obtain all new data from remote
-    // */
-    // __get_new_docs_range: function(docs, range){
-    //   if(
-    //     docs.length != 0
-    //     && docs[docs.length - 1]
-    //     && docs[docs.length - 1].metadata
-    //     && docs[0].metadata.timestamp > range[0] - 10000
-    //     && docs[0].metadata.timestamp < range[0] + 10000
-    //   ){
-    //
-    //     let prev = undefined
-    //     let missing = false
-    //
-    //     docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //
-    //     Array.each(docs, function(doc){
-    //       if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
-    //
-    //         missing = true
-    //       }
-    //       prev = doc
-    //     })
-    //
-    //     if(missing == false){
-    //       range[0] = docs[docs.length - 1].metadata.timestamp
-    //
-    //     }
-    //     else{
-    //       docs = []
-    //     }
-    //
-    //   }
-    //   else{
-    //     docs = []
-    //   }
-    //
-    //   return {docs: docs, range: range}
-    // },
-    // _merge_stats: function(payload){
-    //   let {buffer, length, stat_name, data_name, data, splice, range} = payload
-    //   ////////////console.log('_merge_stats', stat_name, buffer, range, data)
-    //
-    //   if(range == true)
-    //     buffer._range = true
-    //
-    //   if(
-    //     (
-    //       buffer._range && buffer._range == true
-    //       && data.length > 0
-    //     )
-    //     || ( ! buffer._range && Object.getLength(data) > 0 )
-    //   ){
-    //     buffer[data_name] = data
-    //   }
-    //
-    //   if(Object.getLength(buffer) >= length){
-    //     let merged = undefined
-    //     // let counter = 0
-    //     Object.each(buffer, function(doc, name){
-    //       if(name.indexOf('0') > -1)
-    //         if(Array.isArray(doc)){
-    //           merged = Array.clone(doc)
-    //         }
-    //         else{
-    //           merged = Object.clone(doc)
-    //         }
-    //     })
-    //
-    //     let _merged = false
-    //     Object.each(buffer, function(doc, name){
-    //       if(name.indexOf('0') == -1 && name != '_range'){
-    //         if(Array.isArray(merged)){
-    //
-    //           let to_merge = []
-    //           if(!Array.isArray(doc)){
-    //             to_merge = [doc]
-    //           }
-    //           else{
-    //             to_merge = Array.clone(doc)
-    //           }
-    //
-    //           Array.each(merged, function(row, index){
-    //
-    //             let found = false
-    //             Array.each(to_merge, function(to_merge_row){
-    //               if(found == false && row.metadata.timestamp == to_merge_row.metadata.timestamp){
-    //                 merged[index].data = this._merge_tabular_data(row.data, to_merge_row.data)
-    //                 found = true
-    //                 _merged = true
-    //               }
-    //
-    //             }.bind(this))
-    //             // if(found == false){
-    //             //   merged[index].data = this._merge_tabular_data(row.data, [0, 0])
-    //             // }
-    //
-    //           }.bind(this))
-    //
-    //         }
-    //         else if(doc.data){
-    //
-    //           merged.data = this._merge_tabular_data(merged.data, doc.data)
-    //           _merged = true
-    //         }
-    //       }
-    //       // counter++
-    //       // delete buffer[name]
-    //     }.bind(this))
-    //
-    //     if(_merged == true){
-    //       buffer = {}
-    //
-    //       this.__update_chart_stat(stat_name, merged, splice)
-    //     }
-    //     // ////////////console.log('_merge_stats', stat_name, merged)
-    //   }
-    //
-    //   return buffer
-    // },
-    /**
-    * merge second doc.data (ommiting [0] possition, timestamp) on first one
-    **/
-    // _merge_tabular_data: function(a, b){
-    //
-    //   let merged = Array.clone(a)
-    //   for(let i = 1; i < b.length; i++){//ommit timestamp
-    //       merged.push(b[i])
-    //   }
-    //   return merged
-    // },
-    // __get_stat_for_chart: function(payload){
-    //   ////////////console.log('__get_stat_for_chart', payload)
-    //
-    //   let {name, stat, pipeline} = payload
-    //   let range = stat.range || [Date.now() - stat.length * 1000, Date.now()]
-    //   let tabular = (stat.tabular) ? stat.tabular : false
-    //
-    //   this.remove_watcher(name)
-    //
-    //   let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
-    //
-    //   let stat_type = (tabular == true) ? '_tabular' : ''
-    //
-    //   payload.watcher = payload.watcher ||  {
-    //     name: '$store.state.stats'+ stat_type +'.'+stat.host+'.'+stat.path+'.'+stat.key,
-    //     deep:true,
-    //     // cb: this.__watcher_callback.bind(this)
-    //     cb: (doc, old, payload) => {
-    //       // if(this.visibility[payload.name] === true)
-    //       // let range = payload.stat.range || [Date.now() - payload.stat.length * 1000, Date.now()]
-    //       // let range_length = (range) ? Math.trunc((range[1] - range[0]) / 1000) : undefined
-    //       this.__update_chart_stat(payload.name, doc.value, payload.stat.length)
-    //     }
-    //   },
-    //   // //////////////console.log('__get_stat_for_chart', payload.watcher)
-    //
-    //   stat.range = range
-    //
-    //   this.add_chart_stat(name)
-    //
-    //   this.__get_stat(stat, function(docs){
-    //
-    //     let pipe = this.$options.pipelines[pipeline.name]
-    //     pipe.inputs[0].options.conn[0].module.options.paths = [pipeline.path]
-    //
-    //
-    //     if(
-    //       docs.length != 0
-    //       && docs[docs.length - 1].metadata
-    //       && docs[0].metadata.timestamp > range[0] - 10000
-    //       && docs[0].metadata.timestamp < range[0] + 10000
-    //     ){
-    //
-    //       let prev = undefined
-    //       let missing = false
-    //
-    //       docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //
-    //       Array.each(docs, function(doc){
-    //         if(prev && doc.metadata.timestamp - 5000 > prev.metadata.timestamp){
-    //
-    //           missing = true
-    //         }
-    //         prev = doc
-    //       })
-    //
-    //       if(missing == false){
-    //         range[0] = docs[docs.length - 1].metadata.timestamp
-    //
-    //       }
-    //       else{
-    //         docs = []
-    //       }
-    //
-    //     }
-    //     else{
-    //       docs = []
-    //     }
-    //
-    //     let eventRange = (tabular == true) ? 'tabularRange' : pipeline.path+'Range'
-    //
-    //     EventBus.$once(eventRange, () =>
-    //       this.__get_stat(stat, function(docs_range){
-    //
-    //         let all_stats = docs.append(docs_range)
-    //         all_stats.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-    //
-    //         // let length = all_stats.length
-    //         // all_stats.splice(
-    //         //   range_length -1,
-    //         //   length - range_length
-    //         // )
-    //
-    //         // this.__update_chart_stat(name, all_stats, stat.length)
-    //         ////////////console.log('__get_stat_for_chart __update_chart_stat', name, range, all_stats.length, range_length)
-    //         this.__update_chart_stat(name, all_stats, range_length)
-    //
-    //         Vue.nextTick(this.add_watcher(payload))
-    //
-    //
-    //       }.bind(this))
-    //     )
-    //
-    //     if(pipeline.range && pipeline.range == true)
-    //       pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //
-    //
-    //   }.bind(this))
-    // },
 
     process_os_tabular: function(doc){
       ////////////////console.log('process_os_tabular', doc)
@@ -2531,23 +1555,23 @@ export default {
 
       if(
         isVisible == false
-        && this.available_charts[id]
+        && this.available_graphs[id]
         && (this.visibility[id] == undefined || this.visibility[id] == true)
       ){
         this.$set(this.visibility, id, false)
         this.remove_chart(id)
         //////////console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
-        // this.$store.dispatch('stats/splice', this.available_charts[id].stat)
-        // this.$store.dispatch('stats_tabular/splice', this.available_charts[id].stat)
+        // this.$store.dispatch('stats/splice', this.available_graphs[id].stat)
+        // this.$store.dispatch('stats_tabular/splice', this.available_graphs[id].stat)
       }
       else if (
         isVisible == true
-        && this.available_charts[id]
+        && this.available_graphs[id]
         && (this.visibility[id] == undefined || this.visibility[id] == false)
       ){
-        //////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
+        //////console.log('set_chart_visibility ADD', id, isVisible, this.available_graphs[id])
         this.$set(this.visibility, id, true)
-        this.add_chart(this.available_charts[id], id)
+        this.add_chart(this.available_graphs[id], id)
       }
 
     },

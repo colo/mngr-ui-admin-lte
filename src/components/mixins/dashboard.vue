@@ -82,7 +82,7 @@ export default {
       stats: {},
       tabulars: {},
       charts: {},
-      available_charts: {}
+      available_graphs: {}
     }
   },
 
@@ -105,10 +105,10 @@ export default {
         // console.log('this.$watch events', val)
 
         Array.each(val, function(event, index){
-          if(event.id && this.available_charts[event.id]){
+          if(event.id && this.available_graphs[event.id]){
 
             let {id} = event
-            let {stat, pipeline} = this.available_charts[id]
+            let {stat, pipeline} = this.available_graphs[id]
 
             // event = this.__parse_event(event)
 
@@ -343,7 +343,7 @@ export default {
     add_chart: function (payload){
       let {name, chart, init, watch, watcher} = payload
 
-      // this.available_charts[name] = payload
+      // this.available_graphs[name] = payload
       this.$set(this.charts, name, chart)
 
       // if(!this.stats[name])
@@ -366,8 +366,8 @@ export default {
     remove_chart: function (name, options){
       options = options || {}
 
-      if(this.available_charts[name] && this.available_charts[name].stop && typeof this.available_charts[name].stop == 'function')
-        this.available_charts[name].stop(this.available_charts[name])
+      if(this.available_graphs[name] && this.available_graphs[name].stop && typeof this.available_graphs[name].stop == 'function')
+        this.available_graphs[name].stop(this.available_graphs[name])
 
       this.$delete(this.charts, name)
 
@@ -375,8 +375,8 @@ export default {
       //   this.$set(this.stats, name, undefined)
 
       // if(options.unwatch && options.unwatch == true){
-      //   if(Array.isArray(this.available_charts[name].stat)){
-      //     Array.each(this.available_charts[name].stat, function(stat, index){
+      //   if(Array.isArray(this.available_graphs[name].stat)){
+      //     Array.each(this.available_graphs[name].stat, function(stat, index){
       //       let indexed_name = name+'_'+index
       //       this.remove_watcher(indexed_name)
       //     }.bind(this))
