@@ -11,12 +11,15 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
-      host: undefined,
-      path: 'os.cpus',
-      // key: 'cpus',
-      // length: 300,
-      tabular: true,
-      // range: undefined
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os.cpus',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
@@ -34,6 +37,7 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
+      merged: false,
       events: [{
         host: undefined,
         path: 'os.cpus',
@@ -59,12 +63,15 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
-      host: undefined,
-      path: 'os.uptime',
-      // key: 'uptime',
-      // length: 300,
-      tabular: true,
-      // range: undefined
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os.uptime',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
@@ -83,12 +90,15 @@ export default {
     stop: undefined,
     //
     stat: {
-      host: undefined,
-      path: 'os.loadavg',
-      // key: 'loadavg',
-      // length: 300,
-      tabular: true,
-      // range: undefined
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os.loadavg',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
@@ -106,12 +116,15 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
-      host: undefined,
-      path: 'os_blockdevices',
-      // key: '',
-      // length: 300,
-      tabular: true,
-      range: undefined
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os_blockdevices',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
@@ -129,12 +142,15 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
-      host: undefined,
-      path: 'os_mounts',
-      // key: '',
-      // length: 300,
-      tabular: true,
-      // range: undefined
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os_mounts',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
@@ -153,12 +169,15 @@ export default {
     stop: undefined,
 
     stat: {
-      host: undefined,
-      path: 'os.freemem',
-      // key: 'freemem',
-      // length: 300,
-      // range: undefined,
-      tabular: false
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os.freemem',
+        // key: 'cpus',
+        // length: 300,
+        tabular: false,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
@@ -176,12 +195,15 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
-      host: undefined,
-      path: 'os_networkInterfaces_stats',
-      // key: '',
-      // length: 300,
-      tabular: true,
-      // range: undefined
+      merged: false,
+      events: [{
+        host: undefined,
+        path: 'os_networkInterfaces_stats',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     // watcher: undefined,
     /**

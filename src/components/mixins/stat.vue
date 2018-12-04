@@ -316,7 +316,7 @@ export default {
     }
     else{
       this.$options.__stat_unwatcher = this.$watch('stat.data', function(val, old){
-        console.log('__stat_unwatcher', this.id, this.$options.type, val)
+        // console.log('__stat_unwatcher', this.id, this.$options.type, val)
 
         /**
         * when use "stat.sources" as data, is always an array, even if it's not merged data
