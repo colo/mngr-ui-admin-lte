@@ -316,7 +316,15 @@ export default {
     }
     else{
       this.$options.__stat_unwatcher = this.$watch('stat.data', function(val, old){
-        //////console.log('__stat_unwatcher', this.id, this.$options.type, val)
+        console.log('__stat_unwatcher', this.id, this.$options.type, val)
+
+        /**
+        * when use "stat.sources" as data, is always an array, even if it's not merged data
+        * so we need to picj the only element (if there are more, is an error)
+        */
+        if(Array.isArray(this.stat.data))
+          val = val[0]
+
         // this.__stat_data_watcher(val)
         if(val && val.length > 0){
           let __cloned = Array.clone(val)

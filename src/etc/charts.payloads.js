@@ -34,12 +34,14 @@ export default {
     init: undefined,
     stop: undefined,
     stat: {
-      host: undefined,
-      path: 'os.cpus',
-      // key: 'cpus',
-      // length: 300,
-      tabular: true,
-      // range: undefined
+      events: [{
+        host: undefined,
+        path: 'os.cpus',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
     },
     /**
     * for __get_stat_for_chart
