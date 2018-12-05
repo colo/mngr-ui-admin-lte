@@ -226,7 +226,7 @@ export default {
           }
 
           this.$options.tabular.lastupdate = Date.now()
-          // console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate))
+          // console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate), inmediate)
         }
 
 

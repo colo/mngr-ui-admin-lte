@@ -480,110 +480,14 @@ export default {
     }
   ),
 
-  created: function(){
-    // ////////////////console.log('life cycle created')
+  mounted: function(){
+    console.log('life cycle mounted')
 
-    EventBus.$once('charts', doc => {
-      //console.log('recived doc via Event charts', doc)
-      // let counter = 0
-      let charts_objects = {}
-      Object.each(doc.charts, function(data, name){
-        if(data.chart){
-          // this.$options.charts_objects[name] = data.chart
-          charts_objects[name] = data.chart
-        }
-        else{//named chart like os.cpus->times os.cpus->percentage
+    EventBus.$once('charts', this.__process_dashoard_charts)
 
-          Object.each(data, function(chart_data, chart_name){
-            // this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
-            charts_objects[name+'.'+chart_name] = chart_data.chart
-          }.bind(this))
+    EventBus.$on('stats', this.__process_dashoard_stats)
 
-        }
-
-        // if(counter == Object.getLength(doc.charts) - 1)
-        //   this.charts_objects_init = true
-        //
-        // counter++
-      }.bind(this))
-
-      this.$store.commit('host_'+this.host+'/charts', charts_objects)
-    })
-
-    EventBus.$on('stats', payload => {
-
-      if(payload.range == true)
-        console.log('recived doc via Event stats', payload)
-
-      let type = (payload.tabular == true) ? 'tabulars' : 'stats'
-      let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
-      // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
-
-      let counter = 0
-      Object.each(payload.stats, function(data, path){
-        if(Array.isArray(data)){
-          // // if(!this[type][payload.host+'.'+path]){
-          // if(!this.$store.state[type+'_sources'][payload.host+'.'+path]){
-          //   // this.$set(this[type],payload.host+'.'+path, data)
-          //   console.log('registering.... ', type, payload.host+'.'+path)
-          //   this.$store.registerModule([type+'_sources', payload.host+'.'+path], Object.clone(sourceStore))
-          // }
-          // // else{
-          // //   this[type][payload.host+'.'+path] = data
-          // // }
-          this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path, value: data})
-        }
-        else{
-          // if(type == 'stats')
-          //   ////console.log('DATA', data)
-
-          Object.each(data, function(value, key){
-            if(Array.isArray(value)){
-              // // if(!this[type][payload.host+'.'+path+'.'+key]){
-              // //   this.$set(this[type],payload.host+'.'+path+'.'+key, value)
-              // // }
-              // // else{
-              // //   this[type][payload.host+'.'+path+'.'+key] = value
-              // // }
-              // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key]){
-              //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key)
-              //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key], Object.clone(sourceStore))
-              // }
-
-              this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key, value: value})
-
-            }
-            else{
-              //3rd level, there is no need for more
-              Object.each(value, function(val, sub_key){
-                // // if(!this[type][payload.host+'.'+path+'.'+key+'.'+sub_key]){
-                // //   this.$set(this[type],payload.host+'.'+path+'.'+key+'.'+sub_key, val)
-                // // }
-                // // else{
-                // //   this[type][payload.host+'.'+path+'.'+key+'.'+sub_key] = val
-                // // }
-                //
-                // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key+'.'+sub_key]){
-                //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key+'.'+sub_key)
-                //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key+'.'+sub_key], Object.clone(sourceStore))
-                // }
-
-                this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key+'.'+sub_key, value: val})
-              }.bind(this))
-            }
-
-          }.bind(this))
-        }
-
-        if(counter == Object.getLength(payload.stats) - 1)
-          this.$set(this, init, true)
-
-        counter++
-      }.bind(this))
-
-
-    })
-
+    // console.log('EventBus.$listeners', EventBus)
 
     let unwatch_all_init = this.$watch('all_init', function(val){
       //console.log('all_init', val)
@@ -952,7 +856,7 @@ export default {
 
             let _name = key.substring(key.lastIndexOf('.') + 1)
             let chart_name = this.host+'.os_blockdevices.stats.'+_name
-
+            if(!this.available_charts[chart_name]){
               this.available_charts[chart_name] = Object.merge(
                 Object.clone(this.get_payload(charts_payloads,{
                   name: 'os_blockdevices.stats',
@@ -978,6 +882,7 @@ export default {
 
               this.$set(this.blockdevices, _name, 1)
               this.set_chart_visibility(chart_name, true)
+            }
           }
 
           if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
@@ -1152,20 +1057,24 @@ export default {
     /**
     * remove for testing
     **/
-  },
-
-
-
-  mounted: function(){
 
     this.create_host_pipelines(this.$store.state.app.paths)
-
   },
+
+
+
+  // mounted: function(){
+  //
+  //   this.create_host_pipelines(this.$store.state.app.paths)
+  //
+  // },
 
   beforeCreate: function(){
     ////////////////console.log('life cycle beforeCreate')
     EventBus.$off('host')
     EventBus.$off('os')
+    EventBus.$off('charts', this.__process_dashoard_charts)
+    EventBus.$off('stats', this.__process_dashoard_stats)
   },
   beforeDestroy: function(){
 
@@ -1188,6 +1097,105 @@ export default {
   //   this.$off()
   // },
   methods: {
+    __process_dashoard_charts: function(doc){
+      //console.log('recived doc via Event charts', doc)
+      // let counter = 0
+      let charts_objects = {}
+      Object.each(doc.charts, function(data, name){
+        if(data.chart){
+          // this.$options.charts_objects[name] = data.chart
+          charts_objects[name] = data.chart
+        }
+        else{//named chart like os.cpus->times os.cpus->percentage
+
+          Object.each(data, function(chart_data, chart_name){
+            // this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
+            charts_objects[name+'.'+chart_name] = chart_data.chart
+          }.bind(this))
+
+        }
+
+        // if(counter == Object.getLength(doc.charts) - 1)
+        //   this.charts_objects_init = true
+        //
+        // counter++
+      }.bind(this))
+
+      this.$store.commit('host_'+this.host+'/charts', charts_objects)
+    },
+    __process_dashoard_stats: function(payload){
+
+      if(payload.range == true)
+        console.log('recived doc via Event stats', payload)
+
+      let type = (payload.tabular == true) ? 'tabulars' : 'stats'
+      let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
+      // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
+
+      let counter = 0
+      Object.each(payload.stats, function(data, path){
+        if(Array.isArray(data)){
+          // // if(!this[type][payload.host+'.'+path]){
+          // if(!this.$store.state[type+'_sources'][payload.host+'.'+path]){
+          //   // this.$set(this[type],payload.host+'.'+path, data)
+          //   console.log('registering.... ', type, payload.host+'.'+path)
+          //   this.$store.registerModule([type+'_sources', payload.host+'.'+path], Object.clone(sourceStore))
+          // }
+          // // else{
+          // //   this[type][payload.host+'.'+path] = data
+          // // }
+          this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path, value: data})
+        }
+        else{
+          // if(type == 'stats')
+          //   ////console.log('DATA', data)
+
+          Object.each(data, function(value, key){
+            if(Array.isArray(value)){
+              // // if(!this[type][payload.host+'.'+path+'.'+key]){
+              // //   this.$set(this[type],payload.host+'.'+path+'.'+key, value)
+              // // }
+              // // else{
+              // //   this[type][payload.host+'.'+path+'.'+key] = value
+              // // }
+              // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key]){
+              //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key)
+              //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key], Object.clone(sourceStore))
+              // }
+
+              this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key, value: value})
+
+            }
+            else{
+              //3rd level, there is no need for more
+              Object.each(value, function(val, sub_key){
+                // // if(!this[type][payload.host+'.'+path+'.'+key+'.'+sub_key]){
+                // //   this.$set(this[type],payload.host+'.'+path+'.'+key+'.'+sub_key, val)
+                // // }
+                // // else{
+                // //   this[type][payload.host+'.'+path+'.'+key+'.'+sub_key] = val
+                // // }
+                //
+                // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key+'.'+sub_key]){
+                //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key+'.'+sub_key)
+                //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key+'.'+sub_key], Object.clone(sourceStore))
+                // }
+
+                this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key+'.'+sub_key, value: val})
+              }.bind(this))
+            }
+
+          }.bind(this))
+        }
+
+        if(counter == Object.getLength(payload.stats) - 1)
+          this.$set(this, init, true)
+
+        counter++
+      }.bind(this))
+
+
+    },
     update_daterangepicker: function(){
       //////////console.log('update_daterangepicker')
       Object.each(this.$options.daterangepicker.ranges, function(range, key){

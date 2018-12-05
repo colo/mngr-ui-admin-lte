@@ -194,7 +194,9 @@ export default new Class({
   },
   stats: function(socket, next){
     let {type, doc, tabular} = arguments[2]
-    //console.log('IO.HOST stats', arguments[2])
+
+    if(arguments[2].type == 'range')
+      console.log('IO.HOST stats', arguments[2])
 
     // if(tabular != true)
       this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge(arguments[2], {type: 'stats', range: (type == 'range') ? true : false}), {type: type, input_type: this, app: null}]);

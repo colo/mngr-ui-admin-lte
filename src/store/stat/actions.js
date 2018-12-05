@@ -396,18 +396,18 @@ export const flush = ({ state, commit, dispatch }, payload) => {
 
     // db.flushing = true
 
-    qBulkDocs.push({docs: docs, db: state.db}, function(err, status){
-      // console.log('qBulkDocs', err, status)
-    })
-
-    // state.db.bulkDocs(docs)
-    // .then(function (status) {
-    //   console.log('flushed', status)
-    //   // commit('clear', payload)
-    //   // db.flushing = false
-    // }).catch(function (err) {
-    //   ////////console.log('flushed err', err)
+    // qBulkDocs.push({docs: docs, db: state.db}, function(err, status){
+    //   // console.log('qBulkDocs', err, status)
     // })
+
+    state.db.bulkDocs(docs)
+    .then(function (status) {
+      // console.log('flushed', status)
+      // commit('clear', payload)
+      // db.flushing = false
+    }).catch(function (err) {
+      ////////console.log('flushed err', err)
+    })
   }
 
 }
