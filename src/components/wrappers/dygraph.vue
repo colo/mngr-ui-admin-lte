@@ -264,7 +264,7 @@ export default {
         //   data.push(row)
         // })
 
-        // //console.log('__create_dygraph', this.id, options.labels)
+        console.log('__create_dygraph', this.id, options)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div

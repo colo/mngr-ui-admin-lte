@@ -57,10 +57,11 @@ export default {
         // if(val && val.length > 1){
         if(val && val.length > 1){
 
-          if(this.$options.__chart_init == false){
+          // if(this.$options.__chart_init == false){
+          if(this.chart_init == false){
 
             this.__process_stat(this.chart, this.id, this.stat_data)
-            this.$options.__chart_init = true
+            // this.$options.__chart_init = true
 
           }
 
@@ -128,8 +129,13 @@ export default {
     __process_chart (chart, name, stat){
       ////console.log('__process_chart', this.stat_data, name, stat)
 
-      if(chart.init && typeOf(chart.init) == 'function')
+      if(chart.init && typeOf(chart.init) == 'function'){
         chart.init(this, chart, name, stat, 'chart')
+        this.$set(this, 'chart_init', true)
+      }
+      else{
+        this.$set(this, 'chart_init', true)
+      }
 
       /**
       * first update

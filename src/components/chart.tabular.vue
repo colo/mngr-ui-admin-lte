@@ -34,10 +34,12 @@ export default {
         // //////console.log('create chart.tabular', val)
         // if(val && val.length > 1){
         if(val){
-          if(this.$options.__chart_init == false){
+          // if(this.$options.__chart_init == false){
+          if(this.chart_init == false){
 
-            this.__create_watcher(this.id)
-            this.$options.__chart_init = true
+            // this.__create_watcher(this.id)
+            this.__process_chart(this.chart, this.id)
+            // this.$options.__chart_init = true
 
 
           }
@@ -48,7 +50,20 @@ export default {
 
       }, { deep: true } )
     },
+    __process_chart (chart, name, stat){
+      ////console.log('__process_chart', this.stat_data, name, stat)
 
+      if(chart.init && typeOf(chart.init) == 'function'){
+        chart.init(this, chart, name, stat, 'chart')
+        this.$set(this, 'chart_init', true)
+      }
+      else{
+        this.$set(this, 'chart_init', true)
+      }
+
+      this.__create_watcher(name, chart)
+
+    },
     __create_watcher(name, chart){
 
 

@@ -1,7 +1,8 @@
 <template>
 
   <component
-    v-observe-visibility="{ callback: visibilityChanged, throttle: 10 }"
+    v-if="chart_init === true"
+    v-observe-visibility="{ callback: visibilityChanged, throttle: 0 }"
     :is="wrapper.type+'-wrapper'"
     :id="id"
     :ref="id"
@@ -88,6 +89,7 @@ export default {
   data () {
     return {
       tabular: {lastupdate: 0, 'data': [[]] },
+      chart_init: false
     }
   },
 

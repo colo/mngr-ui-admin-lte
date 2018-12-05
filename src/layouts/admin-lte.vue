@@ -41,7 +41,12 @@
       </section>
 
       <!-- Main content -->
-       <router-view></router-view>
+       <!-- <router-view></router-view> -->
+       <transition>
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
+      </transition>
 
 
       <!-- /.content -->
