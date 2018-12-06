@@ -366,8 +366,12 @@ export default {
     remove_chart: function (name, options){
       options = options || {}
 
-      if(this.available_charts[name] && this.available_charts[name].stop && typeof this.available_charts[name].stop == 'function')
-        this.available_charts[name].stop(this.available_charts[name])
+      // if(this.available_charts[name] && this.available_charts[name].stop && typeof this.available_charts[name].stop == 'function')
+      //   this.available_charts[name].stop(this.available_charts[name])
+
+      if(this.charts[name] && this.charts[name].stop && typeof this.charts[name].stop == 'function')
+        this.charts[name].stop(this.charts[name])
+
 
       this.$delete(this.charts, name)
 

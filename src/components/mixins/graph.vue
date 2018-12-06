@@ -152,7 +152,6 @@ export default {
       // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
         // //console.log('update_chart_stat visibility', this.id, data)
 
-
         if( data.length == 1 ){
 
           this.$options.tabular.data.shift()
@@ -175,7 +174,11 @@ export default {
 
         this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
-        if(this.chart.skip && this.chart.skip > 0){
+        if(
+          this.chart.skip
+          && this.chart.skip > 0
+          && inmediate !== true
+        ){
           // this.chart.interval = this.chart.skip
           let new_data = []
 
@@ -183,9 +186,17 @@ export default {
             // if(index == 0)
             //   this.$options.__skiped = 0
 
-            if(index == 0 || this.chart.skip -1 == this.$options.__skiped){
+            if(
+              index == 0
+              // || (index ==  this.$options.tabular.data.length - 1 && (row[0] / this.chart.skip) == 0)
+              // || index == this.$options.tabular.data.length - 1
+              // || (row[0] % this.chart.skip) == 0
+              || this.chart.skip -1 == this.$options.__skiped
+            ){
               // console.log('chart mixin update_chart_stat Array', name, this.chart.skip, this.$options.__skiped)
               new_data.push(row)
+
+              // if(index != this.$options.tabular.data.length - 1)
               this.$options.__skiped = 0
             }
             else{
@@ -209,25 +220,40 @@ export default {
         if(
           inmediate && inmediate == true
           || (
-            this.$options.focus == true
-            && this.$options.visible == true
+            (this.$options.focus == true
+            && this.$options.visible == true)
+            && (
+              !this.chart.interval
+              || (Date.now() - (this.chart.interval * 1000) >= this.$options.tabular.lastupdate)
+              )
+            || this.$options.tabular.lastupdate == 0
           )
-          && (
-            !this.chart.interval
-            || (Date.now() - (this.chart.interval * 1000) > this.$options.tabular.lastupdate)
-            )
-          || this.$options.tabular.lastupdate == 0
+
         ){
           if(this.$refs[name] && typeof this.$refs[name].update == 'function' && this.$options.tabular.data.length > 0){
-            frameDebounce(this.$refs[name].update(this.$options.tabular.data))
-            // this.$refs[name].update(this.$options.tabular.data)
+            if(inmediate === true){
+              this.$refs[name].update(this.$options.tabular.data)
+            }
+            else{
+              frameDebounce(this.$refs[name].update(this.$options.tabular.data))
+
+            }
           }
           else{
-            frameDebounce(this.$set(this, 'tabular', this.$options.tabular))
-            // this.$set(this, 'tabular', this.$options.tabular)
+            if(inmediate === true){
+              this.$set(this, 'tabular', this.$options.tabular)
+            }
+            else{
+              frameDebounce(this.$set(this, 'tabular', this.$options.tabular))
+            }
           }
 
-          this.$options.tabular.lastupdate = Date.now()
+          if(inmediate === true){
+            this.$options.tabular.lastupdate = 0
+          }
+          else{
+            this.$options.tabular.lastupdate = Date.now()
+          }
           // console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate), inmediate)
         }
 

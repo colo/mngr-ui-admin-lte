@@ -401,9 +401,9 @@ export default {
       tabulars_init: false,
 
 
-      mounts: {},
-      blockdevices: {},
-      networkInterfaces_properties: {},
+      // mounts: {},
+      // blockdevices: {},
+      // networkInterfaces_properties: {},
       // stats_merged:{},
       visibility: {},
       daterangepicker:{
@@ -717,14 +717,18 @@ export default {
         next()
     },
     __clean_destroy: function(next){
-      // this.host_charts = undefined
+      Object.each(this.charts, function(chart, name){
+        this.set_chart_visibility(name, false)
+      }.bind(this))
+
+      EventBus.$off('charts', this.__process_dashoard_charts)
+      EventBus.$off('stats', this.__process_dashoard_stats)
+
       this.stats_init = false
       this.tabulars_init = false
 
       this.destroy_host_pipelines()
-      Object.each(this.charts, function(chart, name){
-        this.set_chart_visibility(name, false)
-      }.bind(this))
+
 
       this.$set(this, 'available_charts', {})
       this.$store.commit('tabulars_sources/clear')
@@ -749,8 +753,7 @@ export default {
     __clean_create: function(next){
       EventBus.$off('host')
       EventBus.$off('os')
-      EventBus.$off('charts', this.__process_dashoard_charts)
-      EventBus.$off('stats', this.__process_dashoard_stats)
+
 
       if(next)
         next()
@@ -1072,122 +1075,141 @@ export default {
       // }
 
 
-      let mount = /os_mounts/g
-      let blockdevice = /os_blockdevices/g
-      let networkInterface = /os_networkInterfaces_stats/g
+      let mount = new RegExp(this.host+'.os_mounts', 'g')
+      let blockdevice = new RegExp(this.host+'.os_blockdevices', 'g')
+      let networkInterface = new RegExp(this.host+'.os_networkInterfaces_stats', 'g')
 
-      Object.each(this.$store.state.tabulars_sources, function(stat, key){
-        if(mount.test(key) && this.host_charts['os_mounts.percentage']){
+      let __unwacth_mounts = this.$watch('$store.state.tabulars_sources', function(val){
 
+        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+          if(mount.test(key) && this.host_charts['os_mounts.percentage']){
+            __unwacth_mounts()
 
-          let _name = key.substring(key.lastIndexOf('.') + 1)
-          let chart_name = this.host+'.os_mounts.'+_name
+            let _name = key.substring(key.lastIndexOf('.') + 1)
+            let chart_name = this.host+'.os_mounts.'+_name
 
-          if(!this.available_charts[chart_name]){
-            // console.log('adding mount chart ',chart_name)
-            // this.available_charts[chart_name] = Object.clone(Object.merge(
-            this.$set(this.available_charts, chart_name, Object.clone(Object.merge(
-              this.get_payload(charts_payloads,{
-                name: 'os_mounts.percentage',
-                host: this.host,
-                seconds: this.seconds
-              }),
-              {
-                stat: {
-                  range: this.range,
-                  sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
-                },
-                wrapper: {
-                  type: 'dygraph',
-                  props: {}
-                },
-                name: chart_name,
-                chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
-                stop: function(payload){
+            if(!this.available_charts[chart_name]){
+              // console.log('adding mount chart ',chart_name)
+              // this.available_charts[chart_name] = Object.clone(Object.merge(
+              this.$set(this.available_charts, chart_name, Object.clone(Object.merge(
+                this.get_payload(charts_payloads,{
+                  name: 'os_mounts.percentage',
+                  host: this.host,
+                  seconds: this.seconds
+                }),
+                {
+                  stat: {
+                    range: this.range,
+                    sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
+                  },
+                  wrapper: {
+                    type: 'dygraph',
+                    props: {}
+                  },
+                  name: chart_name,
+                  chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
+                  stop: function(payload){
 
-                }.bind(this),
+                  }.bind(this),
 
-              }
-            )))
+                }
+              )))
 
-            this.$set(this.mounts, _name, 1)
-            this.set_chart_visibility(chart_name, true)
+              // this.$set(this.mounts, _name, 1)
+              this.set_chart_visibility(chart_name, true)
+            }
+
           }
 
-        }
+          }.bind(this))
+      }, {deep:true})
 
-        if(blockdevice.test(key) && this.host_charts['os_blockdevices.stats']){
+      let __unwacth_blockdevices = this.$watch('$store.state.tabulars_sources', function(val){
+        Object.each(this.$store.state.tabulars_sources, function(stat, key){
 
-          let _name = key.substring(key.lastIndexOf('.') + 1)
-          let chart_name = this.host+'.os_blockdevices.stats.'+_name
-          if(!this.available_charts[chart_name]){
-            // this.available_charts[chart_name] = Object.merge(
-            this.$set(this.available_charts, chart_name, Object.merge(
-              Object.clone(this.get_payload(charts_payloads,{
-                name: 'os_blockdevices.stats',
-                host: this.host,
-                seconds: this.seconds
-              })),
-              Object.clone({
-                stat: {
-                  range: this.range,
-                  sources: [{type: 'tabulars', path:this.host+'.os_blockdevices.stats.'+_name}],
-                },
-                wrapper: {
-                  type: 'dygraph',
-                  props: {}
-                },
-                name: chart_name,
-                chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_blockdevices.stats'])),
-                stop: function(payload){
-                }.bind(this),
+          if(blockdevice.test(key) && this.host_charts['os_blockdevices.stats']){
+            __unwacth_blockdevices()
 
-              })
-            ))
+            let _name = key.substring(key.lastIndexOf('.') + 1)
+            let chart_name = this.host+'.os_blockdevices.stats.'+_name
+            if(!this.available_charts[chart_name]){
+              // this.available_charts[chart_name] = Object.merge(
+              this.$set(this.available_charts, chart_name, Object.merge(
+                Object.clone(this.get_payload(charts_payloads,{
+                  name: 'os_blockdevices.stats',
+                  host: this.host,
+                  seconds: this.seconds
+                })),
+                Object.clone({
+                  stat: {
+                    range: this.range,
+                    sources: [{type: 'tabulars', path:this.host+'.os_blockdevices.stats.'+_name}],
+                  },
+                  wrapper: {
+                    type: 'dygraph',
+                    props: {}
+                  },
+                  name: chart_name,
+                  chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_blockdevices.stats'])),
+                  stop: function(payload){
+                  }.bind(this),
 
-            this.$set(this.blockdevices, _name, 1)
-            this.set_chart_visibility(chart_name, true)
+                })
+              ))
+
+              // this.$set(this.blockdevices, _name, 1)
+              this.set_chart_visibility(chart_name, true)
+            }
           }
-        }
+        }.bind(this))
 
-        if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
-          let _name = key.substring(key.lastIndexOf('.') + 1)
-          let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
+      },{deep:true})
 
-          if(!this.available_charts[chart_name]){
-            // console.log('adding net chart ',chart_name)
+      let __unwacth_networkInterfaces = this.$watch('$store.state.tabulars_sources', function(val){
+        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+          console.log('networkInterface KEY',key)
 
-            // this.available_charts[chart_name] = Object.merge(
-            this.$set(this.available_charts, chart_name, Object.merge(
-              Object.clone(this.get_payload(charts_payloads,{
-                name: 'os_networkInterfaces_stats.properties',
-                host: this.host,
-                seconds: this.seconds
-              })),
-              Object.clone({
-                stat: {
-                  range: this.range,
-                  sources: [{type: 'tabulars', path:this.host+'.os_networkInterfaces_stats.properties.'+_name}],
-                },
-                wrapper: {
-                  type: 'dygraph',
-                  props: {}
-                },
-                name: chart_name,
-                chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.host_charts['os_networkInterfaces_stats.properties'])),
-                stop: function(payload){
-                }.bind(this),
-              })
-            ))
+          if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
+            let _name = key.substring(key.lastIndexOf('.') + 1)
+            let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
 
-            this.$set(this.networkInterfaces_properties, _name, 1)
-            this.set_chart_visibility(chart_name, true)
+            if(!this.available_charts[chart_name]){
+              __unwacth_networkInterfaces()
+
+
+              // this.available_charts[chart_name] = Object.merge(
+              this.$set(this.available_charts, chart_name, Object.merge(
+                Object.clone(this.get_payload(charts_payloads,{
+                  name: 'os_networkInterfaces_stats.properties',
+                  host: this.host,
+                  seconds: this.seconds
+                })),
+                Object.clone({
+                  stat: {
+                    range: this.range,
+                    sources: [{type: 'tabulars', path:this.host+'.os_networkInterfaces_stats.properties.'+_name}],
+                  },
+                  wrapper: {
+                    type: 'dygraph',
+                    props: {}
+                  },
+                  name: chart_name,
+                  chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.host_charts['os_networkInterfaces_stats.properties'])),
+                  stop: function(payload){
+                  }.bind(this),
+                })
+              ))
+
+              // this.$set(this.networkInterfaces_properties, _name, 1)
+              this.set_chart_visibility(chart_name, true)
+            }
+
           }
 
-        }
+        }.bind(this))
 
+      }, {deep:true})
 
-      }.bind(this))
 
     },
     __process_dashoard_charts: function(doc){
