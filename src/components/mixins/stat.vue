@@ -159,96 +159,96 @@ export default {
     }
 
     if(this.stat.range && this.$options.length > 1){
-      this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
-        root: this.$options.root,
-        path: this.$options.path,
-        key: this.$options.key,
-        length: this.$options.length,
-        range: this.stat.range
-      }).then((docs) => {
-        /**
-        * @testing - avoid locals
-
-        **/
-        // let new_docs_range = this.__get_new_range([], JSON.parse(JSON.stringify(this.stat.range)))
-        let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
-        docs = new_docs_range.docs
-        let range = new_docs_range.range
-
-
-        if(docs.length > 0){
-          // //console.log('stats/get', docs, range)
-
-          let stats = []
-          Array.each(docs, function(doc){
-            if(doc && doc.data){
-              let stat = {
-               timestamp: doc.metadata.timestamp,
-               value: doc.data
-              }
-              stats.push(stat)
-            }
-          })
-
-          ////////console.log('stats/get 2', stats)
-          this.__set_stat_data(stats)
-
-        }
-
-        if(range.length > 0 && range[0] && range[1]){
-          this.$options.__range_init = false
-
-          this.$store.commit('dashboard/events/add', {
-            id: this.id,
-            type: 'onRange',
-            'opts': {
-              range: range,
-              // tabular: (this.$options.type == 'tabular') ? true : false
-            }
-          })
-        }
-      })
+      // this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
+      //   root: this.$options.root,
+      //   path: this.$options.path,
+      //   key: this.$options.key,
+      //   length: this.$options.length,
+      //   range: this.stat.range
+      // }).then((docs) => {
+      //   /**
+      //   * @testing - avoid locals
+      //
+      //   **/
+      //   // let new_docs_range = this.__get_new_range([], JSON.parse(JSON.stringify(this.stat.range)))
+      //   let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
+      //   docs = new_docs_range.docs
+      //   let range = new_docs_range.range
+      //
+      //
+      //   if(docs.length > 0){
+      //     // //console.log('stats/get', docs, range)
+      //
+      //     let stats = []
+      //     Array.each(docs, function(doc){
+      //       if(doc && doc.data){
+      //         let stat = {
+      //          timestamp: doc.metadata.timestamp,
+      //          value: doc.data
+      //         }
+      //         stats.push(stat)
+      //       }
+      //     })
+      //
+      //     ////////console.log('stats/get 2', stats)
+      //     this.__set_stat_data(stats)
+      //
+      //   }
+      //
+      //   if(range.length > 0 && range[0] && range[1]){
+      //     this.$options.__range_init = false
+      //
+      //     this.$store.commit('dashboard/events/add', {
+      //       id: this.id,
+      //       type: 'onRange',
+      //       'opts': {
+      //         range: range,
+      //         // tabular: (this.$options.type == 'tabular') ? true : false
+      //       }
+      //     })
+      //   }
+      // })
 
       /**
       * @test - no local data
       **/
-      // let docs = []
-      // let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
-      // docs = new_docs_range.docs
-      // let range = new_docs_range.range
-      //
-      //
-      // if(docs.length > 0){
-      //   // //console.log('stats/get', docs, range)
-      //
-      //   let stats = []
-      //   Array.each(docs, function(doc){
-      //     if(doc && doc.data){
-      //       let stat = {
-      //        timestamp: doc.metadata.timestamp,
-      //        value: doc.data
-      //       }
-      //       stats.push(stat)
-      //     }
-      //   })
-      //
-      //   ////////console.log('stats/get 2', stats)
-      //   this.__set_stat_data(stats)
-      //
-      // }
-      //
-      // if(range.length > 0 && range[0] && range[1]){
-      //   this.$options.__range_init = false
-      //
-      //   this.$store.commit('dashboard/events/add', {
-      //     id: this.id,
-      //     type: 'onRange',
-      //     'opts': {
-      //       range: range,
-      //       // tabular: (this.$options.type == 'tabular') ? true : false
-      //     }
-      //   })
-      // }
+      let docs = []
+      let new_docs_range = this.__get_new_range(docs, JSON.parse(JSON.stringify(this.stat.range)))
+      docs = new_docs_range.docs
+      let range = new_docs_range.range
+
+
+      if(docs.length > 0){
+        // //console.log('stats/get', docs, range)
+
+        let stats = []
+        Array.each(docs, function(doc){
+          if(doc && doc.data){
+            let stat = {
+             timestamp: doc.metadata.timestamp,
+             value: doc.data
+            }
+            stats.push(stat)
+          }
+        })
+
+        ////////console.log('stats/get 2', stats)
+        this.__set_stat_data(stats)
+
+      }
+
+      if(range.length > 0 && range[0] && range[1]){
+        this.$options.__range_init = false
+
+        this.$store.commit('dashboard/events/add', {
+          id: this.id,
+          type: 'onRange',
+          'opts': {
+            range: range,
+            // tabular: (this.$options.type == 'tabular') ? true : false
+          }
+        })
+      }
 
       /**
       * @test - no local data
@@ -481,7 +481,7 @@ export default {
       /**
       * @test - no local data
       */
-      this.$store.dispatch(this.$options.type+'/'+this.id+'/add', data)
+      // this.$store.dispatch(this.$options.type+'/'+this.id+'/add', data)
 
       this.__set_stat_data(data.data)
       // this.stat_data.push( data.data )

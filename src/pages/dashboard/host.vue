@@ -427,7 +427,8 @@ export default {
   // },
 
   watch: {
-    '$store.state.app.paths': (newVal, oldVal) => { this.create_host_pipelines(newVal) }
+    'host': function(newVal, oldVal) { this.create_host_pipelines(this.$store.state.app.paths) },
+    '$store.state.app.paths': function(newVal, oldVal) { this.create_host_pipelines(newVal) }
   },
   computed: Object.merge(
     mapState({
@@ -476,7 +477,13 @@ export default {
     }),
     {
       all_init: function(){
-        if(this.host_charts != undefined && this.stats_init == true && this.tabulars_init == true){
+        if(
+          this.host_charts != undefined
+          && this.stats_init == true
+          && this.tabulars_init == true
+          // && Object.getLength(this.$store.state.stats_sources) > 0
+          // && Object.getLength(this.$store.state.tabulars_sources) > 0
+        ){
         // if(this.host_charts != undefined){
           return true
         }
@@ -489,209 +496,265 @@ export default {
 
   mounted: function(){
     console.log('life cycle mounted')
-    this.$set(this, 'available_charts', {})
 
-    EventBus.$once('charts', this.__process_dashoard_charts)
-
-    EventBus.$on('stats', this.__process_dashoard_stats)
-
-    // console.log('EventBus.$listeners', EventBus)
-    if(this.all_init === true){
-      this.__init_charts()
-    }
-    else{
-      let unwatch_all_init = this.$watch('all_init', function(val){
-        console.log('all_init', val)
-        if(val == true){
-          console.log('all_init', val, this.host_charts)
-
-          this.set_range(moment().subtract(5, 'minute'), moment())
-
-          //console.log('all_init STATS',this['stats'])
-          //console.log('all_init TABULARS', this['tabulars'])
-          //console.log('all_init CHARTS', this.$options.charts_objects)
-
-          unwatch_all_init()
-
-          this.__init_charts()
-        }
-      })//watcher
-    }
-
-
-    /**
-    * remove for testing
-    **/
-
-
-    /**
-    * pie
-    **/
-    // this.available_charts[this.host+'_os_freemem_pie'] = {
-    //   name: this.host+'_os_freemem_pie',
-    //   chart: Object.merge(Object.clone(pie_chart), {
-    //     totalmem: this.os_stats.totalmem.value.data,
-    //     watch: {
-    //       /**
-    //       * @trasnform: diff between each value against its prev one
-    //       */
-    //       transform: function(values, caller, chart){
-    //         let last = values[values.length - 1]
-    //         last.value = last.value * 100 / chart.totalmem
-    //         // ////////////console.log('_os_freemem_pie transform', values, chart.totalmem, last)
-    //         return values
-    //       }
-    //     },
-    //     options:{
-    //       // 'track-color': false,
-    //       size: 80,
-    //       // animated: false,
-    //       'font-size': '14px',
-    //       "bar-color": function(percentage){
-    //         if(percentage > 0 && percentage < 33){
-    //           return '#ff704d'
-    //         }
-    //         else if(percentage > 33 && percentage < 66){
-    //           return '#f6d95b'
-    //         }
-    //         else{
-    //           return '#86b300'
-    //         }
-    //       }
-    //     }
-    //   }),
-    //   init: this.__get_stat_for_chart.bind(this),
-    //   stop: function(payload){
-    //     // //this.$store.dispatch('stats/flush', payload.stat)
-    //   }.bind(this),
-    //   stat: {
-    //     host: this.host,
-    //     path: 'os',
-    //     key: 'freemem',
-    //     length: 1,
-    //     // tabular:true
-    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-    //   },
-    //   pipeline: {
-    //     name: 'input.os',
-    //     path: 'os',
-    //     range: true
-    //   }
-    // }
-
-    /**
-    * knob
-    */
-    // this.available_charts[this.host+'_os_freemem_knob'] = {
-    //   name: this.host+'_os_freemem_knob',
-    //   chart: Object.merge(Object.clone(jqueryKnob), {
-    //     totalmem: this.os_stats.totalmem.value.data,
-    //     watch: {
-    //       /**
-    //       * @trasnform: diff between each value against its prev one
-    //       */
-    //       transform: function(values, caller, chart){
-    //         let last = values[values.length - 1]
-    //         last.value = last.value * 100 / chart.totalmem
-    //         // ////////////console.log('_os_freemem_knob transform', values, chart.totalmem, last)
-    //         return values
-    //       }
-    //     },
-    //     options:{
-    //       readOnly: true,
-    //       displayPrevious: true,
-    //       thickness: 0.1,
-    //       width: 80,
-    //       skin: 'tron',
-    //       // bgColor: 'black',
-    //       fgColor: function(percentage){
-    //         if(percentage > 0 && percentage < 33){
-    //           return '#ff704d'
-    //         }
-    //         else if(percentage > 33 && percentage < 66){
-    //           return '#f6d95b'
-    //         }
-    //         else{
-    //           return '#86b300'
-    //         }
-    //       },
-    //       inputColor: function(percentage){
-    //         if(percentage > 0 && percentage < 33){
-    //           return '#ff704d'
-    //         }
-    //         else if(percentage > 33 && percentage < 66){
-    //           return '#f6d95b'
-    //         }
-    //         else{
-    //           return '#86b300'
-    //         }
-    //       }
-    //     }
-    //   }),
-    //   init: this.__get_stat_for_chart.bind(this),
-    //   stop: function(payload){
-    //     // //this.$store.dispatch('stats/flush', payload.stat)
-    //   }.bind(this),
-    //   stat: {
-    //     host: this.host,
-    //     path: 'os',
-    //     key: 'freemem',
-    //     length: 1,
-    //     // tabular:true
-    //     // range: [Date.now() - this.seconds * 1000, Date.now()]
-    //   },
-    //   pipeline: {
-    //     name: 'input.os',
-    //     path: 'os',
-    //     range: true
-    //   }
-    // }
-
-
-    /**
-    * remove for testing
-    **/
-
-    // this.create_host_pipelines(this.$store.state.app.paths)
+    this.__mount()
   },
 
 
 
+
+  beforeRouteUpdate: function (to, from, next) {
+    console.log('life cycle beforeRouteUpdate')
+    // react to route changes...
+    // don't forget to call next()
+    this.__clean_destroy(
+      this.__clean_create.pass(
+        this.__create.pass([
+          this.$store.state.app.paths,
+          this.__mount.pass(next, this)
+        ], this),
+        this
+      )
+    )
+
+
+    next()
+  },
+  // beforeCreate: function(){
+  //   console.log('life cycle beforeCreate')
+  //   this.__clean_create()
+  //
+  // },
   created: function(){
-
-    this.create_host_pipelines(this.$store.state.app.paths)
-
-  },
-
-  beforeCreate: function(){
-    ////////////////console.log('life cycle beforeCreate')
-    EventBus.$off('host')
-    EventBus.$off('os')
-    EventBus.$off('charts', this.__process_dashoard_charts)
-    EventBus.$off('stats', this.__process_dashoard_stats)
+    console.log('life cycle created')
+    this.__clean_create(
+      this.__create.pass([this.$store.state.app.paths], this)
+    )
 
   },
   beforeDestroy: function(){
-
-    this.destroy_host_pipelines()
-
-    this.remove_charts()
-    // this.remove_charts({
-    //   // clean: true,
-    //   unwatch: true,
-    // })
-    // this.remove_chart_stats()
-
-    // this.$store.dispatch('stats/flush_all', {host: this.host})
-    // this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
-
-    // this.$store.dispatch('stats/splice', {host: this.host, length: 300})
-    // this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
+    console.log('life cycle beforeDestroy')
+    this.__clean_destroy()
   },
-  // destroyed: function(){
-  //   this.$off()
-  // },
+  destroyed: function(){
+    console.log('life cycle destroyed')
+    this.$off()
+  },
   methods: {
+    __create: function(paths, next){
+      EventBus.$once('charts', this.__process_dashoard_charts)
+      EventBus.$on('stats', this.__process_dashoard_stats)
+
+      if(Object.getLength(this.$options.pipelines) == 0){
+        this.create_host_pipelines(paths, next)
+      }
+      else if(next){
+        next()
+      }
+    },
+    __mount: function(next){
+      console.log('life cycle __mount')
+
+
+      // console.log('EventBus.$listeners', EventBus)
+      if(this.all_init === true){
+        this.__init_charts()
+      }
+      else{
+        let unwatch_all_init = this.$watch('all_init', function(val){
+          console.log('all_init', val)
+          if(val == true){
+            console.log('all_init', val, this.host_charts)
+
+            this.set_range(moment().subtract(5, 'minute'), moment())
+
+            //console.log('all_init STATS',this['stats'])
+            //console.log('all_init TABULARS', this['tabulars'])
+            //console.log('all_init CHARTS', this.$options.charts_objects)
+
+            unwatch_all_init()
+
+            this.__init_charts()
+          }
+        })//watcher
+      }
+
+
+      /**
+      * remove for testing
+      **/
+
+
+      /**
+      * pie
+      **/
+      // this.available_charts[this.host+'_os_freemem_pie'] = {
+      //   name: this.host+'_os_freemem_pie',
+      //   chart: Object.merge(Object.clone(pie_chart), {
+      //     totalmem: this.os_stats.totalmem.value.data,
+      //     watch: {
+      //       /**
+      //       * @trasnform: diff between each value against its prev one
+      //       */
+      //       transform: function(values, caller, chart){
+      //         let last = values[values.length - 1]
+      //         last.value = last.value * 100 / chart.totalmem
+      //         // ////////////console.log('_os_freemem_pie transform', values, chart.totalmem, last)
+      //         return values
+      //       }
+      //     },
+      //     options:{
+      //       // 'track-color': false,
+      //       size: 80,
+      //       // animated: false,
+      //       'font-size': '14px',
+      //       "bar-color": function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#ff704d'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#86b300'
+      //         }
+      //       }
+      //     }
+      //   }),
+      //   init: this.__get_stat_for_chart.bind(this),
+      //   stop: function(payload){
+      //     // //this.$store.dispatch('stats/flush', payload.stat)
+      //   }.bind(this),
+      //   stat: {
+      //     host: this.host,
+      //     path: 'os',
+      //     key: 'freemem',
+      //     length: 1,
+      //     // tabular:true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   },
+      //   pipeline: {
+      //     name: 'input.os',
+      //     path: 'os',
+      //     range: true
+      //   }
+      // }
+
+      /**
+      * knob
+      */
+      // this.available_charts[this.host+'_os_freemem_knob'] = {
+      //   name: this.host+'_os_freemem_knob',
+      //   chart: Object.merge(Object.clone(jqueryKnob), {
+      //     totalmem: this.os_stats.totalmem.value.data,
+      //     watch: {
+      //       /**
+      //       * @trasnform: diff between each value against its prev one
+      //       */
+      //       transform: function(values, caller, chart){
+      //         let last = values[values.length - 1]
+      //         last.value = last.value * 100 / chart.totalmem
+      //         // ////////////console.log('_os_freemem_knob transform', values, chart.totalmem, last)
+      //         return values
+      //       }
+      //     },
+      //     options:{
+      //       readOnly: true,
+      //       displayPrevious: true,
+      //       thickness: 0.1,
+      //       width: 80,
+      //       skin: 'tron',
+      //       // bgColor: 'black',
+      //       fgColor: function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#ff704d'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#86b300'
+      //         }
+      //       },
+      //       inputColor: function(percentage){
+      //         if(percentage > 0 && percentage < 33){
+      //           return '#ff704d'
+      //         }
+      //         else if(percentage > 33 && percentage < 66){
+      //           return '#f6d95b'
+      //         }
+      //         else{
+      //           return '#86b300'
+      //         }
+      //       }
+      //     }
+      //   }),
+      //   init: this.__get_stat_for_chart.bind(this),
+      //   stop: function(payload){
+      //     // //this.$store.dispatch('stats/flush', payload.stat)
+      //   }.bind(this),
+      //   stat: {
+      //     host: this.host,
+      //     path: 'os',
+      //     key: 'freemem',
+      //     length: 1,
+      //     // tabular:true
+      //     // range: [Date.now() - this.seconds * 1000, Date.now()]
+      //   },
+      //   pipeline: {
+      //     name: 'input.os',
+      //     path: 'os',
+      //     range: true
+      //   }
+      // }
+
+
+      /**
+      * remove for testing
+      **/
+
+      if(next)
+        next()
+    },
+    __clean_destroy: function(next){
+      // this.host_charts = undefined
+      this.stats_init = false
+      this.tabulars_init = false
+
+      this.destroy_host_pipelines()
+      Object.each(this.charts, function(chart, name){
+        this.set_chart_visibility(name, false)
+      }.bind(this))
+
+      this.$set(this, 'available_charts', {})
+      this.$store.commit('tabulars_sources/clear')
+      this.$store.commit('stats_sources/clear')
+
+      // this.remove_charts()
+      // this.remove_charts({
+      //   // clean: true,
+      //   unwatch: true,
+      // })
+      // this.remove_chart_stats()
+
+      // this.$store.dispatch('stats/flush_all', {host: this.host})
+      // this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
+
+      // this.$store.dispatch('stats/splice', {host: this.host, length: 300})
+      // this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
+
+      if(next)
+        next()
+    },
+    __clean_create: function(next){
+      EventBus.$off('host')
+      EventBus.$off('os')
+      EventBus.$off('charts', this.__process_dashoard_charts)
+      EventBus.$off('stats', this.__process_dashoard_stats)
+
+      if(next)
+        next()
+    },
     __init_charts: function(){
       let merged_chart = Object.merge(Object.clone(cpus_times_chart), Object.merge(this.host_charts['os.cpus.times']))
       if(merged_chart.options.labels){
@@ -973,32 +1036,39 @@ export default {
 
       // if(!this.available_charts[this.host+'.os.freemem']){
       // this.available_charts[this.host+'.os.freemem'] = Object.merge(
-      this.$set(this.available_charts, this.host+'.os.freemem', Object.merge(
-        this.get_payload(charts_payloads,{
-          name: 'os.freemem',
-          host: this.host,
-          seconds: this.seconds
-        }),
-        {
-          tabular: false,
-          stat: {
-            range: this.range,
-            sources: [{type: 'stats', path:this.host+'.os.freemem'}],
-          },
-          wrapper: {
-            type: 'dygraph',
-            props: {}
-          },
-          chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.$store.state.stats_sources[this.host+'.os.totalmem'][0].value}),
-          stop: function(payload){
-          }.bind(this),
-          pipeline: {
-            range: true
-          }
-        }
-      ))
+      let __unwacth_freemem = this.$watch('$store.state.stats_sources', function(val){
 
-      this.set_chart_visibility(this.host+'.os.freemem', true)
+        if(val[this.host+'.os.totalmem']){
+          __unwacth_freemem()
+          this.$set(this.available_charts, this.host+'.os.freemem', Object.merge(
+            this.get_payload(charts_payloads,{
+              name: 'os.freemem',
+              host: this.host,
+              seconds: this.seconds
+            }),
+            {
+              tabular: false,
+              stat: {
+                range: this.range,
+                sources: [{type: 'stats', path:this.host+'.os.freemem'}],
+              },
+              wrapper: {
+                type: 'dygraph',
+                props: {}
+              },
+              chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.$store.state.stats_sources[this.host+'.os.totalmem'][0].value}),
+              stop: function(payload){
+              }.bind(this),
+              pipeline: {
+                range: true
+              }
+            }
+          ))
+
+          this.set_chart_visibility(this.host+'.os.freemem', true)
+        }
+      }, {deep: true})
+
       // }
 
 
@@ -1461,10 +1531,12 @@ export default {
     /**
     * @start pipelines
     **/
-    create_host_pipelines (paths) {
+    create_host_pipelines: function (paths, next) {
       // paths = ['os.procs']
       ////////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
-      let host = this.$store.state.hosts.current || this.$route.params.host
+      let host = this.$route.params.host || this.$store.state.hosts.current
+
+      console.log('life cycle create_host_pipelines', host)
 
       // let range = Object.clone(this.$store.state.app.range)
 
@@ -1543,6 +1615,10 @@ export default {
 
         // }.bind(this))
       }
+
+      // console.log('NEXT', next)
+      if(next)
+        next()
     },
     destroy_host_pipelines () {
       let host = this.$store.state.hosts.current || this.$route.params.host
