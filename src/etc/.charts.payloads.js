@@ -36,6 +36,10 @@ export default {
     chart: undefined,
     init: undefined,
     stop: undefined,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
     stat: {
       merged: false,
       events: [{

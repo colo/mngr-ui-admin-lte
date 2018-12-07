@@ -104,7 +104,7 @@ export default {
       if(val && val.length > 0){
         // console.log('this.$watch events', val)
 
-        Array.each(val, function(event, index){
+        Array.each(val, function(event, e_index){
           if(event.id && this.available_charts[event.id]){
 
             let {id} = event
@@ -117,7 +117,7 @@ export default {
 
             //////// console.log('this.$watch events chart', pipeline, stat)
 
-            Array.each(stat.events, function(stat_data, index){
+            Array.each(stat.events, function(stat_data, s_index){
               let p = undefined
               if(Array.isArray(pipeline)){
                 p = pipeline[index]
@@ -129,7 +129,7 @@ export default {
               // let __pipeline = this.__parse_pipeline_opts(p, stat_data)
 
               // if(id == 'colo.cpus_times.uptime')
-                // console.log('PRE __parse_event', id, stat_data, event)
+                console.log('PRE __parse_event', id, stat_data, event, s_index)
 
               let parsed_event = this.__parse_event(event, stat_data)
 

@@ -98,20 +98,7 @@ export default {
   // }),
   created () {
     this.$options.__buffer_data = []
-    // if(this.stat && this.stat.sources){
-    //   // this.$set(this.stat, 'data', [])
-    //   // if(!Array.isArray(this.stat.sources))
-    //   //   this.stat.sources = [this.stat.sources]
-    //   //
-    //   // Array.each(this.stat.sources, function(source, index){
-    //   //   let {type, path} = source
-    //   //   console.log('this.stat.data', type, path)
-    //   //   this.stat.data.push(this.$store.state[type+'_sources'][path])
-    //   // }.bind(this))
-    //   this.$set(this.stat, 'data', this.sources)
-    // }
-    //
-    // console.log('this.stat.data', this.stat.data)
+
 
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
@@ -119,7 +106,7 @@ export default {
       this.$options.__range_init = true
 
     this.$options.length = this.stat.length || range_length
-    //console.log('CREATED length', this.$options.length)
+
 
     this.$options.root = this.id.split('.')[0]
     this.$options.path = this.id.split('.')[1]
@@ -157,7 +144,7 @@ export default {
       // this.$store.commit(this.$options.type+'/'+this.id+'/path', this.$options.path)
       // this.$store.commit(this.$options.type+'/'+this.id+'/key', this.$options.key)
     }
-
+    console.log('CREATED length', this.stat.range, this.$options.length)
     if(this.stat.range && this.$options.length > 1){
       // this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
       //   root: this.$options.root,
