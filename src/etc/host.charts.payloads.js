@@ -167,6 +167,133 @@ let __payloads = {
     }
   },
 
+  'os_procs.count.pids': {
+    name: 'os_procs.count.pids',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      merged: false,
+      sources: [{type: 'tabulars', path:'.os_procs.count.pids'}],
+
+      events: [{
+        host: undefined,
+        path: 'os_procs',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      range: true
+    }
+  },
+
+  'os_procs.count.cmd': {
+    name: 'os_procs.count.cmd',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      merged: false,
+      sources: [{type: 'tabulars', path:'.os_procs.count.cmd'}],
+
+      events: [{
+        host: undefined,
+        path: 'os_procs',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      range: true
+    }
+  },
+
+  'os_procs.count.uids': {
+    name: 'os_procs.count.uids',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      merged: false,
+      sources: [{type: 'tabulars', path:'.os_procs.count.uids'}],
+
+      events: [{
+        host: undefined,
+        path: 'os_procs',
+        // key: 'cpus',
+        // length: 300,
+        tabular: true,
+        // range: undefined
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      range: true
+    }
+  },
+
+  'os_procs.uids':{
+    name: 'os_procs.uids',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    tabular: false,//this is for component, if not set is "chart-tabular"
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      merged: false,
+      sources: [{type: 'stats', path: '.os_procs.uids'}],
+      events: [{
+        host: undefined,
+        path: 'os_procs',
+        // key: 'cpus',
+        // length: 300,
+        tabular: false,
+        // range: undefined
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      range: true
+    }
+  },
   'os_blockdevices.stats': {
     name: 'os_blockdevices.stats',
     chart: undefined,

@@ -1,14 +1,19 @@
 <template>
+  <!-- <div
+  :style="chart.style"
+  :class="chart.class"
+  > -->
   <div
-  :style="options.style"
-  :class="options.class"
+    :id="id+'-container'"
+    :class="chart.class"
+    :style="chart.style"
   >
     <!-- linear-gauge | radial-gauge -->
     <bars
       :data="values"
       autoDraw
       smooth
-      v-bind="options.options"
+      v-bind="chart.options"
     >
     </bars>
 
@@ -18,168 +23,51 @@
 
 <script>
 
+import chartWrapper from 'components/mixins/chart.wrapper'
+
 import Bars from 'vuebars'
 
 export default {
+  mixins: [chartWrapper],
+
   name: 'vue-bars-wrapper',
 
   components: {
     Bars
   },
 
-  // chart: null,
-  freezed: false,
-
-  props: {
-    EventBus: {
-      type: [Object],
-       default: () => ({})
-    },
-    id: {
-      type: [String],
-      default: () => ('')
-    },
-    options: {
-      type: [Object],
-      default: () => ({})
-    },
-
-    stat: {
-      type: [Object],
-      default: () => ({})
-    },
-
-    freezed: {
-      type: [Boolean],
-      default: () => (false)
-    },
-    visible: {
-      type: [Boolean],
-      default: () => (true)
-    },
-  },
   data () {
     return {
-      values: [],
-      // container_class_helper: '',
-      chart: null,
-      // highlighted: false,
-      // ready: false,
-      // to_suspend: false,
+      values: []
     }
   },
-  watch: {
-    visible: function (val) {
-      this.container_class_helper = (val == false) ? 'invisible' : ''
-      // console.log('class visible', val, this.container_class_helper)
-    }
-  },
-
-  created () {
-    this.chart = this
-  //   // //console.log('created', this.id, this.visible)
-  //
-  //   this.EventBus.$on('highlightCallback', params => {
-  //     this.highlighted = true
-  //     // ////console.log('event highlightCallback', params)
-	// 	})
-  //   this.EventBus.$on('unhighlightCallback', event => {
-  //     this.highlighted = false
-  //     // ////console.log('event unhighlightCallback', event)
-	// 	})
-  //
-  //   // keypath
-  //   let unwatch = this.$watch('stat.data', function (val, oldVal) {
-  //
-  //
-  //     ////console.log('created', this.id, this.stat.data)
-  //
-  //     // if(val.length > 1 && this.chart == null){
-  //     if(val.length > 1){
-  //
-  //
-  //       this._create_dygraph()
-  //
-  //       unwatch()
-  //     }
-  //
-  //   })
-  // },
-  // mounted () {
-  //
-  //   if(this.chart == null){
-  //
-  //     this._create_dygraph()
-  //
+  // watch: {
+  //   visible: function (val) {
+  //     this.container_class_helper = (val == false) ? 'invisible' : ''
+  //     // console.log('class visible', val, this.container_class_helper)
   //   }
-  //
   // },
 
-  // destroyed (){
-  //
-  //   if(this.chart){
-  //     this.chart.destroy()
-  //     this.chart = null
-  //   }
-  //   this.$off()
-  },
+  // created () {
+  //   this.chart = this
+  // },
   methods: {
-
-    // _create_dygraph (){
-    //   let options = Object.clone(this.options.options)
-    //
-    //   if(options.labelsDiv)
-    //     options.labelsDiv = this.id+'-'+options.labelsDiv
-    //
-    //   this.chart = new Dygraph(
-    //     document.getElementById(this.id),  // containing div
-    //     this.stat.data,
-    //     options
-    //   )
-    //
-    //   this.chart.ready(function(){
-    //     // ////console.log('chart '+this.id+' ready')
-    //     this.ready = true
-    //   }.bind(this))
-    //
-    //   if(this.options.init)
-    //     this.options.init(this, this.chart, 'dygraph')
-    // },
-    update () {
-      this.$set(this, 'values', [])
-
-      Array.each(this.stat.data, function(data){
-        this.values.push(data[1])
-      }.bind(this))
-
-
-      // console.log('this.values', this.values)
+    create (){
+      this.update()
     },
-    // updateOptions (options, block_redraw){
-    //
-    //   let self = this
-    //
-    //   if(this.highlighted == false && this.ready == true
-    //     // && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
-    //     // && this.freezed == false
-    //   ){
-    //
-    //       this.chart.updateOptions(
-    //         Object.merge(
-    //           {
-    //             'file': self.stat.data
-    //           },
-    //           options
-    //         ),
-    //         block_redraw
-    //       );
-    //
-    //       this.chart.setSelection(this.chart.numRows() - 1, {}, false)
-    //
-    //
-    //   }
-    //
-    // }
+    update (data){
+      data = this.get_data(data)
+      console.log('vueBars update', data)
+
+      this.$set(this, 'values', data)
+
+      // Array.each(data, function(d){
+      //   this.values.push(data[1])
+      // }.bind(this))
+
+    },
+
+
   }
 }
 </script>

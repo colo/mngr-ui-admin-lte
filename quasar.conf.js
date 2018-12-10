@@ -95,6 +95,9 @@ module.exports = function (ctx) {
         // 'QItem',
         // 'QItemMain',
         // 'QItemSide'
+        'QInnerLoading',
+        'QSpinnerTail',
+        'QSpinnerFacebook',
       ],
       directives: [
         // 'Ripple'

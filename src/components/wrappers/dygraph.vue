@@ -23,6 +23,7 @@
 
 <script>
 
+import chartWrapper from 'components/mixins/chart.wrapper'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -30,65 +31,11 @@ import Dygraph from 'dygraphs'
 import 'dygraphs/dist/dygraph.css'
 
 export default {
+  mixins: [chartWrapper],
+
   name: 'dygraph-wrapper',
 
-  graph: undefined,
-  freezed: false,
-
-  __unwatcher: undefined,
-  visible: true,
-
-  props: {
-    EventBus: {
-      type: [Object],
-       default: () => ({})
-    },
-    id: {
-      type: [String],
-      default: () => ('')
-    },
-    chart: {
-      type: [Object],
-      // default: () => ({})
-    },
-
-    data: {
-      type: [Array],
-      default: () => ([])
-    },
-
-    freezed: {
-      type: [Boolean],
-      default: () => (false)
-    },
-    visible: {
-      type: [Boolean],
-      default: () => (true)
-    },
-  },
-  data () {
-    return {
-      // focus: true,
-      container_class_helper: '',
-      // graph: null,
-      highlighted: false,
-      ready: false,
-      // to_suspend: false,
-      // stat: {
-      //   data: [[]]
-      // }
-    }
-  },
-  watch: {
-    // visible: function (val) {
-    //   this.container_class_helper = (val == false) ? 'invisible' : ''
-    //   // //////////console.log('class visible', val, this.container_class_helper)
-    // }
-  },
-
   created () {
-    //////////console.log('created', this.id, this.data)
-    // this.$set(stat, 'data', [[]])
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
       EventBus.$on('highlightCallback', params => {
@@ -101,81 +48,62 @@ export default {
   		})
     }
 
-    // window.addEventListener('blur', function() {
-    //    this.focus = false
-    // }.bind(this), false)
-    //
-    // window.addEventListener('focus', function() {
-    //    this.focus = true
-    // }.bind(this), false)
-
-    // this.create()
-
-
   },
-  mounted () {
-
-    // if(this.$options.graph == null && this.data && this.data.length > 1){
-    //
-    //   this.__create_dygraph()
-    //
-    // }
-    // this.__watcher()
-
-    this.create()
-    // if(this.chart && this.chart.options){
-    //   //console.log('mounted dygraph', this.id, this.chart)
-    //   this.create()
-    // }
-    // else{
-    //   let unwatch = this.$watch('chart', function(val){
-    //     if(val && Object.getLength(val) > 0 && val.options){
-    //       // this.__create_dygraph()
-    //       this.create()
-    //       unwatch()
-    //     }
-    //
-    //   })
-    // }
-  },
-  updated () {
+  // mounted () {
   //
   //   // if(this.$options.graph == null && this.data && this.data.length > 1){
   //   //
-  //   //   this.__create_dygraph()
+  //   //   this.__create_chart()
   //   //
   //   // }
   //   // this.__watcher()
   //
-    this.create()
-  },
-  destroyed (){
-    this.destroy()
-    if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
-      // //////////console.log('destroying ...', this.id)
-      this.$options.graph.destroy()
-
-    }
-
-    this.$options.graph = undefined
-    this.$off()
-  },
+  //   this.create()
+  //   // if(this.chart && this.chart.options){
+  //   //   //console.log('mounted dygraph', this.id, this.chart)
+  //   //   this.create()
+  //   // }
+  //   // else{
+  //   //   let unwatch = this.$watch('chart', function(val){
+  //   //     if(val && Object.getLength(val) > 0 && val.options){
+  //   //       // this.__create_chart()
+  //   //       this.create()
+  //   //       unwatch()
+  //   //     }
+  //   //
+  //   //   })
+  //   // }
+  // },
+  // updated () {
+  // //
+  // //   // if(this.$options.graph == null && this.data && this.data.length > 1){
+  // //   //
+  // //   //   this.__create_chart()
+  // //   //
+  // //   // }
+  // //   // this.__watcher()
+  // //
+  //   this.create()
+  // },
+  // destroyed (){
+  //   this.destroy()
+  //   if(this.$options.graph && typeof this.$options.graph.destroy == 'function'){
+  //     this.$options.graph.destroy()
+  //
+  //   }
+  //
+  //   this.$options.graph = undefined
+  //   this.$off()
+  // },
   methods: {
 
     /**
     * UI related
     **/
-    // visibilityChanged (isVisible, entry) {
-    //   this.$options.visible = isVisible
-    //   // if(isVisible == true && !this.$options.graph)
-    //   // if(isVisible == false)
-    //   //   this.reset()
+    // reset: function(){
+    //   this.destroy()
+    //   this.create()
     // },
-    reset: function(){
-      ////console.log('dygraph reset')
-      this.destroy()
-      this.create()
-    },
     destroy: function(){
       ////////console.log('dygraph destroy', this.id)
 
@@ -195,50 +123,28 @@ export default {
 
     },
     create (){
-      // this.__create_dygraph()
+      // this.__create_chart()
       if(this.chart && this.chart.options){
         //console.log('create dygraph', this.id, this.chart)
         // this.create()
-        this.__create_dygraph()
+        this.__create_chart()
       }
       else{
         let unwatch = this.$watch('chart', function(val){
           if(val && Object.getLength(val) > 0 && val.options){
-            this.__create_dygraph()
+            this.__create_chart()
             // this.create()
             unwatch()
           }
 
         })
       }
-      // this.$options.__unwatcher = this.$watch('data', function (val, oldVal) {
-      //
-      //
-      //   //////console.log('updated data dygraph', this.id, this.data)
-      //
-      //   // if(val.length > 1 && this.chart == null){
-      //   if(val.length > 1){
-      //
-      //     if(!this.$options.graph){
-      //
-      //       this.__create_dygraph()
-      //       // __unwatcher()
-      //       this.$options.__unwatcher()
-      //     }{
-      //       // this.__create_dygraph()
-      //       //
-      //
-      //       // this.update()
-      //
-      //     }
-      //   }
-      //
-      // })
+
     },
-    __create_dygraph (){
+    __create_chart (){
       let options = Object.clone(this.chart.options)
 
-      //console.log('__create_dygraph', this.id, options)
+      //console.log('__create_chart', this.id, options)
 
       if(options.labels && document.getElementById(this.id)){
         if(options.labelsDiv)
@@ -254,7 +160,7 @@ export default {
           data.push(row)
         }
         else{
-          data = this._get_data()
+          data = this.get_data()
           // data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
           // data = []
         }
@@ -264,7 +170,7 @@ export default {
         //   data.push(row)
         // })
 
-        console.log('__create_dygraph', this.id, options)
+        console.log('__create_chart', this.id, options)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div
@@ -284,7 +190,7 @@ export default {
         // this.update()
       }
     },
-    _get_data: function(data){
+    get_data: function(data){
       data = data || Array.clone(this.data)
 
       data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
@@ -299,7 +205,7 @@ export default {
     },
     update (data){
       // ////console.log('dygraph update', this.id, data, this.$options.graph.numRows())
-      data = this._get_data(data)
+      data = this.get_data(data)
       // let options = (this.ready == true && this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
       // if(this.$options.visible == true && this.ready == true){
       if(this.ready == true && data && data[0]){
@@ -315,19 +221,6 @@ export default {
         )
 
 
-        // else{
-        //   ////////console.log('no focus, forcing...', new Date())
-        //   this.updateOptions(
-        //     data,
-        //     // {},
-        //     { 'dateWindow': this.$options.graph.xAxisExtremes() },
-        //     false
-        //   )
-        //   // setTimeout(this.updateOptions(
-        //   //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
-        //   //   false
-        //   // ), 50)
-        // }
       }
     },
     updateOptions (data, options, block_redraw){

@@ -133,6 +133,8 @@ import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
 import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
 import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
 import networkInterfaces_stats_chart from 'mngr-ui-admin-charts/os/networkInterfaces_stats'
+import procs_count_chart from 'mngr-ui-admin-charts/os/procs_count'
+import procs_top_chart from 'mngr-ui-admin-charts/os/procs_top'
 
 import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
 import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
@@ -779,6 +781,51 @@ export default {
       this.set_chart_visibility(this.host+'.os.loadavg', true)
 
 
+      this.$set(this.available_charts, this.host+'.os_procs.count.pids', Object.merge(
+        this.$options.host_charts['os_procs.count.pids'],
+        {
+          chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
+        })
+      )
+
+      this.set_chart_visibility(this.host+'.os_procs.count.pids', true)
+
+      this.$set(this.available_charts, this.host+'.os_procs.count.cmd', Object.merge(
+        this.$options.host_charts['os_procs.count.cmd'],
+        {
+          chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
+        })
+      )
+
+      this.set_chart_visibility(this.host+'.os_procs.count.cmd', true)
+
+      this.$set(this.available_charts, this.host+'.os_procs.count.uids', Object.merge(
+        this.$options.host_charts['os_procs.count.uids'],
+        {
+          chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
+        })
+      )
+
+      this.set_chart_visibility(this.host+'.os_procs.count.uids', true)
+
+
+      // console.log('this.host_charts', this.host_charts)
+
+      this.$set(this.available_charts, this.host+'.os_procs.uids', Object.merge(
+        this.$options.host_charts['os_procs.uids'],
+        {
+          // stat:{
+          //   sources: [{type: 'stats', path: this.host+'.os_procs.pids'}],
+          // },
+          chart: Object.clone(procs_top_chart),
+        })
+      )
+      // console.log('PROCS TOP', this.available_charts[this.host+'.os_procs.uids'])
+
+      this.set_chart_visibility(this.host+'.os_procs.uids', true)
+
+
+
       // if(!this.available_charts[this.host+'.os.freemem']){
       // this.available_charts[this.host+'.os.freemem'] = Object.merge(
       let __unwacth_freemem = this.$watch('$store.state.stats_sources', function(val){
@@ -800,9 +847,9 @@ export default {
       // }
 
 
-      let mount = new RegExp(this.host+'.os_mounts', 'g')
-      let blockdevice = new RegExp(this.host+'.os_blockdevices', 'g')
-      let networkInterface = new RegExp(this.host+'.os_networkInterfaces_stats', 'g')
+      let mount = new RegExp(this.host+'.os_mounts')
+      let blockdevice = new RegExp(this.host+'.os_blockdevices')
+      let networkInterface = new RegExp(this.host+'.os_networkInterfaces_stats')
 
       let __unwacth_mounts = this.$watch('$store.state.tabulars_sources', function(val){
 
@@ -844,6 +891,9 @@ export default {
 
             let _name = key.substring(key.lastIndexOf('.') + 1)
             let chart_name = this.host+'.os_blockdevices.stats.'+_name
+
+            // console.log('BLK', chart_name)
+
             if(!this.available_charts[chart_name]){
 
               this.$set(this.available_charts, chart_name, Object.merge(
@@ -867,7 +917,7 @@ export default {
 
       let __unwacth_networkInterfaces = this.$watch('$store.state.tabulars_sources', function(val){
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
-          console.log('networkInterface KEY',key)
+          // console.log('networkInterface KEY',key)
 
           if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
             __unwacth_networkInterfaces()

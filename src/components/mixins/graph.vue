@@ -12,6 +12,28 @@
     v-bind="wrapper.opts"
   />
   </component>
+  <div v-else :style="chart.style">
+     <q-inner-loading :visible="true" class="absolute-center">
+       <q-spinner-facebook :size="20" color="indigo"></q-spinner-facebook>
+     </q-inner-loading>
+  </div>
+
+
+
+  <!-- <vueBarsWrapper v-else
+    :chart="{
+      options: {
+        height: 40,
+        gradient:['#6fa8dc', '#42b983'],
+        barWidth: 2,
+        growDuration: 1,
+        strokeWidth: 0,
+        padding: 0
+      }
+    }"
+    :data="[1, 2, 5, 9, 5, 10, 3, 5, 8, 12, 1, 2, 5, 9, 5, 10, 3, 5, 8, 12, 1, 2, 5, 9, 5, 10, 3, 5, 8, 12]"
+  /> -->
+
 
   <!-- v-observe-visibility="visibilityChanged" -->
 
@@ -21,6 +43,7 @@
 
 import { frameDebounce } from 'quasar'
 
+import vueBarsWrapper from 'components/wrappers/vueBars'
 import dygraphWrapper from 'components/wrappers/dygraph'
 import vueEasyPieChartWrapper from 'components/wrappers/vueEasyPieChart'
 import jqueryKnobWrapper from 'components/wrappers/jqueryKnob'
@@ -29,6 +52,7 @@ import highchartsVueWrapper from 'components/wrappers/highchartsVue'
 export default {
 
   components: {
+    vueBarsWrapper,
     dygraphWrapper,
     vueEasyPieChartWrapper,
     jqueryKnobWrapper,
@@ -296,3 +320,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+#reset-this-parent {
+  all: initial;
+  * {
+    all: unset;
+  }
+}
+</style>

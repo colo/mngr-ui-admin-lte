@@ -114,37 +114,40 @@ export default {
     this.$options.key = this.id.substring(this.id.lastIndexOf('.') + 1)
 
     //console.log('stat.vue id', this.id, this.$options.type)
+    /**
+    * @test - no local data
+    **/
+    // if(!this.$store.state[this.$options.type][this.id]){
+    //   this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
+    //   this.$store.commit(this.$options.type+'/'+this.id+'/id', this.id)
+    //   this.$store.commit(this.$options.type+'/'+this.id+'/type', this.$options.type)
+    //   /**new PouchDB(
+    //     this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
+    //     {adapter: 'memory'}
+    //   )**/
+    //   let db = new PouchDB(
+    //     // this.$options.type+'_'+this.$options.path+'_'+this.$options.key
+    //     this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
+    //   )
+    //   db.createIndex({
+    // 		"index": {
+    // 			// "fields": ['metadata.host', 'metadata.timestamp'],
+    //       "fields": ['metadata.timestamp'],
+    //       "ddoc": 'mango_search',
+	  //       "name": 'timestamp'
+    // 		}
+    // 	}).then(function (result) {
+    //     console.log('creating index', result)
+    //   })
+    //
+    //   this.$store.commit(this.$options.type+'/'+this.id+'/db',db)
+    //
+    //
+    // }
+    /**
+    * @test - no local data
+    **/
 
-    if(!this.$store.state[this.$options.type][this.id]){
-      this.$store.registerModule([this.$options.type, this.id], Object.clone(statStore))
-      this.$store.commit(this.$options.type+'/'+this.id+'/id', this.id)
-      this.$store.commit(this.$options.type+'/'+this.id+'/type', this.$options.type)
-      /**new PouchDB(
-        this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
-        {adapter: 'memory'}
-      )**/
-      let db = new PouchDB(
-        // this.$options.type+'_'+this.$options.path+'_'+this.$options.key
-        this.$options.type+'_'+this.$options.root+'_'+this.$options.path+'_'+this.$options.key,
-      )
-      db.createIndex({
-    		"index": {
-    			// "fields": ['metadata.host', 'metadata.timestamp'],
-          "fields": ['metadata.timestamp'],
-          "ddoc": 'mango_search',
-	        "name": 'timestamp'
-    		}
-    	}).then(function (result) {
-        console.log('creating index', result)
-      })
-
-      this.$store.commit(this.$options.type+'/'+this.id+'/db',db)
-
-      // this.$store.commit(this.$options.type+'/'+this.id+'/root', this.$options.root)
-      // this.$store.commit(this.$options.type+'/'+this.id+'/path', this.$options.path)
-      // this.$store.commit(this.$options.type+'/'+this.id+'/key', this.$options.key)
-    }
-    console.log('CREATED length', this.stat.range, this.$options.length)
     if(this.stat.range && this.$options.length > 1){
       // this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
       //   root: this.$options.root,
@@ -328,9 +331,10 @@ export default {
 
   },
   beforeDestroy (){
-    //console.log('stat.vue gonna flush', this.$options.type+'/'+this.id)
-
-    this.$store.dispatch(this.$options.type+'/'+this.id+'/flush')
+    /**
+    * @test - no local data
+    **/
+    // this.$store.dispatch(this.$options.type+'/'+this.id+'/flush')
   },
   destroyed (){
     this.$off()

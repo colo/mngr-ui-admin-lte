@@ -40,7 +40,7 @@ export default {
     // },
 
     create (){
-      ////console.log('chart.vue create', this.id)
+      console.log('chart.vue create', this.id)
       // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
       //   this.$refs[this.id].create()
 
@@ -77,7 +77,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_stat (chart, name, stat){
-      //////console.log('__process_stat', name, stat)
+      console.log('__process_stat', name, stat)
       if(!Array.isArray(stat))
         stat = [stat]
 

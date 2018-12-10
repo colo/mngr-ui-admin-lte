@@ -22,7 +22,7 @@ export default new Class({
     		{
 					// sort_by_path: throttle(function(req, next, app){
           sort_by_path: function(req, next, app){
-            console.log('SORT_BY_PATH RANGE', req, new Date(req.opt.range.start), new Date(req.opt.range.end))
+            // console.log('SORT_BY_PATH RANGE', req, new Date(req.opt.range.start), new Date(req.opt.range.end))
 
             if(app.options.stat_host && this.status == 'ok'){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
@@ -181,7 +181,7 @@ export default new Class({
   // },
   charts: function(socket, next){
     let {host, status, charts} = arguments[2]
-    // ////console.log('IO.HOST charts', host, status, charts)
+    console.log('IO.HOST charts', host, status, charts)
     this.status = status
 
     this.fireEvent('onDoc', [Object.merge({type: 'charts'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
