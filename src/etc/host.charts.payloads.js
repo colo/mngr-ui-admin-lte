@@ -263,8 +263,8 @@ let __payloads = {
     }
   },
 
-  'os_procs.uids':{
-    name: 'os_procs.uids',
+  'os_procs_stats.uids':{
+    name: 'os_procs_stats.uids',
     chart: undefined,
     init: undefined,
     stop: undefined,
@@ -275,10 +275,10 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'stats', path: '.os_procs.uids'}],
+      sources: [{type: 'stats', path: '.os_procs_stats.uids'}],
       events: [{
         host: undefined,
-        path: 'os_procs',
+        path: 'os_procs_stats',
         // key: 'cpus',
         // length: 300,
         tabular: false,

@@ -781,38 +781,38 @@ export default {
       this.set_chart_visibility(this.host+'.os.loadavg', true)
 
 
-      this.$set(this.available_charts, this.host+'.os_procs.count.pids', Object.merge(
-        this.$options.host_charts['os_procs.count.pids'],
-        {
-          chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
-        })
-      )
-
-      this.set_chart_visibility(this.host+'.os_procs.count.pids', true)
-
-      this.$set(this.available_charts, this.host+'.os_procs.count.cmd', Object.merge(
-        this.$options.host_charts['os_procs.count.cmd'],
-        {
-          chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
-        })
-      )
-
-      this.set_chart_visibility(this.host+'.os_procs.count.cmd', true)
-
-      this.$set(this.available_charts, this.host+'.os_procs.count.uids', Object.merge(
-        this.$options.host_charts['os_procs.count.uids'],
-        {
-          chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
-        })
-      )
-
-      this.set_chart_visibility(this.host+'.os_procs.count.uids', true)
+      // this.$set(this.available_charts, this.host+'.os_procs.count.pids', Object.merge(
+      //   this.$options.host_charts['os_procs.count.pids'],
+      //   {
+      //     chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
+      //   })
+      // )
+      //
+      // this.set_chart_visibility(this.host+'.os_procs.count.pids', true)
+      //
+      // this.$set(this.available_charts, this.host+'.os_procs.count.cmd', Object.merge(
+      //   this.$options.host_charts['os_procs.count.cmd'],
+      //   {
+      //     chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
+      //   })
+      // )
+      //
+      // this.set_chart_visibility(this.host+'.os_procs.count.cmd', true)
+      //
+      // this.$set(this.available_charts, this.host+'.os_procs.count.uids', Object.merge(
+      //   this.$options.host_charts['os_procs.count.uids'],
+      //   {
+      //     chart: Object.merge(this.host_charts['os_procs.count'], procs_count_chart),
+      //   })
+      // )
+      //
+      // this.set_chart_visibility(this.host+'.os_procs.count.uids', true)
 
 
       // console.log('this.host_charts', this.host_charts)
 
-      this.$set(this.available_charts, this.host+'.os_procs.uids', Object.merge(
-        this.$options.host_charts['os_procs.uids'],
+      this.$set(this.available_charts, this.host+'.os_procs_stats.uids', Object.merge(
+        this.$options.host_charts['os_procs_stats.uids'],
         {
           // stat:{
           //   sources: [{type: 'stats', path: this.host+'.os_procs.pids'}],
@@ -822,7 +822,7 @@ export default {
       )
       // console.log('PROCS TOP', this.available_charts[this.host+'.os_procs.uids'])
 
-      this.set_chart_visibility(this.host+'.os_procs.uids', true)
+      this.set_chart_visibility(this.host+'.os_procs_stats.uids', true)
 
 
 
