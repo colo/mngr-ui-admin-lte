@@ -585,34 +585,34 @@ export default {
       })
 
 
-      let merged_chart = Object.merge(
-        Object.clone(cpus_times_chart),
-        Object.merge(this.host_charts['os.cpus.times'])
-      )
-
       // let merged_chart = Object.merge(
-      //   Object.clone(cpus_percentage_chart),
-      //   Object.merge(this.host_charts['.os.cpus.percentage'])
+      //   Object.clone(cpus_times_chart),
+      //   Object.merge(this.host_charts['os.cpus.times'])
       // )
-
-
-      if(merged_chart.options.labels){
-        Array.each(merged_chart.options.labels, function(label, index){
-          merged_chart.options.labels[index] = 'cpus times '+label
-        })
-
-        merged_chart.options.labels.push('uptime seconds')
-        // merged_chart.options.labels.push('1 min load avg')
-
-
-        this.$set(this.available_charts, this.host+'.merged', Object.merge(
-          this.$options.host_charts['merged'],
-          {
-            chart: merged_chart,
-          })
-        )
-        this.set_chart_visibility(this.host+'.merged', true)
-      }
+      //
+      // // let merged_chart = Object.merge(
+      // //   Object.clone(cpus_percentage_chart),
+      // //   Object.merge(this.host_charts['.os.cpus.percentage'])
+      // // )
+      //
+      //
+      // if(merged_chart.options.labels){
+      //   Array.each(merged_chart.options.labels, function(label, index){
+      //     merged_chart.options.labels[index] = 'cpus times '+label
+      //   })
+      //
+      //   merged_chart.options.labels.push('uptime seconds')
+      //   // merged_chart.options.labels.push('1 min load avg')
+      //
+      //
+      //   this.$set(this.available_charts, this.host+'.merged', Object.merge(
+      //     this.$options.host_charts['merged'],
+      //     {
+      //       chart: merged_chart,
+      //     })
+      //   )
+      //   this.set_chart_visibility(this.host+'.merged', true)
+      // }
 
 
 
@@ -859,7 +859,20 @@ export default {
       let blockdevice = new RegExp(this.host+'.os_blockdevices')
       let networkInterface = new RegExp(this.host+'.os_networkInterfaces_stats')
 
+      let _merge = []
+      let _merged_charts = {}
+
       let __unwacth_mounts = this.$watch('$store.state.tabulars_sources', function(val){
+        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+          if(mount.test(key)){
+            let _name = key.substring(key.lastIndexOf('.') + 1)
+            // let prop_name = _name.substr(_name.indexOf('_') + 1)
+            if(!_merge.contains(_name))
+              _merge.push(_name)
+
+          }
+        })
+        console.log('MERGED MOUNT', _merge)
 
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
           if(mount.test(key) && this.host_charts['os_mounts.percentage']){
@@ -868,7 +881,54 @@ export default {
             let _name = key.substring(key.lastIndexOf('.') + 1)
             let chart_name = this.host+'.os_mounts.'+_name
 
-            if(!this.available_charts[chart_name]){
+            // let merge_name = _name.substr(0, _name.indexOf('_'))
+            // let prop_name = _name.substr(_name.indexOf('_') + 1)
+
+            if(_merge.contains(_name)){
+              let merged_chart_name = this.host+'.os_mounts'
+              Array.each(_merge, function(name){
+                merged_chart_name += '.'+name
+              })
+
+              if(!_merged_charts[merged_chart_name]){
+                _merged_charts[merged_chart_name] = Object.merge(
+                  Object.clone(this.$options.host_charts['os_mounts.percentage']),
+                  {
+                    stat: {
+                      merged: true,
+                      sources: [],
+                    },
+                    name: merged_chart_name,
+                    chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
+                  })
+
+                  _merged_charts[merged_chart_name].chart.options.labels = ['Time']
+                }
+
+              _merged_charts[merged_chart_name].stat.sources.push(
+                {type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}
+              )
+
+              let __labels = Array.clone(this.host_charts['os_mounts.percentage'].options.labels)
+              __labels.shift() //remove 'Time' column
+
+              Array.each(__labels, function(label, index){
+                _merged_charts[merged_chart_name].chart.options.labels.push(_name+' '+label)
+              })
+
+              if(_merge.indexOf(_name) == _merge.length - 1){//last item
+                this.$set(this.available_charts, merged_chart_name, _merged_charts[merged_chart_name])
+                this.set_chart_visibility(merged_chart_name, true)
+
+                console.log('MERGED MOUNT', _merged_charts[merged_chart_name])
+
+                delete _merged_charts[merged_chart_name]
+
+
+              }
+
+            }
+            else if(!this.available_charts[chart_name]){
               // console.log('adding mount chart ',chart_name)
 
               this.$set(this.available_charts, chart_name, Object.merge(
