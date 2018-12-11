@@ -13,7 +13,7 @@
   />
   </component>
   <div v-else :style="chart.style">
-     <q-inner-loading :visible="true" class="absolute-center">
+     <q-inner-loading :visible="chart_init !== true" class="absolute-center">
        <q-spinner-facebook :size="20" color="indigo"></q-spinner-facebook>
      </q-inner-loading>
   </div>

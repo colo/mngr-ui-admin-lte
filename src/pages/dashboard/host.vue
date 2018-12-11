@@ -159,6 +159,14 @@ export default {
   // pipelines_events: {},
   // __active_stats: {},
 
+  /**
+  * should be user session configs?
+  **/
+  // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
+  stats_whitelist: /freemem|totalmem/,
+  // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
+  tabulars_whitelist: /^((?!multicast|packets|frame|compressed|fifo).)*$/,
+
   daterangepicker:{
     opens: 'right',
     timePicker: true,
@@ -811,18 +819,18 @@ export default {
 
       // console.log('this.host_charts', this.host_charts)
 
-      this.$set(this.available_charts, this.host+'.os_procs_stats.uids', Object.merge(
-        this.$options.host_charts['os_procs_stats.uids'],
-        {
-          // stat:{
-          //   sources: [{type: 'stats', path: this.host+'.os_procs.pids'}],
-          // },
-          chart: Object.clone(procs_top_chart),
-        })
-      )
-      // console.log('PROCS TOP', this.available_charts[this.host+'.os_procs.uids'])
-
-      this.set_chart_visibility(this.host+'.os_procs_stats.uids', true)
+      // this.$set(this.available_charts, this.host+'.os_procs_stats.uids', Object.merge(
+      //   this.$options.host_charts['os_procs_stats.uids'],
+      //   {
+      //     // stat:{
+      //     //   sources: [{type: 'stats', path: this.host+'.os_procs.pids'}],
+      //     // },
+      //     chart: Object.clone(procs_top_chart),
+      //   })
+      // )
+      // // console.log('PROCS TOP', this.available_charts[this.host+'.os_procs.uids'])
+      //
+      // this.set_chart_visibility(this.host+'.os_procs_stats.uids', true)
 
 
 
@@ -976,68 +984,52 @@ export default {
     },
     __process_dashoard_stats: function(payload){
 
-      if(payload.range == true)
-        console.log('recived doc via Event stats', payload)
+      // if(payload.range == true)
+        // console.log('recived doc via Event stats', payload)
 
       let type = (payload.tabular == true) ? 'tabulars' : 'stats'
       let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
       // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
+      let whitelist = (type == 'tabulars') ? this.$options.tabulars_whitelist : this.$options.stats_whitelist
+      let blacklist = (type == 'tabulars') ? this.$options.tabulars_blacklist : this.$options.stats_blacklist
 
       let counter = 0
       Object.each(payload.stats, function(data, path){
+        let new_path = undefined
+        let new_val = undefined
         if(Array.isArray(data)){
-          // // if(!this[type][payload.host+'.'+path]){
-          // if(!this.$store.state[type+'_sources'][payload.host+'.'+path]){
-          //   // this.$set(this[type],payload.host+'.'+path, data)
-          //   console.log('registering.... ', type, payload.host+'.'+path)
-          //   this.$store.registerModule([type+'_sources', payload.host+'.'+path], Object.clone(sourceStore))
-          // }
-          // // else{
-          // //   this[type][payload.host+'.'+path] = data
-          // // }
-          this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path, value: data})
+
+          // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
+          if(this.__white_black_lists_filter(whitelist, blacklist, path))
+            this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path, value: data})
         }
         else{
-          // if(type == 'stats')
-          //   ////console.log('DATA', data)
 
           Object.each(data, function(value, key){
             if(Array.isArray(value)){
-              // // if(!this[type][payload.host+'.'+path+'.'+key]){
-              // //   this.$set(this[type],payload.host+'.'+path+'.'+key, value)
-              // // }
-              // // else{
-              // //   this[type][payload.host+'.'+path+'.'+key] = value
-              // // }
-              // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key]){
-              //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key)
-              //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key], Object.clone(sourceStore))
-              // }
 
-              this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key, value: value})
+              // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
+              if(this.__white_black_lists_filter(whitelist, blacklist, path+'.'+key))
+                this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key, value: value})
 
             }
             else{
               //3rd level, there is no need for more
               Object.each(value, function(val, sub_key){
-                // // if(!this[type][payload.host+'.'+path+'.'+key+'.'+sub_key]){
-                // //   this.$set(this[type],payload.host+'.'+path+'.'+key+'.'+sub_key, val)
-                // // }
-                // // else{
-                // //   this[type][payload.host+'.'+path+'.'+key+'.'+sub_key] = val
-                // // }
-                //
-                // if(!this.$store.state[type+'_sources'][payload.host+'.'+path+'.'+key+'.'+sub_key]){
-                //   console.log('registering.... ', type, payload.host+'.'+path+'.'+key+'.'+sub_key)
-                //   this.$store.registerModule([type+'_sources', payload.host+'.'+path+'.'+key+'.'+sub_key], Object.clone(sourceStore))
-                // }
 
-                this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key+'.'+sub_key, value: val})
+                // if((whitelist && whitelist.test(path+'.'+key+'.'+sub_key)) || ))
+                // if(!blacklist || !blacklist.test(path+'.'+key+'.'+sub_key)
+                if(this.__white_black_lists_filter(whitelist, blacklist, path+'.'+key+'.'+sub_key))
+                  this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key+'.'+sub_key, value: val})
+
               }.bind(this))
             }
 
+
+
           }.bind(this))
         }
+
 
         if(counter == Object.getLength(payload.stats) - 1)
           this.$set(this, init, true)
@@ -1046,6 +1038,23 @@ export default {
       }.bind(this))
 
 
+    },
+    __white_black_lists_filter: function(whitelist, blacklist, str){
+      let filtered = false
+      if(!blacklist && !whitelist){
+        filtered = true
+      }
+      else if(blacklist && !blacklist.test(str)){
+        filtered = true
+      }
+      else if(blacklist && blacklist.test(str) && (whitelist && whitelist.test(str))){
+        filtered = true
+      }
+      else if(!blacklist && (whitelist && whitelist.test(str))){
+        filtered = true
+      }
+
+      return filtered
     },
     update_daterangepicker: function(){
       //////////console.log('update_daterangepicker')
