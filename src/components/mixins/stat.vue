@@ -269,6 +269,8 @@ export default {
               columns.push(this.stat.data[i])
             }
 
+            // console.log('MERGED COLUMNS', columns)
+
             if(columns.length > 0){
               let matched_columns = false
               Array.each(val, function(row, index){
@@ -276,10 +278,10 @@ export default {
                   ////////console.log('COLUMN',column)
                   if(column){
                     if(Array.isArray(column[0])){//array of array, range data
-                      val[index] = this._merge_tabular_data(row, column[index])//match columns/rows
+                      val[index] = this._merge_tabular_data(val[index], column[index])//match columns/rows
                     }
                     else{
-                      val[index] = this._merge_tabular_data(row, column)//fill always with same val
+                      val[index] = this._merge_tabular_data(val[index], column)//fill always with same val
                     }
                     matched_columns = true
                   }

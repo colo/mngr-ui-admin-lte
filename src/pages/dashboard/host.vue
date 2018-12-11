@@ -165,7 +165,7 @@ export default {
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
   stats_whitelist: /freemem|totalmem/,
   // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
-  tabulars_whitelist: /^((?!multicast|packets|frame|compressed|fifo).)*$/,
+  tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
 
   daterangepicker:{
     opens: 'right',
@@ -923,6 +923,12 @@ export default {
 
       },{deep:true})
 
+      // let __networkInterfaces_merge = /drop|errs/
+      let __networkInterfaces_merge = ['packets', 'drop', 'errs']
+      // __networkInterfaces_merge.sort(function(a,b) {return (a > b) ? 1 : ((b > a) ? -1 : 0);} )
+      __networkInterfaces_merge.sort()
+      let __networkInterfaces_merged_charts = {}
+
       let __unwacth_networkInterfaces = this.$watch('$store.state.tabulars_sources', function(val){
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
           // console.log('networkInterface KEY',key)
@@ -931,8 +937,55 @@ export default {
             __unwacth_networkInterfaces()
             let _name = key.substring(key.lastIndexOf('.') + 1)
             let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
+            let iface_name = _name.substr(0, _name.indexOf('_'))
+            let prop_name = _name.substr(_name.indexOf('_') + 1)
 
-            if(!this.available_charts[chart_name]){
+            // console.log('IFACE', iface_name, prop_name)
+            if(__networkInterfaces_merge.contains(prop_name)){
+              let merged_chart_name = this.host+'.os_networkInterfaces_stats.properties.'+iface_name
+              Array.each(__networkInterfaces_merge, function(name){
+                merged_chart_name += '.'+name
+              })
+
+              if(!__networkInterfaces_merged_charts[merged_chart_name]){
+                __networkInterfaces_merged_charts[merged_chart_name] = Object.merge(
+                  Object.clone(this.$options.host_charts['os_networkInterfaces_stats.properties']),
+                  {
+                    stat: {
+                      merged: true,
+                      sources: [],
+                    },
+                    name: merged_chart_name,
+                    chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.host_charts['os_networkInterfaces_stats.properties'])),
+                  })
+
+                  __networkInterfaces_merged_charts[merged_chart_name].chart.options.labels = ['Time']
+                }
+
+              __networkInterfaces_merged_charts[merged_chart_name].stat.sources.push(
+                {type: 'tabulars', path:this.host+'.os_networkInterfaces_stats.properties.'+_name}
+              )
+
+              let __labels = Array.clone(this.host_charts['os_networkInterfaces_stats.properties'].options.labels)
+              __labels.shift() //remove 'Time' column
+
+              Array.each(__labels, function(label, index){
+                __networkInterfaces_merged_charts[merged_chart_name].chart.options.labels.push(prop_name+' '+label)
+              })
+
+              if(__networkInterfaces_merge.indexOf(prop_name) == __networkInterfaces_merge.length - 1){//last item
+                this.$set(this.available_charts, merged_chart_name, __networkInterfaces_merged_charts[merged_chart_name])
+                this.set_chart_visibility(merged_chart_name, true)
+
+                console.log('MERGED NET', __networkInterfaces_merged_charts[merged_chart_name])
+
+                delete __networkInterfaces_merged_charts[merged_chart_name]
+
+
+              }
+
+            }
+            else if(!this.available_charts[chart_name]){
 
               this.$set(this.available_charts, chart_name, Object.merge(
                 Object.clone(this.$options.host_charts['os_networkInterfaces_stats.properties']),
@@ -947,6 +1000,8 @@ export default {
               // this.$set(this.networkInterfaces_properties, _name, 1)
               this.set_chart_visibility(chart_name, true)
             }
+
+
 
           }
 
