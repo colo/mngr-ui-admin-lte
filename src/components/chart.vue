@@ -40,7 +40,7 @@ export default {
     // },
 
     create (){
-      console.log('chart.vue create', this.id)
+      // console.log('chart.vue create', this.id)
       // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
       //   this.$refs[this.id].create()
 
@@ -50,15 +50,15 @@ export default {
       }
 
 
-
       let unwatch = this.$watch('stat_data', function (val, old) {
-
+        console.log('chart.vue create', this.id, this.stat_data)
 
         // if(val && val.length > 1){
         if(val && val.length > 1){
 
           // if(this.$options.__chart_init == false){
           if(this.chart_init == false){
+
 
             this.__process_stat(this.chart, this.id, this.stat_data)
             // this.$options.__chart_init = true

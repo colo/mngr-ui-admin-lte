@@ -99,6 +99,7 @@ export default {
   created () {
     this.$options.__buffer_data = []
 
+    console.log('stat.vue data', this.id, this.stat.data)
 
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
@@ -252,7 +253,7 @@ export default {
       // if(this.stat.data && this.stat.data[0]){
         this.$options.__stat_unwatcher = this.$watch('stat.data', function(stats, old){
           /**
-          * if you don't clone it , you may be manipulating othe stats using this sames stats
+          * if you don't clone it , you may be manipulating other stats using this sames stats
           **/
           stats = Object.clone(stats)//now we are safe to modify
           let val = (stats) ? stats[0] : undefined
@@ -275,7 +276,7 @@ export default {
               let matched_columns = false
               Array.each(val, function(row, index){
                 Array.each(columns, function(column, col_index){
-                  ////////console.log('COLUMN',column)
+                  // console.log('COLUMN',column)
                   if(column){
                     if(Array.isArray(column[0])){//array of array, range data
                       val[index] = this._merge_tabular_data(val[index], column[index])//match columns/rows
@@ -312,9 +313,10 @@ export default {
 
         /**
         * when use "stat.sources" as data, is always an array, even if it's not merged data
-        * so we need to picj the only element (if there are more, is an error)
+        * so we need to pick the only element (if there are more, is an error)
         */
-        if(Array.isArray(this.stat.data))
+
+        if(Array.isArray(this.stat.data) && this.stat.data.length == 1)
           val = val[0]
 
         // this.__stat_data_watcher(val)
@@ -412,7 +414,7 @@ export default {
       }
       return merged
     },
-    __add_stats(stat){
+    __add_stats: function(stat){
 
       let data = {}
       if(this.$options.type == 'tabular'){
@@ -504,7 +506,7 @@ export default {
       //
       // }.bind(this))
     },
-    __set_stat_data(data){
+    __set_stat_data: function(data){
 
       /**
       * @config: this should be config options

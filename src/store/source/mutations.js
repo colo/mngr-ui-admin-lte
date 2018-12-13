@@ -1,6 +1,9 @@
 import Vue from 'vue'
 
 export const add = (state, payload) => {
+  // if(payload.key.indexOf('.')> -1)
+  payload.key = payload.key.replace(/\./g, '_')
+
   Vue.set(state, payload.key, payload.value)
 }
 

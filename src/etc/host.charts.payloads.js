@@ -9,39 +9,42 @@ let __payloads = {
   /**
   * @test - merged stats
   */
-  'merged':{
-    name: 'merged',
-    chart: undefined,
-    init: undefined,
-    stop: undefined,
-    wrapper: {
-      type: 'dygraph',
-      props: {}
-    },
-    stat: {
-      merged: true,
-      sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.uptime'}],
-      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
-      events: [{
-        host: undefined,
-        path: 'os.cpus',
-        tabular: true,
-      },
-      {
-        host: undefined,
-        path: 'os.uptime',
-        tabular: true,
-      }]
-    },
-    /**
-    * for __get_stat_for_chart
-    **/
-    pipeline: {
-      name: 'input.os',
-      // // path: 'os',
-      // range: true
-    }
-  },
+  // 'merged':{
+  //   name: 'merged',
+  //   chart: undefined,
+  //   init: undefined,
+  //   stop: undefined,
+  //   wrapper: {
+  //     type: 'dygraph',
+  //     props: {}
+  //   },
+  //   stat: {
+  //     merged: true,
+  //     sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.uptime'}],
+  //     // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+  //     events: [{
+  //       host: undefined,
+  //       path: 'os.cpus',
+  //       tabular: true,
+  //     },
+  //     {
+  //       host: undefined,
+  //       path: 'os.uptime',
+  //       tabular: true,
+  //     }]
+  //   },
+  //   /**
+  //   * for __get_stat_for_chart
+  //   **/
+  //   pipeline: {
+  //     name: 'input.os',
+  //     // // path: 'os',
+  //     // range: true
+  //   }
+  // },
+  /**
+  * @test - merged stats
+  */
   'os.cpus.percentage': {
     name: 'os.cpus.percentage',
     chart: undefined,
@@ -53,7 +56,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'.os.cpus.percentage'}],
+      sources: [{type: 'tabulars', path:'_os_cpus_percentage'}],
       events: [{
         host: undefined,
         path: 'os.cpus',
@@ -84,7 +87,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'.os.cpus.times'}],
+      sources: [{type: 'tabulars', path:'_os_cpus_times'}],
       events: [{
         host: undefined,
         path: 'os.cpus',
@@ -115,7 +118,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'.os.uptime'}],
+      sources: [{type: 'tabulars', path:'_os_uptime'}],
 
       events: [{
         host: undefined,
@@ -147,7 +150,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path: '.os.loadavg'}],
+      sources: [{type: 'tabulars', path: '_os_loadavg'}],
       events: [{
         host: undefined,
         path: 'os.loadavg',
@@ -167,6 +170,36 @@ let __payloads = {
     }
   },
 
+  'os_procs_stats':{
+    name: 'os_procs_stats',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    tabular: false,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      // merged: true,
+      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      events: [{
+        host: undefined,
+        path: 'os.procs.stats',
+        tabular: false,
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      // range: true
+    }
+  },
+
   'os_procs.count.pids': {
     name: 'os_procs.count.pids',
     chart: undefined,
@@ -178,7 +211,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'.os_procs.count.pids'}],
+      sources: [{type: 'tabulars', path:'_os_procs_count_pids'}],
 
       events: [{
         host: undefined,
@@ -210,7 +243,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'.os_procs.count.cmd'}],
+      sources: [{type: 'tabulars', path:'_os_procs_count_cmd'}],
 
       events: [{
         host: undefined,
@@ -242,7 +275,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'.os_procs.count.uids'}],
+      sources: [{type: 'tabulars', path:'_os_procs_count_uids'}],
 
       events: [{
         host: undefined,
@@ -275,7 +308,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'stats', path: '.os_procs_stats.uids'}],
+      sources: [{type: 'stats', path: '_os_procs_stats_uids'}],
       events: [{
         host: undefined,
         path: 'os_procs_stats',
@@ -366,7 +399,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'stats', path: '.os.freemem'}],
+      sources: [{type: 'stats', path: '_os_freemem'}],
       events: [{
         host: undefined,
         path: 'os.freemem',

@@ -124,6 +124,7 @@ import dashboard from 'components/mixins/dashboard'
 
 // import cpusTimesDygraph from 'components/charts/os/cpus_times_dygraph'
 
+import dygraph_line_chart from 'mngr-ui-admin-charts/defaults/dygraph.line'
 import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
 import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
 import cpus_times_chart from 'mngr-ui-admin-charts/os/cpus_times'
@@ -133,8 +134,8 @@ import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
 import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
 import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
 import networkInterfaces_stats_chart from 'mngr-ui-admin-charts/os/networkInterfaces_stats'
-import procs_count_chart from 'mngr-ui-admin-charts/os/procs_count'
-import procs_top_chart from 'mngr-ui-admin-charts/os/procs_top'
+// import procs_count_chart from 'mngr-ui-admin-charts/os/procs_count'
+// import procs_top_chart from 'mngr-ui-admin-charts/os/procs_top'
 
 import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
 import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
@@ -215,7 +216,7 @@ export default {
       charts_objects_init: false,
       stats_init: false,
       tabulars_init: false,
-
+      merged_data:{},//manually merged stats
 
       // mounts: {},
       // blockdevices: {},
@@ -549,8 +550,8 @@ export default {
 
 
       this.$set(this, 'available_charts', {})
-      this.$store.commit('tabulars_sources/clear')
-      this.$store.commit('stats_sources/clear')
+      // this.$store.commit('tabulars_sources/clear')
+      // this.$store.commit('stats_sources/clear')
 
       // this.remove_charts()
       // this.remove_charts({
@@ -788,6 +789,52 @@ export default {
 
       this.set_chart_visibility(this.host+'.os.loadavg', true)
 
+      this.$set(this.merged_data, 'os_procs_stats', [])
+      this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
+        // if(val)
+        // console.log('os_procs watching....', val, old)
+        // this.merged_data.os_procs_stats.push([val, this.$store.state.stats_sources[this.host+'_os_procs_stats_user']])
+        this.$set(this.merged_data['os_procs_stats'], 0, val)
+        this.$set(this.merged_data['os_procs_stats'], 1, this.$store.state.stats_sources[this.host+'_os_procs_stats_user'])
+
+        // this.merged_data.os_procs_stats = [val, this.$store.state.stats_sources[this.host+'_os_procs_stats_user']]
+      }.bind(this),{deep:true})
+
+      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
+      console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
+
+      this.$set(this.available_charts, this.host+'.os_procs_stats', Object.merge(
+        this.$options.host_charts['os_procs_stats'],
+        {
+          stat:{
+            sources: undefined,
+            // data: this.merged_data['os_procs_stats'],
+          },
+          chart: Object.merge(Object.clone(dygraph_line_chart),{
+            pre_process: function(chart, name, stat){
+              // console.log('os_procs_stats pre_process', chart, name, stat)
+              return chart
+            },
+            "options": {
+              labels: ['Time', 'kernel', 'user'],
+            },
+            watch: {
+              value: undefined,
+              /**
+              * @trasnform: diff between each value against its prev one
+              */
+              transform: function(values, caller, chart, cb){
+                console.log('os_procs_stats transform', values)
+                // return {timestamp: }
+              }
+            }
+          }),
+        })
+      )
+      // this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', [])
+      this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', this.merged_data.os_procs_stats)
+      // this.available_charts[this.host+'.os_procs_stats'].stat.data =this.merged_data.os_procs_stats
+      this.set_chart_visibility(this.host+'.os_procs_stats', true)
 
       // this.$set(this.available_charts, this.host+'.os_procs.count.pids', Object.merge(
       //   this.$options.host_charts['os_procs.count.pids'],
@@ -838,13 +885,13 @@ export default {
       // this.available_charts[this.host+'.os.freemem'] = Object.merge(
       let __unwacth_freemem = this.$watch('$store.state.stats_sources', function(val){
 
-        if(val[this.host+'.os.totalmem']){
+        if(val[this.host+'_os_totalmem']){
           __unwacth_freemem()
 
           this.$set(this.available_charts, this.host+'.os.freemem', Object.merge(
             this.$options.host_charts['os.freemem'],
             {
-              chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.$store.state.stats_sources[this.host+'.os.totalmem'][0].value}),
+              chart: Object.merge(Object.clone(freemem_chart), {totalmem: this.$store.state.stats_sources[this.host+'_os_totalmem'][0].value}),
             })
           )
 
@@ -855,9 +902,9 @@ export default {
       // }
 
 
-      let mount = new RegExp(this.host+'.os_mounts')
-      let blockdevice = new RegExp(this.host+'.os_blockdevices')
-      let networkInterface = new RegExp(this.host+'.os_networkInterfaces_stats')
+      let mount = new RegExp(this.host+'_os_mounts')
+      let blockdevice = new RegExp(this.host+'_os_blockdevices')
+      let networkInterface = new RegExp(this.host+'_os_networkInterfaces_stats')
 
       let _merge = []
       let _merged_charts = {}
@@ -865,7 +912,7 @@ export default {
       let __unwacth_mounts = this.$watch('$store.state.tabulars_sources', function(val){
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
           if(mount.test(key)){
-            let _name = key.substring(key.lastIndexOf('.') + 1)
+            let _name = key.substring(key.lastIndexOf('_') + 1)
             // let prop_name = _name.substr(_name.indexOf('_') + 1)
             if(!_merge.contains(_name))
               _merge.push(_name)
@@ -878,7 +925,7 @@ export default {
           if(mount.test(key) && this.host_charts['os_mounts.percentage']){
             __unwacth_mounts()
 
-            let _name = key.substring(key.lastIndexOf('.') + 1)
+            let _name = key.substring(key.lastIndexOf('_') + 1)
             let chart_name = this.host+'.os_mounts.'+_name
 
             // let merge_name = _name.substr(0, _name.indexOf('_'))
@@ -906,7 +953,7 @@ export default {
                 }
 
               _merged_charts[merged_chart_name].stat.sources.push(
-                {type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}
+                {type: 'tabulars', path:this.host+'_os_mounts_percentage_'+_name}
               )
 
               let __labels = Array.clone(this.host_charts['os_mounts.percentage'].options.labels)
@@ -957,7 +1004,7 @@ export default {
           if(blockdevice.test(key) && this.host_charts['os_blockdevices.stats']){
             __unwacth_blockdevices()
 
-            let _name = key.substring(key.lastIndexOf('.') + 1)
+            let _name = key.substring(key.lastIndexOf('_') + 1)
             let chart_name = this.host+'.os_blockdevices.stats.'+_name
 
             // console.log('BLK', chart_name)
@@ -968,7 +1015,7 @@ export default {
                 Object.clone(this.$options.host_charts['os_blockdevices.stats']),
                 {
                   stat: {
-                    sources: [{type: 'tabulars', path:this.host+'.os_blockdevices.stats.'+_name}],
+                    sources: [{type: 'tabulars', path:this.host+'_os_blockdevices_stats_'+_name}],
                   },
                   name: chart_name,
                   chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.host_charts['os_blockdevices.stats'])),
@@ -995,7 +1042,9 @@ export default {
 
           if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
             __unwacth_networkInterfaces()
-            let _name = key.substring(key.lastIndexOf('.') + 1)
+            // let _name = key.substring(key.lastIndexOf('_') + 1)//not last '_'
+            let arr_key = key.split('_')
+            let _name = arr_key[arr_key.length - 2]+'_'+arr_key[arr_key.length - 1] //last 2 items
             let chart_name = this.host+'.os_networkInterfaces_stats.properties.'+_name
             let iface_name = _name.substr(0, _name.indexOf('_'))
             let prop_name = _name.substr(_name.indexOf('_') + 1)
@@ -1023,7 +1072,7 @@ export default {
                 }
 
               __networkInterfaces_merged_charts[merged_chart_name].stat.sources.push(
-                {type: 'tabulars', path:this.host+'.os_networkInterfaces_stats.properties.'+_name}
+                {type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}
               )
 
               let __labels = Array.clone(this.host_charts['os_networkInterfaces_stats.properties'].options.labels)
@@ -1051,7 +1100,7 @@ export default {
                 Object.clone(this.$options.host_charts['os_networkInterfaces_stats.properties']),
                 {
                   stat: {
-                    sources: [{type: 'tabulars', path:this.host+'.os_networkInterfaces_stats.properties.'+_name}],
+                    sources: [{type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}],
                   },
                   name: chart_name,
                   chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.host_charts['os_networkInterfaces_stats.properties'])),
@@ -1115,8 +1164,9 @@ export default {
         if(Array.isArray(data)){
 
           // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
+
           if(this.__white_black_lists_filter(whitelist, blacklist, path))
-            this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path, value: data})
+            this.$store.commit(type+'_sources/add', {key: payload.host+'_'+path, value: data})
         }
         else{
 
@@ -1124,18 +1174,18 @@ export default {
             if(Array.isArray(value)){
 
               // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
-              if(this.__white_black_lists_filter(whitelist, blacklist, path+'.'+key))
-                this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key, value: value})
+
+
+              if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
+                this.$store.commit(type+'_sources/add', {key: payload.host+'_'+path+'_'+key, value: value})
 
             }
             else{
               //3rd level, there is no need for more
               Object.each(value, function(val, sub_key){
 
-                // if((whitelist && whitelist.test(path+'.'+key+'.'+sub_key)) || ))
-                // if(!blacklist || !blacklist.test(path+'.'+key+'.'+sub_key)
-                if(this.__white_black_lists_filter(whitelist, blacklist, path+'.'+key+'.'+sub_key))
-                  this.$store.commit(type+'_sources/add', {key: payload.host+'.'+path+'.'+key+'.'+sub_key, value: val})
+                if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
+                  this.$store.commit(type+'_sources/add', {key: payload.host+'_'+path+'_'+key+'_'+sub_key, value: val})
 
               }.bind(this))
             }
