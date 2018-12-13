@@ -163,7 +163,7 @@ export default {
   * should be user session configs?
   **/
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  stats_whitelist: /freemem|totalmem/,
+  stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem/,
   // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
   tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
 
