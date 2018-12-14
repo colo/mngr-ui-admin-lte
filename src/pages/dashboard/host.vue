@@ -548,10 +548,17 @@ export default {
 
       this.destroy_host_pipelines()
 
+      Object.each(this.$options.unwatchers, function(unwatcher, name){
+        if(typeof unwatcher === 'function' )
+          unwatcher()
+      }.bind(this))
+      this.$options.unwatchers = {}
 
+      this.$set(this, 'merged_data', {})
       this.$set(this, 'available_charts', {})
-      // this.$store.commit('tabulars_sources/clear')
-      // this.$store.commit('stats_sources/clear')
+      
+      this.$store.commit('tabulars_sources/clear')
+      this.$store.commit('stats_sources/clear')
 
       // this.remove_charts()
       // this.remove_charts({
@@ -789,18 +796,10 @@ export default {
 
       this.set_chart_visibility(this.host+'.os.loadavg', true)
 
-      this.$set(this.merged_data, 'os_procs_stats', [])
-      this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
-        // if(val)
-        // console.log('os_procs watching....', val, old)
 
-        // let data = {
-        //   timestamp: val[0].timestamp,
-        //   value: {
-        //     kernel: Object.keys(val[0].value).length,
-        //     user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
-        //   }
-        // }
+      this.$set(this.merged_data, 'os_procs_stats', [])
+      this.$options.unwatchers['os_procs_stats'] = this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
+
         let data = [{
           timestamp: val[0].timestamp,
           value: {
@@ -808,29 +807,16 @@ export default {
             user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
           }
         }]
-        // this.merged_data['os_procs_stats'] = val
-        // this.$set(this.merged_data, 'os_procs_stats', val)
-        // this.$set(this.merged_data['os_procs_stats'], 0, data)
-        this.merged_data['os_procs_stats'].shift()
 
-        this.merged_data['os_procs_stats'].push(data)
+        this.$set(this.merged_data['os_procs_stats'], 0, data)
 
-
-        // this.$set(this.merged_data['os_procs_stats'], 1, this.$store.state.stats_sources[this.host+'_os_procs_stats_user'])
-
-        // this.merged_data.os_procs_stats = [val, this.$store.state.stats_sources[this.host+'_os_procs_stats_user']]
       }.bind(this),{deep:true})
 
-      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
-      console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
+      // console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
 
       this.$set(this.available_charts, this.host+'.os_procs_stats', Object.merge(
         this.$options.host_charts['os_procs_stats'],
         {
-          // stat:{
-          //   sources: undefined,
-          //   // data: this.merged_data['os_procs_stats'],
-          // },
           chart: Object.merge(Object.clone(dygraph_line_chart),{
             pre_process: function(chart, name, stat){
               // console.log('os_procs_stats pre_process', chart, name, stat)
@@ -884,9 +870,9 @@ export default {
           }),
         })
       )
-      // this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', [])
+
       this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', this.merged_data.os_procs_stats)
-      // this.available_charts[this.host+'.os_procs_stats'].stat.data =this.merged_data.os_procs_stats
+
       this.set_chart_visibility(this.host+'.os_procs_stats', true)
 
       // this.$set(this.available_charts, this.host+'.os_procs.count.pids', Object.merge(

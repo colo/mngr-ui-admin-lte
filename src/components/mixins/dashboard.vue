@@ -75,6 +75,7 @@ export default {
   },
 
   // __unwatchers__: {},
+  unwatchers: {},
 
   data () {
     return {
