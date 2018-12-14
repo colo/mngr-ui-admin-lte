@@ -35,6 +35,9 @@ export default {
 
   name: 'dygraph-wrapper',
 
+  chart_options: {},
+  __unwatch_options: undefined,
+
   created () {
 
     if(EventBus && typeof(EventBus.$on) == 'function'){
@@ -121,6 +124,11 @@ export default {
         this.$options.__unwatcher = undefined
       }
 
+      if(this.$options.__unwatch_options){
+        this.$options.__unwatch_options()
+        this.$options.__unwatch_options = undefined
+      }
+
     },
     create (){
       // this.__create_chart()
@@ -130,14 +138,7 @@ export default {
         this.__create_chart()
       }
       else{
-        let unwatch_options = this.$watch('chart.options', function(val){
-          // if(val && Object.getLength(val) > 0 && val.options){
-          //   this.__create_chart()
-          //   // this.create()
-          //   unwatch()
-          // }
-          console.log('dygraph chart.options watcher', val)
-        }, {deep: true})
+
 
         let unwatch = this.$watch('chart', function(val){
           if(val && Object.getLength(val) > 0 && val.options){
@@ -151,19 +152,36 @@ export default {
 
     },
     __create_chart (){
-      let options = Object.clone(this.chart.options)
+      // let unwatch_options = this.$watch('chart.options', function(val){
+      //   // if(val && Object.getLength(val) > 0 && val.options){
+      //   //   this.__create_chart()
+      //   //   // this.create()
+      //   //   unwatch()
+      //   // }
+      //   console.log('dygraph chart.options watcher', val)
+      // }, {deep: true})
+      this.$options.chart_options = Object.clone(this.chart.options)
+      this.$options.__unwatch_options = this.$watch('chart.options', function(val){
+        // // if(val && Object.getLength(val) > 0 && val.options){
+        // //   this.__create_chart()
+        // //   // this.create()
+        // //   unwatch()
+        // // }
+        // console.log('dygraph chart.options watcher', val.labels)
+        this.$options.chart_options = Object.clone(val)
+      }, {deep: true})
 
       //console.log('__create_chart', this.id, options)
 
-      if(options.labels && document.getElementById(this.id)){
-        if(options.labelsDiv)
-          options.labelsDiv = this.id+'-'+options.labelsDiv
+      if(this.$options.chart_options.labels && document.getElementById(this.id)){
+        if(this.$options.chart_options.labelsDiv)
+          this.$options.chart_options.labelsDiv = this.id+'-'+this.$options.chart_options.labelsDiv
 
         let data = []
         if(this.data[0] && this.data[0].length == 0){
 
           let row = []
-          Array.each(options.labels, function(label){
+          Array.each(this.$options.chart_options.labels, function(label){
             row.push(0)
           })
           data.push(row)
@@ -179,12 +197,12 @@ export default {
         //   data.push(row)
         // })
 
-        console.log('__create_chart', this.id, options)
+        console.log('__create_chart', this.id, this.$options.chart_options)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div
           data,
-          options
+          this.$options.chart_options
         )
 
         this.$options.graph.ready(function(){
@@ -223,9 +241,7 @@ export default {
 
         this.updateOptions(
           data,
-          // options,
-          // {},
-          { 'dateWindow': this.$options.graph.xAxisExtremes() },
+          Object.merge(this.$options.chart_options, { 'dateWindow': this.$options.graph.xAxisExtremes() }),
           false
         )
 

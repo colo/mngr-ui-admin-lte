@@ -216,7 +216,7 @@ export default {
       charts_objects_init: false,
       stats_init: false,
       tabulars_init: false,
-      merged_data:{},//manually merged stats
+      reactive_data:{},//manually merged stats
 
       // mounts: {},
       // blockdevices: {},
@@ -554,7 +554,7 @@ export default {
       }.bind(this))
       this.$options.unwatchers = {}
 
-      this.$set(this, 'merged_data', {})
+      this.$set(this, 'reactive_data', {})
       this.$set(this, 'available_charts', {})
 
       // this.$store.commit('tabulars_sources/clear')
@@ -799,7 +799,7 @@ export default {
       /**
       * procs: kernel - user
       **/
-      this.$set(this.merged_data, 'os_procs_stats', [])
+      this.$set(this.reactive_data, 'os_procs_stats', [])
       this.$options.unwatchers['os_procs_stats'] = this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
 
         let data = [{
@@ -810,30 +810,37 @@ export default {
           }
         }]
 
-        this.$set(this.merged_data['os_procs_stats'], 0, data)
+        this.$set(this.reactive_data['os_procs_stats'], 0, data)
 
       }.bind(this),{deep:true})
 
-      // console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
+      // console.log('this.reactive_data.os_procs_stats', this.reactive_data.os_procs_stats)
 
       this.$set(this.available_charts, this.host+'.os_procs_stats', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
         {
-          chart: Object.merge(Object.clone(dygraph_line_chart),{
-            pre_process: function(chart, name, stat){
-              // console.log('os_procs_stats pre_process', chart, name, stat)
-              return chart
-            },
-            "options": {
-              labels: ['Time', 'kernel', 'user'],
-            },
-            // watch: {
-            // }
-          }),
+          chart: undefined,
         })
       )
 
-      this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', this.merged_data.os_procs_stats)
+      this.$set(this.available_charts[this.host+'.os_procs_stats'], 'chart',
+        Object.merge(Object.clone(dygraph_line_chart),{
+          pre_process: function(chart, name, stat){
+            // console.log('os_procs_stats pre_process', chart, name, stat)
+            return chart
+          },
+          "options": {
+            valueRange: [0, 0],
+            labels: ['Time', 'kernel', 'user'],
+          },
+          // watch: {
+          // }
+        })
+      )
+
+      this.$set(this.available_charts[this.host+'.os_procs_stats'].chart.options.valueRange, 1, this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value)
+
+      this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', this.reactive_data.os_procs_stats)
 
       this.set_chart_visibility(this.host+'.os_procs_stats', true)
 
@@ -842,26 +849,9 @@ export default {
       **/
 
       /**
+      * @start test reactive chart.options.labels
       * procs: %cpu top 5
-      **/
-      // this.$set(this.merged_data, 'os_procs_stats.%cpu', [])
-      // this.$options.unwatchers['os_procs_stats.%cpu'] = this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_percentage_cpu', function(val, old){
-      //   console.log('_os_procs_stats_percentage_cpu', val)
-      // //
-      // //   let data = [{
-      // //     timestamp: val[0].timestamp,
-      // //     value: {
-      // //       kernel: Object.keys(val[0].value).length,
-      // //       user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
-      // //     }
-      // //   }]
-      // //
-      // //   this.$set(this.merged_data['os_procs_stats.%cpu'], 0, data)
-      // //
-      // }.bind(this),{deep:true})
-      //
-      // // console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
-      //
+
       let self = this
       this.$set(this.available_charts, this.host+'.os_procs_stats_percentage_cpu', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
@@ -876,25 +866,16 @@ export default {
 
       this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_cpu'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
         top: 5,
-        // pre_process: function(chart, name, stat){
-        //   console.log('_os_procs_stats_percentage_cpu pre_process', chart, name, stat)
-        //   return chart
-        // },
+
         "options": {
           labels: ['Time'],
         },
         watch: {
-        //   value: undefined,
-        //   /**
-        //   * @trasnform: diff between each value against its prev one
-        //   */
+
           transform: function(values, caller, chart, cb){
 
             // console.log('os_procs_stats_percentage_cpu transform', values)
             let transformed = []
-
-            // chart.options.labels = ['Time']
-            self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options, 'labels', ['Time'])
 
             for(let index = 0; index < values.length; index++){
               let transform_value = []
@@ -907,14 +888,16 @@ export default {
                 length - chart.top
               )
 
+              self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options, 'labels', ['Time'])
+
               Array.each(val.value, function(data, index){
                 // console.log('pre transformed: ', data)
                 if(index < chart.top)
-                  transform_value.push(data['%cpu'])
+                  transform_value.push(data['pid']*1)
 
                 if(chart.options.labels.length <= chart.top){
                   // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                  self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid['+data.pid+']')
+                  self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('top['+data['%cpu']+']')
                 }
               })
 
@@ -935,8 +918,9 @@ export default {
 
       this.set_chart_visibility(this.host+'.os_procs_stats_percentage_cpu', true)
 
-      /**
-      * @end procs: %cpu top 5
+
+      * @end test reactive chart.options.labels
+      * procs: %cpu top 5
       **/
 
 
