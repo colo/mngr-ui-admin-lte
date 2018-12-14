@@ -196,7 +196,7 @@ let __payloads = {
     pipeline: {
       name: 'input.os',
       // // path: 'os',
-      // range: true
+      range: true
     }
   },
 

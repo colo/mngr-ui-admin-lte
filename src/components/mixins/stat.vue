@@ -309,14 +309,16 @@ export default {
     }
     else{
       this.$options.__stat_unwatcher = this.$watch('stat.data', function(val, old){
-        // console.log('__stat_unwatcher', this.id, this.$options.type, val)
+        val = JSON.parse(JSON.stringify(val))
+
+
 
         /**
         * when use "stat.sources" as data, is always an array, even if it's not merged data
         * so we need to pick the only element (if there are more, is an error)
         */
 
-        if(Array.isArray(this.stat.data) && this.stat.data.length == 1)
+        if(Array.isArray(this.stat.data))
           val = val[0]
 
         // this.__stat_data_watcher(val)
@@ -326,6 +328,7 @@ export default {
             this.__add_stats(__cloned[__cloned.length -1])
           }
           else{
+            console.log('__stat_unwatcher', this.id, __cloned)
             this.__add_stats(__cloned)
           }
         }
@@ -415,6 +418,7 @@ export default {
       return merged
     },
     __add_stats: function(stat){
+      console.log('stat.vue __add_stats', this.id, stat)
 
       let data = {}
       if(this.$options.type == 'tabular'){
@@ -466,7 +470,6 @@ export default {
         }
       }
 
-        ////////////console.log('__add_os_doc_stats', paths)
         // Object.each(paths, function(keys, path){
           ////////////console.log('__add_os_doc_stats PATH', path)
 
@@ -507,7 +510,7 @@ export default {
       // }.bind(this))
     },
     __set_stat_data: function(data){
-
+      console.log('stat.vue __set_stat_data', this.id, data)
       /**
       * @config: this should be config options
       * this.$options.focus
@@ -565,7 +568,7 @@ export default {
         else if(this.$options.__range_init == true){
 
           this.$options.__buffer_data.push(JSON.parse(JSON.stringify(data)))
-          // console.log('stat.vue buffering', this.$options.__buffer_data)
+
 
           Array.each(Array.clone(this.$options.__buffer_data), function(val){
             let found = false

@@ -793,9 +793,30 @@ export default {
       this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
         // if(val)
         // console.log('os_procs watching....', val, old)
-        // this.merged_data.os_procs_stats.push([val, this.$store.state.stats_sources[this.host+'_os_procs_stats_user']])
-        this.$set(this.merged_data['os_procs_stats'], 0, val)
-        this.$set(this.merged_data['os_procs_stats'], 1, this.$store.state.stats_sources[this.host+'_os_procs_stats_user'])
+
+        // let data = {
+        //   timestamp: val[0].timestamp,
+        //   value: {
+        //     kernel: Object.keys(val[0].value).length,
+        //     user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
+        //   }
+        // }
+        let data = {
+          timestamp: val[0].timestamp,
+          value: {
+            kernel: Object.keys(val[0].value).length,
+            user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
+          }
+        }
+        // this.merged_data['os_procs_stats'] = val
+        // this.$set(this.merged_data, 'os_procs_stats', val)
+        // this.$set(this.merged_data['os_procs_stats'], 0, data)
+        this.merged_data['os_procs_stats'].shift()
+
+        this.merged_data['os_procs_stats'].push(data)
+
+
+        // this.$set(this.merged_data['os_procs_stats'], 1, this.$store.state.stats_sources[this.host+'_os_procs_stats_user'])
 
         // this.merged_data.os_procs_stats = [val, this.$store.state.stats_sources[this.host+'_os_procs_stats_user']]
       }.bind(this),{deep:true})
@@ -806,10 +827,10 @@ export default {
       this.$set(this.available_charts, this.host+'.os_procs_stats', Object.merge(
         this.$options.host_charts['os_procs_stats'],
         {
-          stat:{
-            sources: undefined,
-            // data: this.merged_data['os_procs_stats'],
-          },
+          // stat:{
+          //   sources: undefined,
+          //   // data: this.merged_data['os_procs_stats'],
+          // },
           chart: Object.merge(Object.clone(dygraph_line_chart),{
             pre_process: function(chart, name, stat){
               // console.log('os_procs_stats pre_process', chart, name, stat)
