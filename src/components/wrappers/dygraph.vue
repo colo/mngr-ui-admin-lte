@@ -130,6 +130,15 @@ export default {
         this.__create_chart()
       }
       else{
+        let unwatch_options = this.$watch('chart.options', function(val){
+          // if(val && Object.getLength(val) > 0 && val.options){
+          //   this.__create_chart()
+          //   // this.create()
+          //   unwatch()
+          // }
+          console.log('dygraph chart.options watcher', val)
+        }, {deep: true})
+
         let unwatch = this.$watch('chart', function(val){
           if(val && Object.getLength(val) > 0 && val.options){
             this.__create_chart()

@@ -3,6 +3,7 @@ import Vue from 'vue'
 export const add = (state, payload) => {
   // if(payload.key.indexOf('.')> -1)
   payload.key = payload.key.replace(/\./g, '_')
+  payload.key = payload.key.replace(/\%/g, 'percentage_')
 
   Vue.set(state, payload.key, payload.value)
 }

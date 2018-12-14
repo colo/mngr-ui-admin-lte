@@ -181,7 +181,7 @@ let __payloads = {
       props: {}
     },
     stat: {
-      // merged: true,
+      merged: false,
       // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
       // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
       events: [{

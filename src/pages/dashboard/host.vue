@@ -556,9 +556,9 @@ export default {
 
       this.$set(this, 'merged_data', {})
       this.$set(this, 'available_charts', {})
-      
-      this.$store.commit('tabulars_sources/clear')
-      this.$store.commit('stats_sources/clear')
+
+      // this.$store.commit('tabulars_sources/clear')
+      // this.$store.commit('stats_sources/clear')
 
       // this.remove_charts()
       // this.remove_charts({
@@ -796,7 +796,9 @@ export default {
 
       this.set_chart_visibility(this.host+'.os.loadavg', true)
 
-
+      /**
+      * procs: kernel - user
+      **/
       this.$set(this.merged_data, 'os_procs_stats', [])
       this.$options.unwatchers['os_procs_stats'] = this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
 
@@ -815,7 +817,7 @@ export default {
       // console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
 
       this.$set(this.available_charts, this.host+'.os_procs_stats', Object.merge(
-        this.$options.host_charts['os_procs_stats'],
+        Object.clone(this.$options.host_charts['os_procs_stats']),
         {
           chart: Object.merge(Object.clone(dygraph_line_chart),{
             pre_process: function(chart, name, stat){
@@ -826,46 +828,6 @@ export default {
               labels: ['Time', 'kernel', 'user'],
             },
             // watch: {
-            //   value: undefined,
-            //   /**
-            //   * @trasnform: diff between each value against its prev one
-            //   */
-            //   // transform: function(values, caller, chart, cb){
-            //   //   // console.log('os_procs_stats transform', values)
-            //   //   let transformed = []
-            //   //
-            //   //   for(let index = 0; index < values.length; index++){
-            //   //     let pre_transformed = []
-            //   //     let val = values[index]
-            //   //     // transformed.push({timestamp: val.timestamp, value: Object.keys(val.value).length})
-            //   //     Object.each(val.value, function(data, uid){
-            //   //       // console.log('pre transformed: ', data)
-            //   //       pre_transformed.push({count: data.count, uid: uid})
-            //   //
-            //   //     })
-            //   //     pre_transformed.sort(function(a,b) {return (a.count > b.count) ? 1 : ((b.count > a.count) ? -1 : 0);} )
-            //   //     let length = pre_transformed.length
-            //   //     pre_transformed.splice(
-            //   //       (chart.top * -1) -1,
-            //   //       length - chart.top
-            //   //     )
-            //   //
-            //   //     pre_transformed.reverse()
-            //   //     let count = 0
-            //   //     let value = []
-            //   //     while(count < pre_transformed.length){
-            //   //       value.push(pre_transformed[count].count)
-            //   //       chart.options.labels[count + 1] = 'uid['+pre_transformed[count].uid+']'
-            //   //       // transformed.push({timestamp: val.timestamp, value: pre_transformed[i]})
-            //   //       count++
-            //   //     }
-            //   //     transformed.push({timestamp: val.timestamp, value: value})
-            //   //     if(index == values.length -1){
-            //   //
-            //   //       cb( transformed )
-            //   //     }
-            //   //   }
-            //   // }
             // }
           }),
         })
@@ -874,6 +836,109 @@ export default {
       this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', this.merged_data.os_procs_stats)
 
       this.set_chart_visibility(this.host+'.os_procs_stats', true)
+
+      /**
+      * procs: kernel - user
+      **/
+
+      /**
+      * procs: %cpu top 5
+      **/
+      // this.$set(this.merged_data, 'os_procs_stats.%cpu', [])
+      // this.$options.unwatchers['os_procs_stats.%cpu'] = this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_percentage_cpu', function(val, old){
+      //   console.log('_os_procs_stats_percentage_cpu', val)
+      // //
+      // //   let data = [{
+      // //     timestamp: val[0].timestamp,
+      // //     value: {
+      // //       kernel: Object.keys(val[0].value).length,
+      // //       user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
+      // //     }
+      // //   }]
+      // //
+      // //   this.$set(this.merged_data['os_procs_stats.%cpu'], 0, data)
+      // //
+      // }.bind(this),{deep:true})
+      //
+      // // console.log('this.merged_data.os_procs_stats', this.merged_data.os_procs_stats)
+      //
+      let self = this
+      this.$set(this.available_charts, this.host+'.os_procs_stats_percentage_cpu', Object.merge(
+        Object.clone(this.$options.host_charts['os_procs_stats']),
+        {
+          name: this.host+'.os_procs_stats_percentage_cpu',
+          stat: {
+            sources: [{type: 'stats', path: this.host+'_os_procs_stats_percentage_cpu'}],
+          },
+
+        })
+      )
+
+      this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_cpu'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
+        top: 5,
+        // pre_process: function(chart, name, stat){
+        //   console.log('_os_procs_stats_percentage_cpu pre_process', chart, name, stat)
+        //   return chart
+        // },
+        "options": {
+          labels: ['Time'],
+        },
+        watch: {
+        //   value: undefined,
+        //   /**
+        //   * @trasnform: diff between each value against its prev one
+        //   */
+          transform: function(values, caller, chart, cb){
+
+            // console.log('os_procs_stats_percentage_cpu transform', values)
+            let transformed = []
+
+            // chart.options.labels = ['Time']
+            self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options, 'labels', ['Time'])
+
+            for(let index = 0; index < values.length; index++){
+              let transform_value = []
+              let val = values[index]
+
+
+              let length = val.value.length
+              val.value.splice(
+                (chart.top * -1) -1,
+                length - chart.top
+              )
+
+              Array.each(val.value, function(data, index){
+                // console.log('pre transformed: ', data)
+                if(index < chart.top)
+                  transform_value.push(data['%cpu'])
+
+                if(chart.options.labels.length <= chart.top){
+                  // chart.options.labels[index + 1] = 'pid['+data.pid+']'
+                  self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid['+data.pid+']')
+                }
+              })
+
+              let transform = {timestamp: val.timestamp, value: transform_value}
+
+              transformed.push(transform)
+
+              if(index == values.length -1){
+                // console.log('transformed: ', transformed)
+                cb( transformed )
+              }
+            }
+          }.bind(self)
+        }
+      }))
+
+      console.log('os_procs_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_stats_percentage_cpu'])
+
+      this.set_chart_visibility(this.host+'.os_procs_stats_percentage_cpu', true)
+
+      /**
+      * @end procs: %cpu top 5
+      **/
+
 
       // this.$set(this.available_charts, this.host+'.os_procs.count.pids', Object.merge(
       //   this.$options.host_charts['os_procs.count.pids'],
