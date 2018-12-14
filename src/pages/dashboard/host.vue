@@ -801,13 +801,13 @@ export default {
         //     user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
         //   }
         // }
-        let data = {
+        let data = [{
           timestamp: val[0].timestamp,
           value: {
             kernel: Object.keys(val[0].value).length,
             user: Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length
           }
-        }
+        }]
         // this.merged_data['os_procs_stats'] = val
         // this.$set(this.merged_data, 'os_procs_stats', val)
         // this.$set(this.merged_data['os_procs_stats'], 0, data)
@@ -839,16 +839,48 @@ export default {
             "options": {
               labels: ['Time', 'kernel', 'user'],
             },
-            watch: {
-              value: undefined,
-              /**
-              * @trasnform: diff between each value against its prev one
-              */
-              transform: function(values, caller, chart, cb){
-                console.log('os_procs_stats transform', values)
-                // return {timestamp: }
-              }
-            }
+            // watch: {
+            //   value: undefined,
+            //   /**
+            //   * @trasnform: diff between each value against its prev one
+            //   */
+            //   // transform: function(values, caller, chart, cb){
+            //   //   // console.log('os_procs_stats transform', values)
+            //   //   let transformed = []
+            //   //
+            //   //   for(let index = 0; index < values.length; index++){
+            //   //     let pre_transformed = []
+            //   //     let val = values[index]
+            //   //     // transformed.push({timestamp: val.timestamp, value: Object.keys(val.value).length})
+            //   //     Object.each(val.value, function(data, uid){
+            //   //       // console.log('pre transformed: ', data)
+            //   //       pre_transformed.push({count: data.count, uid: uid})
+            //   //
+            //   //     })
+            //   //     pre_transformed.sort(function(a,b) {return (a.count > b.count) ? 1 : ((b.count > a.count) ? -1 : 0);} )
+            //   //     let length = pre_transformed.length
+            //   //     pre_transformed.splice(
+            //   //       (chart.top * -1) -1,
+            //   //       length - chart.top
+            //   //     )
+            //   //
+            //   //     pre_transformed.reverse()
+            //   //     let count = 0
+            //   //     let value = []
+            //   //     while(count < pre_transformed.length){
+            //   //       value.push(pre_transformed[count].count)
+            //   //       chart.options.labels[count + 1] = 'uid['+pre_transformed[count].uid+']'
+            //   //       // transformed.push({timestamp: val.timestamp, value: pre_transformed[i]})
+            //   //       count++
+            //   //     }
+            //   //     transformed.push({timestamp: val.timestamp, value: value})
+            //   //     if(index == values.length -1){
+            //   //
+            //   //       cb( transformed )
+            //   //     }
+            //   //   }
+            //   // }
+            // }
           }),
         })
       )

@@ -40,7 +40,7 @@ export default {
     // },
 
     create (){
-      console.log('chart.vue create', this.id, this.stat_data)
+      //console.log('chart.vue create', this.id, this.stat_data)
       // if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
       //   this.$refs[this.id].create()
 
@@ -51,7 +51,7 @@ export default {
 
 
       let unwatch = this.$watch('stat_data', function (val, old) {
-        // console.log('chart.vue create', this.id, this.stat_data)
+        // //console.log('chart.vue create', this.id, this.stat_data)
 
         // if(val && val.length > 1){
         if(val && val.length > 1){
@@ -77,7 +77,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_stat (chart, name, stat){
-      console.log('__process_stat', name, stat)
+      //console.log('__process_stat', name, stat)
       if(!Array.isArray(stat))
         stat = [stat]
 
@@ -127,7 +127,7 @@ export default {
     * copied to mngr-ui-admin-app/os
     **/
     __process_chart (chart, name, stat){
-      ////console.log('__process_chart', this.stat_data, name, stat)
+      //////console.log('__process_chart', this.stat_data, name, stat)
 
       if(chart.init && typeOf(chart.init) == 'function'){
         chart.init(this, chart, name, stat, 'chart')
@@ -161,16 +161,16 @@ export default {
       }
 
       let generic_data_watcher = function(current){
-        //console.log('generic_data_watcher...', name, current)
+        ////console.log('generic_data_watcher...', name, current)
         if(current){
           // current = Array.clone(current)
           // if(this.$options.visible){
             // if(chart.watch && chart.watch.cumulative == true){//send all values
-              //////console.log('generic_data_watcher send all', name)
+              ////////console.log('generic_data_watcher send all', name)
               data_to_tabular(current, chart, name, this.update_chart_stat.bind(this))
             // }
             // else{//send last only
-            //   // ////console.log('generic_data_watcher send last', name, current)
+            //   // //////console.log('generic_data_watcher send last', name, current)
             //   data_to_tabular([ current[current.length - 1] ], chart, name, this.update_chart_stat.bind(this))
             // }
 
@@ -178,7 +178,7 @@ export default {
         }
       }
 
-      //////console.log('gonna watch...', name, this.stat.data)
+      ////////console.log('gonna watch...', name, this.stat.data)
 
       this.$options.__data_unwatcher = this.$watch('stat_data', generic_data_watcher)
 
@@ -189,7 +189,7 @@ export default {
 
     // update_chart_stat (name, data){
     //
-    //   ////console.log('chart update_chart_stat', this.id, this.$refs[this.id])
+    //   //////console.log('chart update_chart_stat', this.id, this.$refs[this.id])
     //
     //   if(this.$options.visible == true && data.length > 0){
     //     if(data.length == 1){
@@ -216,7 +216,7 @@ export default {
     //
     //       data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
     //
-    //       // ////console.log('update_chart_stat visibility', name, data)
+    //       // //////console.log('update_chart_stat visibility', name, data)
     //
     //       this.$set(this.tabular, 'data', data)
     //

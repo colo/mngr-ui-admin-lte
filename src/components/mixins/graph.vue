@@ -141,18 +141,18 @@ export default {
   },
   methods: {
     reset: function(){
-      ////////console.log('chart.vue mixing reset', this.id, this.$refs[this.id])
+      //////////console.log('chart.vue mixing reset', this.id, this.$refs[this.id])
       // this.$refs[this.id].reset()
       this.destroy()
       this.create()
     },
     create: function(){
-      // ////////console.log('chart.vue mixing create', this.id, this.$refs[this.id])
+      // //////////console.log('chart.vue mixing create', this.id, this.$refs[this.id])
       if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
         this.$refs[this.id].create()
     },
     destroy: function(){
-      ////////console.log('chart.vue mixing destroy', this.id)
+      //////////console.log('chart.vue mixing destroy', this.id)
 
       if(this.$options.__data_unwatcher)
         this.$options.__data_unwatcher()
@@ -170,11 +170,11 @@ export default {
     __create_watcher(name, chart){},
     update_chart_stat (name, data, inmediate){
 
-      // //console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
+      // ////console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
 
 
       // if(this.$options.focus == true && this.$options.visible == true && data.length > 0){
-        // //console.log('update_chart_stat visibility', this.id, data)
+        // ////console.log('update_chart_stat visibility', this.id, data)
 
         if( data.length == 1 ){
 
@@ -217,14 +217,14 @@ export default {
               // || (row[0] % this.chart.skip) == 0
               || this.chart.skip -1 == this.$options.__skiped
             ){
-              // console.log('chart mixin update_chart_stat Array', name, this.chart.skip, this.$options.__skiped)
+              // //console.log('chart mixin update_chart_stat Array', name, this.chart.skip, this.$options.__skiped)
               new_data.push(row)
 
               // if(index != this.$options.tabular.data.length - 1)
               this.$options.__skiped = 0
             }
             else{
-              // console.log('chart mixin update_chart_stat Array ++', name, this.chart.skip, this.$options.__skiped)
+              // //console.log('chart mixin update_chart_stat Array ++', name, this.chart.skip, this.$options.__skiped)
               this.$options.__skiped++
             }
           }.bind(this))
@@ -278,7 +278,7 @@ export default {
           else{
             this.$options.tabular.lastupdate = Date.now()
           }
-          // console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate), inmediate)
+          // //console.log('graph.vue update', this.id, this.chart.interval, new Date(this.$options.tabular.lastupdate), inmediate)
         }
 
 
