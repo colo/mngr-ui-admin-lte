@@ -200,122 +200,24 @@ let __payloads = {
     }
   },
 
-  'os_procs.count.pids': {
-    name: 'os_procs.count.pids',
+  'os_procs_cmd_stats':{
+    name: 'os_procs_cmd_stats',
     chart: undefined,
     init: undefined,
     stop: undefined,
+    tabular: false,
     wrapper: {
       type: 'dygraph',
       props: {}
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'_os_procs_count_pids'}],
-
+      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
       events: [{
         host: undefined,
-        path: 'os_procs',
-        // key: 'cpus',
-        // length: 300,
-        tabular: true,
-        // range: undefined
-      }]
-    },
-    /**
-    * for __get_stat_for_chart
-    **/
-    pipeline: {
-      name: 'input.os',
-      // // path: 'os',
-      range: true
-    }
-  },
-
-  'os_procs.count.cmd': {
-    name: 'os_procs.count.cmd',
-    chart: undefined,
-    init: undefined,
-    stop: undefined,
-    wrapper: {
-      type: 'dygraph',
-      props: {}
-    },
-    stat: {
-      merged: false,
-      sources: [{type: 'tabulars', path:'_os_procs_count_cmd'}],
-
-      events: [{
-        host: undefined,
-        path: 'os_procs',
-        // key: 'cpus',
-        // length: 300,
-        tabular: true,
-        // range: undefined
-      }]
-    },
-    /**
-    * for __get_stat_for_chart
-    **/
-    pipeline: {
-      name: 'input.os',
-      // // path: 'os',
-      range: true
-    }
-  },
-
-  'os_procs.count.uids': {
-    name: 'os_procs.count.uids',
-    chart: undefined,
-    init: undefined,
-    stop: undefined,
-    wrapper: {
-      type: 'dygraph',
-      props: {}
-    },
-    stat: {
-      merged: false,
-      sources: [{type: 'tabulars', path:'_os_procs_count_uids'}],
-
-      events: [{
-        host: undefined,
-        path: 'os_procs',
-        // key: 'cpus',
-        // length: 300,
-        tabular: true,
-        // range: undefined
-      }]
-    },
-    /**
-    * for __get_stat_for_chart
-    **/
-    pipeline: {
-      name: 'input.os',
-      // // path: 'os',
-      range: true
-    }
-  },
-
-  'os_procs_stats.uids':{
-    name: 'os_procs_stats.uids',
-    chart: undefined,
-    init: undefined,
-    stop: undefined,
-    tabular: false,//this is for component, if not set is "chart-tabular"
-    wrapper: {
-      type: 'dygraph',
-      props: {}
-    },
-    stat: {
-      merged: false,
-      sources: [{type: 'stats', path: '_os_procs_stats_uids'}],
-      events: [{
-        host: undefined,
-        path: 'os_procs_stats',
-        // key: 'cpus',
-        // length: 300,
+        path: 'os.procs',
         tabular: false,
-        // range: undefined
       }]
     },
     /**
@@ -327,6 +229,164 @@ let __payloads = {
       range: true
     }
   },
+
+  'os_procs_uid_stats':{
+    name: 'os_procs_uid_stats',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    tabular: false,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      merged: false,
+      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      events: [{
+        host: undefined,
+        path: 'os.procs',
+        tabular: false,
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      range: true
+    }
+  },
+
+  // 'os_procs.count.pids': {
+  //   name: 'os_procs.count.pids',
+  //   chart: undefined,
+  //   init: undefined,
+  //   stop: undefined,
+  //   wrapper: {
+  //     type: 'dygraph',
+  //     props: {}
+  //   },
+  //   stat: {
+  //     merged: false,
+  //     sources: [{type: 'tabulars', path:'_os_procs_count_pids'}],
+  //
+  //     events: [{
+  //       host: undefined,
+  //       path: 'os_procs',
+  //       // key: 'cpus',
+  //       // length: 300,
+  //       tabular: true,
+  //       // range: undefined
+  //     }]
+  //   },
+  //   /**
+  //   * for __get_stat_for_chart
+  //   **/
+  //   pipeline: {
+  //     name: 'input.os',
+  //     // // path: 'os',
+  //     range: true
+  //   }
+  // },
+  //
+  // 'os_procs.count.cmd': {
+  //   name: 'os_procs.count.cmd',
+  //   chart: undefined,
+  //   init: undefined,
+  //   stop: undefined,
+  //   wrapper: {
+  //     type: 'dygraph',
+  //     props: {}
+  //   },
+  //   stat: {
+  //     merged: false,
+  //     sources: [{type: 'tabulars', path:'_os_procs_count_cmd'}],
+  //
+  //     events: [{
+  //       host: undefined,
+  //       path: 'os_procs',
+  //       // key: 'cpus',
+  //       // length: 300,
+  //       tabular: true,
+  //       // range: undefined
+  //     }]
+  //   },
+  //   /**
+  //   * for __get_stat_for_chart
+  //   **/
+  //   pipeline: {
+  //     name: 'input.os',
+  //     // // path: 'os',
+  //     range: true
+  //   }
+  // },
+  //
+  // 'os_procs.count.uids': {
+  //   name: 'os_procs.count.uids',
+  //   chart: undefined,
+  //   init: undefined,
+  //   stop: undefined,
+  //   wrapper: {
+  //     type: 'dygraph',
+  //     props: {}
+  //   },
+  //   stat: {
+  //     merged: false,
+  //     sources: [{type: 'tabulars', path:'_os_procs_count_uids'}],
+  //
+  //     events: [{
+  //       host: undefined,
+  //       path: 'os_procs',
+  //       // key: 'cpus',
+  //       // length: 300,
+  //       tabular: true,
+  //       // range: undefined
+  //     }]
+  //   },
+  //   /**
+  //   * for __get_stat_for_chart
+  //   **/
+  //   pipeline: {
+  //     name: 'input.os',
+  //     // // path: 'os',
+  //     range: true
+  //   }
+  // },
+  //
+  // 'os_procs_stats.uids':{
+  //   name: 'os_procs_stats.uids',
+  //   chart: undefined,
+  //   init: undefined,
+  //   stop: undefined,
+  //   tabular: false,//this is for component, if not set is "chart-tabular"
+  //   wrapper: {
+  //     type: 'dygraph',
+  //     props: {}
+  //   },
+  //   stat: {
+  //     merged: false,
+  //     sources: [{type: 'stats', path: '_os_procs_stats_uids'}],
+  //     events: [{
+  //       host: undefined,
+  //       path: 'os_procs_stats',
+  //       // key: 'cpus',
+  //       // length: 300,
+  //       tabular: false,
+  //       // range: undefined
+  //     }]
+  //   },
+  //   /**
+  //   * for __get_stat_for_chart
+  //   **/
+  //   pipeline: {
+  //     name: 'input.os',
+  //     // // path: 'os',
+  //     range: true
+  //   }
+  // },
   'os_blockdevices.stats': {
     name: 'os_blockdevices.stats',
     chart: undefined,
