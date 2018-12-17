@@ -186,7 +186,7 @@ let __payloads = {
       // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
       events: [{
         host: undefined,
-        path: 'os.procs.stats',
+        path: 'os_procs_stats',
         tabular: false,
       }]
     },
@@ -216,7 +216,7 @@ let __payloads = {
       // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
       events: [{
         host: undefined,
-        path: 'os.procs',
+        path: 'os_procs_cmd_stats',
         tabular: false,
       }]
     },
@@ -246,7 +246,7 @@ let __payloads = {
       // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
       events: [{
         host: undefined,
-        path: 'os.procs',
+        path: 'os_procs_uid_stats',
         tabular: false,
       }]
     },

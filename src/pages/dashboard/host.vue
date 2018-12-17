@@ -907,13 +907,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('top['+data['pid']+']')
+                    self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid['+data['pid']+']')
                     chart.top.pids.push(data['pid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1006,13 +1006,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('top['+data['pid']+']')
+                    self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid['+data['pid']+']')
                     chart.top.pids.push(data['pid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1104,13 +1104,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('top['+data['pid']+']')
+                    self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid['+data['pid']+']')
                     chart.top.pids.push(data['pid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1202,13 +1202,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_time'].chart.options.labels.push('top['+data['pid']+']')
+                    self.available_charts[self.host+'.os_procs_stats_time'].chart.options.labels.push('pid['+data['pid']+']')
                     chart.top.pids.push(data['pid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_stats_time'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_stats_time'].chart.options.labels.push('pid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_stats_time'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1301,13 +1301,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_cmd_stats_percentage_cpu'].chart.options.labels.push('top['+data['cmd']+']')
+                    self.available_charts[self.host+'.os_procs_cmd_stats_percentage_cpu'].chart.options.labels.push('cmd['+data['cmd']+']')
                     chart.top.pids.push(data['cmd'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_cmd_stats_percentage_cpu'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_cmd_stats_percentage_cpu'].chart.options.labels.push('cmd[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_cmd_stats_percentage_cpu'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1401,13 +1401,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'cmd['+data.cmd+']'
-                    self.available_charts[self.host+'.os_procs_cmd_stats_percentage_mem'].chart.options.labels.push('top['+data['cmd']+']')
+                    self.available_charts[self.host+'.os_procs_cmd_stats_percentage_mem'].chart.options.labels.push('cmd['+data['cmd']+']')
                     chart.top.cmds.push(data['cmd'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_cmd_stats_percentage_mem'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_cmd_stats_percentage_mem'].chart.options.labels.push('cmd[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_cmd_stats_percentage_mem'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1499,13 +1499,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'cmd['+data.cmd+']'
-                    self.available_charts[self.host+'.os_procs_cmd_stats_time'].chart.options.labels.push('top['+data['cmd']+']')
+                    self.available_charts[self.host+'.os_procs_cmd_stats_time'].chart.options.labels.push('cmd['+data['cmd']+']')
                     chart.top.cmds.push(data['cmd'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_cmd_stats_time'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_cmd_stats_time'].chart.options.labels.push('cmd[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_cmd_stats_time'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1597,13 +1597,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'cmd['+data.cmd+']'
-                    self.available_charts[self.host+'.os_procs_cmd_stats_count'].chart.options.labels.push('top['+data['cmd']+']')
+                    self.available_charts[self.host+'.os_procs_cmd_stats_count'].chart.options.labels.push('cmd['+data['cmd']+']')
                     chart.top.cmds.push(data['cmd'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_cmd_stats_count'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_cmd_stats_count'].chart.options.labels.push('cmd[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_cmd_stats_count'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1696,13 +1696,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_uid_stats_percentage_cpu'].chart.options.labels.push('top['+data['uid']+']')
+                    self.available_charts[self.host+'.os_procs_uid_stats_percentage_cpu'].chart.options.labels.push('uid['+data['uid']+']')
                     chart.top.pids.push(data['uid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_uid_stats_percentage_cpu'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_uid_stats_percentage_cpu'].chart.options.labels.push('uid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_uid_stats_percentage_cpu'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1796,13 +1796,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'uid['+data.uid+']'
-                    self.available_charts[self.host+'.os_procs_uid_stats_percentage_mem'].chart.options.labels.push('top['+data['uid']+']')
+                    self.available_charts[self.host+'.os_procs_uid_stats_percentage_mem'].chart.options.labels.push('uid['+data['uid']+']')
                     chart.top.uids.push(data['uid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_uid_stats_percentage_mem'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_uid_stats_percentage_mem'].chart.options.labels.push('uid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_uid_stats_percentage_mem'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1894,13 +1894,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'uid['+data.uid+']'
-                    self.available_charts[self.host+'.os_procs_uid_stats_time'].chart.options.labels.push('top['+data['uid']+']')
+                    self.available_charts[self.host+'.os_procs_uid_stats_time'].chart.options.labels.push('uid['+data['uid']+']')
                     chart.top.uids.push(data['uid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_uid_stats_time'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_uid_stats_time'].chart.options.labels.push('uid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_uid_stats_time'].chart.options.labels.length - 2 //remember, first label is Time
@@ -1992,13 +1992,13 @@ export default {
 
                   if(chart.options.labels.length < chart.top.count){
                     // chart.options.labels[index + 1] = 'uid['+data.uid+']'
-                    self.available_charts[self.host+'.os_procs_uid_stats_count'].chart.options.labels.push('top['+data['uid']+']')
+                    self.available_charts[self.host+'.os_procs_uid_stats_count'].chart.options.labels.push('uid['+data['uid']+']')
                     chart.top.uids.push(data['uid'])
                   }
 
                 })
 
-                self.available_charts[self.host+'.os_procs_uid_stats_count'].chart.options.labels.push('top[others]')
+                self.available_charts[self.host+'.os_procs_uid_stats_count'].chart.options.labels.push('uid[others]')
               }
 
               let _others_index = self.available_charts[self.host+'.os_procs_uid_stats_count'].chart.options.labels.length - 2 //remember, first label is Time
