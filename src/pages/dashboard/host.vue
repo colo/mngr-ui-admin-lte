@@ -164,7 +164,8 @@ export default {
   * should be user session configs?
   **/
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
+  // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
+  stats_whitelist: /os_procs_stats|freemem|totalmem|cpus/,
   // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
   tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
 
@@ -257,7 +258,7 @@ export default {
       freezed: state => state.app.freeze,
 
       seconds: function(state){
-        // ////////////////console.log('state.app.range', state.app.range)
+        // //////////////////console.log('state.app.range', state.app.range)
 
         let end = Date.now()
         if(state.app.range[1] && state.app.range[1] != null)
@@ -287,7 +288,7 @@ export default {
       host_charts: function(state){
         let host = state.hosts.current || this.$route.params.host
         if(state['host_'+host].charts && Object.getLength(state['host_'+host].charts) > 0){
-          // console.log('host_charts', state['host_'+host].charts)
+          // //console.log('host_charts', state['host_'+host].charts)
           return state['host_'+host].charts
         }
         else{
@@ -318,7 +319,7 @@ export default {
   ),
 
   mounted: function(){
-    console.log('life cycle mounted')
+    //console.log('life cycle mounted')
 
     this.__mount()
   },
@@ -327,7 +328,7 @@ export default {
 
 
   beforeRouteUpdate: function (to, from, next) {
-    console.log('life cycle beforeRouteUpdate')
+    //console.log('life cycle beforeRouteUpdate')
     // react to route changes...
     // don't forget to call next()
     this.__clean_destroy(
@@ -344,23 +345,23 @@ export default {
     next()
   },
   // beforeCreate: function(){
-  //   console.log('life cycle beforeCreate')
+  //   //console.log('life cycle beforeCreate')
   //   this.__clean_create()
   //
   // },
   created: function(){
-    console.log('life cycle created')
+    //console.log('life cycle created')
     this.__clean_create(
       this.__create.pass([this.$store.state.app.paths], this)
     )
 
   },
   beforeDestroy: function(){
-    console.log('life cycle beforeDestroy')
+    //console.log('life cycle beforeDestroy')
     this.__clean_destroy()
   },
   destroyed: function(){
-    console.log('life cycle destroyed')
+    //console.log('life cycle destroyed')
     this.$off()
   },
   methods: {
@@ -378,21 +379,21 @@ export default {
       }
     },
     __mount: function(next){
-      console.log('life cycle __mount')
+      //console.log('life cycle __mount')
 
-      // console.log('EventBus.$listeners', EventBus)
+      // //console.log('EventBus.$listeners', EventBus)
       if(this.all_init === true){
         this.__init_charts()
       }
       else{
         let unwatch_all_init = this.$watch('all_init', function(val){
-          console.log('all_init', val)
+          //console.log('all_init', val)
           if(val == true){
-            console.log('all_init', val, this.host_charts)
+            //console.log('all_init', val, this.host_charts)
 
-            //console.log('all_init STATS',this['stats'])
-            //console.log('all_init TABULARS', this['tabulars'])
-            //console.log('all_init CHARTS', this.$options.charts_objects)
+            ////console.log('all_init STATS',this['stats'])
+            ////console.log('all_init TABULARS', this['tabulars'])
+            ////console.log('all_init CHARTS', this.$options.charts_objects)
 
             unwatch_all_init()
 
@@ -421,7 +422,7 @@ export default {
       //       transform: function(values, caller, chart){
       //         let last = values[values.length - 1]
       //         last.value = last.value * 100 / chart.totalmem
-      //         // ////////////console.log('_os_freemem_pie transform', values, chart.totalmem, last)
+      //         // //////////////console.log('_os_freemem_pie transform', values, chart.totalmem, last)
       //         return values
       //       }
       //     },
@@ -476,7 +477,7 @@ export default {
       //       transform: function(values, caller, chart){
       //         let last = values[values.length - 1]
       //         last.value = last.value * 100 / chart.totalmem
-      //         // ////////////console.log('_os_freemem_knob transform', values, chart.totalmem, last)
+      //         // //////////////console.log('_os_freemem_knob transform', values, chart.totalmem, last)
       //         return values
       //       }
       //     },
@@ -630,7 +631,7 @@ export default {
 
 
 
-      console.log('this.$options.host_charts', this.$options.host_charts)
+      //console.log('this.$options.host_charts', this.$options.host_charts)
 
       this.$set(this.available_charts, this.host+'.os.cpus.times', Object.merge(
         this.$options.host_charts['os.cpus.times'],
@@ -650,7 +651,7 @@ export default {
 
       this.set_chart_visibility(this.host+'.os.cpus.percentage', true)
 
-      // console.log('this.available_charts', this.available_charts)
+      // //console.log('this.available_charts', this.available_charts)
       //
       // /**
       // * remove for testing
@@ -807,47 +808,68 @@ export default {
       this.$set(this.reactive_data, 'os_procs_stats', [])
       this.$options.unwatchers['os_procs_stats'] = this.$watch('$store.state.stats_sources.'+this.host+'_os_procs_stats_kernel', function(val, old){
 
-        let data = [{
-          timestamp: val[0].timestamp,
-          value: {
-            kernel: (Object.keys(val[0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value,
-            user: (Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value
-          }
-        }]
+        // let data = [{
+        //   timestamp: val[0].timestamp,
+        //   value: {
+        //     kernel: (Object.keys(val[0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value,
+        //     user: (Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value
+        //   }
+        // }]
+        let data = [
+          val[0].timestamp,
+          (Object.keys(val[0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value,//kernel
+          (Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value//user
+        ]
 
-        this.$set(this.reactive_data['os_procs_stats'], 0, data)
+        this.$set(this.reactive_data['os_procs_stats'], 0, [data])
+        // this.reactive_data['os_procs_stats'].push(data)
 
       }.bind(this),{deep:true})
 
-      // console.log('this.reactive_data.os_procs_stats', this.reactive_data.os_procs_stats)
+      // //console.log('this.reactive_data.os_procs_stats', this.reactive_data.os_procs_stats)
 
       this.$set(this.available_charts, this.host+'.os_procs_stats', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
         {
-          chart: undefined,
+          tabular: true,//value watcher converts data to tabular
+          chart: Object.merge(Object.clone(dygraph_line_chart),{
+            pre_process: function(chart, name, stat){
+              // //console.log('os_procs_stats pre_process', chart, name, stat)
+              return chart
+            },
+            "options": {
+              valueRange: [0, 100],
+              labels: ['Time', 'kernel %', 'user %'],
+            },
+            // watch: {
+            // }
+          })
+
         })
       )
 
-      this.$set(this.available_charts[this.host+'.os_procs_stats'], 'chart',
-        Object.merge(Object.clone(dygraph_line_chart),{
-          pre_process: function(chart, name, stat){
-            // console.log('os_procs_stats pre_process', chart, name, stat)
-            return chart
-          },
-          "options": {
-            valueRange: [0, 100],
-            labels: ['Time', 'kernel %', 'user %'],
-          },
-          // watch: {
-          // }
-        })
-      )
+      // this.$set(this.available_charts[this.host+'.os_procs_stats'], 'chart',
+      //   Object.merge(Object.clone(dygraph_line_chart),{
+      //     pre_process: function(chart, name, stat){
+      //       // //console.log('os_procs_stats pre_process', chart, name, stat)
+      //       return chart
+      //     },
+      //     "options": {
+      //       valueRange: [0, 100],
+      //       labels: ['Time', 'kernel %', 'user %'],
+      //     },
+      //     // watch: {
+      //     // }
+      //   })
+      // )
 
       // this.$set(this.available_charts[this.host+'.os_procs_stats'].chart.options.valueRange, 1, this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value)
 
       this.$set(this.available_charts[this.host+'.os_procs_stats'].stat, 'data', this.reactive_data.os_procs_stats)
 
       this.set_chart_visibility(this.host+'.os_procs_stats', true)
+
+      //console.log('os_procs_stats', this.available_charts[this.host+'.os_procs_stats'])
 
       /**
       * procs: kernel - user
@@ -858,6 +880,12 @@ export default {
       * procs: %cpu top 5
       **/
       let self = this
+
+      let os_procs_stats_percentage_cpu_options = Object.merge(Object.clone(dygraph_line_chart.options), {
+        valueRange: [0, self.cpus.length * 100],
+        labels: ['Time'],
+      })
+
       this.$set(this.available_charts, this.host+'.os_procs_stats_percentage_cpu', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
         {
@@ -865,85 +893,91 @@ export default {
           stat: {
             sources: [{type: 'stats', path: this.host+'_os_procs_stats_percentage_cpu'}],
           },
+          chart: Object.merge(Object.clone(dygraph_line_chart),{
+            top: {
+              count: 5,
+              pids: []
+            },
+
+            // "options": {
+            //   valueRange: [0, self.cpus.length * 100],
+            //   labels: ['Time'],
+            // },
+            "options": undefined,
+            watch: {
+
+              transform: function(values, caller, chart, cb){
+
+                // //console.log('os_procs_stats_percentage_cpu transform', values)
+                let transformed = []
+
+                for(let index = 0; index < values.length; index++){
+                  let val = values[index]
+
+
+                  // let length = val.value.length
+                  // val.value.splice(
+                  //   (chart.top * -1) -1,
+                  //   length - chart.top
+                  // )
+                  //
+                  // self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options, 'labels', ['Time'])
+                  //
+                  if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
+                    Array.each(val.value, function(data, data_index){
+                      // //console.log('pre transformed: ', data)
+                      // if(index < chart.top)
+                      //   transform_value.push(data['pid']*1)
+
+                      if(chart.options.labels.length < chart.top.count){
+                        // chart.options.labels[index + 1] = 'pid['+data.pid+']'
+                        self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid['+data['pid']+']')
+                        chart.top.pids.push(data['pid'])
+                      }
+
+                    })
+
+                    self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid[others]')
+                  }
+
+                  let transform_value = new Array(self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.length - 1)
+                  transform_value.fill(0)
+
+                  let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.length - 2 //remember, first label is Time
+                  Array.each(val.value, function(data, data_index){
+                    let _index = chart.top.pids.indexOf(data['pid'])
+                    if(_index > -1){
+                      transform_value[_index] = data['%cpu']
+                    }
+                    else{
+                      transform_value[_others_index] = (!transform_value[_others_index]) ? data['%cpu'] : transform_value[_others_index] + data['%cpu']
+                    }
+                  })
+
+                  if(!transform_value[_others_index])
+                    transform_value[_others_index] = 0
+
+                  let transform = {timestamp: val.timestamp, value: transform_value}
+
+                  transformed.push(transform)
+
+                  if(index == values.length -1){
+                    // //console.log('transformed: ', transformed)
+                    cb( transformed )
+                  }
+                }
+              }.bind(self)
+            }
+          })
 
         })
       )
 
-      this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_cpu'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
-        top: {
-          count: 5,
-          pids: []
-        },
 
-        "options": {
-          valueRange: [0, self.cpus.length * 100],
-          labels: ['Time'],
-        },
-        watch: {
+      // this.available_charts[this.host+'.os_procs_stats_percentage_cpu'].chart.options = undefined
+      this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_cpu'].chart, 'options', os_procs_stats_percentage_cpu_options)
 
-          transform: function(values, caller, chart, cb){
-
-            // console.log('os_procs_stats_percentage_cpu transform', values)
-            let transformed = []
-
-            for(let index = 0; index < values.length; index++){
-              let transform_value = []
-              let val = values[index]
-
-
-              // let length = val.value.length
-              // val.value.splice(
-              //   (chart.top * -1) -1,
-              //   length - chart.top
-              // )
-              //
-              // self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options, 'labels', ['Time'])
-              //
-              if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
-                Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
-                  // if(index < chart.top)
-                  //   transform_value.push(data['pid']*1)
-
-                  if(chart.options.labels.length < chart.top.count){
-                    // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid['+data['pid']+']')
-                    chart.top.pids.push(data['pid'])
-                  }
-
-                })
-
-                self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.push('pid[others]')
-              }
-
-              let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_cpu'].chart.options.labels.length - 2 //remember, first label is Time
-              Array.each(val.value, function(data, data_index){
-                let _index = chart.top.pids.indexOf(data['pid'])
-                if(_index > -1){
-                  transform_value[_index] = data['%cpu']
-                }
-                else{
-                  transform_value[_others_index] = (!transform_value[_others_index]) ? data['%cpu'] : transform_value[_others_index] + data['%cpu']
-                }
-              })
-
-              if(!transform_value[_others_index])
-                transform_value[_others_index] = 0
-
-              let transform = {timestamp: val.timestamp, value: transform_value}
-
-              transformed.push(transform)
-
-              if(index == values.length -1){
-                // console.log('transformed: ', transformed)
-                cb( transformed )
-              }
-            }
-          }.bind(self)
-        }
-      }))
-
-      console.log('os_procs_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_stats_percentage_cpu'])
+      //console.log('os_procs_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_stats_percentage_cpu'])
 
       this.set_chart_visibility(this.host+'.os_procs_stats_percentage_cpu', true)
 
@@ -957,6 +991,11 @@ export default {
       * procs: %mem top 5
       **/
 
+      let os_procs_stats_percentage_mem_options = Object.merge(Object.clone(dygraph_line_chart.options), {
+        valueRange: [0, 100],
+        labels: ['Time'],
+      })
+
       this.$set(this.available_charts, this.host+'.os_procs_stats_percentage_mem', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
         {
@@ -964,85 +1003,166 @@ export default {
           stat: {
             sources: [{type: 'stats', path: this.host+'_os_procs_stats_percentage_mem'}],
           },
+          chart: Object.merge(Object.clone(dygraph_line_chart),{
+            top: {
+              count: 5,
+              pids: []
+            },
+
+            // "options": {
+            //   valueRange: [0, 100],
+            //   labels: ['Time'],
+            // },
+            "options": undefined,
+            watch: {
+
+              transform: function(values, caller, chart, cb){
+
+                // //console.log('os_procs_stats_percentage_mem transform', values)
+                let transformed = []
+
+                for(let index = 0; index < values.length; index++){
+                  // let transform_value = []
+                  let val = values[index]
+
+
+                  // let length = val.value.length
+                  // val.value.splice(
+                  //   (chart.top * -1) -1,
+                  //   length - chart.top
+                  // )
+                  //
+                  // self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options, 'labels', ['Time'])
+                  //
+                  if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
+                    Array.each(val.value, function(data, data_index){
+                      // //console.log('pre transformed: ', data)
+                      // if(index < chart.top)
+                      //   transform_value.push(data['pid']*1)
+
+                      if(chart.options.labels.length < chart.top.count){
+                        // chart.options.labels[index + 1] = 'pid['+data.pid+']'
+                        self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid['+data['pid']+']')
+                        chart.top.pids.push(data['pid'])
+                      }
+
+                    })
+
+                    self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid[others]')
+                  }
+
+                  let transform_value = new Array(self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.length - 1)
+                  transform_value.fill(0)
+
+
+                  let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.length - 2 //remember, first label is Time
+                  Array.each(val.value, function(data, data_index){
+                    let _index = chart.top.pids.indexOf(data['pid'])
+                    if(_index > -1){
+                      transform_value[_index] = data['%mem']
+                    }
+                    else{
+                      transform_value[_others_index] = (!transform_value[_others_index]) ? data['%mem'] : transform_value[_others_index] + data['%mem']
+                    }
+                  })
+
+                  if(!transform_value[_others_index])
+                    transform_value[_others_index] = 0
+
+                  let transform = {timestamp: val.timestamp, value: transform_value}
+
+                  transformed.push(transform)
+
+                  if(index == values.length -1){
+                    // //console.log('transformed: ', transformed)
+                    cb( transformed )
+                  }
+                }
+              }.bind(self)
+            }
+          })
 
         })
       )
 
-      this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_mem'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
-        top: {
-          count: 5,
-          pids: []
-        },
+      // this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_mem'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
+      //   top: {
+      //     count: 5,
+      //     pids: []
+      //   },
+      //
+      //   // "options": {
+      //   //   valueRange: [0, 100],
+      //   //   labels: ['Time'],
+      //   // },
+      //   "options": undefined,
+      //   watch: {
+      //
+      //     transform: function(values, caller, chart, cb){
+      //
+      //       // //console.log('os_procs_stats_percentage_mem transform', values)
+      //       let transformed = []
+      //
+      //       for(let index = 0; index < values.length; index++){
+      //         let transform_value = []
+      //         let val = values[index]
+      //
+      //
+      //         // let length = val.value.length
+      //         // val.value.splice(
+      //         //   (chart.top * -1) -1,
+      //         //   length - chart.top
+      //         // )
+      //         //
+      //         // self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options, 'labels', ['Time'])
+      //         //
+      //         if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
+      //           Array.each(val.value, function(data, data_index){
+      //             // //console.log('pre transformed: ', data)
+      //             // if(index < chart.top)
+      //             //   transform_value.push(data['pid']*1)
+      //
+      //             if(chart.options.labels.length < chart.top.count){
+      //               // chart.options.labels[index + 1] = 'pid['+data.pid+']'
+      //               self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid['+data['pid']+']')
+      //               chart.top.pids.push(data['pid'])
+      //             }
+      //
+      //           })
+      //
+      //           self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid[others]')
+      //         }
+      //
+      //         let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.length - 2 //remember, first label is Time
+      //         Array.each(val.value, function(data, data_index){
+      //           let _index = chart.top.pids.indexOf(data['pid'])
+      //           if(_index > -1){
+      //             transform_value[_index] = data['%mem']
+      //           }
+      //           else{
+      //             transform_value[_others_index] = (!transform_value[_others_index]) ? data['%mem'] : transform_value[_others_index] + data['%mem']
+      //           }
+      //         })
+      //
+      //         if(!transform_value[_others_index])
+      //           transform_value[_others_index] = 0
+      //
+      //         let transform = {timestamp: val.timestamp, value: transform_value}
+      //
+      //         transformed.push(transform)
+      //
+      //         if(index == values.length -1){
+      //           // //console.log('transformed: ', transformed)
+      //           cb( transformed )
+      //         }
+      //       }
+      //     }.bind(self)
+      //   }
+      // }))
 
-        "options": {
-          valueRange: [0, 100],
-          labels: ['Time'],
-        },
-        watch: {
+      this.$set(this.available_charts[this.host+'.os_procs_stats_percentage_mem'].chart, 'options', os_procs_stats_percentage_mem_options)
 
-          transform: function(values, caller, chart, cb){
-
-            // console.log('os_procs_stats_percentage_mem transform', values)
-            let transformed = []
-
-            for(let index = 0; index < values.length; index++){
-              let transform_value = []
-              let val = values[index]
-
-
-              // let length = val.value.length
-              // val.value.splice(
-              //   (chart.top * -1) -1,
-              //   length - chart.top
-              // )
-              //
-              // self.$set(self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options, 'labels', ['Time'])
-              //
-              if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
-                Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
-                  // if(index < chart.top)
-                  //   transform_value.push(data['pid']*1)
-
-                  if(chart.options.labels.length < chart.top.count){
-                    // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid['+data['pid']+']')
-                    chart.top.pids.push(data['pid'])
-                  }
-
-                })
-
-                self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.push('pid[others]')
-              }
-
-              let _others_index = self.available_charts[self.host+'.os_procs_stats_percentage_mem'].chart.options.labels.length - 2 //remember, first label is Time
-              Array.each(val.value, function(data, data_index){
-                let _index = chart.top.pids.indexOf(data['pid'])
-                if(_index > -1){
-                  transform_value[_index] = data['%mem']
-                }
-                else{
-                  transform_value[_others_index] = (!transform_value[_others_index]) ? data['%mem'] : transform_value[_others_index] + data['%mem']
-                }
-              })
-
-              if(!transform_value[_others_index])
-                transform_value[_others_index] = 0
-
-              let transform = {timestamp: val.timestamp, value: transform_value}
-
-              transformed.push(transform)
-
-              if(index == values.length -1){
-                // console.log('transformed: ', transformed)
-                cb( transformed )
-              }
-            }
-          }.bind(self)
-        }
-      }))
-
-      console.log('os_procs_stats_percentage_mem', this.available_charts[this.host+'.os_procs_stats_percentage_mem'])
+      //console.log('os_procs_stats_percentage_mem', this.available_charts[this.host+'.os_procs_stats_percentage_mem'])
 
       this.set_chart_visibility(this.host+'.os_procs_stats_percentage_mem', true)
 
@@ -1056,6 +1176,10 @@ export default {
       * procs: elapsed top 5
       **/
 
+      let os_procs_stats_elapsed_options = Object.merge(Object.clone(dygraph_line_chart.options), {
+        labels: ['Time'],
+      })
+
       this.$set(this.available_charts, this.host+'.os_procs_stats_elapsed', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
         {
@@ -1063,84 +1187,166 @@ export default {
           stat: {
             sources: [{type: 'stats', path: this.host+'_os_procs_stats_elapsed'}],
           },
+          chart: Object.merge(Object.clone(dygraph_line_chart),{
+            top: {
+              count: 5,
+              pids: []
+            },
+
+            // "options": {
+            //   labels: ['Time'],
+            // },
+            "options": undefined,
+            watch: {
+
+              transform: function(values, caller, chart, cb){
+
+                // //console.log('os_procs_stats_elapsed transform', values)
+                let transformed = []
+
+                for(let index = 0; index < values.length; index++){
+                  // let transform_value = []
+                  let val = values[index]
+
+
+                  // let length = val.value.length
+                  // val.value.splice(
+                  //   (chart.top * -1) -1,
+                  //   length - chart.top
+                  // )
+                  //
+                  // self.$set(self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options, 'labels', ['Time'])
+                  //
+                  if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
+                    Array.each(val.value, function(data, data_index){
+                      // //console.log('pre transformed: ', data)
+                      // if(index < chart.top)
+                      //   transform_value.push(data['pid']*1)
+
+                      if(chart.options.labels.length < chart.top.count){
+                        // chart.options.labels[index + 1] = 'pid['+data.pid+']'
+                        self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid['+data['pid']+']')
+                        chart.top.pids.push(data['pid'])
+                      }
+
+                    })
+
+                    self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid[others]')
+                  }
+
+                  let transform_value = new Array(self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.length - 1)
+                  transform_value.fill(0)
+
+                  let _others_index = self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.length - 2 //remember, first label is Time
+                  Array.each(val.value, function(data, data_index){
+                    let _index = chart.top.pids.indexOf(data['pid'])
+                    if(_index > -1){
+                      transform_value[_index] = data['elapsed']
+                    }
+                    else{
+                      transform_value[_others_index] = (!transform_value[_others_index]) ? data['elapsed'] : transform_value[_others_index] + data['elapsed']
+                    }
+                  })
+
+                  if(!transform_value[_others_index])
+                    transform_value[_others_index] = 0
+
+                  let transform = {timestamp: val.timestamp, value: transform_value}
+
+                  transformed.push(transform)
+
+                  if(index == values.length -1){
+                    // //console.log('transformed: ', transformed)
+                    cb( transformed )
+                  }
+                }
+              }.bind(self)
+            }
+          })
 
         })
       )
 
-      this.$set(this.available_charts[this.host+'.os_procs_stats_elapsed'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
-        top: {
-          count: 5,
-          pids: []
-        },
+      // this.$set(this.available_charts[this.host+'.os_procs_stats_elapsed'], 'chart', Object.merge(Object.clone(dygraph_line_chart),{
+      //   top: {
+      //     count: 5,
+      //     pids: []
+      //   },
+      //
+      //   // "options": {
+      //   //   labels: ['Time'],
+      //   // },
+      //   "options": undefined,
+      //   watch: {
+      //
+      //     transform: function(values, caller, chart, cb){
+      //
+      //       // //console.log('os_procs_stats_elapsed transform', values)
+      //       let transformed = []
+      //
+      //       for(let index = 0; index < values.length; index++){
+      //         // let transform_value = []
+      //         let val = values[index]
+      //
+      //
+      //         // let length = val.value.length
+      //         // val.value.splice(
+      //         //   (chart.top * -1) -1,
+      //         //   length - chart.top
+      //         // )
+      //         //
+      //         // self.$set(self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options, 'labels', ['Time'])
+      //         //
+      //         if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
+      //           Array.each(val.value, function(data, data_index){
+      //             // //console.log('pre transformed: ', data)
+      //             // if(index < chart.top)
+      //             //   transform_value.push(data['pid']*1)
+      //
+      //             if(chart.options.labels.length < chart.top.count){
+      //               // chart.options.labels[index + 1] = 'pid['+data.pid+']'
+      //               self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid['+data['pid']+']')
+      //               chart.top.pids.push(data['pid'])
+      //             }
+      //
+      //           })
+      //
+      //           self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid[others]')
+      //         }
+      //
+      //         let transform_value = new Array(self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.length - 1)
+      //         transform_value.fill(0)
+      //
+      //         let _others_index = self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.length - 2 //remember, first label is Time
+      //         Array.each(val.value, function(data, data_index){
+      //           let _index = chart.top.pids.indexOf(data['pid'])
+      //           if(_index > -1){
+      //             transform_value[_index] = data['elapsed']
+      //           }
+      //           else{
+      //             transform_value[_others_index] = (!transform_value[_others_index]) ? data['elapsed'] : transform_value[_others_index] + data['elapsed']
+      //           }
+      //         })
+      //
+      //         if(!transform_value[_others_index])
+      //           transform_value[_others_index] = 0
+      //
+      //         let transform = {timestamp: val.timestamp, value: transform_value}
+      //
+      //         transformed.push(transform)
+      //
+      //         if(index == values.length -1){
+      //           // //console.log('transformed: ', transformed)
+      //           cb( transformed )
+      //         }
+      //       }
+      //     }.bind(self)
+      //   }
+      // }))
 
-        "options": {
-          labels: ['Time'],
-        },
-        watch: {
+      this.$set(this.available_charts[this.host+'.os_procs_stats_elapsed'].chart, 'options', os_procs_stats_elapsed_options)
 
-          transform: function(values, caller, chart, cb){
-
-            // console.log('os_procs_stats_elapsed transform', values)
-            let transformed = []
-
-            for(let index = 0; index < values.length; index++){
-              let transform_value = []
-              let val = values[index]
-
-
-              // let length = val.value.length
-              // val.value.splice(
-              //   (chart.top * -1) -1,
-              //   length - chart.top
-              // )
-              //
-              // self.$set(self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options, 'labels', ['Time'])
-              //
-              if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
-                Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
-                  // if(index < chart.top)
-                  //   transform_value.push(data['pid']*1)
-
-                  if(chart.options.labels.length < chart.top.count){
-                    // chart.options.labels[index + 1] = 'pid['+data.pid+']'
-                    self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid['+data['pid']+']')
-                    chart.top.pids.push(data['pid'])
-                  }
-
-                })
-
-                self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.push('pid[others]')
-              }
-
-              let _others_index = self.available_charts[self.host+'.os_procs_stats_elapsed'].chart.options.labels.length - 2 //remember, first label is Time
-              Array.each(val.value, function(data, data_index){
-                let _index = chart.top.pids.indexOf(data['pid'])
-                if(_index > -1){
-                  transform_value[_index] = data['elapsed']
-                }
-                else{
-                  transform_value[_others_index] = (!transform_value[_others_index]) ? data['elapsed'] : transform_value[_others_index] + data['elapsed']
-                }
-              })
-
-              if(!transform_value[_others_index])
-                transform_value[_others_index] = 0
-
-              let transform = {timestamp: val.timestamp, value: transform_value}
-
-              transformed.push(transform)
-
-              if(index == values.length -1){
-                // console.log('transformed: ', transformed)
-                cb( transformed )
-              }
-            }
-          }.bind(self)
-        }
-      }))
-
-      console.log('os_procs_stats_elapsed', this.available_charts[this.host+'.os_procs_stats_elapsed'])
+      //console.log('os_procs_stats_elapsed', this.available_charts[this.host+'.os_procs_stats_elapsed'])
 
       this.set_chart_visibility(this.host+'.os_procs_stats_elapsed', true)
 
@@ -1153,6 +1359,13 @@ export default {
       * @start reactive chart.options.labels
       * procs: time top 5
       **/
+
+      /**
+      * @todo
+      **/
+      let os_procs_stats_time_options = Object.merge(Object.clone(dygraph_line_chart.options), {
+        labels: ['Time'],
+      })
 
       this.$set(this.available_charts, this.host+'.os_procs_stats_time', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_stats']),
@@ -1171,14 +1384,16 @@ export default {
           pids: []
         },
 
-        "options": {
-          labels: ['Time'],
-        },
+        // "options": {
+        //   labels: ['Time'],
+        // },
+        "options": undefined,
+
         watch: {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_stats_time transform', values)
+            // //console.log('os_procs_stats_time transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1196,7 +1411,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['pid']*1)
 
@@ -1230,7 +1445,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1238,7 +1453,9 @@ export default {
         }
       }))
 
-      console.log('os_procs_stats_time', this.available_charts[this.host+'.os_procs_stats_time'])
+      this.$set(this.available_charts[this.host+'.os_procs_stats_time'].chart, 'options', os_procs_stats_time_options)
+
+      //console.log('os_procs_stats_time', this.available_charts[this.host+'.os_procs_stats_time'])
 
       this.set_chart_visibility(this.host+'.os_procs_stats_time', true)
 
@@ -1251,7 +1468,13 @@ export default {
       * @start reactive chart.options.labels
       * procs.cmd: %cpu top 5
       **/
-      // let self = this
+
+
+      let os_procs_cmd_stats_percentage_cpu_options = Object.merge(Object.clone(dygraph_line_chart.options), {
+        valueRange: [0, self.cpus.length * 100],
+        labels: ['Time'],
+      })
+
       this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_percentage_cpu', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_cmd_stats']),
         {
@@ -1269,15 +1492,16 @@ export default {
           pids: []
         },
 
-        "options": {
-          valueRange: [0, self.cpus.length * 100],
-          labels: ['Time'],
-        },
+        // "options": {
+        //   valueRange: [0, self.cpus.length * 100],
+        //   labels: ['Time'],
+        // },
+        "options": undefined,
         watch: {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_stats_percentage_cpu transform', values)
+            // //console.log('os_procs_stats_percentage_cpu transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1295,7 +1519,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['pid']*1)
 
@@ -1329,7 +1553,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1337,7 +1561,8 @@ export default {
         }
       }))
 
-      console.log('os_procs_cmd_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_cmd_stats_percentage_cpu'])
+      //console.log('os_procs_cmd_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_cmd_stats_percentage_cpu'])
+      this.$set(this.available_charts[this.host+'.os_procs_cmd_stats_percentage_cpu'].chart, 'options', os_procs_cmd_stats_percentage_cpu_options)
 
       this.set_chart_visibility(this.host+'.os_procs_cmd_stats_percentage_cpu', true)
 
@@ -1351,6 +1576,11 @@ export default {
       * @start reactive chart.options.labels
       * procs.cmd: %mem top 5
       **/
+
+      let os_procs_cmd_stats_percentage_mem_options = Object.merge(Object.clone(dygraph_line_chart.options), {
+        valueRange: [0, 100],
+        labels: ['Time'],
+      })
 
       this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_percentage_mem', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_cmd_stats']),
@@ -1369,15 +1599,16 @@ export default {
           cmds: []
         },
 
-        "options": {
-          valueRange: [0, 100],
-          labels: ['Time'],
-        },
+        // "options": {
+        //   valueRange: [0, 100],
+        //   labels: ['Time'],
+        // },
+        "options": undefined,
         watch: {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_cmd_stats_percentage_mem transform', values)
+            // //console.log('os_procs_cmd_stats_percentage_mem transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1395,7 +1626,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['cmd']*1)
 
@@ -1429,7 +1660,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1437,7 +1668,8 @@ export default {
         }
       }))
 
-      console.log('os_procs_cmd_stats_percentage_mem', this.available_charts[this.host+'.os_procs_cmd_stats_percentage_mem'])
+      //console.log('os_procs_cmd_stats_percentage_mem', this.available_charts[this.host+'.os_procs_cmd_stats_percentage_mem'])
+      this.$set(this.available_charts[this.host+'.os_procs_cmd_stats_percentage_mem'].chart, 'options', os_procs_cmd_stats_percentage_mem_options)
 
       this.set_chart_visibility(this.host+'.os_procs_cmd_stats_percentage_mem', true)
 
@@ -1450,6 +1682,10 @@ export default {
       * @start reactive chart.options.labels
       * procs.cmd: time top 5
       **/
+
+      let os_procs_cmd_stats_time_options = Object.merge(Object.clone(dygraph_line_chart.options),{
+        labels: ['Time'],
+      })
 
       this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_time', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_cmd_stats']),
@@ -1468,14 +1704,15 @@ export default {
           cmds: []
         },
 
-        "options": {
-          labels: ['Time'],
-        },
+        // "options": {
+        //   labels: ['Time'],
+        // },
+        "options": undefined,
         watch: {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_cmd_stats_time transform', values)
+            // //console.log('os_procs_cmd_stats_time transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1493,7 +1730,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['cmd']*1)
 
@@ -1527,7 +1764,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1535,7 +1772,8 @@ export default {
         }
       }))
 
-      console.log('os_procs_cmd_stats_time', this.available_charts[this.host+'.os_procs_cmd_stats_time'])
+      //console.log('os_procs_cmd_stats_time', this.available_charts[this.host+'.os_procs_cmd_stats_time'])
+      this.$set(this.available_charts[this.host+'.os_procs_cmd_stats_time'].chart, 'options', os_procs_cmd_stats_time_options)
 
       this.set_chart_visibility(this.host+'.os_procs_cmd_stats_time', true)
 
@@ -1548,6 +1786,10 @@ export default {
       * @start reactive chart.options.labels
       * procs.cmd: count top 5
       **/
+
+      let os_procs_cmd_stats_count_options = Object.merge(Object.clone(dygraph_line_chart.options),{
+        labels: ['Time'],
+      })
 
       this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_count', Object.merge(
         Object.clone(this.$options.host_charts['os_procs_cmd_stats']),
@@ -1566,14 +1808,15 @@ export default {
           cmds: []
         },
 
-        "options": {
-          labels: ['Time'],
-        },
+        // "options": {
+        //   labels: ['Time'],
+        // },
+        "options": undefined,
         watch: {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_cmd_stats_count transform', values)
+            // //console.log('os_procs_cmd_stats_count transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1591,7 +1834,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['cmd']*1)
 
@@ -1625,7 +1868,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1633,7 +1876,8 @@ export default {
         }
       }))
 
-      console.log('os_procs_cmd_stats_count', this.available_charts[this.host+'.os_procs_cmd_stats_count'])
+      //console.log('os_procs_cmd_stats_count', this.available_charts[this.host+'.os_procs_cmd_stats_count'])
+      this.$set(this.available_charts[this.host+'.os_procs_cmd_stats_count'].chart, 'options', os_procs_cmd_stats_count_options)
 
       this.set_chart_visibility(this.host+'.os_procs_cmd_stats_count', true)
 
@@ -1672,7 +1916,7 @@ export default {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_stats_percentage_cpu transform', values)
+            // //console.log('os_procs_stats_percentage_cpu transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1690,7 +1934,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['pid']*1)
 
@@ -1724,7 +1968,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1732,7 +1976,7 @@ export default {
         }
       }))
 
-      console.log('os_procs_uid_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_uid_stats_percentage_cpu'])
+      //console.log('os_procs_uid_stats_percentage_cpu', this.available_charts[this.host+'.os_procs_uid_stats_percentage_cpu'])
 
       this.set_chart_visibility(this.host+'.os_procs_uid_stats_percentage_cpu', true)
 
@@ -1772,7 +2016,7 @@ export default {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_uid_stats_percentage_mem transform', values)
+            // //console.log('os_procs_uid_stats_percentage_mem transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1790,7 +2034,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['uid']*1)
 
@@ -1824,7 +2068,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1832,7 +2076,7 @@ export default {
         }
       }))
 
-      console.log('os_procs_uid_stats_percentage_mem', this.available_charts[this.host+'.os_procs_uid_stats_percentage_mem'])
+      //console.log('os_procs_uid_stats_percentage_mem', this.available_charts[this.host+'.os_procs_uid_stats_percentage_mem'])
 
       this.set_chart_visibility(this.host+'.os_procs_uid_stats_percentage_mem', true)
 
@@ -1870,7 +2114,7 @@ export default {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_uid_stats_time transform', values)
+            // //console.log('os_procs_uid_stats_time transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1888,7 +2132,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['uid']*1)
 
@@ -1922,7 +2166,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -1930,7 +2174,7 @@ export default {
         }
       }))
 
-      console.log('os_procs_uid_stats_time', this.available_charts[this.host+'.os_procs_uid_stats_time'])
+      //console.log('os_procs_uid_stats_time', this.available_charts[this.host+'.os_procs_uid_stats_time'])
 
       this.set_chart_visibility(this.host+'.os_procs_uid_stats_time', true)
 
@@ -1968,7 +2212,7 @@ export default {
 
           transform: function(values, caller, chart, cb){
 
-            // console.log('os_procs_uid_stats_count transform', values)
+            // //console.log('os_procs_uid_stats_count transform', values)
             let transformed = []
 
             for(let index = 0; index < values.length; index++){
@@ -1986,7 +2230,7 @@ export default {
               //
               if(chart.options.labels.length == 1){//process for the first time only, if you wanna re process, you need to reload
                 Array.each(val.value, function(data, data_index){
-                  // console.log('pre transformed: ', data)
+                  // //console.log('pre transformed: ', data)
                   // if(index < chart.top)
                   //   transform_value.push(data['uid']*1)
 
@@ -2020,7 +2264,7 @@ export default {
               transformed.push(transform)
 
               if(index == values.length -1){
-                // console.log('transformed: ', transformed)
+                // //console.log('transformed: ', transformed)
                 cb( transformed )
               }
             }
@@ -2028,7 +2272,7 @@ export default {
         }
       }))
 
-      console.log('os_procs_uid_stats_count', this.available_charts[this.host+'.os_procs_uid_stats_count'])
+      //console.log('os_procs_uid_stats_count', this.available_charts[this.host+'.os_procs_uid_stats_count'])
 
       this.set_chart_visibility(this.host+'.os_procs_uid_stats_count', true)
 
@@ -2065,7 +2309,7 @@ export default {
       // this.set_chart_visibility(this.host+'.os_procs.count.uids', true)
 
 
-      // console.log('this.host_charts', this.host_charts)
+      // //console.log('this.host_charts', this.host_charts)
 
       // this.$set(this.available_charts, this.host+'.os_procs_stats.uids', Object.merge(
       //   this.$options.host_charts['os_procs_stats.uids'],
@@ -2076,7 +2320,7 @@ export default {
       //     chart: Object.clone(procs_top_chart),
       //   })
       // )
-      // // console.log('PROCS TOP', this.available_charts[this.host+'.os_procs.uids'])
+      // // //console.log('PROCS TOP', this.available_charts[this.host+'.os_procs.uids'])
       //
       // this.set_chart_visibility(this.host+'.os_procs_stats.uids', true)
 
@@ -2120,7 +2364,7 @@ export default {
 
           }
         })
-        console.log('MERGED MOUNT', _merge)
+        //console.log('MERGED MOUNT', _merge)
 
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
           if(mount.test(key) && this.host_charts['os_mounts.percentage']){
@@ -2171,7 +2415,7 @@ export default {
 
                 this.set_chart_visibility(merged_chart_name, true)
 
-                console.log('MERGED MOUNT', _merged_charts[merged_chart_name])
+                //console.log('MERGED MOUNT', _merged_charts[merged_chart_name])
 
                 delete _merged_charts[merged_chart_name]
 
@@ -2180,7 +2424,7 @@ export default {
 
             }
             else if(!this.available_charts[chart_name]){
-              // console.log('adding mount chart ',chart_name)
+              // //console.log('adding mount chart ',chart_name)
 
               this.$set(this.available_charts, chart_name, Object.merge(
                 Object.clone(this.$options.host_charts['os_mounts.percentage']),
@@ -2211,7 +2455,7 @@ export default {
             let _name = key.substring(key.lastIndexOf('_') + 1)
             let chart_name = this.host+'.os_blockdevices.stats.'+_name
 
-            // console.log('BLK', chart_name)
+            // //console.log('BLK', chart_name)
 
             if(!this.available_charts[chart_name]){
 
@@ -2242,7 +2486,7 @@ export default {
 
       let __unwacth_networkInterfaces = this.$watch('$store.state.tabulars_sources', function(val){
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
-          // console.log('networkInterface KEY',key)
+          // //console.log('networkInterface KEY',key)
 
           if(networkInterface.test(key) && this.host_charts['os_networkInterfaces_stats.properties']){
             __unwacth_networkInterfaces()
@@ -2253,7 +2497,7 @@ export default {
             let iface_name = _name.substr(0, _name.indexOf('_'))
             let prop_name = _name.substr(_name.indexOf('_') + 1)
 
-            // console.log('IFACE', iface_name, prop_name)
+            // //console.log('IFACE', iface_name, prop_name)
             if(__networkInterfaces_merge.contains(prop_name)){
               let merged_chart_name = this.host+'.os_networkInterfaces_stats.properties.'+iface_name
               Array.each(__networkInterfaces_merge, function(name){
@@ -2294,7 +2538,7 @@ export default {
 
                 this.set_chart_visibility(merged_chart_name, true)
 
-                console.log('MERGED NET', __networkInterfaces_merged_charts[merged_chart_name])
+                //console.log('MERGED NET', __networkInterfaces_merged_charts[merged_chart_name])
 
                 delete __networkInterfaces_merged_charts[merged_chart_name]
 
@@ -2329,7 +2573,7 @@ export default {
 
     },
     __process_dashoard_charts: function(doc){
-      //console.log('recived doc via Event charts', doc)
+      ////console.log('recived doc via Event charts', doc)
       // let counter = 0
       let charts_objects = {}
       Object.each(doc.charts, function(data, name){
@@ -2357,7 +2601,7 @@ export default {
     __process_dashoard_stats: function(payload){
 
       // if(payload.range == true)
-        // console.log('recived doc via Event stats', payload)
+        // //console.log('recived doc via Event stats', payload)
 
       let type = (payload.tabular == true) ? 'tabulars' : 'stats'
       let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
@@ -2430,7 +2674,7 @@ export default {
       return filtered
     },
     update_daterangepicker: function(){
-      //////////console.log('update_daterangepicker')
+      ////////////console.log('update_daterangepicker')
       Object.each(this.$options.daterangepicker.ranges, function(range, key){
         // range[1] = moment(new Date())
         // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
@@ -2439,12 +2683,12 @@ export default {
             this.$set(this.daterangepicker.ranges[key], index, this.$options.daterangepicker.ranges[key][index]())
 
         }.bind(this))
-        ////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
+        //////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
       }.bind(this))
 
     },
     set_range: function(start, end){
-      // //////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
+      // ////////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
       let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
       let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
       this.$store.commit('app/range', range)
@@ -2475,7 +2719,7 @@ export default {
       //   // // if(name.indexOf('networkInterface') == -1)
       //   // if(!payload.init || typeof payload.init != 'function'){
       //   //   this.__get_stat_for_chart(this.available_charts[name])
-      //   //   ////////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
+      //   //   //////////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
       //   // }
       //
       //   // if(counter == Object.getLength(this.available_charts) - 1)
@@ -2499,7 +2743,7 @@ export default {
     },
 
     process_os_tabular: function(doc){
-      ////////////////console.log('process_os_tabular', doc)
+      //////////////////console.log('process_os_tabular', doc)
       if(doc.metadata != null && doc.metadata.host == this.host){
         Object.each(doc.data, function(row, path){
           Object.each(row, function(data, key){
@@ -2518,7 +2762,7 @@ export default {
 
                 }.bind(this))
 
-                ////////////////console.log('process_os_tabular', path, key, result)
+                //////////////////console.log('process_os_tabular', path, key, result)
 
                 this.$store.dispatch('stats_tabular/add', {
                   host: this.host,
@@ -2557,14 +2801,14 @@ export default {
           if(row.doc != null && row.doc.metadata.host == this.host){
             let {keys, path, host} = extract_data_os(row.doc)
 
-            // //////////////////console.log('ROW', keys, path)
+            // ////////////////////console.log('ROW', keys, path)
 
             if(!paths[path])
               paths[path] = {}
 
 
             Object.each(keys, function(data, key){
-              // //////////////////console.log('ROW', key, data)
+              // ////////////////////console.log('ROW', key, data)
               if(!paths[path][key])
                 paths[path][key] = []
 
@@ -2586,12 +2830,12 @@ export default {
 
     },
     __add_os_doc_stats_tabular(paths){
-      //////////console.log('__add_os_doc_stats_tabular', paths)
+      ////////////console.log('__add_os_doc_stats_tabular', paths)
       Object.each(paths, function(keys, path){
-        //////////console.log('__add_os_doc_stats_tabular PATH', path)
+        ////////////console.log('__add_os_doc_stats_tabular PATH', path)
 
         Object.each(keys, function(data, key){
-          //////////console.log('__add_os_doc_stats_tabular KEY', key, data)
+          ////////////console.log('__add_os_doc_stats_tabular KEY', key, data)
           // this.$store.dispatch('stats/add', {
           //   host: this.host,
           //   path: path,
@@ -2614,7 +2858,7 @@ export default {
 
             // result.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
 
-            ////////////////console.log('process_os_tabular', path, key, result)
+            //////////////////console.log('process_os_tabular', path, key, result)
             stat = {
               tabular:true,
               host: this.host,
@@ -2646,12 +2890,12 @@ export default {
       }.bind(this))
     },
     __add_os_doc_stats(paths){
-      //////////console.log('__add_os_doc_stats', paths)
+      ////////////console.log('__add_os_doc_stats', paths)
       Object.each(paths, function(keys, path){
-        //////////console.log('__add_os_doc_stats PATH', path)
+        ////////////console.log('__add_os_doc_stats PATH', path)
 
         Object.each(keys, function(data, key){
-          //////////console.log('__add_os_doc_stats KEY', key, data)
+          ////////////console.log('__add_os_doc_stats KEY', key, data)
           let stat = {
             tabular:false,
             host: this.host,
@@ -2673,10 +2917,10 @@ export default {
     **/
     create_host_pipelines: function (paths, next) {
       // paths = ['os.procs']
-      ////////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
+      //////////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       let host = this.$route.params.host || this.$store.state.hosts.current
 
-      console.log('life cycle create_host_pipelines', host)
+      //console.log('life cycle create_host_pipelines', host)
 
       // let range = Object.clone(this.$store.state.app.range)
 
@@ -2701,7 +2945,7 @@ export default {
 
               let pipe = new Pipeline(template)
 
-              ////////////////////////////////console.log('$store.state.hosts.all', pipe)
+              //////////////////////////////////console.log('$store.state.hosts.all', pipe)
 
               /**
               * start suspended already
@@ -2711,17 +2955,17 @@ export default {
               //suscribe to 'onRangeDoc
 
               pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-                //////////////////////////console.log('create_hosts_pipelines onRangeDoc',doc);
+                ////////////////////////////console.log('create_hosts_pipelines onRangeDoc',doc);
 
                 if(this.$store.state.app.freeze == true){
-                  ////////////////////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                  //////////////////////////////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                   // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                   this.$store.commit('app/suspend', true)
                   // this.$q.loading.hide()
                   // this.$store.commit('app/pause', true)
                 }
                 else{
-                  ////////////////////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+                  //////////////////////////console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
 
                   this.$store.commit('app/suspend', false)//
 
@@ -2744,7 +2988,7 @@ export default {
               // pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
               if(this.$store.state.app.suspend != true){
-                ////////////////////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
+                //////////////////////////console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
 
                 /** manually resume **/
                 // pipe.fireEvent('onResume')
@@ -2756,7 +3000,7 @@ export default {
         // }.bind(this))
       }
 
-      // console.log('NEXT', next)
+      // //console.log('NEXT', next)
       if(next)
         next()
     },
@@ -2798,7 +3042,7 @@ export default {
     },
 
     showCollapsible (collapsible){
-      //////////console.log('showCollapsible', $(collapsible).attr('id'))
+      ////////////console.log('showCollapsible', $(collapsible).attr('id'))
       this.$options.collapsibles[$(collapsible).attr('id')] = true
       // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
       // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
@@ -2807,7 +3051,7 @@ export default {
       this.set_chart_visibility(id, true)
     },
     hideCollapsible (collapsible){
-      //////////console.log('hideCollapsible', $(collapsible).attr('id'))
+      ////////////console.log('hideCollapsible', $(collapsible).attr('id'))
       this.$options.collapsibles[$(collapsible).attr('id')] = false
 
       let id = $(collapsible).attr('id').replace('-collapsible', '')
@@ -2831,7 +3075,7 @@ export default {
       ){
         this.$set(this.visibility, id, false)
         this.remove_chart(id)
-        //////////console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
+        ////////////console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
         // this.$store.dispatch('stats/splice', this.available_charts[id].stat)
         // this.$store.dispatch('stats_tabular/splice', this.available_charts[id].stat)
       }
@@ -2840,7 +3084,7 @@ export default {
         && this.available_charts[id]
         && (this.visibility[id] == undefined || this.visibility[id] == false)
       ){
-        //////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
+        ////////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
         this.$set(this.visibility, id, true)
         this.add_chart(this.available_charts[id], id)
       }
