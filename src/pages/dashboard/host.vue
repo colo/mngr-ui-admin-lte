@@ -563,8 +563,8 @@ export default {
       this.$set(this, 'reactive_data', {})
       this.$set(this, 'available_charts', {})
 
-      this.$store.commit('tabulars_sources/clear')
-      this.$store.commit('stats_sources/clear')
+      // this.$store.commit('tabulars_sources/clear')
+      // this.$store.commit('stats_sources/clear')
 
       // this.remove_charts()
       // this.remove_charts({
