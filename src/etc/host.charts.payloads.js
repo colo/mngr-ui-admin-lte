@@ -175,7 +175,7 @@ let __payloads = {
     chart: undefined,
     init: undefined,
     stop: undefined,
-    tabular: false,
+    tabular: true,
     wrapper: {
       type: 'dygraph',
       props: {}
@@ -187,7 +187,7 @@ let __payloads = {
       events: [{
         host: undefined,
         path: 'os_procs_stats',
-        tabular: false,
+        tabular: true,
       }]
     },
     /**
@@ -205,7 +205,7 @@ let __payloads = {
     chart: undefined,
     init: undefined,
     stop: undefined,
-    tabular: false,
+    tabular: true,
     wrapper: {
       type: 'dygraph',
       props: {}
@@ -217,7 +217,7 @@ let __payloads = {
       events: [{
         host: undefined,
         path: 'os_procs_cmd_stats',
-        tabular: false,
+        tabular: true,
       }]
     },
     /**
@@ -235,7 +235,7 @@ let __payloads = {
     chart: undefined,
     init: undefined,
     stop: undefined,
-    tabular: false,
+    tabular: true,
     wrapper: {
       type: 'dygraph',
       props: {}
@@ -247,7 +247,7 @@ let __payloads = {
       events: [{
         host: undefined,
         path: 'os_procs_uid_stats',
-        tabular: false,
+        tabular: true,
       }]
     },
     /**
