@@ -367,6 +367,9 @@ export default {
   methods: {
     __create: function(paths, next){
       EventBus.$once('charts', this.__process_dashoard_charts)
+      // EventBus.$once('instances', function(instances){
+      //
+      // })
       EventBus.$on('stats', this.__process_dashoard_stats)
 
       this.set_range(moment().subtract(5, 'minute'), moment())

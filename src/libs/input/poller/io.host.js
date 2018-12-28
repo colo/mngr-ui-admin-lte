@@ -86,6 +86,17 @@ export default new Class({
 					}
 				},
         {
+					instances: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('instances', app.options.stat_host)
+
+            }
+
+					}
+				},
+        {
 					stats: function(req, next, app){
 
             if(app.options.stat_host){
@@ -157,6 +168,12 @@ export default new Class({
 					callbacks: ['charts'],
 					// middlewares: [], //socket.use(fn)
 				}],
+        'instances': [{
+					// path: ':param',
+					// once: true, //socket.once
+					callbacks: ['instances'],
+					// middlewares: [], //socket.use(fn)
+				}],
 				'stats': [{
 					// path: ':param',
 					// once: true, //socket.once
@@ -185,6 +202,19 @@ export default new Class({
     this.status = status
 
     this.fireEvent('onDoc', [Object.merge({type: 'charts'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
+
+    // this.charts(socket, next, {host: host, charts: charts})
+    // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
+    //
+    // if(status == 'ok')
+    //   this.io.emit('range', )
+  },
+  instances: function(socket, next){
+    let {host, status, instances} = arguments[2]
+    console.log('IO.HOST instances', host, status, instances)
+    this.status = status
+
+    this.fireEvent('onDoc', [Object.merge({type: 'instances'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
 
     // this.charts(socket, next, {host: host, charts: charts})
     // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
