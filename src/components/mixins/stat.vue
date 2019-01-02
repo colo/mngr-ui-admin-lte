@@ -99,7 +99,7 @@ export default {
   created () {
     this.$options.__buffer_data = []
 
-    //console.log('stat.vue data', this.id, this.stat.data)
+    console.log('stat.vue data', this.id, this.stat.data)
 
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
@@ -309,8 +309,9 @@ export default {
     }
     else{
       this.$options.__stat_unwatcher = this.$watch('stat.data', function(val, old){
+        // console.log('__stat_unwatcher', this.id, val, this.$options.length)
         val = JSON.parse(JSON.stringify(val))
-        //console.log('__stat_unwatcher', this.id, val, this.$options.length)
+
 
 
         /**

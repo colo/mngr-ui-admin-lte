@@ -260,6 +260,37 @@ let __payloads = {
     }
   },
 
+  'munin':{
+    name: 'munin',
+    chart: undefined,
+    init: undefined,
+    stop: undefined,
+    // tabular: true,
+    wrapper: {
+      type: 'dygraph',
+      props: {}
+    },
+    stat: {
+      merged: false,
+      sources: undefined,
+      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      events: [{
+        host: undefined,
+        path: undefined,
+        tabular: false,
+      }]
+    },
+    /**
+    * for __get_stat_for_chart
+    **/
+    pipeline: {
+      name: 'input.os',
+      // // path: 'os',
+      range: true
+    }
+  },
+
   // 'os_procs.count.pids': {
   //   name: 'os_procs.count.pids',
   //   chart: undefined,

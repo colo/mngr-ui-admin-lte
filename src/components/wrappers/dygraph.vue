@@ -131,9 +131,10 @@ export default {
 
     },
     create (){
-      // this.__create_chart()
+      // console.log('create dygraph', this.id, this.chart)
+
       if(this.chart && this.chart.options){
-        //console.log('create dygraph', this.id, this.chart)
+
         // this.create()
         this.__create_chart()
       }
@@ -171,7 +172,7 @@ export default {
         this.$options.chart_options = Object.clone(val)
       }, {deep: true})
 
-      //console.log('__create_chart', this.id, options)
+      // console.log('__create_chart', this.id, this.$options.chart_options)
 
       if(this.$options.chart_options.labels && document.getElementById(this.id)){
         if(this.$options.chart_options.labelsDiv)
@@ -197,7 +198,7 @@ export default {
         //   data.push(row)
         // })
 
-        console.log('__create_chart', this.id, this.$options.chart_options)
+        // console.log('__create_chart', this.id, this.$options.chart_options)
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div

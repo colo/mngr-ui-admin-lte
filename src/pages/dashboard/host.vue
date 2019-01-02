@@ -165,7 +165,7 @@ export default {
   **/
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
   // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
-  stats_whitelist: /freemem|totalmem|cpus/,
+  stats_whitelist: /^freemem|totalmem|cpus/,
   // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
   tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
 
@@ -1242,11 +1242,197 @@ export default {
       let mount = new RegExp(this.host+'_os_mounts')
       let blockdevice = new RegExp(this.host+'_os_blockdevices')
       let networkInterface = new RegExp(this.host+'_os_networkInterfaces_stats')
+      let munin = new RegExp(this.host+'_munin_')
 
-      let _merge = []
-      let _merged_charts = {}
+
+      let __unwacth_munin = this.$watch('$store.state.stats_sources', function(val){
+        let _merge = {}
+        let _merged_charts = {}
+
+
+        Object.each(val, function(stat, key){
+          if(munin.test(key)){
+            let munin_name = key.replace(munin, '')
+            let _path = munin_name.substring(0, munin_name.lastIndexOf('_'))
+            let _name = munin_name.substring(munin_name.lastIndexOf('_')+1)
+
+            if(!_merge[_path]) _merge[_path] = []
+
+            if(!_merge[_path].contains(_name))
+              _merge[_path].push(_name)
+
+            // let _name = key.substring(key.lastIndexOf('_') + 1)
+            // // let prop_name = _name.substr(_name.indexOf('_') + 1)
+            // if(!_merge.contains(_name))
+            //   _merge.push(_name)
+
+          }
+        }.bind(this))
+
+        if(Object.getLength(_merge) > 0){
+          console.log('MUNIN',_merge)
+           // && (this.host_charts['munin'] || this.host_charts['munin_'+path]){
+          __unwacth_munin()
+
+          Object.each(_merge, function(names, _path){
+            let merged_chart_name = this.host+'.munin_'+_path
+            Array.each(names, function(_name){
+              merged_chart_name += '.'+_name
+            })
+
+            if(!_merged_charts[merged_chart_name]){
+              _merged_charts[merged_chart_name] = Object.merge(
+                Object.clone(this.$options.host_charts['munin']),
+                {
+                  stat: {
+                    // sources: [],
+                    events: [{
+                      host: this.host,
+                      path: 'munin_'+_path,
+                      tabular: false,
+                    }]
+                  },
+                  name: merged_chart_name,
+                  chart: Object.merge(Object.clone(dygraph_line_chart)),
+                }
+              )
+
+              _merged_charts[merged_chart_name].chart.options.labels = ['Time']
+              let options = Object.clone(_merged_charts[merged_chart_name].chart.options)
+              _merged_charts[merged_chart_name].chart.options = undefined
+
+              this.$set(this.available_charts, merged_chart_name, Object.merge(_merged_charts[merged_chart_name]))
+              this.$set(this.available_charts[merged_chart_name].chart, 'options', options)
+
+              this.$set(this.available_charts[merged_chart_name].chart.options, 'labels', ['Time'])
+
+              this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+
+              this.$options.unwatchers[merged_chart_name] = this.$watch('$store.state.stats_sources.'+this.host+'_munin_'+_path+'_'+names[0], function(val, old){
+                // console.log('MUNIN WATCHER $store.state.stats_sources.'+this.host+'_munin_'+_path+'_'+names[0], val)
+
+                // let data = [{
+                //   timestamp: val[0].timestamp,
+                //   value: {
+                //     kernel: (Object.keys(val[0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value,
+                //     user: (Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value
+                //   }
+                // }]
+
+                // this.$set(this.reactive_data, merged_chart_name, [])
+
+                let _other_values = {}
+                Array.each(names, function(_name, _name_index){
+                  if(_name_index > 0)
+                    _other_values[_name] = this.$store.state.stats_sources[this.host+'_munin_'+_path+'_'+_name]
+
+                }.bind(this))
+
+
+                let rows = []
+                Array.each(val, function(v, v_index){
+                  let data = []
+                  data.push(v.timestamp)
+                  data.push(v.value)
+                  Object.each(_other_values, function(_other_values){
+                    data.push(_other_values[v_index].value)
+                  })
+
+                  // rows.push(data)
+                  this.$set(this.available_charts[merged_chart_name].stat.data, 0, [data])
+                  // this.reactive_data[merged_chart_name].push(data)
+                  // if(data.length > 0)
+                  // this.$set(this.available_charts[merged_chart_name].stat, 'data', [data])
+                  // this.available_charts[merged_chart_name].stat.data.push([data])
+
+                  // console.log('MUNIN WATCHER $store.state.stats_sources.'+this.host+'_munin_'+_path+'_'+names[0], data)
+                  // data = []
+                }.bind(this))
+
+
+
+
+
+
+
+                // this.$set(this.reactive_data[merged_chart_name], 0, [data])
+
+
+              }.bind(this),{deep:true})
+
+
+            }
+
+            Array.each(names, function(_name, _name_index){
+              // _merged_charts[merged_chart_name].stat.sources.push(
+              //   {type: 'stats', path:this.host+'_munin_'+_path+'_'+_name}
+              // )
+
+              this.available_charts[merged_chart_name].chart.options.labels.push(_name)
+
+              if(_name_index == names.length - 1){//last item
+                // let stat = Object.clone(this.available_charts[merged_chart_name].stat)
+                // this.available_charts[merged_chart_name].stat = undefined
+                // this.$set(this.available_charts[merged_chart_name], 'stat', stat)
+                // this.$set(_merged_charts[merged_chart_name].stat, 'data', this.reactive_data[merged_chart_name])
+
+                // this.$set(this.available_charts, merged_chart_name, _merged_charts[merged_chart_name])
+
+                // if(this.available_charts[merged_chart_name].stat.sources.length == 1)
+                //   this.available_charts[merged_chart_name].stat.merged = false
+                // let stat = Object.clone(this.available_charts[merged_chart_name].stat)
+                // this.available_charts[merged_chart_name].stat = undefined
+                // this.$set(this.available_charts[merged_chart_name], 'stat', stat)
+                // this.$set(this.available_charts[merged_chart_name].stat, 'data', this.reactive_data[merged_chart_name])
+
+                this.set_chart_visibility(merged_chart_name, true)
+
+                console.log('MERGED MUNIN', this.available_charts[merged_chart_name])
+
+                delete _merged_charts[merged_chart_name]
+
+
+              }
+            }.bind(this))
+
+
+
+
+          }.bind(this))
+          // let munin_name = key.replace(munin, '')
+          // let _path = munin_name.substring(0, munin_name.lastIndexOf('_'))
+          // let _name = munin_name.substring(munin_name.lastIndexOf('_')+1)
+
+          // if(_merge[_path] && _merge[_path].contains(_name)){
+          //
+          // }
+          // else if(!this.available_charts[chart_name]){
+          //   // // //console.log('adding mount chart ',chart_name)
+          //   //
+          //   // this.$set(this.available_charts, chart_name, Object.merge(
+          //   //   Object.clone(this.$options.host_charts['os_mounts.percentage']),
+          //   //   {
+          //   //     stat: {
+          //   //       sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
+          //   //     },
+          //   //     name: chart_name,
+          //   //     chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
+          //   //   })
+          //   // )
+          //   //
+          //   // // this.$set(this.mounts, _name, 1)
+          //   // this.set_chart_visibility(chart_name, true)
+          // }
+
+        }
+
+
+      }, {deep: true})
 
       let __unwacth_mounts = this.$watch('$store.state.tabulars_sources', function(val){
+        let _merge = []
+        let _merged_charts = {}
+
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
           if(mount.test(key)){
             let _name = key.substring(key.lastIndexOf('_') + 1)
@@ -1284,10 +1470,11 @@ export default {
                     },
                     name: merged_chart_name,
                     chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
-                  })
+                  }
+                )
 
-                  _merged_charts[merged_chart_name].chart.options.labels = ['Time']
-                }
+                _merged_charts[merged_chart_name].chart.options.labels = ['Time']
+              }
 
               _merged_charts[merged_chart_name].stat.sources.push(
                 {type: 'tabulars', path:this.host+'_os_mounts_percentage_'+_name}

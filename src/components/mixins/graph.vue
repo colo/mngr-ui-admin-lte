@@ -147,7 +147,7 @@ export default {
       this.create()
     },
     create: function(){
-      // //////////console.log('chart.vue mixing create', this.id, this.$refs[this.id])
+      // console.log('graph.vue mixing create', this.id, this.$refs[this.id])
       if(this.$refs[this.id] && typeof this.$refs[this.id].create == 'function')
         this.$refs[this.id].create()
     },
