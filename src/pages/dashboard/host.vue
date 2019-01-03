@@ -1276,9 +1276,12 @@ export default {
 
           Object.each(_merge, function(names, _path){
             let merged_chart_name = this.host+'.munin_'+_path
-            Array.each(names, function(_name){
-              merged_chart_name += '.'+_name
-            })
+            /**
+            * @removed
+            **/
+            // Array.each(names, function(_name){
+            //   merged_chart_name += '.'+_name
+            // })
 
             if(!_merged_charts[merged_chart_name]){
               _merged_charts[merged_chart_name] = Object.merge(
@@ -1306,63 +1309,6 @@ export default {
 
               this.$set(this.available_charts[merged_chart_name].chart.options, 'labels', ['Time'])
 
-              // this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
-
-              // this.$options.unwatchers[merged_chart_name] = this.$watch('$store.state.tabulars_sources.'+this.host+'_munin_'+_path+'_'+names[0], function(val, old){
-              //   console.log('MUNIN WATCHER $store.state.stats_sources.'+this.host+'_munin_'+_path+'_'+names[0], val)
-              //
-              //   // let data = [{
-              //   //   timestamp: val[0].timestamp,
-              //   //   value: {
-              //   //     kernel: (Object.keys(val[0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value,
-              //   //     user: (Object.keys(this.$store.state.stats_sources[this.host+'_os_procs_stats_user'][0].value).length * 100) / this.$store.state.stats_sources[this.host+'_os_procs_stats_pids_count'][0].value
-              //   //   }
-              //   // }]
-              //
-              //   // this.$set(this.reactive_data, merged_chart_name, [])
-              //
-              //   let _other_values = {}
-              //   Array.each(names, function(_name, _name_index){
-              //     if(_name_index > 0)
-              //       _other_values[_name] = this.$store.state.tabulars_sources[this.host+'_munin_'+_path+'_'+_name]
-              //
-              //   }.bind(this))
-              //
-              //   if(!Array.isArray(val[0]))
-              //     val = [val]
-              //   let rows = []
-              //
-              //   Array.each(val, function(v, v_index){
-              //     let data = []
-              //     data.push(v.timestamp)
-              //     data.push(v.value)
-              //     Object.each(_other_values, function(_other_values){
-              //       data.push(_other_values[v_index].value)
-              //     })
-              //
-              //     // rows.push(data)
-              //     this.$set(this.available_charts[merged_chart_name].stat.data, 0, [data])
-              //     // this.reactive_data[merged_chart_name].push(data)
-              //     // if(data.length > 0)
-              //     // this.$set(this.available_charts[merged_chart_name].stat, 'data', [data])
-              //     // this.available_charts[merged_chart_name].stat.data.push([data])
-              //
-              //     // console.log('MUNIN WATCHER $store.state.tabulars_sources.'+this.host+'_munin_'+_path+'_'+names[0], data)
-              //     // data = []
-              //   }.bind(this))
-              //
-              //
-              //
-              //
-              //
-              //
-              //
-              //   // this.$set(this.reactive_data[merged_chart_name], 0, [data])
-              //
-              //
-              // }.bind(this),{deep:true})
-
-
             }
 
             Array.each(names, function(_name, _name_index){
@@ -1373,19 +1319,10 @@ export default {
               this.available_charts[merged_chart_name].chart.options.labels.push(_name)
 
               if(_name_index == names.length - 1){//last item
-                // let stat = Object.clone(this.available_charts[merged_chart_name].stat)
-                // this.available_charts[merged_chart_name].stat = undefined
-                // this.$set(this.available_charts[merged_chart_name], 'stat', stat)
-                // this.$set(_merged_charts[merged_chart_name].stat, 'data', this.reactive_data[merged_chart_name])
-
-                // this.$set(this.available_charts, merged_chart_name, _merged_charts[merged_chart_name])
 
                 if(this.available_charts[merged_chart_name].stat.sources.length == 1)
                   this.available_charts[merged_chart_name].stat.merged = false
-                // let stat = Object.clone(this.available_charts[merged_chart_name].stat)
-                // this.available_charts[merged_chart_name].stat = undefined
-                // this.$set(this.available_charts[merged_chart_name], 'stat', stat)
-                // this.$set(this.available_charts[merged_chart_name].stat, 'data', this.reactive_data[merged_chart_name])
+
 
                 this.set_chart_visibility(merged_chart_name, true)
 
@@ -1401,30 +1338,7 @@ export default {
 
 
           }.bind(this))
-          // let munin_name = key.replace(munin, '')
-          // let _path = munin_name.substring(0, munin_name.lastIndexOf('_'))
-          // let _name = munin_name.substring(munin_name.lastIndexOf('_')+1)
 
-          // if(_merge[_path] && _merge[_path].contains(_name)){
-          //
-          // }
-          // else if(!this.available_charts[chart_name]){
-          //   // // //console.log('adding mount chart ',chart_name)
-          //   //
-          //   // this.$set(this.available_charts, chart_name, Object.merge(
-          //   //   Object.clone(this.$options.host_charts['os_mounts.percentage']),
-          //   //   {
-          //   //     stat: {
-          //   //       sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
-          //   //     },
-          //   //     name: chart_name,
-          //   //     chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.host_charts['os_mounts.percentage'])),
-          //   //   })
-          //   // )
-          //   //
-          //   // // this.$set(this.mounts, _name, 1)
-          //   // this.set_chart_visibility(chart_name, true)
-          // }
 
         }
 
@@ -1458,9 +1372,12 @@ export default {
 
             if(_merge.contains(_name)){
               let merged_chart_name = this.host+'.os_mounts'
-              Array.each(_merge, function(name){
-                merged_chart_name += '.'+name
-              })
+              /**
+              * @removed
+              **/
+              // Array.each(_merge, function(name){
+              //   merged_chart_name += '.'+name
+              // })
 
               if(!_merged_charts[merged_chart_name]){
                 _merged_charts[merged_chart_name] = Object.merge(
@@ -1581,9 +1498,12 @@ export default {
             // //console.log('IFACE', iface_name, prop_name)
             if(__networkInterfaces_merge.contains(prop_name)){
               let merged_chart_name = this.host+'.os_networkInterfaces_stats.properties.'+iface_name
-              Array.each(__networkInterfaces_merge, function(name){
-                merged_chart_name += '.'+name
-              })
+              /**
+              * @removed
+              **/
+              // Array.each(__networkInterfaces_merge, function(name){
+              //   merged_chart_name += '.'+name
+              // })
 
               if(!__networkInterfaces_merged_charts[merged_chart_name]){
                 __networkInterfaces_merged_charts[merged_chart_name] = Object.merge(
