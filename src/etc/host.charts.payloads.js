@@ -271,14 +271,14 @@ let __payloads = {
       props: {}
     },
     stat: {
-      merged: false,
-      sources: undefined,
+      merged: true,
+      sources: [],
       // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
       // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
       events: [{
         host: undefined,
         path: undefined,
-        tabular: false,
+        tabular: true,
       }]
     },
     /**
