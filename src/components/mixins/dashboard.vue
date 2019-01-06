@@ -3,11 +3,6 @@
 import { mapState } from 'vuex'
 
 
-
-// import { createNamespacedHelpers } from 'vuex'
-// const { mapState, mapActions } = createNamespacedHelpers('some/nested/module')
-
-
 import chart from 'components/chart'
 import chartTabular from 'components/chart.tabular'
 
@@ -94,9 +89,10 @@ export default {
     }),
 
   ),
-  updated: function(){
-    this.$store.commit('hosts/current', this.$route.params.host || '')
-  },
+
+  /**
+  * @start - lifecycle
+  **/
   created: function(){
     this.$options.__events_watcher = this.$watch('events', debounce(function(val, old){
     // this.$options.__events_watcher = this.$watch('events', function(val){
@@ -158,15 +154,25 @@ export default {
     }, 100))
     // })
   },
+
+  mounted: function(){
+    this.__mount()
+  },
+
   beforeDestroy: function(){
     if(!this.$options.__events_watcher)
       this.$options.__events_watcher()
 
-
+    this.__clean_destroy()
   },
+
   destroyed: function(){
     this.$off()
   },
+  /**
+  * @start - lifecycle
+  **/
+
   methods: {
     __build_biggest_range: function(first, second){
       let event = Object.clone(first)
@@ -188,18 +194,11 @@ export default {
 
       event.onRange.Range = 'posix '+start+'-'+end+'/*'
 
-      console.log('__build_biggest_range', first, second, start, end, event)
+      // console.log('__build_biggest_range', first, second, start, end, event)
 
       return event
     },
-    __parse_pipeline_opts: function(pipeline, stat){
-      let {name} = pipeline
-      let {path} = stat
-      return {
-        name: name,
-        options: "inputs[0].options.conn[0].module.options.paths = ['"+path+"']"
-      }
-    },
+
     __parse_event: function(event, stat){
       let {type, opts} = event
       let {path, tabular} = stat
@@ -339,36 +338,20 @@ export default {
       // console.log('_set_pipelines_events', JSON.parse(JSON.stringify(this.$options.__pipelines_events[pipeline])))
     },
     /**
-    * @start -charting
+    * @start - charts
     **/
     add_chart: function (payload){
       let {name, chart, init, watch, watcher} = payload
 
-      // this.available_charts[name] = payload
       this.$set(this.charts, name, chart)
-
-      // if(!this.stats[name])
-      //   this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
 
       if(init && typeof init == 'function')
         init(payload)
 
-      // if(watch == true && watcher)
-      //   this.add_watcher(payload)
-
-      ////////////// console.log('add_chart', name)
-
-      // if(this.$refs[name] && typeof this.$refs[name].create == 'function' ) this.$refs[name].create()
-
-      // if(finish && typeof finish == 'function')
-      //   finish(payload)
 
     },
     remove_chart: function (name, options){
       options = options || {}
-
-      // if(this.available_charts[name] && this.available_charts[name].stop && typeof this.available_charts[name].stop == 'function')
-      //   this.available_charts[name].stop(this.available_charts[name])
 
       if(this.charts[name] && this.charts[name].stop && typeof this.charts[name].stop == 'function')
         this.charts[name].stop(this.charts[name])
@@ -376,168 +359,164 @@ export default {
 
       this.$delete(this.charts, name)
 
-      // if(options.clean && options.clean == true)
-      //   this.$set(this.stats, name, undefined)
-
-      // if(options.unwatch && options.unwatch == true){
-      //   if(Array.isArray(this.available_charts[name].stat)){
-      //     Array.each(this.available_charts[name].stat, function(stat, index){
-      //       let indexed_name = name+'_'+index
-      //       this.remove_watcher(indexed_name)
-      //     }.bind(this))
-      //   }
-      //   else{
-      //     this.remove_watcher(name)
-      //   }
-      // }
-
-      // if(this.$refs[name] && typeof this.$refs[name].reset == 'function'){
-      //    this.$refs[name].reset()
-      // }
-      // else if (this.$refs[name] && this.$refs[name][0] && typeof this.$refs[name][0].reset == 'function' ){
-      //   this.$refs[name][0].reset()
-      // }
-
-      ////////// console.log('remove_chart', name, this.$refs[name])
     },
     remove_charts: function(options){
       Object.each(this.charts, function(chart, name){
         this.remove_chart(name, options)
       }.bind(this))
     },
-    // remove_watcher: function(name){
-    //   ////////////// console.log('remove_watcher', name)
-    //
-    //   if(this.$options.__unwatchers__[name]){
-    //     this.$options.__unwatchers__[name]()
-    //     delete this.$options.__unwatchers__[name]
-    //   }
-    // },
-    // add_chart_stat: function (name){
-    //   // if(!this.stats[name])
-    //   this.$set(this.stats, name, {lastupdate: 0, 'data': [] })
-    // },
-    // remove_chart_stat: function (name){
-    //   this.$delete(this.stats, name)
-    // },
-    // remove_chart_stats: function(){
-    //   // Object.each(this.stats, function(stat, name){
-    //   //   this.remove_chart_stat(name)
-    //   // }.bind(this))
-    //   // this.$delete(this, 'stats')
-    //   this.$set(this, 'stats', {})
-    // },
-    // add_watcher: function(payload){
-    //   let {name, watcher} = payload
-    //   // ////////////// console.log('add_watcher', name, watch)
-    //
-    //   this.remove_watcher(name)
-    //   // if(!this.$options.__unwatchers__[name]){
-    //     this.$options.__unwatchers__[name] = this.$watch(watcher.name, function (doc, old) {
-    //       // ////////////// console.log('add_watcher', name)
-    //       if(watcher.cb)
-    //         watcher.cb(doc, old, payload)
-    //
-    //     }.bind(this),{
-    //       deep: watcher.deep || false
-    //     })
-    //   // }
-    // },
     /**
-    * @move to stat mixin
-    **/
-    // __get_stat: function(payload, cb){
-    //   //////////////// console.log('__get_stat', payload)
-    //   // if(payload.tabular == true){
-    //   //   this.$store.dispatch('stats_tabular/get', payload).then((docs) => cb(docs))
-    //   // }
-    //   // else{
-    //     this.$store.dispatch('stats/get', payload).then((docs) => cb(docs))
-    //   // }
-    // },
-    // __update_chart_stat: function(name, doc, splice){
-    //   //////// console.log('__update_chart_stat', name, doc, splice)
-    //
-    //   /**
-    //   * @config option this.visibility
-    //   **/
-    //   if(this.stats[name] && this.visibility[name] == true){
-    //
-    //     if(Array.isArray(doc) && doc.length > 0){
-    //       let data = []
-    //
-    //       // doc.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-    //
-    //       Array.each(doc, function(d, index){
-    //         data.push({ timestamp: d.metadata.timestamp, value: d.data })
-    //
-    //         if(index == doc.length -1){
-    //
-    //           // let old_data = Array.clone(this.stats[name].data)
-    //           // data = old_data.combine(data)
-    //           // data = this.stats[name].data.combine(data)
-    //           data.sort(function(a,b) {return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);} )
-    //           this.$set(this.stats[name], 'data', data)
-    //         }
-    //       }.bind(this))
-    //
-    //       // splice = splice || this.seconds
-    //       // let length = this.stats[name].data.length
-    //       // this.stats[name].data.splice(
-    //       //   (splice * -1) -1,
-    //       //   length - splice
-    //       // )
-    //     }
-    //     else if(doc && !Array.isArray(doc)){
-    //       let data = { timestamp: doc.metadata.timestamp, value: doc.data }
-    //       this.stats[name].data.push(data)
-    //
-    //
-    //       // if(length > this.seconds)
-    //       //   this.stats[name].data.shift()
-    //     }
-    //
-    //     splice = (isNaN(splice)) ? this.seconds : splice
-    //
-    //     let length = this.stats[name].data.length
-    //     // if(splice == 1){
-    //     //   let last = this.stats[name].data[this.stats[name].data.length -1]
-    //     //   this.$set(this.stats[name], 'data', [last])
-    //     // }
-    //     // else{
-    //       splice = (splice == 1) ? 2 : splice
-    //
-    //       if(splice == 0){
-    //         this.$set(this.stats[name], 'data', [])
-    //       }
-    //       else{
-    //         this.stats[name].data.splice(
-    //           (splice * -1) -1,
-    //           length - splice
-    //         )
-    //       }
-    //     // }
-    //
-    //     //////////// console.log('__update_chart_stat',name, doc, splice, this.stats[name].data)
-    //
-    //     this.stats[name].lastupdate = Date.now()
-    //   }
-    // },
-    /**
-    * @end - charting
+    * @end - charts
     **/
 
     /**
-    * UI
+    * @start - STATS
     **/
-    showCollapsible (collapsible){
-      //////////////// console.log('showCollapsible', collapsible)
-      // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
-      // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
+    __white_black_lists_filter: function(whitelist, blacklist, str){
+      let filtered = false
+      if(!blacklist && !whitelist){
+        filtered = true
+      }
+      else if(blacklist && !blacklist.test(str)){
+        filtered = true
+      }
+      else if(blacklist && blacklist.test(str) && (whitelist && whitelist.test(str))){
+        filtered = true
+      }
+      else if(!blacklist && (whitelist && whitelist.test(str))){
+        filtered = true
+      }
+
+      return filtered
+    },
+    /**
+    * @end - STATS
+    **/
+
+    /**
+    * @start life cycle
+    **/
+    __create: function(paths, next){
+      EventBus.$once('charts', this.__process_dashoard_charts)
+      EventBus.$once('instances', this.__process_dashoard_instances)
+      EventBus.$on('stats', this.__process_dashoard_stats)
+
+      this.set_range(moment().subtract(5, 'minute'), moment())
+
+      if(Object.getLength(this.$options.pipelines) == 0){
+        this.create_pipelines(paths, next)
+      }
+      else if(next){
+        next()
+      }
+    },
+    __mount: function(next){
+      //console.log('life cycle __mount')
+
+      if(this.all_init === true){
+        this.__init_charts()
+      }
+      else{
+        let unwatch_all_init = this.$watch('all_init', function(val){
+          //console.log('all_init', val)
+          if(val == true){
+
+            unwatch_all_init()
+
+            this.__init_charts()
+          }
+        })//watcher
+      }
+
+
+      if(next)
+        next()
+    },
+    __clean_destroy: function(next){
+      Object.each(this.charts, function(chart, name){
+        this.set_chart_visibility(name, false)
+      }.bind(this))
+
+      EventBus.$off('charts', this.__process_dashoard_charts)
+      EventBus.$off('instances', this.__process_dashoard_instances)
+      EventBus.$off('stats', this.__process_dashoard_stats)
+
+      this.stats_init = false
+      this.tabulars_init = false
+
+      this.$options.charts_payloads = {}
+
+      this.destroy_pipelines()
+
+      Object.each(this.$options.unwatchers, function(unwatcher, name){
+        if(typeof unwatcher === 'function' )
+          unwatcher()
+      }.bind(this))
+      this.$options.unwatchers = {}
+
+      this.$set(this, 'reactive_data', {})
+      this.$set(this, 'available_charts', {})
+
+      this.$store.commit('tabulars_sources/clear')
+      this.$store.commit('stats_sources/clear')
+
+      // this.$store.dispatch('stats/flush_all', {host: this.host})
+      // this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
+
+      // this.$store.dispatch('stats/splice', {host: this.host, length: 300})
+      // this.$store.dispatch('stats_tabular/splice', {host: this.host, length: 300})
+
+      if(next)
+        next()
+    },
+    /**
+    * @end life cycle
+    **/
+
+    /**
+    * @start - UI
+    **/
+    set_chart_visibility: function (id, isVisible){
+
+      if(
+        isVisible == false
+        && this.available_charts[id]
+        && (this.visibility[id] == undefined || this.visibility[id] == true)
+      ){
+        this.$set(this.visibility, id, false)
+        this.remove_chart(id)
+        ////////////console.log('set_chart_visibility REMOVE', id, isVisible, this.visibility[id])
+        // this.$store.dispatch('stats/splice', this.available_charts[id].stat)
+        // this.$store.dispatch('stats_tabular/splice', this.available_charts[id].stat)
+      }
+      else if (
+        isVisible == true
+        && this.available_charts[id]
+        && (this.visibility[id] == undefined || this.visibility[id] == false)
+      ){
+        ////////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
+        this.$set(this.visibility, id, true)
+        this.add_chart(this.available_charts[id], id)
+      }
 
     },
+    showCollapsible (collapsible){
+      ////////////console.log('showCollapsible', $(collapsible).attr('id'))
+      this.$options.collapsibles[$(collapsible).attr('id')] = true
+      // this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
+      // this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
+      let id = $(collapsible).attr('id').replace('-collapsible', '')
+
+      this.set_chart_visibility(id, true)
+    },
     hideCollapsible (collapsible){
-      //////////////// console.log('hideCollapsible', collapsible)
+      ////////////console.log('hideCollapsible', $(collapsible).attr('id'))
+      this.$options.collapsibles[$(collapsible).attr('id')] = false
+
+      let id = $(collapsible).attr('id').replace('-collapsible', '')
+
+      this.set_chart_visibility(id, false)
+
       // let name = collapsible.replace('-collapsible', '')
       // this.$options.has_no_data[name] = 61
       // this.$set(this.hide, name, true)
@@ -546,6 +525,7 @@ export default {
       // // this.$set(this.stats[name], 'data', [])
 
     },
+
 
 
   }
