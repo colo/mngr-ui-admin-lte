@@ -59,6 +59,10 @@ export default {
     //   type: [String],
     //   default: 'dygraph'
     // },
+    dashboard:{
+      type: [String],
+      default: undefined
+    },
     id:{
       type: [String],
       default: ''
@@ -231,7 +235,7 @@ export default {
       if(range.length > 0 && range[0] && range[1]){
         this.$options.__range_init = false
 
-        this.$store.commit('dashboard/events/add', {
+        this.$store.commit('dashboard_'+this.dashboard+'/events/add', {
           id: this.id,
           type: 'onRange',
           'opts': {

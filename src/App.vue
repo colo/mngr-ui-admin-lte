@@ -108,7 +108,7 @@ if(!window['EventBus'])
 //   }
 // }
 
-import hostStore from 'src/store/host'
+// import hostStore from 'src/store/host'
 // import statsStore from 'src/store/stats'
 
 import Pipeline from 'js-pipeline'
@@ -189,7 +189,7 @@ export default {
       }
     },
     process_hosts_doc: function(doc){
-      console.log('process_hosts_doc', doc)
+      // console.log('process_hosts_doc', doc)
 
       if(doc != null){
 
@@ -206,33 +206,27 @@ export default {
         this.$store.commit('app/reset', false)
         this.$store.commit('app/reset', true)
 
-        Array.each(doc, function(host){
-          if(!this.$store.state['host_'+host]){
-            // console.log('registerModule HOSTS', host)
-            this.$store.registerModule('host_'+host, Object.clone(hostStore))
-          }
-          // if(!this.$store.state.stats[host]){
-          //   ////console.log('registerModule HOSTS', host)
-          //   this.$store.registerModule(['stats',host], Object.clone(statsStore), { preserveState: true })
-          // }
-        }.bind(this))
+        // Array.each(doc, function(host){
+        //   if(!this.$store.state['host_'+host]){
+        //     // console.log('registerModule HOSTS', host)
+        //     this.$store.registerModule('host_'+host, Object.clone(hostStore))
+        //   }
+        //   // if(!this.$store.state.stats[host]){
+        //   //   ////console.log('registerModule HOSTS', host)
+        //   //   this.$store.registerModule(['stats',host], Object.clone(statsStore), { preserveState: true })
+        //   // }
+        // }.bind(this))
 
         /**
         * should unregister modules for unset hosts?
         */
-        Array.each(this.$store.state, function(host){
-          if(!doc.contains(host.replace('host_'))){
-            // console.log('UNregisterModule HOSTS', host)
-            this.$store.unregisterModule('host_'+host)
-          }
-        }.bind(this))
-
-        // Array.each(this.$store.state.stats, function(host){
-        //   if(!doc.hosts.contains(host)){
-        //     //console.log('UNregisterModule Stats', host)
-        //     this.$store.unregisterModule(['stats',host])
+        // Array.each(this.$store.state, function(host){
+        //   if(!doc.contains(host.replace('host_'))){
+        //     // console.log('UNregisterModule HOSTS', host)
+        //     this.$store.unregisterModule('host_'+host)
         //   }
         // }.bind(this))
+
 
       }
     }

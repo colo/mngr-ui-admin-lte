@@ -62,6 +62,7 @@ let __events_queue = qrate(function(task, callback) {
 
 }, 1, 1)
 
+import dashboardStore from 'src/store/dashboard'
 
 export default {
   mixins: [admin_lte_mixin],
@@ -78,10 +79,8 @@ export default {
   * should be user session configs?
   **/
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
-  stats_whitelist: /freemem|totalmem|cpus/,
-  // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
-  tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
+  stats_whitelist: undefined,
+  tabulars_whitelist: undefined,
 
   charts_payloads: {},
   collapsibles: {},
@@ -104,21 +103,110 @@ export default {
       reactive_data:{},//manually merged stats
 
       visibility: {},
+      id: undefined
     }
   },
 
   computed: Object.merge(
     mapState({
-      events: state => state.dashboard.events.list,
-      paths: state => state.app.paths
-    }),
+      // events: state => state.dashboard.events.list,
+      events: function(state){
+        console.log('EVENTS', this.id)
+        if(this.id && !state['dashboard_'+this.id])
+          this.$store.registerModule('dashboard_'+this.id, Object.clone(dashboardStore))
 
+        return (this.id) ? state['dashboard_'+this.id].events.list : undefined
+      },
+
+      paths: state => state.app.paths,
+      reset: state => state.app.reset,
+      range: state => state.app.range,
+      paused: state => state.app.pause,
+      freezed: state => state.app.freeze,
+
+      seconds: function(state){
+        // //////////////////console.log('state.app.range', state.app.range)
+
+        let end = Date.now()
+        if(state.app.range[1] && state.app.range[1] != null)
+          end = state.app.range[1]
+
+        let start = Date.now() - (300 * 1000) //5 mins default
+        if(state.app.range[0] && state.app.range[0] != null)
+          start = state.app.range[0]
+
+        let seconds = Math.trunc( (end - start) / 1000 )
+
+        return seconds
+        // return 300
+      },
+
+      dashboard_charts: function(state){
+        // let host = state.hosts.current || this.$route.params.host
+        if(this.id && state['dashboard_'+this.id].charts && Object.getLength(state['dashboard_'+this.id].charts) > 0){
+          // //console.log('dashboard_charts', state['dashboard_'+host].charts)
+          return state['dashboard_'+this.id].charts
+        }
+        else{
+          return undefined
+        }
+      },
+      dashboard_instances: function(state){
+        // let host = state.hosts.current || this.$route.params.host
+        if(this.id && state['dashboard_'+this.id].instances && Object.getLength(state['dashboard_'+this.id].instances) > 0){
+          // //console.log('dashboard_instances', state['dashboard_'+host].instances)
+          return state['dashboard_'+this.id].instances
+        }
+        else{
+          return undefined
+        }
+      },
+    }),
+    {
+      all_init: function(){
+        if(
+          this.dashboard_charts != undefined
+          && this.dashboard_instances != undefined
+          && this.stats_init == true
+          && this.tabulars_init == true
+          && this.range.length > 0
+          // && Object.getLength(this.$store.state.stats_sources) > 0
+          // && Object.getLength(this.$store.state.tabulars_sources) > 0
+        ){
+        // if(this.dashboard_charts != undefined){
+          return true
+        }
+        else{
+          return false
+        }
+      }
+    }
   ),
 
   /**
   * @start - lifecycle
   **/
+  beforeRouteUpdate: function (to, from, next) {
+    //console.log('life cycle beforeRouteUpdate')
+
+    // react to route changes...
+    // don't forget to call next()
+    this.__clean_destroy(
+      this.__clean_create.pass(
+        this.__create.pass([
+          this.$store.state.app.paths,
+          this.__mount.pass(next, this)
+        ], this),
+        this
+      )
+    )
+
+
+    next()
+  },
+
   created: function(){
+    //console.log('life cycle created')
     this.$options.__events_watcher = this.$watch('events', debounce(function(val, old){
     // this.$options.__events_watcher = this.$watch('events', function(val){
 
@@ -178,13 +266,82 @@ export default {
       }
     }, 100))
     // })
+
+    this.__clean_create(
+      this.__create.pass([this.$store.state.app.paths], this)
+    )
+
   },
+  // created: function(){
+  //   this.$options.__events_watcher = this.$watch('events', debounce(function(val, old){
+  //   // this.$options.__events_watcher = this.$watch('events', function(val){
+  //
+  //     // if(val && val.length > 0 && val.length > old.length){
+  //     if(val && val.length > 0){
+  //       // console.log('this.$watch events', val)
+  //
+  //       Array.each(val, function(event, e_index){
+  //         if(event.id && this.available_charts[event.id]){
+  //
+  //           let {id} = event
+  //           let {stat, pipeline} = this.available_charts[id]
+  //
+  //           // event = this.__parse_event(event)
+  //
+  //           if(!Array.isArray(stat.events))
+  //             stat.events = [stat.events]
+  //
+  //           //////// console.log('this.$watch events chart', pipeline, stat)
+  //
+  //           Array.each(stat.events, function(stat_data, s_index){
+  //             let p = undefined
+  //             if(Array.isArray(pipeline)){
+  //               p = pipeline[index]
+  //             }
+  //             else{
+  //               p = pipeline
+  //             }
+  //
+  //             // let __pipeline = this.__parse_pipeline_opts(p, stat_data)
+  //
+  //             // if(id == 'colo.cpus_times.uptime')
+  //               console.log('PRE __parse_event', id, stat_data, event, s_index)
+  //
+  //             let parsed_event = this.__parse_event(event, stat_data)
+  //
+  //             // if(id == 'colo.cpus_times.uptime')
+  //               // console.log('PRE __parse_event', id, stat_data,parsed_event)
+  //
+  //             this.__set_pipeline_event({
+  //               pipeline: p.name,
+  //               event: parsed_event
+  //             })
+  //
+  //           }.bind(this))
+  //
+  //         }
+  //
+  //         // if(index == val.length -1)
+  //         //   this.fire_pipelines_events()
+  //
+  //       }.bind(this))
+  //
+  //       // this.$nextTick(this.fire_pipelines_events())
+  //       this.fire_pipelines_events()
+  //
+  //     }
+  //   }, 100))
+  //   // })
+  // },
 
   mounted: function(){
     this.__mount()
   },
 
   beforeDestroy: function(){
+
+    this.$store.unregisterModule('dashboard_'+this.id)
+
     if(!this.$options.__events_watcher)
       this.$options.__events_watcher()
 
@@ -197,8 +354,13 @@ export default {
   /**
   * @start - lifecycle
   **/
-
+  watch: {
+    'id': function(newVal, oldVal) { this.$store.registerModule('dashboard_'+newVal, Object.clone(dashboardStore)) },
+  },
   methods: {
+    /**
+    * @start - events
+    **/
     __build_biggest_range: function(first, second){
       let event = Object.clone(first)
       let start = 0
@@ -363,6 +525,9 @@ export default {
       // console.log('_set_pipelines_events', JSON.parse(JSON.stringify(this.$options.__pipelines_events[pipeline])))
     },
     /**
+    * @end - events
+    **/
+    /**
     * @start - charts
     **/
     add_chart: function (payload){
@@ -390,7 +555,68 @@ export default {
         this.remove_chart(name, options)
       }.bind(this))
     },
+
     __init_charts: function(){
+    },
+
+    __process_dashoard_charts: function(doc){
+      ////console.log('recived doc via Event charts', doc)
+      // let counter = 0
+      let charts_objects = {}
+      Object.each(doc.charts, function(data, name){
+        if(data.chart){
+          // this.$options.charts_objects[name] = data.chart
+          charts_objects[name] = data.chart
+        }
+        else{//named chart like os.cpus->times os.cpus->percentage
+
+          Object.each(data, function(chart_data, chart_name){
+            // this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
+            charts_objects[name+'.'+chart_name] = chart_data.chart
+          }.bind(this))
+
+        }
+
+        // if(counter == Object.getLength(doc.charts) - 1)
+        //   this.charts_objects_init = true
+        //
+        // counter++
+      }.bind(this))
+
+      this.$store.commit('dashboard_'+this.id+'/charts', charts_objects)
+    },
+    __process_dashoard_instances: function(doc){
+      ////console.log('recived doc via Event instances', doc)
+      // let counter = 0
+      let instances_objects = {}
+      Object.each(doc.instances, function(data, name){
+        // if(data.instance){
+        //   // this.$options.instances_objects[name] = data.instance
+        //   instances_objects[name] = data.instance
+        // }
+        // else{//named instance like os.cpus->times os.cpus->percentage
+
+          Object.each(data, function(instance_data, instance_name){
+            // this.$options.instances_objects[name+'.'+instance_name] = instance_data.instance
+            let path = name+'_'+instance_name
+            path = path.replace(/\./g, '_')
+            Object.each(instance_data, function(value, key){
+              let new_key = key.replace(/\%/g, 'percentage_')
+              delete instance_data[key]
+              instance_data[new_key] = value
+            })
+            instances_objects[path] = instance_data
+          }.bind(this))
+
+        // }
+
+        // if(counter == Object.getLength(doc.instances) - 1)
+        //   this.instances_objects_init = true
+        //
+        // counter++
+      }.bind(this))
+
+      this.$store.commit('dashboard_'+this.id+'/instances', instances_objects)
     },
     /**
     * @end - charts
@@ -399,6 +625,64 @@ export default {
     /**
     * @start - STATS
     **/
+    __process_dashoard_stats: function(payload){
+
+      // if(payload.range == true)
+        // //console.log('recived doc via Event stats', payload)
+
+      let type = (payload.tabular == true) ? 'tabulars' : 'stats'
+      let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
+      // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
+      let whitelist = (type == 'tabulars') ? this.$options.tabulars_whitelist : this.$options.stats_whitelist
+      let blacklist = (type == 'tabulars') ? this.$options.tabulars_blacklist : this.$options.stats_blacklist
+
+      let counter = 0
+      Object.each(payload.stats, function(data, path){
+        let new_path = undefined
+        let new_val = undefined
+        if(Array.isArray(data)){
+
+          // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
+
+          if(this.__white_black_lists_filter(whitelist, blacklist, path))
+            this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path, value: data})
+        }
+        else{
+
+          Object.each(data, function(value, key){
+            if(Array.isArray(value)){
+
+              // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
+
+
+              if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
+                this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key, value: value})
+
+            }
+            else{
+              //3rd level, there is no need for more
+              Object.each(value, function(val, sub_key){
+
+                if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
+                  this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
+
+              }.bind(this))
+            }
+
+
+
+          }.bind(this))
+        }
+
+
+        if(counter == Object.getLength(payload.stats) - 1)
+          this.$set(this, init, true)
+
+        counter++
+      }.bind(this))
+
+
+    },
     __white_black_lists_filter: function(whitelist, blacklist, str){
       let filtered = false
       if(!blacklist && !whitelist){

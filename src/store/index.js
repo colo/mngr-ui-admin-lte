@@ -41,7 +41,7 @@ const store = new Vuex.Store({
   modules: {
     hosts,
     app,
-    dashboard,
+    // dashboard,
     stat:{
       namespaced: true,
       state: function() {
@@ -63,17 +63,7 @@ const store = new Vuex.Store({
     stats_sources: source,
     tabulars_sources: source
 
-    // stats,
-    // stats_tabular
-    // stats: {
-    //   namespaced: true,
-    //   state: function() {
-    //     return {}
-    //   },
-    //   getters: {},
-    //   actions: {},
-    //   mutations: {}
-    // }
+
   }
 })
 

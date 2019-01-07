@@ -1,6 +1,8 @@
 export default function() {
   return {
-    pipelines: {},
+    charts: {},
+    instances: {},
+    // networkInterfaces: undefined,
     // stats: {}
   }
 }

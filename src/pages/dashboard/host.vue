@@ -36,6 +36,7 @@
             <component
               :is="chart.tabular === false ? 'chart' : 'chart-tabular'"
               v-if="charts[name]"
+              :dashboard="host"
               :wrapper="chart.wrapper"
               :ref="name"
               :id="name"
@@ -75,7 +76,7 @@
 
 <script>
 
-import sourceStore from 'src/store/source'
+// import sourceStore from 'src/store/source'
 
 import moment from 'moment/moment'
 import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
@@ -106,8 +107,6 @@ let host_pipelines_templates = [
 import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
 import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
 
-import dashboard from 'components/mixins/dashboard'
-
 import dygraph_line_chart from 'mngr-ui-admin-charts/defaults/dygraph.line'
 // import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
 // import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
@@ -129,6 +128,8 @@ import networkInterfaces_stats_chart from 'mngr-ui-admin-charts/os/networkInterf
 //import charts_payloads from '@etc/charts.payloads'
 import host_charts_payloads from '@etc/host.charts.payloads'
 
+import dashboard from 'components/mixins/dashboard'
+
 export default {
   mixins: [dashboard],
   components: {
@@ -136,6 +137,12 @@ export default {
     AdminLteDashboardHostSummary,
     bootstrapDaterangepickerWrapper
   },
+
+  // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
+  // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
+  stats_whitelist: /freemem|totalmem|cpus/,
+  // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
+  tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
 
   name: 'admin-lte-dashboard-host',
 
@@ -166,7 +173,7 @@ export default {
 
   data () {
     return {
-      
+
       daterangepicker:{
         opens: 'right',
         timePicker: true,
@@ -193,111 +200,40 @@ export default {
     mapState({
       // modules_blacklist: state => state.hosts.modules_blacklist,
       // modules_whitelist: state => state.hosts.modules_whitelist,
-      // reset: state => state.app.reset,
-      range: state => state.app.range,
-      paused: state => state.app.pause,
-      freezed: state => state.app.freeze,
 
-      seconds: function(state){
-        // //////////////////console.log('state.app.range', state.app.range)
-
-        let end = Date.now()
-        if(state.app.range[1] && state.app.range[1] != null)
-          end = state.app.range[1]
-
-        let start = Date.now() - (300 * 1000) //5 mins default
-        if(state.app.range[0] && state.app.range[0] != null)
-          start = state.app.range[0]
-
-        let seconds = Math.trunc( (end - start) / 1000 )
-
-        return seconds
-        // return 300
-      },
 
       hosts: state => state.hosts.all,
 
       // cpus: state => state.stats_sources.'+this.host+'_os_procs_stats_kernel'
       cpus: function(state){
-        return state.stats_sources[this.host+'_os_cpus'][0].value
+        if(this.host && state.stats_sources[this.host+'_os_cpus']){
+          return state.stats_sources[this.host+'_os_cpus'][0].value
+        }
+        else{
+          return undefined
+        }
       },
 
       host: function(state){
-        return state.hosts.current || this.$route.params.host
-      },
+        if(state.hosts.current || this.$route.params.host){
+          let host = state.hosts.current || this.$route.params.host
+          this.id = host
+          return host
+        }
+        else{
+          undefined
+        }
 
-      charts_payloads: function(state){
-        let host = state.hosts.current || this.$route.params.host
-        if(state['host_'+host].charts && Object.getLength(state['host_'+host].charts) > 0){
-          // //console.log('charts_payloads', state['host_'+host].charts)
-          return state['host_'+host].charts
-        }
-        else{
-          return undefined
-        }
-      },
-      host_instances: function(state){
-        let host = state.hosts.current || this.$route.params.host
-        if(state['host_'+host].instances && Object.getLength(state['host_'+host].instances) > 0){
-          // //console.log('host_instances', state['host_'+host].instances)
-          return state['host_'+host].instances
-        }
-        else{
-          return undefined
-        }
+
       },
 
     }),
-    {
-      all_init: function(){
-        if(
-          this.charts_payloads != undefined
-          && this.host_instances != undefined
-          && this.stats_init == true
-          && this.tabulars_init == true
-          && this.range.length > 0
-          // && Object.getLength(this.$store.state.stats_sources) > 0
-          // && Object.getLength(this.$store.state.tabulars_sources) > 0
-        ){
-        // if(this.charts_payloads != undefined){
-          return true
-        }
-        else{
-          return false
-        }
-      }
-    }
+
   ),
 
-  beforeRouteUpdate: function (to, from, next) {
-    //console.log('life cycle beforeRouteUpdate')
-
-    // react to route changes...
-    // don't forget to call next()
-    this.__clean_destroy(
-      this.__clean_create.pass(
-        this.__create.pass([
-          this.$store.state.app.paths,
-          this.__mount.pass(next, this)
-        ], this),
-        this
-      )
-    )
-
-
-    next()
-  },
 
   updated: function(){
     this.$store.commit('hosts/current', this.$route.params.host || '')
-  },
-
-  created: function(){
-    //console.log('life cycle created')
-    this.__clean_create(
-      this.__create.pass([this.$store.state.app.paths], this)
-    )
-
   },
 
 
@@ -314,8 +250,8 @@ export default {
     __init_charts: function(){
       this.$options.charts_payloads = host_charts_payloads({
         host: this.host,
-        // seconds: this.seconds,
-        seconds: 300,
+        seconds: this.seconds,
+        // seconds: 300,
         range: this.range,
       })
 
@@ -323,8 +259,8 @@ export default {
       this.$set(this.available_charts, this.host+'.os.cpus.times', Object.merge(
         this.$options.charts_payloads['os.cpus.times'],
         {
-          // chart: Object.merge(cpus_times_chart, this.charts_payloads['os.cpus.times']),
-          chart: this.charts_payloads['os.cpus.times'],
+          // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
+          chart: this.dashboard_charts['os.cpus.times'],
         })
       )
 
@@ -333,7 +269,7 @@ export default {
       this.$set(this.available_charts, this.host+'.os.cpus.percentage', Object.merge(
         this.$options.charts_payloads['os.cpus.percentage'],
         {
-          chart: Object.merge(cpus_percentage_chart, this.charts_payloads['.os.cpus.percentage']),
+          chart: Object.merge(cpus_percentage_chart, this.dashboard_charts['.os.cpus.percentage']),
         })
       )
 
@@ -476,8 +412,8 @@ export default {
       this.$set(this.available_charts, this.host+'.os.uptime', Object.merge(
         this.$options.charts_payloads['os.uptime'],
         {
-          // chart: Object.merge(uptime_chart, this.charts_payloads['os.uptime']),
-          chart: this.charts_payloads['os.uptime'],
+          // chart: Object.merge(uptime_chart, this.dashboard_charts['os.uptime']),
+          chart: this.dashboard_charts['os.uptime'],
         })
       )
       this.set_chart_visibility(this.host+'.os.uptime', true)
@@ -485,8 +421,8 @@ export default {
       this.$set(this.available_charts, this.host+'.os.loadavg', Object.merge(
         this.$options.charts_payloads['os.loadavg'],
         {
-          // chart: Object.merge(this.charts_payloads['os.loadavg'], loadavg_chart),
-          chart: this.charts_payloads['os.loadavg'],
+          // chart: Object.merge(this.dashboard_charts['os.loadavg'], loadavg_chart),
+          chart: this.dashboard_charts['os.loadavg'],
         })
       )
 
@@ -512,7 +448,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_percentage_cpu'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_stats_top']['percentage_cpu'],
+            this.dashboard_instances['os_procs_stats_top']['percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
               // labels: ['Time'],
@@ -541,7 +477,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_percentage_mem'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_stats_top']['percentage_mem'],
+            this.dashboard_instances['os_procs_stats_top']['percentage_mem'],
             {"options": {
               valueRange: [0, 100],
               // labels: ['Time'],
@@ -570,7 +506,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_time'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_stats_top']['time'],
+            this.dashboard_instances['os_procs_stats_top']['time'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -600,7 +536,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_elapsed'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_stats_top']['elapsed'],
+            this.dashboard_instances['os_procs_stats_top']['elapsed'],
             {"options": {
               valueRange: undefined,
               // labels: ['elapsed'],
@@ -629,7 +565,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_percentage_cpu'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_cmd_stats_top']['percentage_cpu'],
+            this.dashboard_instances['os_procs_cmd_stats_top']['percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
               // labels: ['Time'],
@@ -658,7 +594,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_percentage_mem'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_cmd_stats_top']['percentage_mem'],
+            this.dashboard_instances['os_procs_cmd_stats_top']['percentage_mem'],
             {"options": {
               valueRange: [0, 100],
               // labels: ['Time'],
@@ -687,7 +623,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_time'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_cmd_stats_top']['time'],
+            this.dashboard_instances['os_procs_cmd_stats_top']['time'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -716,7 +652,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_count'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_cmd_stats_top']['count'],
+            this.dashboard_instances['os_procs_cmd_stats_top']['count'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -747,7 +683,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_percentage_cpu'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_uid_stats_top']['percentage_cpu'],
+            this.dashboard_instances['os_procs_uid_stats_top']['percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
               // labels: ['Time'],
@@ -776,7 +712,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_percentage_mem'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_uid_stats_top']['percentage_mem'],
+            this.dashboard_instances['os_procs_uid_stats_top']['percentage_mem'],
             {"options": {
               valueRange: [0, 100],
               // labels: ['Time'],
@@ -805,7 +741,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_time'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_uid_stats_top']['time'],
+            this.dashboard_instances['os_procs_uid_stats_top']['time'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -834,7 +770,7 @@ export default {
             sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_count'}],
           },
           chart: Object.merge(
-            this.host_instances['os_procs_uid_stats_top']['count'],
+            this.dashboard_instances['os_procs_uid_stats_top']['count'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -903,7 +839,7 @@ export default {
 
         if(Object.getLength(_merge) > 0){
           // console.log('MUNIN',_merge)
-           // && (this.charts_payloads['munin'] || this.charts_payloads['munin_'+path]){
+           // && (this.dashboard_charts['munin'] || this.dashboard_charts['munin_'+path]){
           __unwacth_munin()
 
           Object.each(_merge, function(names, _path){
@@ -999,7 +935,7 @@ export default {
         //console.log('MERGED MOUNT', _merge)
 
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
-          if(mount.test(key) && this.charts_payloads['os_mounts.percentage']){
+          if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
             __unwacth_mounts()
 
             let _name = key.substring(key.lastIndexOf('_') + 1)
@@ -1026,8 +962,8 @@ export default {
                       sources: [],
                     },
                     name: merged_chart_name,
-                    // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.charts_payloads['os_mounts.percentage'])),
-                    chart: Object.clone(this.charts_payloads['os_mounts.percentage']),
+                    // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.dashboard_charts['os_mounts.percentage'])),
+                    chart: Object.clone(this.dashboard_charts['os_mounts.percentage']),
                   }
                 )
 
@@ -1038,7 +974,7 @@ export default {
                 {type: 'tabulars', path:this.host+'_os_mounts_percentage_'+_name}
               )
 
-              let __labels = Array.clone(this.charts_payloads['os_mounts.percentage'].options.labels)
+              let __labels = Array.clone(this.dashboard_charts['os_mounts.percentage'].options.labels)
               __labels.shift() //remove 'Time' column
 
               Array.each(__labels, function(label, index){
@@ -1070,8 +1006,8 @@ export default {
                     sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
                   },
                   name: chart_name,
-                  // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.charts_payloads['os_mounts.percentage'])),
-                  chart: Object.clone(this.charts_payloads['os_mounts.percentage']),
+                  // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.dashboard_charts['os_mounts.percentage'])),
+                  chart: Object.clone(this.dashboard_charts['os_mounts.percentage']),
                 })
               )
 
@@ -1087,7 +1023,7 @@ export default {
       let __unwacth_blockdevices = this.$watch('$store.state.tabulars_sources', function(val){
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
 
-          if(blockdevice.test(key) && this.charts_payloads['os_blockdevices.stats']){
+          if(blockdevice.test(key) && this.dashboard_charts['os_blockdevices.stats']){
             __unwacth_blockdevices()
 
             let _name = key.substring(key.lastIndexOf('_') + 1)
@@ -1104,8 +1040,8 @@ export default {
                     sources: [{type: 'tabulars', path:this.host+'_os_blockdevices_stats_'+_name}],
                   },
                   name: chart_name,
-                  // chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.charts_payloads['os_blockdevices.stats'])),
-                  chart: Object.clone(this.charts_payloads['os_blockdevices.stats']),
+                  // chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.dashboard_charts['os_blockdevices.stats'])),
+                  chart: Object.clone(this.dashboard_charts['os_blockdevices.stats']),
                 })
               )
 
@@ -1127,7 +1063,7 @@ export default {
         Object.each(this.$store.state.tabulars_sources, function(stat, key){
           // //console.log('networkInterface KEY',key)
 
-          if(networkInterface.test(key) && this.charts_payloads['os_networkInterfaces_stats.properties']){
+          if(networkInterface.test(key) && this.dashboard_charts['os_networkInterfaces_stats.properties']){
             __unwacth_networkInterfaces()
             // let _name = key.substring(key.lastIndexOf('_') + 1)//not last '_'
             let arr_key = key.split('_')
@@ -1155,8 +1091,8 @@ export default {
                       sources: [],
                     },
                     name: merged_chart_name,
-                    // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties'])),
-                    chart: Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties']),
+                    // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.dashboard_charts['os_networkInterfaces_stats.properties'])),
+                    chart: Object.clone(this.dashboard_charts['os_networkInterfaces_stats.properties']),
                   })
 
                   __networkInterfaces_merged_charts[merged_chart_name].chart.options.labels = ['Time']
@@ -1166,7 +1102,7 @@ export default {
                 {type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}
               )
 
-              let __labels = Array.clone(this.charts_payloads['os_networkInterfaces_stats.properties'].options.labels)
+              let __labels = Array.clone(this.dashboard_charts['os_networkInterfaces_stats.properties'].options.labels)
               __labels.shift() //remove 'Time' column
 
               Array.each(__labels, function(label, index){
@@ -1198,8 +1134,8 @@ export default {
                     sources: [{type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}],
                   },
                   name: chart_name,
-                  // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties'])),
-                  chart: Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties']),
+                  // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.dashboard_charts['os_networkInterfaces_stats.properties'])),
+                  chart: Object.clone(this.dashboard_charts['os_networkInterfaces_stats.properties']),
                 })
               )
               // this.$set(this.networkInterfaces_properties, _name, 1)
@@ -1216,123 +1152,7 @@ export default {
 
 
     },
-    __process_dashoard_charts: function(doc){
-      ////console.log('recived doc via Event charts', doc)
-      // let counter = 0
-      let charts_objects = {}
-      Object.each(doc.charts, function(data, name){
-        if(data.chart){
-          // this.$options.charts_objects[name] = data.chart
-          charts_objects[name] = data.chart
-        }
-        else{//named chart like os.cpus->times os.cpus->percentage
 
-          Object.each(data, function(chart_data, chart_name){
-            // this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
-            charts_objects[name+'.'+chart_name] = chart_data.chart
-          }.bind(this))
-
-        }
-
-        // if(counter == Object.getLength(doc.charts) - 1)
-        //   this.charts_objects_init = true
-        //
-        // counter++
-      }.bind(this))
-
-      this.$store.commit('host_'+this.host+'/charts', charts_objects)
-    },
-    __process_dashoard_instances: function(doc){
-      ////console.log('recived doc via Event instances', doc)
-      // let counter = 0
-      let instances_objects = {}
-      Object.each(doc.instances, function(data, name){
-        // if(data.instance){
-        //   // this.$options.instances_objects[name] = data.instance
-        //   instances_objects[name] = data.instance
-        // }
-        // else{//named instance like os.cpus->times os.cpus->percentage
-
-          Object.each(data, function(instance_data, instance_name){
-            // this.$options.instances_objects[name+'.'+instance_name] = instance_data.instance
-            let path = name+'_'+instance_name
-            path = path.replace(/\./g, '_')
-            Object.each(instance_data, function(value, key){
-              let new_key = key.replace(/\%/g, 'percentage_')
-              delete instance_data[key]
-              instance_data[new_key] = value
-            })
-            instances_objects[path] = instance_data
-          }.bind(this))
-
-        // }
-
-        // if(counter == Object.getLength(doc.instances) - 1)
-        //   this.instances_objects_init = true
-        //
-        // counter++
-      }.bind(this))
-
-      this.$store.commit('host_'+this.host+'/instances', instances_objects)
-    },
-    __process_dashoard_stats: function(payload){
-
-      // if(payload.range == true)
-        // //console.log('recived doc via Event stats', payload)
-
-      let type = (payload.tabular == true) ? 'tabulars' : 'stats'
-      let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
-      // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
-      let whitelist = (type == 'tabulars') ? this.$options.tabulars_whitelist : this.$options.stats_whitelist
-      let blacklist = (type == 'tabulars') ? this.$options.tabulars_blacklist : this.$options.stats_blacklist
-
-      let counter = 0
-      Object.each(payload.stats, function(data, path){
-        let new_path = undefined
-        let new_val = undefined
-        if(Array.isArray(data)){
-
-          // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
-
-          if(this.__white_black_lists_filter(whitelist, blacklist, path))
-            this.$store.commit(type+'_sources/add', {key: payload.host+'_'+path, value: data})
-        }
-        else{
-
-          Object.each(data, function(value, key){
-            if(Array.isArray(value)){
-
-              // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
-
-
-              if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
-                this.$store.commit(type+'_sources/add', {key: payload.host+'_'+path+'_'+key, value: value})
-
-            }
-            else{
-              //3rd level, there is no need for more
-              Object.each(value, function(val, sub_key){
-
-                if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
-                  this.$store.commit(type+'_sources/add', {key: payload.host+'_'+path+'_'+key+'_'+sub_key, value: val})
-
-              }.bind(this))
-            }
-
-
-
-          }.bind(this))
-        }
-
-
-        if(counter == Object.getLength(payload.stats) - 1)
-          this.$set(this, init, true)
-
-        counter++
-      }.bind(this))
-
-
-    },
 
     update_daterangepicker: function(){
       ////////////console.log('update_daterangepicker')

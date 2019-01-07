@@ -222,14 +222,15 @@ export default new Class({
     // if(status == 'ok')
     //   this.io.emit('range', )
   },
-  stats: function(socket, next){
-    let {type, doc, tabular} = arguments[2]
-
-    if(arguments[2].type == 'range')
+  stats: function(socket, next, stats){
+    let {type, doc, tabular} = stats
+    stats.key = stats.host
+    
+    if(stats.type == 'range')
       console.log('IO.HOST stats', arguments[2])
 
     // if(tabular != true)
-      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge(arguments[2], {type: 'stats', range: (type == 'range') ? true : false}), {type: type, input_type: this, app: null}]);
+      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge(stats, {type: 'stats', range: (type == 'range') ? true : false}), {type: type, input_type: this, app: null}]);
 
 		// //////console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()
