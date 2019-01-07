@@ -441,6 +441,7 @@ export default {
             this.dashboard_instances['os_procs_stats_top']['percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
+              stackedGraph: true,
               // labels: ['Time'],
             }},
           )
@@ -470,6 +471,7 @@ export default {
             this.dashboard_instances['os_procs_stats_top']['percentage_mem'],
             {"options": {
               valueRange: [0, 100],
+              stackedGraph: true,
               // labels: ['Time'],
             }},
           )
@@ -558,6 +560,7 @@ export default {
             this.dashboard_instances['os_procs_cmd_stats_top']['percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
+              stackedGraph: true,
               // labels: ['Time'],
             }},
           )
@@ -587,6 +590,7 @@ export default {
             this.dashboard_instances['os_procs_cmd_stats_top']['percentage_mem'],
             {"options": {
               valueRange: [0, 100],
+              stackedGraph: true,
               // labels: ['Time'],
             }},
           )
@@ -676,6 +680,7 @@ export default {
             this.dashboard_instances['os_procs_uid_stats_top']['percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
+              stackedGraph: true,
               // labels: ['Time'],
             }},
           )
@@ -705,6 +710,7 @@ export default {
             this.dashboard_instances['os_procs_uid_stats_top']['percentage_mem'],
             {"options": {
               valueRange: [0, 100],
+              stackedGraph: true,
               // labels: ['Time'],
             }},
           )
