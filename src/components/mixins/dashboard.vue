@@ -16,6 +16,12 @@ import { throttle } from 'quasar'
 
 import qrate from 'qrate'
 
+
+import moment from 'moment/moment'
+
+// import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
+
+
 // let __events_queue = queue(function(task, callback) {
 //   let {pipeline, event} = task
 //   let event_name = Object.keys(event)[0]
@@ -59,15 +65,28 @@ let __events_queue = qrate(function(task, callback) {
 
 export default {
   mixins: [admin_lte_mixin],
-
-  __events_watcher: undefined,
-  __pipelines_events: {},
-
   components: {
     chart,
     chartTabular,
     chartEmptyContainer
   },
+
+
+  __events_watcher: undefined,
+  __pipelines_events: {},
+  /**
+  * should be user session configs?
+  **/
+  // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
+  // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
+  stats_whitelist: /freemem|totalmem|cpus/,
+  // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
+  tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
+
+  charts_payloads: {},
+  collapsibles: {},
+  pipelines: {},
+
 
   // __unwatchers__: {},
   unwatchers: {},
@@ -75,10 +94,16 @@ export default {
   data () {
     return {
       EventBus: EventBus,
-      stats: {},
-      tabulars: {},
+      // stats: {},
+      // tabulars: {},
       charts: {},
-      available_charts: {}
+      available_charts: {},
+
+      stats_init: false,
+      tabulars_init: false,
+      reactive_data:{},//manually merged stats
+
+      visibility: {},
     }
   },
 
@@ -365,6 +390,8 @@ export default {
         this.remove_chart(name, options)
       }.bind(this))
     },
+    __init_charts: function(){
+    },
     /**
     * @end - charts
     **/
@@ -396,6 +423,11 @@ export default {
     /**
     * @start life cycle
     **/
+    __clean_create: function(next){
+      if(next)
+        next()
+    },
+
     __create: function(paths, next){
       EventBus.$once('charts', this.__process_dashoard_charts)
       EventBus.$once('instances', this.__process_dashoard_instances)

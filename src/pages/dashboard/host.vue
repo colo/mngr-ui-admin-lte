@@ -77,11 +77,11 @@
 
 import sourceStore from 'src/store/source'
 
-import moment from 'moment/min/moment-with-locales'
+import moment from 'moment/moment'
 import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
 
-let extract_data_os = require( 'node-mngr-docs' ).extract_data_os
-let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_historical
+// let extract_data_os = require( 'node-mngr-docs' ).extract_data_os
+// let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_historical
 
 import Vue from 'vue'
 import { mapState } from 'vuex'
@@ -96,14 +96,10 @@ import Pipeline from 'js-pipeline'
 // import HostTemplatePipeline from '@libs/pipelines/host.template'
 import HostPipeline from '@libs/pipelines/host'
 
-import HostHistoricalTemplatePipeline from '@libs/pipelines/host.historical.template'
-import HostMuninTemplatePipeline from '@libs/pipelines/host.munin.template'
-
+// import HostHistoricalTemplatePipeline from '@libs/pipelines/host.historical.template'
+// import HostMuninTemplatePipeline from '@libs/pipelines/host.munin.template'
 
 let host_pipelines_templates = [
-  // HostTemplatePipeline,
-  // HostMuninTemplatePipeline,
-  // HostHistoricalTemplatePipeline
   HostPipeline
 ]
 
@@ -113,48 +109,35 @@ import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/su
 import dashboard from 'components/mixins/dashboard'
 
 import dygraph_line_chart from 'mngr-ui-admin-charts/defaults/dygraph.line'
-import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
-import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
-import cpus_times_chart from 'mngr-ui-admin-charts/os/cpus_times'
+// import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
+// import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
+// import cpus_times_chart from 'mngr-ui-admin-charts/os/cpus_times'
 import cpus_percentage_chart from 'mngr-ui-admin-charts/os/cpus_percentage'
 import freemem_chart from 'mngr-ui-admin-charts/os/freemem'
-import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
-import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
-import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
+// import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
+// import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
+// import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
 import networkInterfaces_stats_chart from 'mngr-ui-admin-charts/os/networkInterfaces_stats'
-// import procs_count_chart from 'mngr-ui-admin-charts/os/procs_count'
-// import procs_top_chart from 'mngr-ui-admin-charts/os/procs_top'
 
-import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
-import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
+// import pie_chart from 'mngr-ui-admin-charts/defaults/vueEasyPieChart'
+// import jqueryKnob from 'mngr-ui-admin-charts/defaults/jqueryKnob'
 
-import * as Highcharts from 'highcharts'
+// import * as Highcharts from 'highcharts'
 
-let highchartsVueGauge = require('mngr-ui-admin-charts/defaults/highchartsVue.gauge')(Highcharts)
+// let highchartsVueGauge = require('mngr-ui-admin-charts/defaults/highchartsVue.gauge')(Highcharts)
 
 //import charts_payloads from '@etc/charts.payloads'
 import host_charts_payloads from '@etc/host.charts.payloads'
 
 export default {
   mixins: [dashboard],
+  components: {
+    AdminLteBoxSolid,
+    AdminLteDashboardHostSummary,
+    bootstrapDaterangepickerWrapper
+  },
 
   name: 'admin-lte-dashboard-host',
-
-  charts_payloads: {},
-  collapsibles: {},
-  charts_objects: {},
-
-  pipelines: {},
-
-
-  /**
-  * should be user session configs?
-  **/
-  // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
-  stats_whitelist: /freemem|totalmem|cpus/,
-  // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
-  tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
 
   daterangepicker:{
     opens: 'right',
@@ -172,12 +155,6 @@ export default {
   },
 
 
-  components: {
-    AdminLteBoxSolid,
-    AdminLteDashboardHostSummary,
-    bootstrapDaterangepickerWrapper
-  },
-
   breadcrumb () {
     return {
       label: this.host,
@@ -189,12 +166,7 @@ export default {
 
   data () {
     return {
-      // charts_objects_init: false,
-      stats_init: false,
-      tabulars_init: false,
-      reactive_data:{},//manually merged stats
-
-      visibility: {},
+      
       daterangepicker:{
         opens: 'right',
         timePicker: true,
@@ -351,7 +323,8 @@ export default {
       this.$set(this.available_charts, this.host+'.os.cpus.times', Object.merge(
         this.$options.charts_payloads['os.cpus.times'],
         {
-          chart: Object.merge(cpus_times_chart, this.charts_payloads['os.cpus.times']),
+          // chart: Object.merge(cpus_times_chart, this.charts_payloads['os.cpus.times']),
+          chart: this.charts_payloads['os.cpus.times'],
         })
       )
 
@@ -503,7 +476,8 @@ export default {
       this.$set(this.available_charts, this.host+'.os.uptime', Object.merge(
         this.$options.charts_payloads['os.uptime'],
         {
-          chart: Object.merge(uptime_chart, this.charts_payloads['os.uptime']),
+          // chart: Object.merge(uptime_chart, this.charts_payloads['os.uptime']),
+          chart: this.charts_payloads['os.uptime'],
         })
       )
       this.set_chart_visibility(this.host+'.os.uptime', true)
@@ -511,7 +485,8 @@ export default {
       this.$set(this.available_charts, this.host+'.os.loadavg', Object.merge(
         this.$options.charts_payloads['os.loadavg'],
         {
-          chart: Object.merge(this.charts_payloads['os.loadavg'], loadavg_chart),
+          // chart: Object.merge(this.charts_payloads['os.loadavg'], loadavg_chart),
+          chart: this.charts_payloads['os.loadavg'],
         })
       )
 
@@ -1051,7 +1026,8 @@ export default {
                       sources: [],
                     },
                     name: merged_chart_name,
-                    chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.charts_payloads['os_mounts.percentage'])),
+                    // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.charts_payloads['os_mounts.percentage'])),
+                    chart: Object.clone(this.charts_payloads['os_mounts.percentage']),
                   }
                 )
 
@@ -1094,7 +1070,8 @@ export default {
                     sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
                   },
                   name: chart_name,
-                  chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.charts_payloads['os_mounts.percentage'])),
+                  // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.charts_payloads['os_mounts.percentage'])),
+                  chart: Object.clone(this.charts_payloads['os_mounts.percentage']),
                 })
               )
 
@@ -1127,7 +1104,8 @@ export default {
                     sources: [{type: 'tabulars', path:this.host+'_os_blockdevices_stats_'+_name}],
                   },
                   name: chart_name,
-                  chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.charts_payloads['os_blockdevices.stats'])),
+                  // chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.charts_payloads['os_blockdevices.stats'])),
+                  chart: Object.clone(this.charts_payloads['os_blockdevices.stats']),
                 })
               )
 
@@ -1177,7 +1155,8 @@ export default {
                       sources: [],
                     },
                     name: merged_chart_name,
-                    chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties'])),
+                    // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties'])),
+                    chart: Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties']),
                   })
 
                   __networkInterfaces_merged_charts[merged_chart_name].chart.options.labels = ['Time']
@@ -1219,7 +1198,8 @@ export default {
                     sources: [{type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}],
                   },
                   name: chart_name,
-                  chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties'])),
+                  // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties'])),
+                  chart: Object.clone(this.charts_payloads['os_networkInterfaces_stats.properties']),
                 })
               )
               // this.$set(this.networkInterfaces_properties, _name, 1)
