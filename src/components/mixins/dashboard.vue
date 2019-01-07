@@ -1,3 +1,54 @@
+<template>
+  <section class="content">
+    <div class="row">
+      <section class="col-xs-12 col-sm-12 col-lg-12 connectedSortable">
+
+        <template v-for="(chart, name) in available_charts">
+          <!-- {{name}} -->
+          <admin-lte-box-solid
+            :title="chart.title || name"
+            :id="name+'-collapsible'"
+            v-on:show="el => showCollapsible(el)"
+            v-on:hide="el => hideCollapsible(el)"
+          >
+            <component
+              :is="chart.tabular === false ? 'chart' : 'chart-tabular'"
+              v-if="charts[name]"
+              :dashboard="host"
+              :wrapper="chart.wrapper"
+              :ref="name"
+              :id="name"
+              :EventBus="EventBus"
+              :chart="chart.chart"
+              :stat="{
+                range: chart.stat.range,
+                length: chart.stat.length,
+                merged: chart.stat.merged,
+                data: chart.stat.sources ? chart.stat.sources.map(function(source){ return $store.state[source.type+'_sources'][source.path]}) : chart.stat.data
+              }"
+            >
+            </component>
+            <!-- data: chart.data.sources ? [$store.state[chart.data.sources[0].type][chart.data.sources[0].path], $store.state[chart.data.sources[1].type][chart.data.sources[1].path]] : chart.data.data -->
+            <!-- :stat="{
+              range: range,
+              merged: true,
+              data: [$store.state.tabulars_sources[host+'.os.cpus.times'],$store.state.tabulars_sources[host+'.os.uptime']]
+            }" -->
+            <!-- :stat="{
+              range: chart.data.range,
+              merged: chart.data.merged,
+              /* data: data[name] */
+            }" -->
+          </admin-lte-box-solid>
+        </template>
+
+
+      </section>
+    </div>
+
+  </section>
+</template>
+
 <script>
 
 import { mapState } from 'vuex'

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <section class="content">
     <div class="row">
       <section class="col-xs-12 col-sm-12 col-lg-12 connectedSortable">
@@ -6,13 +6,13 @@
         <admin-lte-box-solid
           :header="false"
         >
-          <!-- <div class="col-md-3 col-sm-6 col-xs-12"> -->
+
             <bootstrap-daterangepicker-wrapper
               @click="update_daterangepicker"
               @range="set_range"
               :options="daterangepicker"
             />
-          <!-- </div> -->
+
         </admin-lte-box-solid>
 
         <admin-lte-box-solid
@@ -26,7 +26,7 @@
 
 
         <template v-for="(chart, name) in available_charts">
-          <!-- {{name}} -->
+
           <admin-lte-box-solid
             :title="chart.title || name"
             :id="name+'-collapsible'"
@@ -50,26 +50,16 @@
               }"
             >
             </component>
-            <!-- data: chart.data.sources ? [$store.state[chart.data.sources[0].type][chart.data.sources[0].path], $store.state[chart.data.sources[1].type][chart.data.sources[1].path]] : chart.data.data -->
-            <!-- :stat="{
-              range: range,
-              merged: true,
-              data: [$store.state.tabulars_sources[host+'.os.cpus.times'],$store.state.tabulars_sources[host+'.os.uptime']]
-            }" -->
-            <!-- :stat="{
-              range: chart.data.range,
-              merged: chart.data.merged,
-              /* data: data[name] */
-            }" -->
+
           </admin-lte-box-solid>
         </template>
 
 
       </section>
     </div>
-    <!-- <input-vue-watcher></input-vue-watcher> -->
+
   </section>
-</template>
+</template> -->
 
 <style>
 </style>
@@ -850,6 +840,7 @@ export default {
             // Array.each(names, function(_name){
             //   merged_chart_name += '.'+_name
             // })
+            console.log('this.dashboard_instances', this.dashboard_instances)
 
             if(!_merged_charts[merged_chart_name]){
               _merged_charts[merged_chart_name] = Object.merge(
@@ -864,7 +855,8 @@ export default {
                     }]
                   },
                   name: merged_chart_name,
-                  chart: Object.merge(Object.clone(dygraph_line_chart)),
+                  // chart: Object.clone(dygraph_line_chart),
+                  chart: (this.dashboard_instances['munin_'+_path]) ? Object.clone(this.dashboard_instances['munin_'+_path][names[0]]) : Object.clone(dygraph_line_chart),
                 }
               )
 
