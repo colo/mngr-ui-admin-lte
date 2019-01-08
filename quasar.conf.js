@@ -11,7 +11,7 @@ module.exports = function (ctx) {
     plugins: [
       'admin-lte',
       'i18n',
-      'vue-pouch',
+      // 'vue-pouch',
       'vue-observe-visibility',
       // 'amcharts3',
       // 'vueEcharts3',

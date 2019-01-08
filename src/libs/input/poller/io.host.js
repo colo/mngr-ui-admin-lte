@@ -23,47 +23,75 @@ export default new Class({
 					// sort_by_path: throttle(function(req, next, app){
           sort_by_path: function(req, next, app){
             // console.log('SORT_BY_PATH RANGE', req, new Date(req.opt.range.start), new Date(req.opt.range.end))
+            console.log('SORT_BY_PATH RANGE', req)
+
+            if(!Array.isArray(req.opt.range))
+              req.opt.range = [req.opt.range]
+
+            let tabulars_events_paths = []
+            let tabulars_events_biggest_range = {start: 0, end: 0}
+            let stats_events_paths = []
+            let stats_events_biggest_range = {start: 0, end: 0}
 
             if(app.options.stat_host && this.status == 'ok'){
-              // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
-              // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+              Array.each(req.opt.range, function(range, index){
+                let event = req[index]
 
 
-              // // let CHUNK = 60000
-              // let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
-              // // let start = ((end - CHUNK) < req.opt.range.start) ? req.opt.range.start : end - CHUNK
-              // let start = req.opt.range.start
-              //
-              // // do {
+                if(!app.options.paths_blacklist || app.options.paths_blacklist.test( event.path ) == false){
+                  if(event.tabular == true){
+                    tabulars_events_paths.push(event.path)
+                    tabulars_events_biggest_range.start = (tabulars_events_biggest_range.start > range.start) ? tabulars_events_biggest_range.start : range.start
+                    tabulars_events_biggest_range.end = (tabulars_events_biggest_range.end > range.end) ? tabulars_events_biggest_range.end : range.end
+                  }
+                  else{
+                    stats_events_paths.push(event.path)
+                    stats_events_biggest_range.start = (stats_events_biggest_range.start > range.start) ? stats_events_biggest_range.start : range.start
+                    stats_events_biggest_range.end = (stats_events_biggest_range.end > range.end) ? stats_events_biggest_range.end : range.end
+                  }
+                  // this.io.emit('stats', {
+                  //   host: app.options.stat_host,
+                  //   stat: event.path,
+                  //   format: (event.tabular == true) ? 'tabular' : undefined,
+                  //   // range: req.opt.range
+                  //   range: event.Range
+      						// })
+                }
+                else if (!event.path) {
+                  this.io.emit('stats', {
+                    host: app.options.stat_host,
+                    format: (event.tabular == true) ? 'tabular' : undefined,
+                    range: event.Range
+      						})
+                }
 
-                // Array.each(app.options.paths, function(path){
+                if(index == req.opt.range.length - 1){
+                  console.log('SORT_BY_PATH RANGE', JSON.stringify(tabulars_events_paths), JSON.stringify(stats_events_paths))
 
-                  if(!app.options.paths_blacklist || app.options.paths_blacklist.test( req.path ) == false){
-
-                    // this.io.emit('stats', {
-                    //   host: app.options.stat_host,
-                    //   path: path,
-                    //   range: req.opt.range
-        						// })
+                  if(tabulars_events_paths.length > 0)
                     this.io.emit('stats', {
                       host: app.options.stat_host,
-                      stat: req.path,
-                      format: (req.tabular == true) ? 'tabular' : undefined,
+                      stat: JSON.stringify(tabulars_events_paths),
+                      format: 'tabular',
                       // range: req.opt.range
-                      range: req.Range
-        						})
-                  }
-                  else if (!req.path) {
+                      range: "posix "+tabulars_events_biggest_range.start+"-"+tabulars_events_biggest_range.end+"/*"
+                    })
+
+                  if(stats_events_paths.length > 0)
                     this.io.emit('stats', {
                       host: app.options.stat_host,
-                      format: (req.tabular == true) ? 'tabular' : undefined,
-                      range: req.Range
-        						})
-                  }
+                      stat: JSON.stringify(stats_events_paths),
+                      format: undefined,
+                      // range: req.opt.range
+                      range: "posix "+stats_events_biggest_range.start+"-"+stats_events_biggest_range.end+"/*"
+                    })
+                }
 
-                // }.bind(app))
 
+
+              }.bind(this))
             }
+
 
 
 
@@ -225,7 +253,7 @@ export default new Class({
   stats: function(socket, next, stats){
     let {type, doc, tabular} = stats
     stats.key = stats.host
-    
+
     if(stats.type == 'range')
       console.log('IO.HOST stats', arguments[2])
 

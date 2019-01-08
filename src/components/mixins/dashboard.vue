@@ -115,6 +115,13 @@ let __events_queue = qrate(function(task, callback) {
 
 import dashboardStore from 'src/store/dashboard'
 
+/**
+* https://stackoverflow.com/questions/33774592/dygraphs-live-trending-and-synchronization
+* zoom: true, range: false -> https://github.com/danvk/dygraphs/issues/612
+*/
+import 'src/libs/synchronizer' //modified version
+import Dygraph from 'dygraphs'
+
 export default {
   mixins: [admin_lte_mixin],
   components: {
@@ -123,6 +130,8 @@ export default {
     chartEmptyContainer
   },
 
+  __sync: undefined,
+  highlighted: false,
 
   __events_watcher: undefined,
   __pipelines_events: {},
@@ -317,6 +326,18 @@ export default {
       }
     }, 100))
     // })
+    let self = this
+    EventBus.$on('highlightCallback', function(params) {
+      self.$options.highlighted = true
+      //////////////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      self.sync_charts()
+		})
+
+    EventBus.$on('unhighlightCallback', event => {
+      self.$options.highlighted = false
+      ////////////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      self.unsync_charts()
+		})
 
     this.__clean_create(
       this.__create.pass([this.$store.state.app.paths], this)
@@ -479,15 +500,22 @@ export default {
         // let all_path_matched = false
 
         // if(all_path_matched == false){
+
           Object.each(this.$options.__pipelines_events, function(pipeline, name){
+            let events = {}
             let pipe = this.$options.pipelines[name]
+
             while(pipeline.length > 0){
               let event = pipeline.shift()
               // let {options, event} = obj
               // eval('pipe.'+options)
-              // console.log('firing pipe', name)
+              // console.log('firing pipe', event_name, event)
               let event_name = Object.keys(event)[0]
-              pipe.fireEvent(event_name, event[event_name])
+
+              if(!events[event_name]) events[event_name] = []
+              events[event_name].push(Object.clone(event[event_name]))
+
+              // pipe.fireEvent(event_name, event[event_name])
 
               /**
               * removed queue, works better with rethinkdb lauching all events at once
@@ -496,22 +524,18 @@ export default {
               //   //// console.log('EVENT fired', event, new Date())
               // })
             }
+            Object.each(events, function(arr_events, type){
+              console.log('firing...', type, arr_events)
+              pipe.fireEvent(type, [arr_events])
+            })
 
             delete this.$options.__pipelines_events[name]
-            // Array.each(pipeline, function(obj, index){
-            //   let {options, event} = obj
-            //   eval('pipe.'+options)
-            //   let event_name = Object.keys(event)[0]
-            //   pipe.fireEvent(event_name, event[event_name])
-            //   __events_queue.push({pipeline: pipe, event}, function(event){
-            //     //// console.log('EVENT fired', options, new Date())
-            //
-            //   })
-            //   // //////////// console.log('fire_pipelines_events', pipe.inputs[0].options.conn[0].module.options.paths)
-            //
-            //
-            // })
+
+
+
           }.bind(this))
+
+
 
       }
 
@@ -606,7 +630,58 @@ export default {
         this.remove_chart(name, options)
       }.bind(this))
     },
+    sync_charts: function(){
+      if(this.$options.__sync == null){
+        let gs = []
+        // let sync = []
 
+        //////////////////////////////////console.log(this.$refs, this.host)
+        Object.each(this.$refs, function(ref, name){
+          if(this.visibility[name] === true)
+            Array.each(ref, function(_ref){
+              if(_ref.$children && _ref.$options.visible === true)
+                Array.each(_ref.$children, function(child){
+                  if(child.$options.graph instanceof Dygraph){
+                    console.log('sync charts', name, ref)
+                    gs.push(child.$options.graph)
+                  }
+                })
+            })
+          // if(ref[0] && ref[0].$children)
+          //
+          //   && (this.visibles[name] != false || this.freezed == true ))
+          // {
+          //   ////////////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+          //
+          // // if(ref[0].chart instanceof Dygraph){
+          //
+          //   gs.push(ref[0].chart)
+          //   // sync.push(ref[0])
+          // }
+        }.bind(this))
+
+        this.unsync_charts()
+
+        console.log('GS', gs)
+
+        if(gs.length > 1){
+          this.$options.__sync = synchronize(gs, {
+            zoom: true,
+            // selection: true,
+            range: false
+          })
+
+
+        }
+      }
+    },
+    unsync_charts: function(){
+      if(this.$options.__sync){
+        // ////////console.log('detaching', this.$options.sync)
+        this.$options.__sync.detach()
+        this.$options.__sync = undefined
+      }
+    },
     __init_charts: function(){
     },
 
@@ -803,6 +878,10 @@ export default {
       Object.each(this.charts, function(chart, name){
         this.set_chart_visibility(name, false)
       }.bind(this))
+
+
+      EventBus.$off('highlightCallback')
+      EventBus.$on('unhighlightCallback')
 
       EventBus.$off('charts', this.__process_dashoard_charts)
       EventBus.$off('instances', this.__process_dashoard_instances)
