@@ -1,6 +1,7 @@
 <template>
   <!-- Main content -->
   <section class="content" v-if="!$route.params.host">
+  <!-- <section class="content" v-if="!$route.params.id"> -->
     <div class="row">
       <section class="col-lg-12 connectedSortable">
         <admin-lte-box-solid
