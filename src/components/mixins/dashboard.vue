@@ -171,7 +171,7 @@ export default {
     mapState({
       // events: state => state.dashboard.events.list,
       events: function(state){
-        console.log('EVENTS', this.id)
+        // console.log('EVENTS', this.id)
         if(this.id && !state['dashboard_'+this.id])
           this.$store.registerModule('dashboard_'+this.id, Object.clone(dashboardStore))
 
@@ -224,6 +224,7 @@ export default {
     }),
     {
       all_init: function(){
+
         if(
           this.dashboard_charts != undefined
           && this.dashboard_instances != undefined
@@ -262,17 +263,18 @@ export default {
     )
 
 
-    next()
+    // next()
   },
 
   created: function(){
     //console.log('life cycle created')
-    this.$options.__events_watcher = this.$watch('events', debounce(function(val, old){
-    // this.$options.__events_watcher = this.$watch('events', function(val){
-
+    this.$options.__events_watcher = this.$watch('events', debounce(function(newVal, old){
+    // this.$options.__events_watcher = this.$watch('events', function(newVal, old){
+      let val = Array.clone(newVal)
       // if(val && val.length > 0 && val.length > old.length){
+      // if(this.all_init === true && val && val.length > 0){
       if(val && val.length > 0){
-        // console.log('this.$watch events', val)
+        // console.log('this.$watch events', val, Object.getLength(this.available_charts))
 
         Array.each(val, function(event, e_index){
           if(event.id && this.available_charts[event.id]){
@@ -299,7 +301,7 @@ export default {
               // let __pipeline = this.__parse_pipeline_opts(p, stat_data)
 
               // if(id == 'colo.cpus_times.uptime')
-                console.log('PRE __parse_event', id, stat_data, event, s_index)
+                // console.log('PRE __parse_event', id, stat_data, event, s_index)
 
               let parsed_event = this.__parse_event(event, stat_data)
 
@@ -315,17 +317,26 @@ export default {
 
           }
 
-          // if(index == val.length -1)
+          // if(e_index == val.length -1){
           //   this.fire_pipelines_events()
+          //   this.$store.commit('dashboard_'+this.id+'/events/remove', val)
+          // }
+
+
 
         }.bind(this))
 
-        // this.$nextTick(this.fire_pipelines_events())
-        this.fire_pipelines_events()
+        this.$nextTick(this.fire_pipelines_events())
+        // this.fire_pipelines_events()
+
+        // Array.each(val, function(event, e_index){
+        //   this.$nextTick(this.$store.commit('dashboard_'+this.id+'/events/remove', val[e_index]))
+        // }.bind(this))
 
       }
     }, 100))
     // })
+
     let self = this
     EventBus.$on('highlightCallback', function(params) {
       self.$options.highlighted = true
@@ -411,12 +422,6 @@ export default {
   },
 
   beforeDestroy: function(){
-
-    this.$store.unregisterModule('dashboard_'+this.id)
-
-    if(!this.$options.__events_watcher)
-      this.$options.__events_watcher()
-
     this.__clean_destroy()
   },
 
@@ -489,10 +494,15 @@ export default {
     // fire_pipelines_events: throttle(function(){
     fire_pipelines_events: debounce(function(){
     // fire_pipelines_events: function(){
-      if(this.all_init){
-        // console.log('fire_pipelines_events',this.$options.__pipelines_events, this.paths)
-        console.log('fire_pipelines_events',JSON.parse(JSON.stringify(this.$options.__pipelines_events['input.os'])), this.paths)
+      let _events_paths = []
+      Object.each(this.$options.__pipelines_events, function(pipes, pipe_name){
+        _events_paths.combine(pipes)
+      })
+      console.log('fire_pipelines_events',this.$options.__pipelines_events, _events_paths, this.paths, Object.getLength(this.available_charts))
 
+      if(this.all_init){
+
+        // console.log('fire_pipelines_events',this.$options.__pipelines_events, this.paths)
         /**
         * first match app.paths with options path, if all matched, remove'em,
         * so the range event is fired for host instead of each path
@@ -535,11 +545,11 @@ export default {
 
           }.bind(this))
 
-
+          // this.$store.commit('dashboard_'+this.id+'/events/clean')
 
       }
 
-    }, 1000),
+    }, 100),
     // },
     __set_pipeline_event: function (payload){
       let {pipeline, event} = payload
@@ -843,38 +853,71 @@ export default {
       EventBus.$once('instances', this.__process_dashoard_instances)
       EventBus.$on('stats', this.__process_dashoard_stats)
 
-      this.set_range(moment().subtract(5, 'minute'), moment())
+      let __init = function(next){
+        this.set_range(moment().subtract(5, 'minute'), moment())
+
+        if(this.all_init === true){
+          this.__init_charts()
+        }
+        else{
+          let unwatch_all_init = this.$watch('all_init', function(val){
+            //console.log('all_init', val)
+            if(val == true){
+
+              unwatch_all_init()
+
+              this.__init_charts()
+
+            }
+          })//watcher
+        }
+
+        if(next)
+          next()
+      }.bind(this)
 
       if(Object.getLength(this.$options.pipelines) == 0){
-        this.create_pipelines(paths, next)
+        this.create_pipelines(paths, __init.pass(next))
+
+
       }
       else if(next){
-        next()
+        __init(next())
       }
     },
     __mount: function(next){
       //console.log('life cycle __mount')
 
-      if(this.all_init === true){
-        this.__init_charts()
-      }
-      else{
-        let unwatch_all_init = this.$watch('all_init', function(val){
-          //console.log('all_init', val)
-          if(val == true){
-
-            unwatch_all_init()
-
-            this.__init_charts()
-          }
-        })//watcher
-      }
-
+      // if(this.all_init === true){
+      //   this.__init_charts(this.$nextTick.pass(this.fire_pipelines_events()))
+      // }
+      // else{
+      //   let unwatch_all_init = this.$watch('all_init', function(val){
+      //     //console.log('all_init', val)
+      //     if(val == true){
+      //
+      //       unwatch_all_init()
+      //
+      //       this.__init_charts(this.$nextTick.pass(this.fire_pipelines_events()))
+      //
+      //     }
+      //   })//watcher
+      // }
+      this.$nextTick(this.fire_pipelines_events())
 
       if(next)
         next()
     },
     __clean_destroy: function(next){
+      this.$store.commit('dashboard_'+this.id+'/events/clean')
+
+      this.$store.unregisterModule('dashboard_'+this.id)
+
+      if(!this.$options.__events_watcher)
+        this.$options.__events_watcher()
+
+
+
       Object.each(this.charts, function(chart, name){
         this.set_chart_visibility(name, false)
       }.bind(this))
@@ -906,6 +949,9 @@ export default {
       this.$store.commit('tabulars_sources/clear')
       this.$store.commit('stats_sources/clear')
 
+
+
+      // this.id = undefined
       // this.$store.dispatch('stats/flush_all', {host: this.host})
       // this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
 
@@ -943,6 +989,8 @@ export default {
         ////////console.log('set_chart_visibility ADD', id, isVisible, this.available_charts[id])
         this.$set(this.visibility, id, true)
         this.add_chart(this.available_charts[id], id)
+
+        // this.$nextTick.pass(this.fire_pipelines_events())
       }
 
     },

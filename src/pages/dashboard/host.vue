@@ -237,7 +237,7 @@ export default {
       if(next)
         next()
     },
-    __init_charts: function(){
+    __init_charts: function(next){
       this.$options.charts_payloads = host_charts_payloads({
         host: this.host,
         seconds: this.seconds,
