@@ -896,6 +896,7 @@ export default {
                 }
               )
 
+              // _merged_charts[merged_chart_name].chart.interval = 5
               _merged_charts[merged_chart_name].chart.options.labels = ['Time']
               let options = Object.clone(_merged_charts[merged_chart_name].chart.options)
               _merged_charts[merged_chart_name].chart.options = undefined
@@ -925,6 +926,10 @@ export default {
                 if(this.available_charts[merged_chart_name].stat.sources.length == 1)
                   this.available_charts[merged_chart_name].stat.merged = false
 
+                /**
+                * length : specify length (# of seconds / 5 seconds refresh)
+                **/
+                this.available_charts[merged_chart_name].stat.length = (this.seconds / 5)
 
                 this.set_chart_visibility(merged_chart_name, true)
 

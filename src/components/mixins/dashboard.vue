@@ -317,10 +317,10 @@ export default {
 
           }
 
-          // if(e_index == val.length -1){
-          //   this.fire_pipelines_events()
-          //   this.$store.commit('dashboard_'+this.id+'/events/remove', val)
-          // }
+          if(e_index == val.length -1){
+            // this.fire_pipelines_events()
+            this.$store.commit('dashboard_'+this.id+'/events/remove', val)
+          }
 
 
 
@@ -334,7 +334,7 @@ export default {
         // }.bind(this))
 
       }
-    }, 100))
+    }, 200))
     // })
 
     let self = this
@@ -492,8 +492,8 @@ export default {
       return e
     },
     // fire_pipelines_events: throttle(function(){
-    fire_pipelines_events: debounce(function(){
-    // fire_pipelines_events: function(){
+    // fire_pipelines_events: debounce(function(){
+    fire_pipelines_events: function(){
       let _events_paths = []
       Object.each(this.$options.__pipelines_events, function(pipes, pipe_name){
         _events_paths.combine(pipes)
@@ -549,8 +549,8 @@ export default {
 
       }
 
-    }, 100),
-    // },
+    // }, 100),
+    },
     __set_pipeline_event: function (payload){
       let {pipeline, event} = payload
 
