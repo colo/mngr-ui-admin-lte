@@ -731,16 +731,22 @@ export default {
         //   instances_objects[name] = data.instance
         // }
         // else{//named instance like os.cpus->times os.cpus->percentage
+        console.log('INSTANCE', data, name)
 
           Object.each(data, function(instance_data, instance_name){
+            console.log('INSTANCE_DATA', instance_data, instance_name)
+
             // this.$options.instances_objects[name+'.'+instance_name] = instance_data.instance
             let path = name+'_'+instance_name
             path = path.replace(/\./g, '_')
-            Object.each(instance_data, function(value, key){
-              let new_key = key.replace(/\%/g, 'percentage_')
-              delete instance_data[key]
-              instance_data[new_key] = value
-            })
+
+            if(typeof instance_data === 'object'){
+              Object.each(instance_data, function(value, key){
+                let new_key = key.replace(/\%/g, 'percentage_')
+                delete instance_data[key]
+                instance_data[new_key] = value
+              })
+            }
             instances_objects[path] = instance_data
           }.bind(this))
 
