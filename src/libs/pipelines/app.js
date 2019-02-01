@@ -1,6 +1,7 @@
 'use strict'
 
-import InputIOApp from '@libs/input/poller/io.app'
+// import InputIOApp from '@libs/input/poller/io.app'
+import InputIOHosts from '@libs/input/poller/io.hosts'
 
 import DefaultConn from '@etc/default.io'
 //
@@ -17,8 +18,9 @@ export default  {
           Object.merge(
             Object.clone(DefaultConn),
             {
-              id: 'input.app',
-              module: InputIOApp,
+              id: 'input.hosts',
+              // module: InputIOApp,
+							module: InputIOHosts
             }
           )
 
