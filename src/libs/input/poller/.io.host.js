@@ -3,13 +3,7 @@
 // const App = require ( '../../node_modules/node-app-couchdb-client/index' )
 const App = require ( 'node-app-socket.io-client/index' )
 
-// import { throttle } from 'quasar'
-import * as Debug from "debug"
-
-const debug = Debug("mngr-ui-admin-lte:libs:input:io.host"),
-      debug_internals = Debug("mngr-ui-admin-lte:libs:input:io.host:Internals"),
-      debug_events = Debug("mngr-ui-admin-lte:libs:input:io.host:Events");
-
+import { throttle } from 'quasar'
 
 export default new Class({
   Extends: App,
@@ -17,7 +11,7 @@ export default new Class({
 
   options: {
 
-    path: '/hosts',
+    path: '/os',
 
     status: undefined,
 
@@ -108,17 +102,17 @@ export default new Class({
 
 			],
       once: [
-        // {
-				// 	charts: function(req, next, app){
-        //
-        //     if(app.options.stat_host){
-        //
-        //       this.io.emit('charts', app.options.stat_host)
-        //
-        //     }
-        //
-				// 	}
-				// },
+        {
+					charts: function(req, next, app){
+
+            if(app.options.stat_host){
+
+              this.io.emit('charts', app.options.stat_host)
+
+            }
+
+					}
+				},
         {
 					instances: function(req, next, app){
 
@@ -157,7 +151,19 @@ export default new Class({
 
 					}
 				},
-
+        // {
+				// 	charts_by_host: function(req, next, app){
+        //
+        //     if(app.options.stat_host){
+        //
+        //       this.io.emit('charts', {
+        //         host: app.options.stat_host,
+        //       })
+        //
+        //     }
+        //
+				// 	}
+				// }
 			],
 			periodical: [
         // {
@@ -181,93 +187,56 @@ export default new Class({
 			// middlewares: [], //namespace.use(fn)
 			// rooms: ['root'], //atomatically join connected sockets to this rooms
 			routes: {
-        // 'data': [{
-				// 	// path: ':param',
-				// 	// once: true, //socket.once
-				// 	callbacks: ['data'],
-				// 	// middlewares: [], //socket.use(fn)
-				// }],
-        'stat': [{
+        // 'charts':[{
+        //   callbacks: ['charts']
+        // }],
+        'charts': [{
 					// path: ':param',
 					// once: true, //socket.once
-					callbacks: ['data'],
+					callbacks: ['charts'],
 					// middlewares: [], //socket.use(fn)
 				}],
-        'tabular': [{
+        'instances': [{
 					// path: ':param',
 					// once: true, //socket.once
-					callbacks: ['data'],
+					callbacks: ['instances'],
 					// middlewares: [], //socket.use(fn)
 				}],
-        // 'paths': [{
-				// 	// path: ':param',
-				// 	// once: true, //socket.once
-				// 	callbacks: ['paths'],
-				// 	// middlewares: [], //socket.use(fn)
-				// }],
-        'on': [{
+				'stats': [{
 					// path: ':param',
 					// once: true, //socket.once
-					callbacks: ['register'],
+					callbacks: ['stats'],
 					// middlewares: [], //socket.use(fn)
 				}],
-        // // 'charts':[{
-        // //   callbacks: ['charts']
-        // // }],
-        // 'charts': [{
-				// 	// path: ':param',
-				// 	// once: true, //socket.once
-				// 	callbacks: ['charts'],
-				// 	// middlewares: [], //socket.use(fn)
-				// }],
-        // 'instances': [{
-				// 	// path: ':param',
-				// 	// once: true, //socket.once
-				// 	callbacks: ['instances'],
-				// 	// middlewares: [], //socket.use(fn)
-				// }],
-				// 'stats': [{
-				// 	// path: ':param',
-				// 	// once: true, //socket.once
-				// 	callbacks: ['stats'],
-				// 	// middlewares: [], //socket.use(fn)
-				// }],
-				// // '*': [{// catch all
-				// // 	path: '',
-				// // 	callbacks: ['not_found_message'],
-				// // 	middlewares: [], //socket.use(fn)
-				// // }]
+				// '*': [{// catch all
+				// 	path: '',
+				// 	callbacks: ['not_found_message'],
+				// 	middlewares: [], //socket.use(fn)
+				// }]
 			}
 		}
 
 
   },
-  register: function(socket, next, result){
-    debug_internals('register %o', result)
-
-  },
-
-
-  // paths: function(socket, next, paths){
-  //   debug_internals('paths %o', paths)
-  //
-  //   // store.commit('hosts/clear')
-  //   // store.commit('hosts/set', hosts)
-  // },
-
   // charts: function(socket, next){
-  //   let {host, status, charts} = arguments[2]
-  //   console.log('IO.HOST charts', host, status, charts)
-  //   this.status = status
+  //   let {host, charts} = arguments[2]
+  //   //////console.log('IO.HOST charts', host, charts)
   //
-  //   this.fireEvent('onDoc', [Object.merge({type: 'charts'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
-  //
-  //   // this.charts(socket, next, {host: host, charts: charts})
-  //   // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
-  //   //
-  //   // if(status == 'ok')
-  //   //   this.io.emit('range', )
+  //   this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
   // },
+  charts: function(socket, next){
+    let {host, status, charts} = arguments[2]
+    console.log('IO.HOST charts', host, status, charts)
+    this.status = status
+
+    this.fireEvent('onDoc', [Object.merge({type: 'charts'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
+
+    // this.charts(socket, next, {host: host, charts: charts})
+    // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
+    //
+    // if(status == 'ok')
+    //   this.io.emit('range', )
+  },
   instances: function(socket, next){
     let {host, status, instances} = arguments[2]
     console.log('IO.HOST instances', host, status, instances)
@@ -281,27 +250,15 @@ export default new Class({
     // if(status == 'ok')
     //   this.io.emit('range', )
   },
-  data: function(socket, next, doc){
-    debug_internals('data %o', doc)
-    // let {type, doc, tabular} = stats
-    // stats.key = stats.host
-    // let stats = {
-    //   key: doc.host,
-    // }
+  stats: function(socket, next, stats){
+    let {type, doc, tabular} = stats
+    stats.key = stats.host
 
-
-    // if(stats.type == 'range')
-    //   console.log('IO.HOST stats', arguments[2])
+    if(stats.type == 'range')
+      console.log('IO.HOST stats', arguments[2])
 
     // if(tabular != true)
-      this.fireEvent((doc.range) ? 'onRangeDoc' : 'onPeriodicalDoc', [
-        Object.merge(
-          doc,
-          {key : doc.host, type: (doc.stat) ? 'stat' : 'tabular'}
-        ),
-        {type: (doc.stat) ? 'stat' : 'tabular', input_type: this, app: null}
-      ])
-
+      this.fireEvent((type == 'range') ? 'onRangeDoc' : 'onPeriodicalDoc', [Object.merge(stats, {type: 'stats', range: (type == 'range') ? true : false}), {type: type, input_type: this, app: null}]);
 
 		// //////console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()
@@ -313,21 +270,6 @@ export default new Class({
 		this.parent(options);//override default options
 
 		this.profile('root_init');//start profiling
-
-    this.addEvent('onConnect', function(){
-      debug_internals('initialize socket.onConnect')
-      // this.io.emit('on', 'paths')
-      // this.io.emit('/', {host: this.options.stat_host, prop: 'paths'})
-
-      this.io.emit('on', 'stat')
-      this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'stat'})
-
-      this.io.emit('on', 'tabular')
-      this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'tabular'})
-
-      // this.io.emit('on', 'instances')
-      // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
-    })
 
     this.addEvent('onExit', function(){
       //////console.log('EXITING...')

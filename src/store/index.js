@@ -42,26 +42,26 @@ const store = new Vuex.Store({
     hosts,
     app,
     // dashboard,
-    stat:{
-      namespaced: true,
-      state: function() {
-        return {}
-      },
-      getters: {},
-      actions: {},
-      mutations: {}
-    },
-    tabular:{
-      namespaced: true,
-      state: function() {
-        return {}
-      },
-      getters: {},
-      actions: {},
-      mutations: {}
-    },
-    stats_sources: source,
-    tabulars_sources: source
+    // stat:{
+    //   namespaced: true,
+    //   state: function() {
+    //     return {}
+    //   },
+    //   getters: {},
+    //   actions: {},
+    //   mutations: {}
+    // },
+    // tabular:{
+    //   namespaced: true,
+    //   state: function() {
+    //     return {}
+    //   },
+    //   getters: {},
+    //   actions: {},
+    //   mutations: {}
+    // },
+    stat_sources: source,
+    tabular_sources: source
 
 
   }

@@ -12,10 +12,10 @@
           v-on:hide="el => hideCollapsible(el)"
         >
           <admin-lte-dashboard-summary
-            :docs_per_sec="docs_per_sec"
             :number_of_hosts="number_of_hosts"
           >
           </admin-lte-dashboard-summary>
+          <!-- :docs_per_sec="docs_per_sec" -->
         </admin-lte-box-solid>
       </section>
     </div>
@@ -52,7 +52,7 @@ export default {
 
   computed: Object.merge(mapState({
     // arrow functions can make the code very succinct!
-    docs_per_sec: state => state.app.docs.count,
+    // docs_per_sec: state => state.app.docs.count,
     number_of_hosts: state => state.hosts.all.length,
   })),
   // updated: function(){

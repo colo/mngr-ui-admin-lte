@@ -66,6 +66,13 @@
 
 <script>
 
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:mngr-ui-admin-lte:pages:dashboard:host"),
+      debug_internals = Debug("mngr-ui-admin-lte:mngr-ui-admin-lte:pages:dashboard:host:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:mngr-ui-admin-lte:pages:dashboard:host:Events");
+
+
 // import sourceStore from 'src/store/source'
 
 import moment from 'moment/moment'
@@ -183,8 +190,9 @@ export default {
 
 
   watch: {
-    'host': function(newVal, oldVal) { this.create_pipelines(this.$store.state.app.paths) },
-    '$store.state.app.paths': function(newVal, oldVal) { this.create_pipelines(newVal) }
+    // 'host': function(newVal, oldVal) { this.create_pipelines(this.$store.state.app.paths) },
+    'host': function(newVal, oldVal) { this.create_pipelines(newVal) },
+    // '$store.state.app.paths': function(newVal, oldVal) { this.create_pipelines(newVal) }
   },
   computed: Object.merge(
     mapState({
@@ -194,10 +202,10 @@ export default {
 
       hosts: state => state.hosts.all,
 
-      // cpus: state => state.stats_sources.'+this.host+'_os_procs_stats_kernel'
+      // cpus: state => state.stat_sources.'+this.host+'_os_procs_stats_kernel'
       cpus: function(state){
-        if(this.host && state.stats_sources[this.host+'_os_cpus']){
-          return state.stats_sources[this.host+'_os_cpus'][0].value
+        if(this.host && state.stat_sources[this.host+'_os_cpus']){
+          return state.stat_sources[this.host+'_os_cpus'][0].value
         }
         else{
           return undefined
@@ -222,9 +230,10 @@ export default {
   ),
 
 
-  updated: function(){
-    this.$store.commit('hosts/current', this.$route.params.host || '')
-  },
+  // updated: function(){
+  //   debug_internals('updated', this.$route.params.host)
+  //   this.$store.commit('hosts/current', this.$route.params.host || '')
+  // },
 
 
   methods: {
@@ -813,7 +822,7 @@ export default {
       **/
 
 
-      let __unwacth_freemem = this.$watch('$store.state.stats_sources', function(val){
+      let __unwacth_freemem = this.$watch('$store.state.stat_sources', function(val){
 
         if(val[this.host+'_os_totalmem']){
           __unwacth_freemem()
@@ -821,7 +830,7 @@ export default {
           this.$set(this.available_charts, this.host+'.os.freemem', Object.merge(
             this.$options.charts_payloads['os.freemem'],
             {
-              chart: Object.merge(Object.clone(dygraph_line_chart), freemem_chart, {totalmem: this.$store.state.stats_sources[this.host+'_os_totalmem'][0].value}),
+              chart: Object.merge(Object.clone(dygraph_line_chart), freemem_chart, {totalmem: this.$store.state.stat_sources[this.host+'_os_totalmem'][0].value}),
             })
           )
 
@@ -838,7 +847,7 @@ export default {
       let munin = new RegExp(this.host+'_munin_')
       let munin_max_range_value = /max/
 
-      let __unwacth_munin = this.$watch('$store.state.tabulars_sources', function(val){
+      let __unwacth_munin = this.$watch('$store.state.tabular_sources', function(val){
         let _merge = {}
         let _merged_charts = {}
 
@@ -916,7 +925,7 @@ export default {
               if(munin_max_range_value.test(_name))
                 this.$set(this.available_charts[merged_chart_name].chart.options,
                   'valueRange',
-                  [0, this.$store.state.tabulars_sources[this.host+'_munin_'+_path+'_'+_name][1]]//[0] is timestamp
+                  [0, this.$store.state.tabular_sources[this.host+'_munin_'+_path+'_'+_name][1]]//[0] is timestamp
                 )
 
               this.available_charts[merged_chart_name].chart.options.labels.push(_name)
@@ -952,11 +961,11 @@ export default {
 
       }, {deep: true})
 
-      let __unwacth_mounts = this.$watch('$store.state.tabulars_sources', function(val){
+      let __unwacth_mounts = this.$watch('$store.state.tabular_sources', function(val){
         let _merge = []
         let _merged_charts = {}
 
-        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+        Object.each(this.$store.state.tabular_sources, function(stat, key){
           if(mount.test(key)){
             let _name = key.substring(key.lastIndexOf('_') + 1)
             // let prop_name = _name.substr(_name.indexOf('_') + 1)
@@ -967,7 +976,7 @@ export default {
         })
         //console.log('MERGED MOUNT', _merge)
 
-        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+        Object.each(this.$store.state.tabular_sources, function(stat, key){
           if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
             __unwacth_mounts()
 
@@ -1055,8 +1064,8 @@ export default {
           }.bind(this))
       }, {deep:true})
 
-      let __unwacth_blockdevices = this.$watch('$store.state.tabulars_sources', function(val){
-        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+      let __unwacth_blockdevices = this.$watch('$store.state.tabular_sources', function(val){
+        Object.each(this.$store.state.tabular_sources, function(stat, key){
 
           if(blockdevice.test(key) && this.dashboard_charts['os_blockdevices.stats']){
             __unwacth_blockdevices()
@@ -1095,8 +1104,8 @@ export default {
       __networkInterfaces_merge.sort()
       let __networkInterfaces_merged_charts = {}
 
-      let __unwacth_networkInterfaces = this.$watch('$store.state.tabulars_sources', function(val){
-        Object.each(this.$store.state.tabulars_sources, function(stat, key){
+      let __unwacth_networkInterfaces = this.$watch('$store.state.tabular_sources', function(val){
+        Object.each(this.$store.state.tabular_sources, function(stat, key){
           // //console.log('networkInterface KEY',key)
 
           if(networkInterface.test(key) && this.dashboard_charts['os_networkInterfaces_stats.properties']){
@@ -1254,18 +1263,19 @@ export default {
     /**
     * @start pipelines
     **/
-    create_pipelines: function (paths, next) {
+    create_pipelines: function (host, next) {
+      debug_internals('create_pipelines', host)
       // paths = ['os.procs']
       //////////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
-      let host = this.$route.params.host || this.$store.state.hosts.current
+      host = host || this.$route.params.host || this.$store.state.hosts.current
 
       //console.log('life cycle create_pipelines', host)
 
       // let range = Object.clone(this.$store.state.app.range)
 
 
-      if(paths.length > 0){
-        this.destroy_pipelines()
+      if(host){
+        this.destroy_pipelines(host)
 
         // Array.each(hosts, function(host){
         Array.each(host_pipelines_templates, function(pipeline_template){
@@ -1343,8 +1353,10 @@ export default {
       if(next)
         next()
     },
-    destroy_pipelines () {
-      let host = this.$store.state.hosts.current || this.$route.params.host
+    destroy_pipelines: function (host) {
+      debug_internals('destroy_pipelines', host)
+
+      host = host || this.$store.state.hosts.current || this.$route.params.host
 
       if(
         host

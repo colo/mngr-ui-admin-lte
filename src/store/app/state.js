@@ -1,12 +1,13 @@
 export default function() {
   return {
-    docs: {
-      count: null,
-      search: null,
-      os: null,
-    },
-    docs_per_sec: 0,
-    paths: [],
+    // docs: {
+    //   count: null,
+    //   search: null,
+    //   os: null,
+    // },
+    // docs_per_sec: 0,
+    // paths: [],
+    
     /**
     *
     **/

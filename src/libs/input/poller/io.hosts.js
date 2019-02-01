@@ -5,17 +5,17 @@ const App = require ( 'node-app-socket.io-client/index' )
 
 import * as Debug from "debug"
 
-const debug = Debug("libs:input:io.hosts"),
-      debug_internals = Debug("libs:input:io.hosts:Internals"),
-      debug_events = Debug("libs:input:io.hosts:Events");
+const debug = Debug("mngr-ui-admin-lte:libs:input:io.hosts"),
+      debug_internals = Debug("mngr-ui-admin-lte:libs:input:io.hosts:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:libs:input:io.hosts:Events");
 
 import store from 'src/store'
 
 export default new Class({
   Extends: App,
 
-  types: ['count', 'hosts', 'paths'],
-  recived: [],
+  // types: ['count', 'hosts', 'paths'],
+  // recived: [],
 
   options: {
     path: '/hosts',
@@ -68,11 +68,12 @@ export default new Class({
     debug_internals('register %o', result)
 
   },
-  hosts: function(socket, next, hosts){
-    debug_internals('hosts %o', hosts)
+  hosts: function(socket, next, doc){
+    debug_internals('hosts %o', doc)
+    let {type} = doc
 
     store.commit('hosts/clear')
-    store.commit('hosts/set', hosts)
+    store.commit('hosts/set', doc[type])
   },
   // app_doc: function(socket, next){
   //   if(this.recived.length < this.types.length){
@@ -114,7 +115,7 @@ export default new Class({
       debug_internals('initialize socket.onConnect')
       this.io.emit('on', 'hosts')
       this.io.emit('/')
-      
+
     })
 
     this.addEvent('onExit', function(){

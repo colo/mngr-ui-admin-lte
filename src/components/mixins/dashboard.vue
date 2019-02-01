@@ -51,6 +51,13 @@
 
 <script>
 
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:pages:dashboard"),
+      debug_internals = Debug("mngr-ui-admin-lte:pages:dashboard:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:pages:dashboard:Events");
+
+
 import { mapState } from 'vuex'
 
 
@@ -158,8 +165,8 @@ export default {
       charts: {},
       available_charts: {},
 
-      stats_init: false,
-      tabulars_init: false,
+      stat_init: false,
+      tabular_init: false,
       reactive_data:{},//manually merged stats
 
       visibility: {},
@@ -178,7 +185,7 @@ export default {
         return (this.id) ? state['dashboard_'+this.id].events.list : undefined
       },
 
-      paths: state => state.app.paths,
+      // paths: state => state.app.paths,
       reset: state => state.app.reset,
       range: state => state.app.range,
       paused: state => state.app.pause,
@@ -201,16 +208,16 @@ export default {
         // return 300
       },
 
-      dashboard_charts: function(state){
-        // let host = state.hosts.current || this.$route.params.host
-        if(this.id && state['dashboard_'+this.id].charts && Object.getLength(state['dashboard_'+this.id].charts) > 0){
-          // //console.log('dashboard_charts', state['dashboard_'+host].charts)
-          return state['dashboard_'+this.id].charts
-        }
-        else{
-          return undefined
-        }
-      },
+      // dashboard_charts: function(state){
+      //   // let host = state.hosts.current || this.$route.params.host
+      //   if(this.id && state['dashboard_'+this.id].charts && Object.getLength(state['dashboard_'+this.id].charts) > 0){
+      //     // //console.log('dashboard_charts', state['dashboard_'+host].charts)
+      //     return state['dashboard_'+this.id].charts
+      //   }
+      //   else{
+      //     return undefined
+      //   }
+      // },
       dashboard_instances: function(state){
         // let host = state.hosts.current || this.$route.params.host
         if(this.id && state['dashboard_'+this.id].instances && Object.getLength(state['dashboard_'+this.id].instances) > 0){
@@ -226,10 +233,10 @@ export default {
       all_init: function(){
 
         if(
-          this.dashboard_charts != undefined
-          && this.dashboard_instances != undefined
-          && this.stats_init == true
-          && this.tabulars_init == true
+          // this.dashboard_charts != undefined &&
+          this.dashboard_instances != undefined
+          && this.stat_init == true
+          && this.tabular_init == true
           && this.range.length > 0
           // && Object.getLength(this.$store.state.stats_sources) > 0
           // && Object.getLength(this.$store.state.tabulars_sources) > 0
@@ -255,7 +262,7 @@ export default {
     this.__clean_destroy(
       this.__clean_create.pass(
         this.__create.pass([
-          this.$store.state.app.paths,
+          this.$route.params.host || this.$store.state.hosts.current,
           this.__mount.pass(next, this)
         ], this),
         this
@@ -267,6 +274,7 @@ export default {
   },
 
   created: function(){
+
     //console.log('life cycle created')
     this.$options.__events_watcher = this.$watch('events', debounce(function(newVal, old){
     // this.$options.__events_watcher = this.$watch('events', function(newVal, old){
@@ -350,8 +358,10 @@ export default {
       self.unsync_charts()
 		})
 
+    debug_internals('life cycle created', this.$route.params.host)
+
     this.__clean_create(
-      this.__create.pass([this.$store.state.app.paths], this)
+      this.__create.pass([this.$route.params.host || this.$store.state.hosts.current], this)
     )
 
   },
@@ -435,6 +445,7 @@ export default {
     'id': function(newVal, oldVal) { this.$store.registerModule('dashboard_'+newVal, Object.clone(dashboardStore)) },
   },
   methods: {
+    create_pipelines: function (host, next) {},
     /**
     * @start - events
     **/
@@ -695,32 +706,32 @@ export default {
     __init_charts: function(){
     },
 
-    __process_dashoard_charts: function(doc){
-      ////console.log('recived doc via Event charts', doc)
-      // let counter = 0
-      let charts_objects = {}
-      Object.each(doc.charts, function(data, name){
-        if(data.chart){
-          // this.$options.charts_objects[name] = data.chart
-          charts_objects[name] = data.chart
-        }
-        else{//named chart like os.cpus->times os.cpus->percentage
-
-          Object.each(data, function(chart_data, chart_name){
-            // this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
-            charts_objects[name+'.'+chart_name] = chart_data.chart
-          }.bind(this))
-
-        }
-
-        // if(counter == Object.getLength(doc.charts) - 1)
-        //   this.charts_objects_init = true
-        //
-        // counter++
-      }.bind(this))
-
-      this.$store.commit('dashboard_'+this.id+'/charts', charts_objects)
-    },
+    // __process_dashoard_charts: function(doc){
+    //   ////console.log('recived doc via Event charts', doc)
+    //   // let counter = 0
+    //   let charts_objects = {}
+    //   Object.each(doc.charts, function(data, name){
+    //     if(data.chart){
+    //       // this.$options.charts_objects[name] = data.chart
+    //       charts_objects[name] = data.chart
+    //     }
+    //     else{//named chart like os.cpus->times os.cpus->percentage
+    //
+    //       Object.each(data, function(chart_data, chart_name){
+    //         // this.$options.charts_objects[name+'.'+chart_name] = chart_data.chart
+    //         charts_objects[name+'.'+chart_name] = chart_data.chart
+    //       }.bind(this))
+    //
+    //     }
+    //
+    //     // if(counter == Object.getLength(doc.charts) - 1)
+    //     //   this.charts_objects_init = true
+    //     //
+    //     // counter++
+    //   }.bind(this))
+    //
+    //   this.$store.commit('dashboard_'+this.id+'/charts', charts_objects)
+    // },
     __process_dashoard_instances: function(doc){
       ////console.log('recived doc via Event instances', doc)
       // let counter = 0
@@ -761,19 +772,20 @@ export default {
     /**
     * @start - STATS
     **/
-    __process_dashoard_stats: function(payload){
-
+    __process_dashoard_data: function(payload){
+      debug_internals('__process_dashoard_data', payload)
       // if(payload.range == true)
         // //console.log('recived doc via Event stats', payload)
 
-      let type = (payload.tabular == true) ? 'tabulars' : 'stats'
-      let init = (payload.tabular == true) ? 'tabulars_init' : 'stats_init'
+      // let type = (payload.tabular == true) ? 'tabular' : 'stat'
+      let {type} = payload
+      let init = (type == 'tabular') ? 'tabular_init' : 'stat_init'
       // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
-      let whitelist = (type == 'tabulars') ? this.$options.tabulars_whitelist : this.$options.stats_whitelist
-      let blacklist = (type == 'tabulars') ? this.$options.tabulars_blacklist : this.$options.stats_blacklist
+      let whitelist = (type == 'tabular') ? this.$options.tabulars_whitelist : this.$options.stats_whitelist
+      let blacklist = (type == 'tabular') ? this.$options.tabulars_blacklist : this.$options.stats_blacklist
 
       let counter = 0
-      Object.each(payload.stats, function(data, path){
+      Object.each(payload[type], function(data, path){
         let new_path = undefined
         let new_val = undefined
         if(Array.isArray(data)){
@@ -811,7 +823,7 @@ export default {
         }
 
 
-        if(counter == Object.getLength(payload.stats) - 1)
+        if(counter == Object.getLength(payload[type]) - 1)
           this.$set(this, init, true)
 
         counter++
@@ -848,10 +860,11 @@ export default {
         next()
     },
 
-    __create: function(paths, next){
-      EventBus.$once('charts', this.__process_dashoard_charts)
+    __create: function(host, next){
+      // EventBus.$once('charts', this.__process_dashoard_charts)
       EventBus.$once('instances', this.__process_dashoard_instances)
-      EventBus.$on('stats', this.__process_dashoard_stats)
+      EventBus.$on('stat', this.__process_dashoard_data)
+      EventBus.$on('tabular', this.__process_dashoard_data)
 
       let __init = function(next){
         this.set_range(moment().subtract(5, 'minute'), moment())
@@ -876,8 +889,10 @@ export default {
           next()
       }.bind(this)
 
+      debug_internals('__create', Object.getLength(this.$options.pipelines))
+
       if(Object.getLength(this.$options.pipelines) == 0){
-        this.create_pipelines(paths, __init.pass(next))
+        this.create_pipelines(host, __init.pass(next))
 
 
       }
@@ -926,12 +941,14 @@ export default {
       EventBus.$off('highlightCallback')
       EventBus.$on('unhighlightCallback')
 
-      EventBus.$off('charts', this.__process_dashoard_charts)
+      // EventBus.$off('charts', this.__process_dashoard_charts)
       EventBus.$off('instances', this.__process_dashoard_instances)
-      EventBus.$off('stats', this.__process_dashoard_stats)
 
-      this.stats_init = false
-      this.tabulars_init = false
+      EventBus.$off('stat', this.__process_dashoard_data)
+      EventBus.$off('tabular', this.__process_dashoard_data)
+
+      this.stat_init = false
+      this.tabular_init = false
 
       this.$options.charts_payloads = {}
 
@@ -946,8 +963,8 @@ export default {
       this.$set(this, 'reactive_data', {})
       this.$set(this, 'available_charts', {})
 
-      this.$store.commit('tabulars_sources/clear')
-      this.$store.commit('stats_sources/clear')
+      this.$store.commit('tabular_sources/clear')
+      this.$store.commit('stat_sources/clear')
 
 
 

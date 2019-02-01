@@ -151,85 +151,85 @@ export default {
     }
   },
 
-  watch: {
-    '$store.state.app.docs.hosts': {
-      handler: function(newVal, oldVal){
-        // console.log('recived doc via Event hosts', newVal)
-        this.process_hosts_doc(newVal)
-      },
-      deep: true
-    },
-    '$store.state.app.docs.paths': {
-      handler: function(newVal, oldVal){
-        //console.log('recived doc via Event paths', newVal)
-        this.process_paths_doc(newVal)
-      },
-      deep: true
-    }
-  },
-  mounted: function(){
-    this.process_paths_doc(this.$store.state.app.docs.paths)
-    this.process_hosts_doc(this.$store.state.app.docs.hosts)
-  },
+  // watch: {
+  //   '$store.state.app.docs.hosts': {
+  //     handler: function(newVal, oldVal){
+  //       // console.log('recived doc via Event hosts', newVal)
+  //       this.process_hosts_doc(newVal)
+  //     },
+  //     deep: true
+  //   },
+  //   '$store.state.app.docs.paths': {
+  //     handler: function(newVal, oldVal){
+  //       //console.log('recived doc via Event paths', newVal)
+  //       this.process_paths_doc(newVal)
+  //     },
+  //     deep: true
+  //   }
+  // },
+  // mounted: function(){
+  //   this.process_paths_doc(this.$store.state.app.docs.paths)
+  //   this.process_hosts_doc(this.$store.state.app.docs.hosts)
+  // },
   methods: {
-    process_paths_doc: function(doc){
-      console.log('process_paths_doc', doc)
-      if(doc != null){
-        let currentPaths = this.$store.state.app.paths
-        if (currentPaths.equals(doc) !== true){
-
-          this.$store.commit('app/paths', doc)
-
-        }
-        // else {
-        //   this.$store.commit('hosts/set', doc.hosts)
-        // }
-
-
-      }
-    },
-    process_hosts_doc: function(doc){
-      // console.log('process_hosts_doc', doc)
-
-      if(doc != null){
-
-        this.$store.commit('hosts/clear')
-        this.$store.commit('hosts/set', doc)
-
-        /**
-        let currentRange = Object.clone(this.$store.state.app.range)
-        //////console.log('update range', currentRange)
-        //just a small modification to notify of update
-        this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
-        **/
-
-        this.$store.commit('app/reset', false)
-        this.$store.commit('app/reset', true)
-
-        // Array.each(doc, function(host){
-        //   if(!this.$store.state['host_'+host]){
-        //     // console.log('registerModule HOSTS', host)
-        //     this.$store.registerModule('host_'+host, Object.clone(hostStore))
-        //   }
-        //   // if(!this.$store.state.stats[host]){
-        //   //   ////console.log('registerModule HOSTS', host)
-        //   //   this.$store.registerModule(['stats',host], Object.clone(statsStore), { preserveState: true })
-        //   // }
-        // }.bind(this))
-
-        /**
-        * should unregister modules for unset hosts?
-        */
-        // Array.each(this.$store.state, function(host){
-        //   if(!doc.contains(host.replace('host_'))){
-        //     // console.log('UNregisterModule HOSTS', host)
-        //     this.$store.unregisterModule('host_'+host)
-        //   }
-        // }.bind(this))
-
-
-      }
-    }
+    // process_paths_doc: function(doc){
+    //   console.log('process_paths_doc', doc)
+    //   if(doc != null){
+    //     let currentPaths = this.$store.state.app.paths
+    //     if (currentPaths.equals(doc) !== true){
+    //
+    //       this.$store.commit('app/paths', doc)
+    //
+    //     }
+    //     // else {
+    //     //   this.$store.commit('hosts/set', doc.hosts)
+    //     // }
+    //
+    //
+    //   }
+    // },
+    // process_hosts_doc: function(doc){
+    //   // console.log('process_hosts_doc', doc)
+    //
+    //   if(doc != null){
+    //
+    //     this.$store.commit('hosts/clear')
+    //     this.$store.commit('hosts/set', doc)
+    //
+    //     /**
+    //     let currentRange = Object.clone(this.$store.state.app.range)
+    //     //////console.log('update range', currentRange)
+    //     //just a small modification to notify of update
+    //     this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
+    //     **/
+    //
+    //     this.$store.commit('app/reset', false)
+    //     this.$store.commit('app/reset', true)
+    //
+    //     // Array.each(doc, function(host){
+    //     //   if(!this.$store.state['host_'+host]){
+    //     //     // console.log('registerModule HOSTS', host)
+    //     //     this.$store.registerModule('host_'+host, Object.clone(hostStore))
+    //     //   }
+    //     //   // if(!this.$store.state.stats[host]){
+    //     //   //   ////console.log('registerModule HOSTS', host)
+    //     //   //   this.$store.registerModule(['stats',host], Object.clone(statsStore), { preserveState: true })
+    //     //   // }
+    //     // }.bind(this))
+    //
+    //     /**
+    //     * should unregister modules for unset hosts?
+    //     */
+    //     // Array.each(this.$store.state, function(host){
+    //     //   if(!doc.contains(host.replace('host_'))){
+    //     //     // console.log('UNregisterModule HOSTS', host)
+    //     //     this.$store.unregisterModule('host_'+host)
+    //     //   }
+    //     // }.bind(this))
+    //
+    //
+    //   }
+    // }
   },
   beforeDestroy: function(){
     let pipe = this.$options.pipeline

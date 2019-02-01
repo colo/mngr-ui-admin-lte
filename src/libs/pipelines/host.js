@@ -8,6 +8,13 @@ import store from 'src/store'
 
 let buffer = {}
 
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:libs:pipelines:host"),
+      debug_internals = Debug("mngr-ui-admin-lte:libs:pipelines:host:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:libs:pipelines:host:Events");
+
+
 export default  {
 	input: [
 		{
@@ -47,6 +54,7 @@ export default  {
 	// ],
 	output: [
 		function(payload){
+			debug_internals('OUTPUT', payload)
       // console.log('HOST OUTPUT', payload)
 			// //console.log('app/doc output', doc)
 			// store.commit('app/doc', doc)
