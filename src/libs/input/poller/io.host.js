@@ -29,7 +29,7 @@ export default new Class({
 					// sort_by_path: throttle(function(req, next, app){
           sort_by_path: function(req, next, app){
             // console.log('SORT_BY_PATH RANGE', req, new Date(req.opt.range.start), new Date(req.opt.range.end))
-            console.log('SORT_BY_PATH RANGE', req)
+            debug_internals('SORT_BY_PATH RANGE', req)
 
             if(!Array.isArray(req.opt.range))
               req.opt.range = [req.opt.range]

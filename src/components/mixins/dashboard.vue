@@ -734,6 +734,11 @@ export default {
     // },
     __process_dashoard_instances: function(doc){
       debug_internals('__process_dashoard_instances', doc)
+      let instances = {}
+      if(doc.instances && doc.instances !== null)
+        Object.each(doc.instances, function(instance, name){
+          instances[this.host+'_'+name] = instance
+        }.bind(this))
       // let counter = 0
       // let instances_objects = {}
       // Object.each(doc.instances, function(data, name){
@@ -764,7 +769,7 @@ export default {
       //   // counter++
       // }.bind(this))
 
-      this.$store.commit('dashboard_'+this.id+'/instances', doc.instances)
+      this.$store.commit('dashboard_'+this.id+'/instances', instances)
     },
     /**
     * @end - charts
