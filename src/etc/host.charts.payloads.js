@@ -20,8 +20,8 @@ let __payloads = {
   //   },
   //   stat: {
   //     merged: true,
-  //     sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.uptime'}],
-  //     // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+  //     sources: [{type: 'tabular', path:'.os.cpus.times'}, {type: 'tabular', path: '.os.uptime'}],
+  //     // sources: [{type: 'tabular', path:'.os.cpus.times'}, {type: 'tabular', path: '.os.loadavg'}],
   //     events: [{
   //       host: undefined,
   //       path: 'os.cpus',
@@ -56,7 +56,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'_os_cpus_percentage'}],
+      sources: [{type: 'tabular', path:'_os_cpus_percentage'}],
       events: [{
         host: undefined,
         path: 'os.cpus',
@@ -87,7 +87,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'_os_cpus_times'}],
+      sources: [{type: 'tabular', path:'_os_cpus_times'}],
       events: [{
         host: undefined,
         path: 'os.cpus',
@@ -118,7 +118,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path:'_os_uptime'}],
+      sources: [{type: 'tabular', path:'_os_uptime'}],
 
       events: [{
         host: undefined,
@@ -150,7 +150,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'tabulars', path: '_os_loadavg'}],
+      sources: [{type: 'tabular', path: '_os_loadavg'}],
       events: [{
         host: undefined,
         path: 'os.loadavg',
@@ -182,8 +182,8 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
-      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      // sources: [{type: 'stat', path:'.os_procs_stats.kernel'}, {type: 'stat', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabular', path:'.os.cpus.times'}, {type: 'tabular', path: '.os.loadavg'}],
       events: [{
         host: undefined,
         path: 'os_procs_stats',
@@ -212,8 +212,8 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
-      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      // sources: [{type: 'stat', path:'.os_procs_stats.kernel'}, {type: 'stat', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabular', path:'.os.cpus.times'}, {type: 'tabular', path: '.os.loadavg'}],
       events: [{
         host: undefined,
         path: 'os_procs_cmd_stats',
@@ -242,8 +242,8 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
-      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      // sources: [{type: 'stat', path:'.os_procs_stats.kernel'}, {type: 'stat', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabular', path:'.os.cpus.times'}, {type: 'tabular', path: '.os.loadavg'}],
       events: [{
         host: undefined,
         path: 'os_procs_uid_stats',
@@ -273,8 +273,8 @@ let __payloads = {
     stat: {
       merged: true,
       sources: [],
-      // sources: [{type: 'stats', path:'.os_procs_stats.kernel'}, {type: 'stats', path: '.os_procs_stats.user'}],
-      // sources: [{type: 'tabulars', path:'.os.cpus.times'}, {type: 'tabulars', path: '.os.loadavg'}],
+      // sources: [{type: 'stat', path:'.os_procs_stats.kernel'}, {type: 'stat', path: '.os_procs_stats.user'}],
+      // sources: [{type: 'tabular', path:'.os.cpus.times'}, {type: 'tabular', path: '.os.loadavg'}],
       events: [{
         host: undefined,
         path: undefined,
@@ -302,7 +302,7 @@ let __payloads = {
   //   },
   //   stat: {
   //     merged: false,
-  //     sources: [{type: 'tabulars', path:'_os_procs_count_pids'}],
+  //     sources: [{type: 'tabular', path:'_os_procs_count_pids'}],
   //
   //     events: [{
   //       host: undefined,
@@ -334,7 +334,7 @@ let __payloads = {
   //   },
   //   stat: {
   //     merged: false,
-  //     sources: [{type: 'tabulars', path:'_os_procs_count_cmd'}],
+  //     sources: [{type: 'tabular', path:'_os_procs_count_cmd'}],
   //
   //     events: [{
   //       host: undefined,
@@ -366,7 +366,7 @@ let __payloads = {
   //   },
   //   stat: {
   //     merged: false,
-  //     sources: [{type: 'tabulars', path:'_os_procs_count_uids'}],
+  //     sources: [{type: 'tabular', path:'_os_procs_count_uids'}],
   //
   //     events: [{
   //       host: undefined,
@@ -399,7 +399,7 @@ let __payloads = {
   //   },
   //   stat: {
   //     merged: false,
-  //     sources: [{type: 'stats', path: '_os_procs_stats_uids'}],
+  //     sources: [{type: 'stat', path: '_os_procs_stats_uids'}],
   //     events: [{
   //       host: undefined,
   //       path: 'os_procs_stats',
@@ -490,7 +490,7 @@ let __payloads = {
     },
     stat: {
       merged: false,
-      sources: [{type: 'stats', path: '_os_freemem'}],
+      sources: [{type: 'stat', path: '_os_freemem'}],
       events: [{
         host: undefined,
         path: 'os.freemem',

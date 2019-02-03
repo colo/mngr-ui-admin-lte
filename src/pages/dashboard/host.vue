@@ -259,7 +259,7 @@ export default {
         this.$options.charts_payloads['os.cpus.times'],
         {
           // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
-          chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_charts['os.cpus.times']),
+          chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances['os_cpus_times']),
 
           // chart: this.dashboard_charts['os.cpus.times'],
         })
@@ -270,7 +270,7 @@ export default {
       this.$set(this.available_charts, this.host+'.os.cpus.percentage', Object.merge(
         this.$options.charts_payloads['os.cpus.percentage'],
         {
-          chart: Object.merge(cpus_percentage_chart, this.dashboard_charts['.os.cpus.percentage']),
+          chart: Object.merge(cpus_percentage_chart, this.dashboard_instances['os_cpus_percentage']),
         })
       )
 
@@ -414,7 +414,7 @@ export default {
         this.$options.charts_payloads['os.uptime'],
         {
           // chart: Object.merge(uptime_chart, this.dashboard_charts['os.uptime']),
-          chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_charts['os.uptime']),
+          chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances['os_uptime']),
           // chart: this.dashboard_charts['os.uptime'],
         })
       )
@@ -424,7 +424,7 @@ export default {
         this.$options.charts_payloads['os.loadavg'],
         {
           // chart: Object.merge(this.dashboard_charts['os.loadavg'], loadavg_chart),
-          chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_charts['os.loadavg']),
+          chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances['os_loadavg']),
           // chart: this.dashboard_charts['os.loadavg'],
         })
       )
@@ -448,12 +448,12 @@ export default {
         {
           name: this.host+'.os_procs_stats_percentage_cpu',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_percentage_cpu'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_stats_percentage_cpu'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_stats_top']['percentage_cpu'],
+            this.dashboard_instances['os_procs_stats_percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
               stackedGraph: true,
@@ -480,12 +480,12 @@ export default {
         {
           name: this.host+'.os_procs_stats_percentage_mem',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_percentage_mem'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_stats_percentage_mem'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_stats_top']['percentage_mem'],
+            this.dashboard_instances['os_procs_stats_percentage_mem'],
             {"options": {
               valueRange: [0, 100],
               stackedGraph: true,
@@ -512,12 +512,12 @@ export default {
         {
           name: this.host+'.os_procs_stats_time',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_time'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_stats_time'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_stats_top']['time'],
+            this.dashboard_instances['os_procs_stats_time'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -544,12 +544,12 @@ export default {
         {
           name: this.host+'.os_procs_stats_elapsed',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_stats_top_elapsed'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_stats_elapsed'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_stats_top']['elapsed'],
+            this.dashboard_instances['os_procs_stats_elapsed'],
             {"options": {
               valueRange: undefined,
               // labels: ['elapsed'],
@@ -575,12 +575,12 @@ export default {
         {
           name: this.host+'.os_procs_cmd_stats_percentage_cpu',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_percentage_cpu'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_percentage_cpu'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_cmd_stats_top']['percentage_cpu'],
+            this.dashboard_instances['os_procs_cmd_stats_percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
               stackedGraph: true,
@@ -607,12 +607,12 @@ export default {
         {
           name: this.host+'.os_procs_cmd_stats_percentage_mem',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_percentage_mem'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_percentage_mem'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_cmd_stats_top']['percentage_mem'],
+            this.dashboard_instances['os_procs_cmd_stats_percentage_mem'],
             {"options": {
               valueRange: [0, 100],
               stackedGraph: true,
@@ -639,12 +639,12 @@ export default {
         {
           name: this.host+'.os_procs_cmd_stats_time',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_time'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_time'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_cmd_stats_top']['time'],
+            this.dashboard_instances['os_procs_cmd_stats_time'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -670,12 +670,12 @@ export default {
         {
           name: this.host+'.os_procs_cmd_stats_count',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_cmd_stats_top_count'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_count'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_cmd_stats_top']['count'],
+            this.dashboard_instances['os_procs_cmd_stats_count'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -703,12 +703,12 @@ export default {
         {
           name: this.host+'.os_procs_uid_stats_percentage_cpu',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_percentage_cpu'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_percentage_cpu'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_uid_stats_top']['percentage_cpu'],
+            this.dashboard_instances['os_procs_uid_stats_percentage_cpu'],
             {"options": {
               valueRange: [0, self.cpus.length * 100],
               stackedGraph: true,
@@ -735,13 +735,13 @@ export default {
         {
           name: this.host+'.os_procs_uid_stats_percentage_mem',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_percentage_mem'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_percentage_mem'}],
           },
 
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_uid_stats_top']['percentage_mem'],
+            this.dashboard_instances['os_procs_uid_stats_percentage_mem'],
             {"options": {
               valueRange: [0, 100],
               stackedGraph: true,
@@ -768,12 +768,12 @@ export default {
         {
           name: this.host+'.os_procs_uid_stats_time',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_time'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_time'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_uid_stats_top']['time'],
+            this.dashboard_instances['os_procs_uid_stats_time'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -799,12 +799,12 @@ export default {
         {
           name: this.host+'.os_procs_uid_stats_count',
           stat: {
-            sources: [{type: 'tabulars', path: this.host+'_os_procs_uid_stats_top_count'}],
+            sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_count'}],
           },
 
           chart: Object.merge(
             Object.clone(dygraph_line_chart),
-            this.dashboard_instances['os_procs_uid_stats_top']['count'],
+            this.dashboard_instances['os_procs_uid_stats_count'],
             {"options": {
               valueRange: undefined,
               // labels: ['Time'],
@@ -884,7 +884,7 @@ export default {
             // Array.each(names, function(_name){
             //   merged_chart_name += '.'+_name
             // })
-            console.log('this.dashboard_instances', this.dashboard_instances)
+            debug_internals('this.dashboard_instances', this.dashboard_instances)
 
             if(!_merged_charts[merged_chart_name]){
               _merged_charts[merged_chart_name] = Object.merge(
@@ -919,7 +919,7 @@ export default {
 
             Array.each(names, function(_name, _name_index){
               this.available_charts[merged_chart_name].stat.sources.push(
-                {type: 'tabulars', path:this.host+'_munin_'+_path+'_'+_name}
+                {type: 'tabular', path:this.host+'_munin_'+_path+'_'+_name}
               )
 
               if(munin_max_range_value.test(_name))
@@ -977,7 +977,8 @@ export default {
         //console.log('MERGED MOUNT', _merge)
 
         Object.each(this.$store.state.tabular_sources, function(stat, key){
-          if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
+          // if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
+          if(mount.test(key)){
             __unwacth_mounts()
 
             let _name = key.substring(key.lastIndexOf('_') + 1)
@@ -1005,7 +1006,7 @@ export default {
                     },
                     name: merged_chart_name,
                     // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.dashboard_charts['os_mounts.percentage'])),
-                    chart: Object.merge(Object.clone(dygraph_line_chart), Object.clone(this.dashboard_charts['os_mounts.percentage'])),
+                    chart: Object.merge(Object.clone(dygraph_line_chart), Object.clone(this.dashboard_instances['os_mounts_'+_name])),
                     // chart: Object.clone(this.dashboard_charts['os_mounts.percentage']),
                   }
                 )
@@ -1014,7 +1015,7 @@ export default {
               }
 
               _merged_charts[merged_chart_name].stat.sources.push(
-                {type: 'tabulars', path:this.host+'_os_mounts_percentage_'+_name}
+                {type: 'tabular', path:this.host+'_os_mounts_percentage_'+_name}
               )
 
               let __labels = Array.clone(this.dashboard_charts['os_mounts.percentage'].options.labels)
@@ -1046,7 +1047,7 @@ export default {
                 Object.clone(this.$options.charts_payloads['os_mounts.percentage']),
                 {
                   stat: {
-                    sources: [{type: 'tabulars', path:this.host+'.os_mounts.percentage.'+_name}],
+                    sources: [{type: 'tabular', path:this.host+'.os_mounts.percentage.'+_name}],
                   },
                   name: chart_name,
                   // chart: Object.merge(Object.clone(mounts_percentage_chart), Object.clone(this.dashboard_charts['os_mounts.percentage'])),
@@ -1081,7 +1082,7 @@ export default {
                 Object.clone(this.$options.charts_payloads['os_blockdevices.stats']),
                 {
                   stat: {
-                    sources: [{type: 'tabulars', path:this.host+'_os_blockdevices_stats_'+_name}],
+                    sources: [{type: 'tabular', path:this.host+'_os_blockdevices_stats_'+_name}],
                   },
                   name: chart_name,
                   // chart: Object.merge(Object.clone(blockdevices_stats_chart), Object.clone(this.dashboard_charts['os_blockdevices.stats'])),
@@ -1145,7 +1146,7 @@ export default {
                 }
 
               __networkInterfaces_merged_charts[merged_chart_name].stat.sources.push(
-                {type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}
+                {type: 'tabular', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}
               )
 
               let __labels = Array.clone(this.dashboard_charts['os_networkInterfaces_stats.properties'].options.labels)
@@ -1177,7 +1178,7 @@ export default {
                 Object.clone(this.$options.charts_payloads['os_networkInterfaces_stats.properties']),
                 {
                   stat: {
-                    sources: [{type: 'tabulars', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}],
+                    sources: [{type: 'tabular', path:this.host+'_os_networkInterfaces_stats_properties_'+_name}],
                   },
                   name: chart_name,
                   // chart: Object.merge(Object.clone(networkInterfaces_stats_chart), Object.clone(this.dashboard_charts['os_networkInterfaces_stats.properties'])),
