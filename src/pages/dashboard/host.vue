@@ -246,6 +246,25 @@ export default {
       if(next)
         next()
     },
+    __match_source_paths: function(source, paths, remaining){
+      // debug_internals('__match_source_paths', source, paths)
+      let path = undefined
+
+      if(paths.contains(source)){
+        path = paths[paths.indexOf(source)]
+        if(remaining) path += '.'+remaining
+      }
+      else{
+        let new_source = source.substring(0, source.lastIndexOf('_'))
+        let new_remaining = source.substring(source.lastIndexOf('_') + 1)
+        remaining = (remaining) ? new_remaining +'_'+ remaining : new_remaining
+        path = this.__match_source_paths(new_source, paths, remaining)
+      }
+
+
+
+      return path
+    },
     __init_charts: function(next){
       this.$options.charts_payloads = host_charts_payloads({
         host: this.host,
@@ -258,7 +277,7 @@ export default {
 
         debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
         Object.each(tabular_sources, function(tab, source){
-          debug_internals('__init_charts $store.state.tabular_sources', source)
+          debug_internals('__init_charts $store.state.tabular_sources', source, this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths))
 
           this.$set(this.available_charts, source, Object.merge(
             Object.clone({
@@ -275,12 +294,14 @@ export default {
                 sources: [{type: 'tabular', path: source}],
                 events: [{
                   host: this.host,
-                  path: 'os.cpus',
+                  path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths),
                   // key: 'cpus',
                   length: this.seconds,
                   tabular: true,
                   range: this.range
-                }]
+                }],
+                length: this.seconds,
+                range: this.range,
               },
               /**
               * for __get_stat_for_chart

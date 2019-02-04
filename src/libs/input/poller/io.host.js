@@ -87,6 +87,7 @@ export default new Class({
                       host: app.options.stat_host,
                       prop: 'data',
                       format: 'tabular',
+                      paths: JSON.stringify(tabulars_events_paths),
                       // range: event.Range
                       range: "posix "+tabulars_events_biggest_range.start+"-"+tabulars_events_biggest_range.end+"/*"
                     })
@@ -104,6 +105,7 @@ export default new Class({
                       host: app.options.stat_host,
                       prop: 'data',
                       format: 'stat',
+                      paths: JSON.stringify(stats_events_paths),
                       // range: event.Range
                       range: "posix "+stats_events_biggest_range.start+"-"+stats_events_biggest_range.end+"/*"
                     })
@@ -228,12 +230,12 @@ export default new Class({
 					callbacks: ['instances'],
 					// middlewares: [], //socket.use(fn)
 				}],
-        // 'paths': [{
-				// 	// path: ':param',
-				// 	// once: true, //socket.once
-				// 	callbacks: ['paths'],
-				// 	// middlewares: [], //socket.use(fn)
-				// }],
+        'paths': [{
+					// path: ':param',
+					// once: true, //socket.once
+					callbacks: ['paths'],
+					// middlewares: [], //socket.use(fn)
+				}],
         'on': [{
 					// path: ':param',
 					// once: true, //socket.once
@@ -277,12 +279,13 @@ export default new Class({
   },
 
 
-  // paths: function(socket, next, paths){
-  //   debug_internals('paths %o', paths)
-  //
-  //   // store.commit('hosts/clear')
-  //   // store.commit('hosts/set', hosts)
-  // },
+  paths: function(socket, next, paths){
+    debug_internals('paths %o', paths)
+
+    this.fireEvent('onDoc', [paths, {type: 'doc', input_type: this, app: null}])
+    // store.commit('hosts/clear')
+    // store.commit('hosts/set', hosts)
+  },
 
   // charts: function(socket, next){
   //   let {host, status, charts} = arguments[2]
@@ -297,13 +300,13 @@ export default new Class({
   //   // if(status == 'ok')
   //   //   this.io.emit('range', )
   // },
-  instances: function(socket, next){
+  instances: function(socket, next, instances){
     // let {host, status, instances} = arguments[2]
-    debug_internals('IO.HOST instances', arguments[2])
+    debug_internals('instances', instances)
     // this.status = status
 
     // this.fireEvent('onDoc', [Object.merge({type: 'instances'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
-    this.fireEvent('onDoc', [arguments[2], {type: 'doc', input_type: this, app: null}])
+    this.fireEvent('onDoc', [instances, {type: 'doc', input_type: this, app: null}])
 
     // this.charts(socket, next, {host: host, charts: charts})
     // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
@@ -350,8 +353,8 @@ export default new Class({
 
     this.addEvent('onConnect', function(){
       debug_internals('initialize socket.onConnect')
-      // this.io.emit('on', 'paths')
-      // this.io.emit('/', {host: this.options.stat_host, prop: 'paths'})
+      this.io.emit('on', 'paths')
+      this.io.emit('/', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
 
       this.io.emit('on', 'stat')
       this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'stat'})

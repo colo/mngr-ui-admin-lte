@@ -109,8 +109,6 @@ export default {
   created () {
     this.$options.__buffer_data = []
 
-    debug_internals('stat.vue data', this.id, this.stat.data)
-
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
     if(range_length == undefined || range_length <= 1)
@@ -158,6 +156,8 @@ export default {
     /**
     * @test - no local data
     **/
+
+    debug_internals('stat.vue data', this.id, this.stat.data, this.stat.range, this.$options.length)
 
     if(this.stat.range && this.$options.length > 1){
       // this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {

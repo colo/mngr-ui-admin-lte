@@ -733,6 +733,46 @@ export default {
     //
     //   this.$store.commit('dashboard_'+this.id+'/charts', charts_objects)
     // },
+    __process_dashoard_paths: function(doc){
+      debug_internals('__process_dashoard_paths', doc)
+      this.$store.commit('dashboard_'+this.id+'/paths', doc.paths)
+      // let paths = []
+      // if(doc.paths && doc.paths !== null)
+      //   Array.each(doc.paths, function(path){
+      //     paths[] =
+      //   }.bind(this))
+      // let counter = 0
+      // let instances_objects = {}
+      // Object.each(doc.instances, function(data, name){
+      //   // if(data.instance){
+      //   //   // this.$options.instances_objects[name] = data.instance
+      //   //   instances_objects[name] = data.instance
+      //   // }
+      //   // else{//named instance like os.cpus->times os.cpus->percentage
+      //
+      //     Object.each(data, function(instance_data, instance_name){
+      //       // this.$options.instances_objects[name+'.'+instance_name] = instance_data.instance
+      //       let path = name+'_'+instance_name
+      //       path = path.replace(/\./g, '_')
+      //       Object.each(instance_data, function(value, key){
+      //         let new_key = key.replace(/\%/g, 'percentage_')
+      //         debug_internals('__process_dashoard_instances key', key, instance_data)
+      //         delete instance_data[key]
+      //         instance_data[new_key] = value
+      //       })
+      //       instances_objects[path] = instance_data
+      //     }.bind(this))
+      //
+      //   // }
+      //
+      //   // if(counter == Object.getLength(doc.instances) - 1)
+      //   //   this.instances_objects_init = true
+      //   //
+      //   // counter++
+      // }.bind(this))
+
+      // this.$store.commit('dashboard_'+this.id+'/instances', instances)
+    },
     __process_dashoard_instances: function(doc){
       debug_internals('__process_dashoard_instances', doc)
       let instances = {}
@@ -872,6 +912,7 @@ export default {
       EventBus.$once('instances', this.__process_dashoard_instances)
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)
+      EventBus.$once('paths', this.__process_dashoard_paths)
 
       let __init = function(next){
         this.set_range(moment().subtract(5, 'minute'), moment())
