@@ -39,7 +39,8 @@ export default new Class({
             let stats_events_paths = []
             let stats_events_biggest_range = {start: 0, end: 0}
 
-            if(app.options.stat_host && this.status == 'ok'){
+            // if(app.options.stat_host && this.status == 'ok'){
+            if(app.options.stat_host){
               Array.each(req.opt.range, function(range, index){
                 let event = req[index]
 
@@ -64,33 +65,55 @@ export default new Class({
       						// })
                 }
                 else if (!event.path) {
-                  this.io.emit('stats', {
+                  this.io.emit('/', {
                     host: app.options.stat_host,
-                    format: (event.tabular == true) ? 'tabular' : undefined,
+                    prop: 'data',
+                    format: (event.tabular == true) ? 'tabular' : 'stat',
                     range: event.Range
-      						})
+                  })
+
+                  // this.io.emit('stats', {
+                  //   host: app.options.stat_host,
+                  //   format: (event.tabular == true) ? 'tabular' : undefined,
+                  //   range: event.Range
+      						// })
                 }
 
                 if(index == req.opt.range.length - 1){
-                  console.log('SORT_BY_PATH RANGE', JSON.stringify(tabulars_events_paths), JSON.stringify(stats_events_paths))
+                  debug_internals('SORT_BY_PATH RANGE', JSON.stringify(tabulars_events_paths), JSON.stringify(stats_events_paths))
 
                   if(tabulars_events_paths.length > 0)
-                    this.io.emit('stats', {
+                    this.io.emit('/', {
                       host: app.options.stat_host,
-                      stat: JSON.stringify(tabulars_events_paths),
+                      prop: 'data',
                       format: 'tabular',
-                      // range: req.opt.range
+                      // range: event.Range
                       range: "posix "+tabulars_events_biggest_range.start+"-"+tabulars_events_biggest_range.end+"/*"
                     })
 
+                    // this.io.emit('stats', {
+                    //   host: app.options.stat_host,
+                    //   stat: JSON.stringify(tabulars_events_paths),
+                    //   format: 'tabular',
+                    //   // range: req.opt.range
+                    //   range: "posix "+tabulars_events_biggest_range.start+"-"+tabulars_events_biggest_range.end+"/*"
+                    // })
+
                   if(stats_events_paths.length > 0)
-                    this.io.emit('stats', {
+                    this.io.emit('/', {
                       host: app.options.stat_host,
-                      stat: JSON.stringify(stats_events_paths),
-                      format: undefined,
-                      // range: req.opt.range
+                      prop: 'data',
+                      format: 'stat',
+                      // range: event.Range
                       range: "posix "+stats_events_biggest_range.start+"-"+stats_events_biggest_range.end+"/*"
                     })
+                    // this.io.emit('stats', {
+                    //   host: app.options.stat_host,
+                    //   stat: JSON.stringify(stats_events_paths),
+                    //   format: undefined,
+                    //   // range: req.opt.range
+                    //   range: "posix "+stats_events_biggest_range.start+"-"+stats_events_biggest_range.end+"/*"
+                    // })
                 }
 
 

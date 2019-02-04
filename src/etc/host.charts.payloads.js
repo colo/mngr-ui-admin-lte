@@ -549,6 +549,8 @@ export default function(payload){
   let payloads = Object.clone(__payloads)
   Object.each(payloads, function(chart, key){
     chart.name = host+'.'+chart.name
+    chart.name = chart.name.replace(/\./g, '_')
+
     chart.stat.range = range || chart.stat.range
     chart.stat.length = seconds || chart.stat.length
 

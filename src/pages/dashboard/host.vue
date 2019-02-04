@@ -880,7 +880,7 @@ export default {
       **/
 
       let __create_freemem = function(stat_sources){
-        debug_internals('__create_freemem', stat_sources)
+        debug_internals('__create_freemem', this.$options.charts_payloads['os.freemem'])
 
         if(stat_sources[this.host+'_os_totalmem']){
           this.$set(this.available_charts, this.host+'_os_freemem', Object.merge(

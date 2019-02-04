@@ -277,6 +277,7 @@ export default {
 
     //console.log('life cycle created')
     this.$options.__events_watcher = this.$watch('events', debounce(function(newVal, old){
+      debug_internals('events', newVal)
     // this.$options.__events_watcher = this.$watch('events', function(newVal, old){
       let val = Array.clone(newVal)
       // if(val && val.length > 0 && val.length > old.length){

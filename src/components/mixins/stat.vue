@@ -1,6 +1,12 @@
 
 <script>
 
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:mixins:stat"),
+      debug_internals = Debug("mngr-ui-admin-lte:mixins:stat:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:mixins:stat:Events");
+
 // import PouchDB from 'pouchdb-browser'
 import PouchDB from 'pouchdb'
 import PouchDBFind from 'pouchdb-find'
@@ -103,7 +109,7 @@ export default {
   created () {
     this.$options.__buffer_data = []
 
-    console.log('stat.vue data', this.id, this.stat.data)
+    debug_internals('stat.vue data', this.id, this.stat.data)
 
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
@@ -235,6 +241,7 @@ export default {
       if(range.length > 0 && range[0] && range[1]){
         this.$options.__range_init = false
 
+        debug_internals('adding event', 'dashboard_'+this.dashboard+'/events/add', this.id)
         this.$store.commit('dashboard_'+this.dashboard+'/events/add', {
           id: this.id,
           type: 'onRange',
