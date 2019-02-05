@@ -246,6 +246,9 @@ export default {
       if(next)
         next()
     },
+    /**
+    * if remaining !== false => return os_mounts.1, else => os_mounts
+    **/
     __match_source_paths: function(source, paths, remaining){
       // debug_internals('__match_source_paths', source, paths)
       let path = undefined
@@ -256,8 +259,10 @@ export default {
       }
       else{
         let new_source = source.substring(0, source.lastIndexOf('_'))
-        let new_remaining = source.substring(source.lastIndexOf('_') + 1)
-        remaining = (remaining) ? new_remaining +'_'+ remaining : new_remaining
+        if(remaining !== false){
+          let new_remaining = source.substring(source.lastIndexOf('_') + 1)
+          remaining = (remaining) ? new_remaining +'_'+ remaining : new_remaining
+        }
         path = this.__match_source_paths(new_source, paths, remaining)
       }
 
@@ -277,7 +282,7 @@ export default {
 
         debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
         Object.each(tabular_sources, function(tab, source){
-          debug_internals('__init_charts $store.state.tabular_sources', source, this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths))
+          debug_internals('__init_charts $store.state.tabular_sources', source, this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false))
 
           this.$set(this.available_charts, source, Object.merge(
             Object.clone({
@@ -294,7 +299,7 @@ export default {
                 sources: [{type: 'tabular', path: source}],
                 events: [{
                   host: this.host,
-                  path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths),
+                  path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
                   // key: 'cpus',
                   length: this.seconds,
                   tabular: true,
@@ -910,7 +915,7 @@ export default {
               chart: Object.merge(
                 Object.clone(dygraph_line_chart),
                 freemem_chart,
-                {totalmem: this.$store.state.stat_sources[this.host+'_os_freemem'][0].value}
+                {totalmem: this.$store.state.stat_sources[this.host+'_os_totalmem'][0].value}
               ),
             })
           )

@@ -41,6 +41,13 @@
 
 <script>
 
+
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:components:mixins:graph"),
+      debug_internals = Debug("mngr-ui-admin-lte:components:mixins:graph:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:components:mixins:graph:Events");
+
 import { frameDebounce } from 'quasar'
 
 import vueBarsWrapper from 'components/wrappers/vueBars'
@@ -65,6 +72,8 @@ export default {
   },
 
   focus: true,
+
+  firt_update: false,
 
   __skiped: 0,
   __data_unwatcher: undefined,
@@ -169,6 +178,10 @@ export default {
     },
     __create_watcher(name, chart){},
     update_chart_stat (name, data, inmediate){
+      inmediate = ( inmediate !== undefined ) ? inmediate : (this.$options.firt_update === false) ? true : false
+      this.$options.firt_update = true
+
+      debug_internals('update_chart_stat', name, data, inmediate)
 
       // ////console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
 

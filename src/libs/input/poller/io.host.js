@@ -279,10 +279,11 @@ export default new Class({
   },
 
 
-  paths: function(socket, next, paths){
-    debug_internals('paths %o', paths)
+  paths: function(socket, next, doc){
+    debug_internals('paths %o', doc)
 
-    this.fireEvent('onDoc', [paths, {type: 'doc', input_type: this, app: null}])
+    if(doc.paths && doc.paths !== null)
+      this.fireEvent('onDoc', [doc, {type: 'doc', input_type: this, app: null}])
     // store.commit('hosts/clear')
     // store.commit('hosts/set', hosts)
   },
@@ -300,13 +301,14 @@ export default new Class({
   //   // if(status == 'ok')
   //   //   this.io.emit('range', )
   // },
-  instances: function(socket, next, instances){
+  instances: function(socket, next, doc){
     // let {host, status, instances} = arguments[2]
-    debug_internals('instances', instances)
+    debug_internals('instances', doc)
     // this.status = status
 
     // this.fireEvent('onDoc', [Object.merge({type: 'instances'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
-    this.fireEvent('onDoc', [instances, {type: 'doc', input_type: this, app: null}])
+    if(doc.instances && doc.instances !== null)
+      this.fireEvent('onDoc', [doc, {type: 'doc', input_type: this, app: null}])
 
     // this.charts(socket, next, {host: host, charts: charts})
     // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
@@ -335,10 +337,10 @@ export default new Class({
         {type: (doc.stat) ? 'stat' : 'tabular', input_type: this, app: null}
       ])
 
-    if(doc.tabular){
-      // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
-      this.io.emit('instances', {host: this.options.stat_host, prop: 'instances'})
-    }
+    // if(doc.tabular){
+    //   // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
+    //   this.io.emit('instances', {host: this.options.stat_host, prop: 'instances'})
+    // }
 
 		// //////console.log('app_doc...', socket, arguments[2])
 		// arguments[1]()
@@ -353,6 +355,10 @@ export default new Class({
 
     this.addEvent('onConnect', function(){
       debug_internals('initialize socket.onConnect')
+
+      this.io.emit('on', 'instances')
+      // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
+
       this.io.emit('on', 'paths')
       this.io.emit('/', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
 
@@ -362,8 +368,7 @@ export default new Class({
       this.io.emit('on', 'tabular')
       this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'tabular'})
 
-      // this.io.emit('on', 'instances')
-      // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
+
     })
 
     this.addEvent('onExit', function(){

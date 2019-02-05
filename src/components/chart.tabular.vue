@@ -67,7 +67,7 @@ export default {
     __create_watcher(name, chart){
 
 
-      let generic_data_watcher = function(current){
+      let generic_data_watcher = function(current, inmediate){
         // console.log('chart.tabular generic_data_watcher', current)
         // if(current && this.$options.visible){
          if(current){
@@ -76,15 +76,18 @@ export default {
             data.push(row.value)
           })
 
-          this.update_chart_stat(this.id, data)
+          this.update_chart_stat(this.id, data, inmediate)
 
         }
       }.bind(this)
 
       // ////////console.log('gonna watch...', name, this.stat.data)
 
-      if(this.stat_data[0] && this.stat_data[0].value.length > 0)
-        generic_data_watcher(this.stat_data)
+      /**
+      * first update
+      **/
+      if(this.stat_data[0] && this.stat_data[0].value)
+        generic_data_watcher(this.stat_data, true)//inmediate update
 
       this.$options.__data_unwatcher = this.$watch('stat_data', generic_data_watcher)
 

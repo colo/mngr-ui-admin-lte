@@ -23,6 +23,15 @@
 
 <script>
 
+
+
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:components:wrappers:dygraph"),
+      debug_internals = Debug("mngr-ui-admin-lte:components:wrappers:dygraph:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:components:wrappers:dygraph:Events");
+
+
 import chartWrapper from 'components/mixins/chart.wrapper'
 
 import Dygraph from 'dygraphs'
@@ -174,6 +183,8 @@ export default {
 
       // console.log('__create_chart', this.id, this.$options.chart_options)
 
+      debug_internals('__create_chart', this.id, this.$options.chart_options)
+
       if(this.$options.chart_options.labels && document.getElementById(this.id)){
         if(this.$options.chart_options.labelsDiv)
           this.$options.chart_options.labelsDiv = this.id+'-'+this.$options.chart_options.labelsDiv
@@ -206,8 +217,10 @@ export default {
           this.$options.chart_options
         )
 
+
         this.$options.graph.ready(function(){
           // //////////////console.log('chart '+this.id+' ready')
+          debug_internals('__create_chart ready', this.id)
           this.ready = true
           // this.update()
         }.bind(this))
@@ -232,7 +245,8 @@ export default {
       return data
     },
     update (data){
-      // ////console.log('dygraph update', this.id, data, this.$options.graph.numRows())
+      debug_internals('update', this.id, this.ready)
+
       data = this.get_data(data)
       // let options = (this.ready == true && this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
       // if(this.$options.visible == true && this.ready == true){
@@ -251,6 +265,7 @@ export default {
     },
     updateOptions (data, options, block_redraw){
 
+      debug_internals('updateOptions', this.id, this.ready)
       // let self = this
 
       if(
