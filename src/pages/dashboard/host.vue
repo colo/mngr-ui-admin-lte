@@ -250,20 +250,24 @@ export default {
     * if remaining !== false => return os_mounts.1, else => os_mounts
     **/
     __match_source_paths: function(source, paths, remaining){
-      // debug_internals('__match_source_paths', source, paths)
+      debug_internals('__match_source_paths', source, paths)
       let path = undefined
 
-      if(paths.contains(source)){
+      if(paths.contains(source) && paths.length > 0){
         path = paths[paths.indexOf(source)]
         if(remaining) path += '.'+remaining
       }
-      else{
+      else if (source.indexOf('_') && paths.length > 0){
+
         let new_source = source.substring(0, source.lastIndexOf('_'))
         if(remaining !== false){
           let new_remaining = source.substring(source.lastIndexOf('_') + 1)
           remaining = (remaining) ? new_remaining +'_'+ remaining : new_remaining
         }
         path = this.__match_source_paths(new_source, paths, remaining)
+      }
+      else{
+        path = source
       }
 
 
@@ -331,11 +335,23 @@ export default {
 
       }.bind(this)
 
-      if(Object.getLength(this.$store.state.tabular_sources) > 0){
+      if(
+        Object.getLength(this.$store.state.tabular_sources) > 0
+        && this.$store.state['dashboard_'+this.host].paths.length > 0
+        && Object.getLength(this.dashboard_instances) > 0
+      ){
         __create_from_tabular_sources(this.$store.state.tabular_sources)
       }
       else{
-        this.$watch('$store.state.tabular_sources', __create_from_tabular_sources, {deep: true})
+        let __unwatch_tabular_sources = this.$watch('$store.state.tabular_sources', function(tabular_sources){
+          if(
+            this.$store.state['dashboard_'+this.host].paths.length > 0
+            && Object.getLength(this.dashboard_instances) > 0
+          ){
+            __unwatch_tabular_sources()
+            __create_from_tabular_sources(tabular_sources)
+          }
+        }.bind(this), {deep: true})
       }
 
 
@@ -1367,13 +1383,10 @@ export default {
       //////////////////////////console.log('$store.state create_hosts_pipelines', this.$route.params.host, paths)
       host = host || this.$route.params.host || this.$store.state.hosts.current
 
-      //console.log('life cycle create_pipelines', host)
-
-      // let range = Object.clone(this.$store.state.app.range)
-
+      this.destroy_pipelines(host)
 
       if(host){
-        this.destroy_pipelines(host)
+        // this.destroy_pipelines(host)
 
         // Array.each(hosts, function(host){
         Array.each(host_pipelines_templates, function(pipeline_template){
@@ -1454,12 +1467,12 @@ export default {
     destroy_pipelines: function (host) {
       debug_internals('destroy_pipelines', host)
 
-      host = host || this.$store.state.hosts.current || this.$route.params.host
-
-      if(
-        host
-        && Object.getLength(this.$options.pipelines) > 0
-      ){
+      // host = host || this.$store.state.hosts.current || this.$route.params.host
+      //
+      // if(
+      //   host
+      //   && Object.getLength(this.$options.pipelines) > 0
+      // ){
         Object.each(this.$options.pipelines, function(pipe, id){//destroy old ones
           pipe.fireEvent('onSuspend')
           pipe.fireEvent('onExit')
@@ -1473,7 +1486,7 @@ export default {
         // this.$set(this.hosts_pipelines, [])
         // this.$store.commit('host_'+host+'/clear')
 
-      }
+      // }
     },
     /**
     * @end pipelines

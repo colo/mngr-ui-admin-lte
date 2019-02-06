@@ -119,7 +119,7 @@ export default new Class({
     })
 
     this.addEvent('onExit', function(){
-      //console.log('EXITING...')
+      debug_internals('onExit')
 
       if(this.io.disconnected == false)
         this.io.close()

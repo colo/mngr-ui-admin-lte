@@ -14,6 +14,7 @@ const debug = Debug("mngr-ui-admin-lte:libs:input:io.host"),
 export default new Class({
   Extends: App,
 
+  registered: false,
 
   options: {
 
@@ -307,9 +308,18 @@ export default new Class({
     // this.status = status
 
     // this.fireEvent('onDoc', [Object.merge({type: 'instances'}, arguments[2]), {type: 'doc', input_type: this, app: null}]);
-    if(doc.instances && doc.instances !== null)
+    if(doc.instances && doc.instances !== null){
       this.fireEvent('onDoc', [doc, {type: 'doc', input_type: this, app: null}])
 
+      if(this.registered === false){
+        this.registered = true
+        this.io.emit('on', [
+          {host: this.options.stat_host, prop: 'paths', format: 'stat'},
+          {host: this.options.stat_host, prop: 'data', format: 'stat'},
+          {host: this.options.stat_host, prop: 'data', format: 'tabular'}
+        ])
+      }
+    }
     // this.charts(socket, next, {host: host, charts: charts})
     // this.fireEvent('onDoc', [{type: 'charts', charts: charts}, {type: 'doc', input_type: this, app: null}]);
     //
@@ -356,23 +366,28 @@ export default new Class({
     this.addEvent('onConnect', function(){
       debug_internals('initialize socket.onConnect')
 
-      this.io.emit('on', 'instances')
+      this.io.emit('on', [
+        {host: this.options.stat_host, prop: 'instances'},
+        // {host: this.options.stat_host, prop: 'paths', format: 'stat'},
+        // {host: this.options.stat_host, prop: 'data', format: 'stat'},
+        // {host: this.options.stat_host, prop: 'data', format: 'tabular'}
+      ])
       // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
 
-      this.io.emit('on', 'paths')
+      // this.io.emit('on', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
       this.io.emit('/', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
 
-      this.io.emit('on', 'stat')
+      // this.io.emit('on', {host: this.options.stat_host, prop: 'data', format: 'stat'})
       this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'stat'})
 
-      this.io.emit('on', 'tabular')
+      // this.io.emit('on', {host: this.options.stat_host, prop: 'data', format: 'tabular'})
       this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'tabular'})
 
 
     })
 
     this.addEvent('onExit', function(){
-      //////console.log('EXITING...')
+      debug_internals('onExit')
 
       if(this.io.disconnected == false)
         this.io.close()

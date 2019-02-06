@@ -230,14 +230,19 @@ export default {
     //
     //   }
     // }
+    __clean_destroy: function(next){
+      let pipe = this.$options.pipeline
+      pipe.fireEvent('onSuspend')
+      pipe.fireEvent('onExit')
+      pipe.removeEvents()
+      this.$options.pipeline = undefined
+
+      if(next)
+        next()
+    },
   },
   beforeDestroy: function(){
-    let pipe = this.$options.pipeline
-    pipe.fireEvent('onSuspend')
-    pipe.fireEvent('onExit')
-    pipe.removeEvents()
-    this.$options.pipeline = undefined
-
+    this.__clean_destroy()
   },
   created: function(){
     let self = this
@@ -248,6 +253,10 @@ export default {
     else{
       this.$options.pipeline.fireEvent('onResume')
     }
+
+    document.addEventListener('beforeunload', function(){
+      this.__clean_destroy()
+    }.bind(this))
 
     // this.$options.intervals.push(
     //   setInterval(function(){

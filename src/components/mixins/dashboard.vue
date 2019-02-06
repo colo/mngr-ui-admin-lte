@@ -359,6 +359,10 @@ export default {
       self.unsync_charts()
 		})
 
+    document.addEventListener('beforeunload', function(){
+      this.__clean_destroy()
+    }.bind(this))
+
     debug_internals('life cycle created', this.$route.params.host)
 
     this.__clean_create(
