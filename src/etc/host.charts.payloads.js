@@ -1,11 +1,17 @@
 'use strict'
 
+import os_freemem_chart from 'mngr-ui-admin-charts/os/freemem'
+
 /**
 * use stat.path on rethinkdb (faster), does a range call for each
 * on couchdb grouping all (seting stat.path = undefined) is faster
 */
 // export default {
 let __payloads = {
+  'os_freemem':{
+    chart: os_freemem_chart
+  },
+
   /**
   * @test - merged stats
   */
@@ -548,31 +554,34 @@ export default function(payload){
   let {host, seconds, range} = payload
   let payloads = Object.clone(__payloads)
   Object.each(payloads, function(chart, key){
-    chart.name = host+'.'+chart.name
-    chart.name = chart.name.replace(/\./g, '_')
+    if(chart.name){
+      chart.name = host+'.'+chart.name
+      chart.name = chart.name.replace(/\./g, '_')
+    }
 
-    chart.stat.range = range || chart.stat.range
-    chart.stat.length = seconds || chart.stat.length
+    if(chart.stat){
+      chart.stat.range = range || chart.stat.range
+      chart.stat.length = seconds || chart.stat.length
 
-    if(chart.stat.events && !Array.isArray(chart.stat.events))
-      chart.stat.events = [chart.stat.events]
+      if(chart.stat.events && !Array.isArray(chart.stat.events))
+        chart.stat.events = [chart.stat.events]
 
-    if(chart.stat.events)
-      Array.each(chart.stat.events, function(event){
-        event.host = host
-        // event.length = seconds || event.length
-        // event.range = range || event.range
-      })
+      if(chart.stat.events)
+        Array.each(chart.stat.events, function(event){
+          event.host = host
+          // event.length = seconds || event.length
+          // event.range = range || event.range
+        })
 
-    if(chart.stat.sources && !Array.isArray(chart.stat.sources))
-      chart.stat.sources = [chart.stat.sources]
+      if(chart.stat.sources && !Array.isArray(chart.stat.sources))
+        chart.stat.sources = [chart.stat.sources]
 
-    if(chart.stat.sources)
-      Array.each(chart.stat.sources, function(source){
-        source.path = host+source.path
-      })
+      if(chart.stat.sources)
+        Array.each(chart.stat.sources, function(source){
+          source.path = host+source.path
+        })
 
-
+    }
 
   })
   return payloads

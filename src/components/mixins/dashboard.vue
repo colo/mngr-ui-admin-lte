@@ -145,9 +145,16 @@ export default {
   /**
   * should be user session configs?
   **/
-  // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  stats_whitelist: undefined,
-  tabulars_whitelist: undefined,
+  // stat_blacklist: /^[a-zA-Z0-9_\.]+$/i,
+  // tabular_blacklist: /^[a-zA-Z0-9_\.]+$/i,
+  stat_whitelist: undefined,
+  tabular_whitelist: undefined,
+
+  charts_stat_whitelist: undefined,
+  charts_tabular_whitelist: undefined,
+
+  charts_stat_blacklist: undefined,
+  charts_tabular_blacklist: undefined,
 
   charts_payloads: {},
   collapsibles: {},
@@ -832,8 +839,8 @@ export default {
       let {type} = payload
       let init = (type == 'tabular') ? 'tabular_init' : 'stat_init'
       // let iterate = (type == 'tabulars') ? payload.stats : payload.stats.data
-      let whitelist = (type == 'tabular') ? this.$options.tabulars_whitelist : this.$options.stats_whitelist
-      let blacklist = (type == 'tabular') ? this.$options.tabulars_blacklist : this.$options.stats_blacklist
+      let whitelist = (type == 'tabular') ? this.$options.tabular_whitelist : this.$options.stat_whitelist
+      let blacklist = (type == 'tabular') ? this.$options.tabular_blacklist : this.$options.stat_blacklist
 
       let counter = 0
       Object.each(payload[type], function(data, path){

@@ -181,7 +181,7 @@ export default {
       inmediate = ( inmediate !== undefined ) ? inmediate : (this.$options.firt_update === false) ? true : false
       this.$options.firt_update = true
 
-      debug_internals('update_chart_stat', name, data, inmediate)
+      // debug_internals('update_chart_stat', name, data, inmediate)
 
       // ////console.log('chart mixin update_chart_stat', name, this.$refs[this.id], this.$options.focus, this.$options.visible, data)
 

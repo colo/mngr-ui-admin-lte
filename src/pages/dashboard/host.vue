@@ -109,7 +109,7 @@ import dygraph_line_chart from 'mngr-ui-admin-charts/defaults/dygraph.line'
 // import loadavg_chart from 'mngr-ui-admin-charts/os/loadavg'
 // import cpus_times_chart from 'mngr-ui-admin-charts/os/cpus_times'
 import cpus_percentage_chart from 'mngr-ui-admin-charts/os/cpus_percentage'
-import freemem_chart from 'mngr-ui-admin-charts/os/freemem'
+// import freemem_chart from 'mngr-ui-admin-charts/os/freemem'
 // import mounts_percentage_chart from 'mngr-ui-admin-charts/os/mounts_percentage'
 // import blockdevices_stats_chart from 'mngr-ui-admin-charts/os/blockdevices_stats'
 // import networkInterfaces_chart from 'mngr-ui-admin-charts/os/networkInterfaces'
@@ -136,10 +136,13 @@ export default {
   },
 
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  // stats_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
-  stats_whitelist: /freemem|totalmem|cpus/,
-  // tabulars_blacklist: /multicast|packets|frame|compressed|fifo/i,
-  tabulars_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
+  // stat_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
+  stat_whitelist: /freemem|totalmem|cpus/,
+  // tabular_blacklist: /multicast|packets|frame|compressed|fifo/i,
+  tabular_whitelist: /^((?!multicast|frame|compressed|fifo).)*$/,
+
+  // charts_stat_whitelist: /freemem/,
+  charts_stat_blacklist: /^[a-zA-Z0-9_\.]+$/i,
 
   name: 'admin-lte-dashboard-host',
 
@@ -285,75 +288,243 @@ export default {
       let __create_from_tabular_sources = function(tabular_sources){
 
         debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
+        let whitelist = this.$options.charts_tabular_whitelist
+        let blacklist = this.$options.charts_tabular_blacklist
+
         Object.each(tabular_sources, function(tab, source){
           debug_internals('__init_charts $store.state.tabular_sources', source, this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false))
 
-          this.$set(this.available_charts, source, Object.merge(
-            Object.clone({
-              name: source,
-              chart: undefined,
-              init: undefined,
-              stop: undefined,
-              wrapper: {
-                type: 'dygraph',
-                props: {}
-              },
-              stat: {
-                merged: false,
-                sources: [{type: 'tabular', path: source}],
-                events: [{
-                  host: this.host,
-                  path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
-                  // key: 'cpus',
+          if(
+            !this.available_charts[source]
+            && this.dashboard_instances[source]
+            && this.$store.state['dashboard_'+this.host].paths.length > 0
+            && this.__white_black_lists_filter(whitelist, blacklist, source)
+          ){
+            debug_internals('__init_charts $store.state.tabular_sources creating', source)
+
+            this.$set(this.available_charts, source, Object.merge(
+              Object.clone({
+                name: source,
+                chart: undefined,
+                init: undefined,
+                stop: undefined,
+                wrapper: {
+                  type: 'dygraph',
+                  props: {}
+                },
+                stat: {
+                  merged: false,
+                  sources: [{type: 'tabular', path: source}],
+                  events: [{
+                    host: this.host,
+                    path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
+                    // key: 'cpus',
+                    length: this.seconds,
+                    tabular: true,
+                    range: this.range
+                  }],
                   length: this.seconds,
-                  tabular: true,
-                  range: this.range
-                }],
-                length: this.seconds,
-                range: this.range,
-              },
-              /**
-              * for __get_stat_for_chart
-              **/
-              pipeline: {
-                name: 'input.os',
-                // // path: 'os',
-                // range: true
-              }
-            }),
-            {
-              // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
-              chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances[source]),
+                  range: this.range,
+                },
+                /**
+                * for __get_stat_for_chart
+                **/
+                pipeline: {
+                  name: 'input.os',
+                  // // path: 'os',
+                  // range: true
+                }
+              }),
+              {
+                // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
+                chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances[source]),
 
-              // chart: this.dashboard_charts['os.cpus.times'],
-            })
-          )
+                // chart: this.dashboard_charts['os.cpus.times'],
+              })
+            )
 
-          this.set_chart_visibility(source, true)
+            this.set_chart_visibility(source, true)
+          }
+
 
         }.bind(this))
 
       }.bind(this)
 
-      if(
-        Object.getLength(this.$store.state.tabular_sources) > 0
-        && this.$store.state['dashboard_'+this.host].paths.length > 0
-        && Object.getLength(this.dashboard_instances) > 0
-      ){
-        __create_from_tabular_sources(this.$store.state.tabular_sources)
-      }
-      else{
-        let __unwatch_tabular_sources = this.$watch('$store.state.tabular_sources', function(tabular_sources){
-          if(
-            this.$store.state['dashboard_'+this.host].paths.length > 0
-            && Object.getLength(this.dashboard_instances) > 0
-          ){
-            __unwatch_tabular_sources()
-            __create_from_tabular_sources(tabular_sources)
-          }
-        }.bind(this), {deep: true})
-      }
+      let __create_from_stat_sources = function(stat_sources){
 
+        debug_internals('__init_charts $store.state.stat_sources', stat_sources)
+        let whitelist = this.$options.charts_stat_whitelist
+        let blacklist = this.$options.charts_stat_blacklist
+
+        Object.each(stat_sources, function(stat, source){
+          debug_internals('__init_charts $store.state.stat_sources', source, this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false))
+
+          if(
+            !this.available_charts[source]
+            // && this.dashboard_instances[source]
+            && this.$store.state['dashboard_'+this.host].paths.length > 0
+            && this.__white_black_lists_filter(whitelist, blacklist, source)
+          ){
+            debug_internals('__init_charts $store.state.stat_sources creating', source)
+
+            let chart_payload = this.$options.charts_payloads[source.replace(this.host+'_', '')]
+
+            this.$set(this.available_charts, source, Object.merge(
+              Object.clone({
+                name: source,
+                chart: undefined,
+                init: undefined,
+                stop: undefined,
+                tabular: false,//this is for component, if not set, it's "chart-tabular"
+                wrapper: {
+                  type: 'dygraph',
+                  props: {}
+                },
+                stat: {
+                  merged: false,
+                  sources: [{type: 'stat', path: source}],
+                  events: [{
+                    host: this.host,
+                    path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
+                    // key: 'cpus',
+                    length: this.seconds,
+                    tabular: false,
+                    range: this.range
+                  }],
+                  length: this.seconds,
+                  range: this.range,
+                },
+                /**
+                * for __get_stat_for_chart
+                **/
+                pipeline: {
+                  name: 'input.os',
+                  // // path: 'os',
+                  // range: true
+                }
+              }),
+              {
+                // chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances[source]),
+                chart: Object.clone(dygraph_line_chart),
+
+              },
+              chart_payload
+              )
+            )
+
+            this.set_chart_visibility(source, true)
+          }
+
+
+        }.bind(this))
+
+      }.bind(this)
+
+      let __create_freemem = function(stat_sources){
+        debug_internals('__create_freemem', this.$options.charts_payloads['os_freemem'])
+        let source = this.host+'_os_freemem'
+        let chart_payload = this.$options.charts_payloads['os_freemem']
+        if(
+          !this.available_charts[source]
+          && stat_sources[this.host+'_os_totalmem']
+        ){
+          this.$set(this.available_charts, source, Object.merge(
+              Object.clone({
+                name: source,
+                chart: undefined,
+                init: undefined,
+                stop: undefined,
+                tabular: false,//this is for component, if not set, it's "chart-tabular"
+                wrapper: {
+                  type: 'dygraph',
+                  props: {}
+                },
+                stat: {
+                  merged: false,
+                  sources: [{type: 'stat', path: source}],
+                  events: [{
+                    host: this.host,
+                    path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
+                    // key: 'cpus',
+                    length: this.seconds,
+                    tabular: false,
+                    range: this.range
+                  }],
+                  length: this.seconds,
+                  range: this.range,
+                },
+                /**
+                * for __get_stat_for_chart
+                **/
+                pipeline: {
+                  name: 'input.os',
+                  // // path: 'os',
+                  // range: true
+                }
+              }),
+              chart_payload,
+              {
+                chart: {totalmem: stat_sources[this.host+'_os_totalmem'][0].value}
+              }
+            )
+          )
+
+          this.set_chart_visibility(source, true)
+        }
+      }.bind(this)
+
+      // if(
+      //   Object.getLength(this.$store.state.tabular_sources) > 0
+      //   // && this.$store.state['dashboard_'+this.host].paths.length > 0
+      //   // && Object.getLength(this.dashboard_instances) > 0
+      // ){
+      //   __create_from_tabular_sources(this.$store.state.tabular_sources)
+      // }
+      // else{
+        let __unwatch_tabular_sources = this.$watch('$store.state.tabular_sources', function(tabular_sources){
+          // if(
+          //   this.$store.state['dashboard_'+this.host].paths.length > 0
+          //   && Object.getLength(this.dashboard_instances) > 0
+          // ){
+          //   __unwatch_tabular_sources()
+            __create_from_tabular_sources(tabular_sources)
+          // }
+        }.bind(this), {deep: true})
+      // }
+
+      // if(
+      //   Object.getLength(this.$store.state.stat_sources) > 0
+      //   // && this.$store.state['dashboard_'+this.host].paths.length > 0
+      //   // && Object.getLength(this.dashboard_instances) > 0
+      // ){
+      //   __create_from_stat_sources(this.$store.state.stat_sources)
+      //   __create_freemem(this.$store.state.stat_sources)
+      // }
+      // else{
+        let __unwatch_stat_sources = this.$watch('$store.state.stat_sources', function(stat_sources){
+          // if(
+          //   this.$store.state['dashboard_'+this.host].paths.length > 0
+          //   && Object.getLength(this.dashboard_instances) > 0
+          // ){
+          //   __unwatch_tabular_sources()
+            __create_from_stat_sources(stat_sources)
+            __create_freemem(stat_sources)
+          // }
+        }.bind(this), {deep: true})
+      // }
+
+
+
+      // if(Object.getLength(this.$store.state.stat_sources) > 0){
+      //   __create_freemem(this.$store.state.stat_sources)
+      // }
+      // else{
+      //   let __unwacth_stat_sources = this.$watch('$store.state.stat_sources', function(stat_sources){
+      //     __unwacth_stat_sources()
+      //     __create_freemem(stat_sources)
+      //   }.bind(this), {deep: true})
+      // }
 
       // this.$set(this.available_charts, this.host+'.os.cpus.times', Object.merge(
       //   this.$options.charts_payloads['os.cpus.times'],
@@ -921,34 +1092,7 @@ export default {
       * procs.uid: count top 5
       **/
 
-      let __create_freemem = function(stat_sources){
-        debug_internals('__create_freemem', this.$options.charts_payloads['os.freemem'])
 
-        if(stat_sources[this.host+'_os_totalmem']){
-          this.$set(this.available_charts, this.host+'_os_freemem', Object.merge(
-            this.$options.charts_payloads['os.freemem'],
-            {
-              chart: Object.merge(
-                Object.clone(dygraph_line_chart),
-                freemem_chart,
-                {totalmem: this.$store.state.stat_sources[this.host+'_os_totalmem'][0].value}
-              ),
-            })
-          )
-
-          this.set_chart_visibility(this.host+'_os_freemem', true)
-        }
-      }.bind(this)
-
-      if(Object.getLength(this.$store.state.stat_sources) > 0){
-        __create_freemem(this.$store.state.stat_sources)
-      }
-      else{
-        let __unwacth_stat_sources = this.$watch('$store.state.stat_sources', function(stat_sources){
-          __unwacth_stat_sources()
-          __create_freemem(stat_sources)
-        }.bind(this), {deep: true})
-      }
 
 
       // }
