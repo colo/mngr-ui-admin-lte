@@ -143,6 +143,7 @@ export default {
 
   // charts_stat_whitelist: /freemem/,
   charts_stat_blacklist: /^[a-zA-Z0-9_\.]+$/i,
+  charts_tabular_blacklist: /os_procs_stats_percentage_cpu|os_procs_cmd_stats_percentage_cpu|os_procs_uid_stats_percentage_cpu/i,
 
   name: 'admin-lte-dashboard-host',
 
@@ -474,6 +475,88 @@ export default {
         }
       }.bind(this)
 
+      let __create_os_procs_percentage_cpu = function(tabular_sources){
+        let percentage_cpu = [
+          'os_procs_stats_percentage_cpu',
+          'os_procs_cmd_stats_percentage_cpu',
+          'os_procs_uid_stats_percentage_cpu'
+        ]
+
+        Array.each(percentage_cpu, function(source){
+
+          debug_internals('__create_os_procs_percentage_cpu', source)
+          source = this.host+'_'+source
+          // let chart_payload = this.$options.charts_payloads['os_freemem']
+
+          if(
+            !this.available_charts[source]
+            && this.dashboard_instances[source]
+            && this.$store.state['dashboard_'+this.host].paths.length > 0
+            // && this.__white_black_lists_filter(whitelist, blacklist, source)
+          ){
+            debug_internals('__create_os_procs_percentage_cpu creating', source)
+
+            this.$set(this.available_charts, source, Object.merge(
+              Object.clone({
+                name: source,
+                chart: undefined,
+                init: undefined,
+                stop: undefined,
+                wrapper: {
+                  type: 'dygraph',
+                  props: {}
+                },
+                stat: {
+                  merged: false,
+                  sources: [{type: 'tabular', path: source}],
+                  events: [{
+                    host: this.host,
+                    path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
+                    // key: 'cpus',
+                    length: this.seconds,
+                    tabular: true,
+                    range: this.range
+                  }],
+                  length: this.seconds,
+                  range: this.range,
+                },
+                /**
+                * for __get_stat_for_chart
+                **/
+                pipeline: {
+                  name: 'input.os',
+                  // // path: 'os',
+                  // range: true
+                }
+              }),
+              {
+                // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
+                chart: Object.merge(
+                  Object.clone(dygraph_line_chart),
+                  this.dashboard_instances[source],
+                  {
+                    "options": {
+                      valueRange: [0, this.cpus.length * 100],
+                      stackedGraph: true,
+                      // labels: ['Time'],
+                    }
+                  },
+                ),
+
+                // chart: this.dashboard_charts['os.cpus.times'],
+              })
+            )
+
+            this.set_chart_visibility(source, true)
+          }
+
+
+        }.bind(this))
+
+      }.bind(this)
+
+
+
       // if(
       //   Object.getLength(this.$store.state.tabular_sources) > 0
       //   // && this.$store.state['dashboard_'+this.host].paths.length > 0
@@ -489,6 +572,7 @@ export default {
           // ){
           //   __unwatch_tabular_sources()
             __create_from_tabular_sources(tabular_sources)
+            __create_os_procs_percentage_cpu(tabular_sources)
           // }
         }.bind(this), {deep: true})
       // }
@@ -513,39 +597,6 @@ export default {
           // }
         }.bind(this), {deep: true})
       // }
-
-
-
-      // if(Object.getLength(this.$store.state.stat_sources) > 0){
-      //   __create_freemem(this.$store.state.stat_sources)
-      // }
-      // else{
-      //   let __unwacth_stat_sources = this.$watch('$store.state.stat_sources', function(stat_sources){
-      //     __unwacth_stat_sources()
-      //     __create_freemem(stat_sources)
-      //   }.bind(this), {deep: true})
-      // }
-
-      // this.$set(this.available_charts, this.host+'.os.cpus.times', Object.merge(
-      //   this.$options.charts_payloads['os.cpus.times'],
-      //   {
-      //     // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
-      //     chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances['os_cpus_times']),
-      //
-      //     // chart: this.dashboard_charts['os.cpus.times'],
-      //   })
-      // )
-      //
-      // this.set_chart_visibility(this.host+'.os.cpus.times', true)
-      //
-      // this.$set(this.available_charts, this.host+'.os.cpus.percentage', Object.merge(
-      //   this.$options.charts_payloads['os.cpus.percentage'],
-      //   {
-      //     chart: Object.merge(cpus_percentage_chart, this.dashboard_instances['os_cpus_percentage']),
-      //   })
-      // )
-      //
-      // this.set_chart_visibility(this.host+'.os.cpus.percentage', true)
 
       // //console.log('this.available_charts', this.available_charts)
       //
@@ -679,420 +730,6 @@ export default {
       // )
       //
       // this.set_chart_visibility(this.host+'.os.cpus.percentage_gauge', true)
-
-
-      // this.$set(this.available_charts, this.host+'.os.uptime', Object.merge(
-      //   this.$options.charts_payloads['os.uptime'],
-      //   {
-      //     // chart: Object.merge(uptime_chart, this.dashboard_charts['os.uptime']),
-      //     chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances['os_uptime']),
-      //     // chart: this.dashboard_charts['os.uptime'],
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os.uptime', true)
-      //
-      // this.$set(this.available_charts, this.host+'.os.loadavg', Object.merge(
-      //   this.$options.charts_payloads['os.loadavg'],
-      //   {
-      //     // chart: Object.merge(this.dashboard_charts['os.loadavg'], loadavg_chart),
-      //     chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances['os_loadavg']),
-      //     // chart: this.dashboard_charts['os.loadavg'],
-      //   })
-      // )
-      //
-      // this.set_chart_visibility(this.host+'.os.loadavg', true)
-
-
-      /**
-      * procs: kernel - user
-      **/
-
-      let self = this
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: %cpu top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_stats_percentage_cpu', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_stats']),
-      //   {
-      //     name: this.host+'.os_procs_stats_percentage_cpu',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_stats_percentage_cpu'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_stats_percentage_cpu'],
-      //       {"options": {
-      //         valueRange: [0, self.cpus.length * 100],
-      //         stackedGraph: true,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_stats_percentage_cpu', true)
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: %cpu top 5
-      **/
-
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: %mem top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_stats_percentage_mem', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_stats']),
-      //   {
-      //     name: this.host+'.os_procs_stats_percentage_mem',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_stats_percentage_mem'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_stats_percentage_mem'],
-      //       {"options": {
-      //         valueRange: [0, 100],
-      //         stackedGraph: true,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_stats_percentage_mem', true)
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: %mem top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: time top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_stats_time', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_stats']),
-      //   {
-      //     name: this.host+'.os_procs_stats_time',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_stats_time'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_stats_time'],
-      //       {"options": {
-      //         valueRange: undefined,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_stats_time', true)
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: time top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: count top 5
-      **/
-
-
-      // this.$set(this.available_charts, this.host+'.os_procs_stats_elapsed', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_stats']),
-      //   {
-      //     name: this.host+'.os_procs_stats_elapsed',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_stats_elapsed'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_stats_elapsed'],
-      //       {"options": {
-      //         valueRange: undefined,
-      //         // labels: ['elapsed'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_stats_elapsed', true)
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: count top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: %cpu top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_percentage_cpu', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_cmd_stats']),
-      //   {
-      //     name: this.host+'.os_procs_cmd_stats_percentage_cpu',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_percentage_cpu'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_cmd_stats_percentage_cpu'],
-      //       {"options": {
-      //         valueRange: [0, self.cpus.length * 100],
-      //         stackedGraph: true,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_cmd_stats_percentage_cpu', true)
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: %cpu top 5
-      **/
-
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: %mem top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_percentage_mem', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_cmd_stats']),
-      //   {
-      //     name: this.host+'.os_procs_cmd_stats_percentage_mem',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_percentage_mem'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_cmd_stats_percentage_mem'],
-      //       {"options": {
-      //         valueRange: [0, 100],
-      //         stackedGraph: true,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_cmd_stats_percentage_mem', true)
-      //
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: %mem top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: time top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_time', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_cmd_stats']),
-      //   {
-      //     name: this.host+'.os_procs_cmd_stats_time',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_time'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_cmd_stats_time'],
-      //       {"options": {
-      //         valueRange: undefined,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_cmd_stats_time', true)
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: time top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.cmd: count top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_cmd_stats_count', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_cmd_stats']),
-      //   {
-      //     name: this.host+'.os_procs_cmd_stats_count',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_cmd_stats_count'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_cmd_stats_count'],
-      //       {"options": {
-      //         valueRange: undefined,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_cmd_stats_count', true)
-      //
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.cmd: count top 5
-      **/
-
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.uid: %cpu top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_uid_stats_percentage_cpu', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_uid_stats']),
-      //   {
-      //     name: this.host+'.os_procs_uid_stats_percentage_cpu',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_percentage_cpu'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_uid_stats_percentage_cpu'],
-      //       {"options": {
-      //         valueRange: [0, self.cpus.length * 100],
-      //         stackedGraph: true,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_uid_stats_percentage_cpu', true)
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.uid: %cpu top 5
-      **/
-
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.uid: %mem top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_uid_stats_percentage_mem', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_uid_stats']),
-      //   {
-      //     name: this.host+'.os_procs_uid_stats_percentage_mem',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_percentage_mem'}],
-      //     },
-      //
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_uid_stats_percentage_mem'],
-      //       {"options": {
-      //         valueRange: [0, 100],
-      //         stackedGraph: true,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_uid_stats_percentage_mem', true)
-      //
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.uid: %mem top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.uid: time top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_uid_stats_time', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_uid_stats']),
-      //   {
-      //     name: this.host+'.os_procs_uid_stats_time',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_time'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_uid_stats_time'],
-      //       {"options": {
-      //         valueRange: undefined,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_uid_stats_time', true)
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.uid: time top 5
-      **/
-
-      /**
-      * @start reactive chart.options.labels
-      * procs.uid: count top 5
-      **/
-
-      // this.$set(this.available_charts, this.host+'.os_procs_uid_stats_count', Object.merge(
-      //   Object.clone(this.$options.charts_payloads['os_procs_uid_stats']),
-      //   {
-      //     name: this.host+'.os_procs_uid_stats_count',
-      //     stat: {
-      //       sources: [{type: 'tabular', path: this.host+'_os_procs_uid_stats_count'}],
-      //     },
-      //
-      //     chart: Object.merge(
-      //       Object.clone(dygraph_line_chart),
-      //       this.dashboard_instances['os_procs_uid_stats_count'],
-      //       {"options": {
-      //         valueRange: undefined,
-      //         // labels: ['Time'],
-      //       }},
-      //     )
-      //   })
-      // )
-      // this.set_chart_visibility(this.host+'.os_procs_uid_stats_count', true)
-      //
-
-
-      /**
-      * @end reactive chart.options.labels
-      * procs.uid: count top 5
-      **/
-
-
 
 
       // }
