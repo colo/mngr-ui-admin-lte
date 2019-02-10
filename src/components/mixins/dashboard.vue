@@ -262,6 +262,7 @@ export default {
   * @start - lifecycle
   **/
   beforeRouteUpdate: function (to, from, next) {
+    debug_internals('life cycle beforeRouteUpdate', to.params.host, from)
     //console.log('life cycle beforeRouteUpdate')
 
     // react to route changes...
@@ -269,7 +270,8 @@ export default {
     this.__clean_destroy(
       this.__clean_create.pass(
         this.__create.pass([
-          this.$route.params.host || this.$store.state.hosts.current,
+          // this.$route.params.host || this.$store.state.hosts.current,
+          to.params.host,
           this.__mount.pass(next, this)
         ], this),
         this
@@ -454,7 +456,7 @@ export default {
   * @start - lifecycle
   **/
   watch: {
-    'id': function(newVal, oldVal) { this.$store.registerModule('dashboard_'+newVal, Object.clone(dashboardStore)) },
+    'id': function(newVal, oldVal) { if(newVal) {this.$store.registerModule('dashboard_'+newVal, Object.clone(dashboardStore))} },
   },
   methods: {
     create_pipelines: function (host, next) {},
@@ -843,49 +845,52 @@ export default {
       let blacklist = (type == 'tabular') ? this.$options.tabular_blacklist : this.$options.stat_blacklist
 
       let counter = 0
-      Object.each(payload[type], function(data, path){
-        let new_path = undefined
-        let new_val = undefined
-        if(Array.isArray(data)){
+      if(payload[type]){
+        Object.each(payload[type], function(data, path){
+          let new_path = undefined
+          let new_val = undefined
+          if(Array.isArray(data)){
 
-          // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
+            // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
 
-          if(this.__white_black_lists_filter(whitelist, blacklist, path))
-            this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path, value: data})
-        }
-        else{
+            if(this.__white_black_lists_filter(whitelist, blacklist, path))
+              this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path, value: data})
+          }
+          else{
 
-          Object.each(data, function(value, key){
-            if(Array.isArray(value)){
+            Object.each(data, function(value, key){
+              if(Array.isArray(value)){
 
-              // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
-
-
-              if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
-                this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key, value: value})
-
-            }
-            else{
-              //3rd level, there is no need for more
-              Object.each(value, function(val, sub_key){
-
-                if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
-                  this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
-
-              }.bind(this))
-            }
+                // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
 
 
+                if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
+                  this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key, value: value})
 
-          }.bind(this))
-        }
+              }
+              else{
+                //3rd level, there is no need for more
+                Object.each(value, function(val, sub_key){
+
+                  if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
+                    this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
+
+                }.bind(this))
+              }
 
 
-        if(counter == Object.getLength(payload[type]) - 1)
-          this.$set(this, init, true)
 
-        counter++
-      }.bind(this))
+            }.bind(this))
+          }
+
+
+          if(counter == Object.getLength(payload[type]) - 1)
+            this.$set(this, init, true)
+
+          counter++
+        }.bind(this))
+      }
+
 
 
     },
@@ -1027,7 +1032,7 @@ export default {
 
 
 
-      // this.id = undefined
+      this.id = undefined
       // this.$store.dispatch('stats/flush_all', {host: this.host})
       // this.$store.dispatch('stats_tabular/flush_all', {host: this.host})
 
