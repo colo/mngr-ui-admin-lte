@@ -73,6 +73,14 @@ export default {
          if(current){
           let data = []
           Array.each(current, function(row){
+            //fix for incorrect values like "" (empty)
+            if(Array.isArray(row.value))
+              Array.each(row.value, function(value, index){
+                if(!value || isNaN(value))
+                  row.value[index] = 0 //or should be undefined?
+              })
+
+
             data.push(row.value)
           })
 
