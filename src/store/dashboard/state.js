@@ -2,7 +2,8 @@ export default function() {
   return {
     charts: {},
     instances: {},
-    paths: []
+    paths: [],
+    data_range: [],
     // networkInterfaces: undefined,
     // stats: {}
   }

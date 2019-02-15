@@ -11,7 +11,7 @@ const debug = Debug("mngr-ui-admin-lte:mngr-ui-admin-lte:pages:dashboard:host"),
 // import sourceStore from 'src/store/source'
 
 import moment from 'moment/moment'
-import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
+// import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
 
 // let extract_data_os = require( 'node-mngr-docs' ).extract_data_os
 // let extract_data_os_historical = require( 'node-mngr-docs' ).extract_data_os_historical
@@ -36,8 +36,8 @@ let host_pipelines_templates = [
   HostPipeline
 ]
 
-import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
-import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
+// import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
+// import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
 
 import dygraph_line_chart from 'mngr-ui-admin-charts/defaults/dygraph.line'
 // // import uptime_chart from 'mngr-ui-admin-charts/os/uptime'
@@ -64,11 +64,11 @@ import dashboard from 'components/mixins/dashboard'
 
 export default {
   mixins: [dashboard],
-  components: {
-    AdminLteBoxSolid,
-    AdminLteDashboardHostSummary,
-    bootstrapDaterangepickerWrapper
-  },
+  // components: {
+  //   // AdminLteBoxSolid,
+  //   // AdminLteDashboardHostSummary,
+  //   bootstrapDaterangepickerWrapper
+  // },
 
   // stats_blacklist: /^[a-zA-Z0-9_\.]+$/i,
   // stat_whitelist: /os_procs_stats|os_procs_cmd_stats|os_procs_uid_stats|freemem|totalmem|cpus/,
@@ -82,20 +82,21 @@ export default {
 
   name: 'admin-lte-dashboard-host',
 
-  daterangepicker:{
-    opens: 'right',
-    timePicker: true,
-    timePicker24Hour: true,
-    timePickerSeconds: true,
-    alwaysShowCalendars: true,
-    startDate: moment().subtract(29, 'days'),
-    endDate  : moment(),
-    ranges: {
-      'Last 5 mins': [function(){ return moment().subtract(5, 'minute')}, function(){ return moment() }],
-      'Last 15 mins': [function(){ return moment().subtract(15, 'minute')}, function(){ return moment()}],
-      'Last Hour': [function(){ return moment().subtract(1, 'hour')}, function(){ return moment() }],
-    }
-  },
+  // daterangepicker:{
+  //   opens: 'right',
+  //   timePicker: true,
+  //   timePicker24Hour: true,
+  //   timePickerSeconds: true,
+  //   alwaysShowCalendars: false,
+  //   // alwaysShowCalendars: true,
+  //   // startDate: moment().subtract(29, 'days'),
+  //   // endDate  : moment(),
+  //   ranges: {
+  //     'Last 5 mins': [function(){ return moment().subtract(5, 'minute')}, function(){ return moment() }],
+  //     'Last 15 mins': [function(){ return moment().subtract(15, 'minute')}, function(){ return moment()}],
+  //     'Last Hour': [function(){ return moment().subtract(1, 'hour')}, function(){ return moment() }],
+  //   }
+  // },
 
 
   breadcrumb () {
@@ -110,20 +111,21 @@ export default {
   data () {
     return {
 
-      daterangepicker:{
-        opens: 'right',
-        timePicker: true,
-        timePicker24Hour: true,
-        timePickerSeconds: true,
-        alwaysShowCalendars: true,
-        startDate: moment().subtract(29, 'days'),
-        endDate  : moment(),
-        ranges: {
-          'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
-          'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
-          'Last Hour': [moment().subtract(1, 'hour'), moment()],
-        }
-      }
+      // daterangepicker:{
+      //   opens: 'left',
+      //   timePicker: true,
+      //   timePicker24Hour: true,
+      //   timePickerSeconds: true,
+      //   alwaysShowCalendars: false,
+      //   // alwaysShowCalendars: true,
+      //   // startDate: moment().subtract(29, 'days'),
+      //   // endDate  : moment(),
+      //   ranges: {
+      //     'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
+      //     'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
+      //     'Last Hour': [moment().subtract(1, 'hour'), moment()],
+      //   }
+      // }
     }
   },
 

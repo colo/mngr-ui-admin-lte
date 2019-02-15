@@ -18,6 +18,14 @@ import 'bootstrap-daterangepicker/daterangepicker.css'
 import moment from 'moment/min/moment-with-locales'
 import 'bootstrap-daterangepicker/daterangepicker.js'
 
+
+import * as Debug from "debug"
+
+const debug = Debug("mngr-ui-admin-lte:components:wrappers:bootstrap.daterangepicker"),
+      debug_internals = Debug("mngr-ui-admin-lte:components:wrappers:bootstrap.daterangepicker:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:components:wrappers:bootstrap.daterangepicker:Events");
+
+
 export default {
   name: 'bootstrap-daterangepicker-wrapper',
 
@@ -91,11 +99,15 @@ export default {
   },
   methods: {
     _update_daterangepicker(val){
+      debug_internals('_update_daterangepicker', val)
+
       Object.each(val, function(option, key){
         $('#'+this.id).data('daterangepicker')[key] = option
       }.bind(this))
     },
     _daterangepicker: function(){
+      debug_internals('_daterangepicker', this.id, this.options)
+
       let self = this
       // console.log('_daterangepicker', self.ranges)
       $('#'+this.id).daterangepicker(

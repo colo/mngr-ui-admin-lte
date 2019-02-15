@@ -237,6 +237,12 @@ export default new Class({
 					callbacks: ['paths'],
 					// middlewares: [], //socket.use(fn)
 				}],
+        'data_range': [{
+					// path: ':param',
+					// once: true, //socket.once
+					callbacks: ['data_range'],
+					// middlewares: [], //socket.use(fn)
+				}],
         'on': [{
 					// path: ':param',
 					// once: true, //socket.once
@@ -279,6 +285,14 @@ export default new Class({
 
   },
 
+  data_range: function(socket, next, doc){
+    debug_internals('data_range %o', doc)
+
+    if(doc.data_range && doc.data_range !== null)
+      this.fireEvent('onDoc', [doc, {type: 'doc', input_type: this, app: null}])
+    // store.commit('hosts/clear')
+    // store.commit('hosts/set', hosts)
+  },
 
   paths: function(socket, next, doc){
     debug_internals('paths %o', doc)
@@ -316,7 +330,8 @@ export default new Class({
         this.io.emit('on', [
           {host: this.options.stat_host, prop: 'paths', format: 'stat'},
           {host: this.options.stat_host, prop: 'data', format: 'stat'},
-          {host: this.options.stat_host, prop: 'data', format: 'tabular'}
+          {host: this.options.stat_host, prop: 'data', format: 'tabular'},
+          {host: this.options.stat_host, prop: 'data_range'}
         ])
       }
     }
@@ -375,6 +390,9 @@ export default new Class({
       // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
 
       // this.io.emit('on', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
+
+      this.io.emit('/', {host: this.options.stat_host, prop: 'data_range'})
+
       this.io.emit('/', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
 
       // this.io.emit('on', {host: this.options.stat_host, prop: 'data', format: 'stat'})

@@ -2,6 +2,18 @@
   <section class="content">
     <div class="row">
       <section class="col-xs-12 col-sm-12 col-lg-12 connectedSortable">
+        <admin-lte-box-solid
+          :header="false"
+        >
+
+            <bootstrap-daterangepicker-wrapper
+              @click="update_daterangepicker"
+              @range="set_range"
+              :options="daterangepicker"
+              :id="id"
+            />
+
+        </admin-lte-box-solid>
 
         <template v-for="(chart, name) in available_charts">
           <!-- {{name}} -->
@@ -80,45 +92,23 @@ import moment from 'moment/moment'
 // import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
 
 
-// let __events_queue = queue(function(task, callback) {
+
+// let __events_queue = qrate(function(task, callback) {
 //   let {pipeline, event} = task
+//   // let {options, event} = obj
+//   // eval('pipeline.'+options)
+//
 //   let event_name = Object.keys(event)[0]
 //   let __callback = function(){
 //     pipeline.removeEvent(event_name, __callback)
 //     callback(event)
 //   }
 //
-//   let __debounced_event = debounce(function(){
-//     pipeline.addEvent(event_name, __callback)
-//     pipeline.fireEvent(event_name, event[event_name])
-//   }, 100)
 //
-//   __debounced_event()
-//   // task.db.bulkDocs(task.docs)
-//   // .then(function (status) {
-//   //   callback(undefined, status);
-//   // }).catch(function (err) {
-//   //   callback(err);
-//   // })
+//   pipeline.addEvent(event_name, __callback)
+//   pipeline.fireEvent(event_name, event[event_name])
 //
-// }, 1)
-
-let __events_queue = qrate(function(task, callback) {
-  let {pipeline, event} = task
-  // let {options, event} = obj
-  // eval('pipeline.'+options)
-
-  let event_name = Object.keys(event)[0]
-  let __callback = function(){
-    pipeline.removeEvent(event_name, __callback)
-    callback(event)
-  }
-
-
-  pipeline.addEvent(event_name, __callback)
-  pipeline.fireEvent(event_name, event[event_name])
-
-}, 1, 1)
+// }, 1, 1)
 
 import dashboardStore from 'src/store/dashboard'
 
@@ -129,9 +119,16 @@ import dashboardStore from 'src/store/dashboard'
 import 'src/libs/synchronizer' //modified version
 import Dygraph from 'dygraphs'
 
+import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
+import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
+import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
+
 export default {
   mixins: [admin_lte_mixin],
   components: {
+    AdminLteBoxSolid,
+    AdminLteDashboardHostSummary,
+    bootstrapDaterangepickerWrapper,
     chart,
     chartTabular,
     chartEmptyContainer
@@ -177,7 +174,23 @@ export default {
       reactive_data:{},//manually merged stats
 
       visibility: {},
-      id: undefined
+      id: undefined,
+
+      daterangepicker:{
+        opens: 'right',
+        timePicker: true,
+        timePicker24Hour: true,
+        timePickerSeconds: true,
+        alwaysShowCalendars: false,
+        // alwaysShowCalendars: true,
+        // startDate: moment().subtract(29, 'days'),
+        // endDate  : moment(),
+        ranges: {
+          'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
+          'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
+          'Last Hour': [moment().subtract(1, 'hour'), moment()],
+        }
+      }
     }
   },
 
@@ -832,6 +845,10 @@ export default {
     /**
     * @start - STATS
     **/
+    __process_dashoard_data_range: function(payload){
+      debug_internals('__process_dashoard_data_range', payload)
+      this.$store.commit('dashboard_'+this.id+'/data_range', [payload.data_range.start, payload.data_range.end])
+    },
     __process_dashoard_data: function(payload){
       debug_internals('__process_dashoard_data', payload)
       // if(payload.range == true)
@@ -925,10 +942,14 @@ export default {
 
     __create: function(host, next){
       // EventBus.$once('charts', this.__process_dashoard_charts)
+
+      //should be $on probably, not $once
       EventBus.$once('instances', this.__process_dashoard_instances)
+      EventBus.$once('paths', this.__process_dashoard_paths)
+
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)
-      EventBus.$once('paths', this.__process_dashoard_paths)
+      EventBus.$on('data_range', this.__process_dashoard_data_range)
 
       let __init = function(next){
         this.set_range(moment().subtract(5, 'minute'), moment())

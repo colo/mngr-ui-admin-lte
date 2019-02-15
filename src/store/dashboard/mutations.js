@@ -4,6 +4,11 @@ export const charts = function(state, charts) {
   state.charts = charts
 }
 
+export const data_range = function(state, range) {
+  state.data_range = range
+}
+
+
 export const instances = function(state, instances) {
   state.instances = instances
 }
