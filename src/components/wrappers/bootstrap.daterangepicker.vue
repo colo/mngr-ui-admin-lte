@@ -90,7 +90,7 @@ export default {
   },
   watch: {
     'options':{
-      handler: function(val, old) { this._update_daterangepicker(val) },
+      handler: function(val, old) { this._update_daterangepicker(val, old) },
       deep: true
     }
   },
@@ -98,12 +98,18 @@ export default {
     this._daterangepicker()
   },
   methods: {
-    _update_daterangepicker(val){
-      debug_internals('_update_daterangepicker', val)
-
-      Object.each(val, function(option, key){
-        $('#'+this.id).data('daterangepicker')[key] = option
-      }.bind(this))
+    _update_daterangepicker(val, old){
+      debug_internals('_update_daterangepicker', val, old)
+      // if(old)
+      //   Object.each(old, function(option, key){
+      //     delete $('#'+this.id).data('daterangepicker')[key]
+      //   }.bind(this))
+      //
+      // Object.each(val, function(option, key){
+      //   $('#'+this.id).data('daterangepicker')[key] = option
+      // }.bind(this))
+      $('#'+this.id).daterangepicker('destroy')
+      this._daterangepicker()
     },
     _daterangepicker: function(){
       debug_internals('_daterangepicker', this.id, this.options)
@@ -118,6 +124,10 @@ export default {
           // $('#'+self.id+' span').html(start.format('llll') + ' - ' + end.format('llll'))
         }
       )
+
+      $('#'+this.id).on('hide.daterangepicker', function(){
+        self.$emit('hide')
+      })
     },
   }
 

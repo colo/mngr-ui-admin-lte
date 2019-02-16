@@ -8,6 +8,10 @@ export const data_range = function(state, range) {
   state.data_range = range
 }
 
+export const range = function(state, range) {
+  state.range = range
+}
+
 
 export const instances = function(state, instances) {
   state.instances = instances

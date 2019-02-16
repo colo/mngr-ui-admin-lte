@@ -7,7 +7,7 @@ export default function() {
     // },
     // docs_per_sec: 0,
     // paths: [],
-    
+
     /**
     *
     **/
@@ -18,7 +18,7 @@ export default function() {
     /**
     *
     **/
-    range: [],
+    // range: [],
     // charts_tree_menu: [],
     // default_chart_icon: 'mdi-pulse',
     // icons: {

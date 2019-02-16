@@ -45,11 +45,11 @@
   state.freeze = bool
  }
 
- export const range = (state, range) => {
-   // console.log('range mutation', payload)
-   // state.range = [payload.start, payload.end]
-   state.range = range
- }
+ // export const range = (state, range) => {
+ //   // console.log('range mutation', payload)
+ //   // state.range = [payload.start, payload.end]
+ //   state.range = range
+ // }
 
  export const charts_tree_menu = (state, menu) => {
    state.charts_tree_menu = menu

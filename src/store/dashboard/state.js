@@ -4,6 +4,7 @@ export default function() {
     instances: {},
     paths: [],
     data_range: [],
+    range: [],
     // networkInterfaces: undefined,
     // stats: {}
   }

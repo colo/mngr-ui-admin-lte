@@ -7,11 +7,13 @@
         >
 
             <bootstrap-daterangepicker-wrapper
-              @click="update_daterangepicker"
+              @click="freeze_daterangepicker_update = true"
+              @hide="freeze_daterangepicker_update = false"
               @range="set_range"
               :options="daterangepicker"
               :id="id"
             />
+            <!-- @click="update_daterangepicker" -->
 
         </admin-lte-box-solid>
 
@@ -161,6 +163,8 @@ export default {
   // __unwatchers__: {},
   unwatchers: {},
 
+  daterangepicker: undefined,
+
   data () {
     return {
       EventBus: EventBus,
@@ -176,21 +180,8 @@ export default {
       visibility: {},
       id: undefined,
 
-      daterangepicker:{
-        opens: 'right',
-        timePicker: true,
-        timePicker24Hour: true,
-        timePickerSeconds: true,
-        alwaysShowCalendars: false,
-        // alwaysShowCalendars: true,
-        // startDate: moment().subtract(29, 'days'),
-        // endDate  : moment(),
-        ranges: {
-          'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
-          'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
-          'Last Hour': [moment().subtract(1, 'hour'), moment()],
-        }
-      }
+      daterangepicker: undefined,
+      freeze_daterangepicker_update: false,
     }
   },
 
@@ -205,9 +196,20 @@ export default {
         return (this.id) ? state['dashboard_'+this.id].events.list : undefined
       },
 
+      range: function(state){
+        // console.log('EVENTS', this.id)
+        if(this.id && state['dashboard_'+this.id]){
+          return state['dashboard_'+this.id].range
+        }
+        else{
+          return []
+        }
+
+      },
+
       // paths: state => state.app.paths,
       reset: state => state.app.reset,
-      range: state => state.app.range,
+
       paused: state => state.app.pause,
       freezed: state => state.app.freeze,
 
@@ -215,12 +217,19 @@ export default {
         // //////////////////console.log('state.app.range', state.app.range)
 
         let end = Date.now()
-        if(state.app.range[1] && state.app.range[1] != null)
+        if(
+          state['dashboard_'+this.id]
+          && state['dashboard_'+this.id].range[1]
+          && state['dashboard_'+this.id].range[1] != null
+        )
           end = state.app.range[1]
 
         let start = Date.now() - (300 * 1000) //5 mins default
-        if(state.app.range[0] && state.app.range[0] != null)
-          start = state.app.range[0]
+        if(
+          state['dashboard_'+this.id]
+          && state['dashboard_'+this.id].range[0] && state['dashboard_'+this.id].range[0] != null
+        )
+          start = state['dashboard_'+this.id].range[0]
 
         let seconds = Math.trunc( (end - start) / 1000 )
 
@@ -846,8 +855,15 @@ export default {
     * @start - STATS
     **/
     __process_dashoard_data_range: function(payload){
-      debug_internals('__process_dashoard_data_range', payload)
+
       this.$store.commit('dashboard_'+this.id+'/data_range', [payload.data_range.start, payload.data_range.end])
+
+      if(this.freeze_daterangepicker_update == false) {
+        this.$set(this.daterangepicker, 'startDate',  moment(payload.data_range.start))
+        this.$set(this.daterangepicker, 'endDate',  moment(payload.data_range.end))
+      }
+      debug_internals('__process_dashoard_data_range', payload, this.daterangepicker)
+
     },
     __process_dashoard_data: function(payload){
       debug_internals('__process_dashoard_data', payload)
@@ -950,6 +966,8 @@ export default {
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)
       EventBus.$on('data_range', this.__process_dashoard_data_range)
+
+      // this.update_daterangepicker()
 
       let __init = function(next){
         this.set_range(moment().subtract(5, 'minute'), moment())
@@ -1070,6 +1088,69 @@ export default {
     /**
     * @start - UI
     **/
+    update_daterangepicker: function(){
+      if(!this.daterangepicker) this.daterangepicker = this.$options.daterangepicker
+
+      // Object.each(this.$options.daterangepicker, function(data, prop){
+      //   this.$set(this.daterangepicker, prop, data)
+      // }.bind(this))
+
+      Object.each(this.$options.daterangepicker.ranges, function(range, key){
+        // range[1] = moment(new Date())
+        // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
+        Array.each(range, function(start_or_end, index){
+          if(typeof this.$options.daterangepicker.ranges[key][index] == 'function')
+            this.$set(this.daterangepicker.ranges[key], index, this.$options.daterangepicker.ranges[key][index]())
+
+        }.bind(this))
+        //////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
+      }.bind(this))
+
+    },
+    set_range: function(start, end){
+      // ////////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
+      let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
+      // let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
+      // this.$store.commit('app/range', range)
+      this.$store.commit('dashboard_'+this.id+'/range', range)
+
+      // let counter = 0
+      // Object.each(this.available_charts, function(payload, name){
+      //   let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
+      //   let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
+      //   this.$store.commit('app/range', Array.clone(range))
+      //   // if(Array.isArray(this.available_charts[name].stat)){
+      //   //   Array.each(this.available_charts[name].stat, function(stat, index){
+      //   //     this.available_charts[name].stat[index].range = Array.clone(range)//clone it, as each one may modify range
+      //   //     this.available_charts[name].stat[index].length = length
+      //   //
+      //   //     let indexed_name = name +'_'+index
+      //   //     this.remove_watcher(indexed_name)
+      //   //   }.bind(this))
+      //   // }
+      //   // else{
+      //   //   this.available_charts[name].stat.range = Array.clone(range)
+      //   //   this.available_charts[name].stat.length = length
+      //   //   this.remove_watcher(name)
+      //   // }
+      //
+      //   // this.remove_chart(name, {unwatch: true})
+      //
+      //
+      //   // // if(name.indexOf('networkInterface') == -1)
+      //   // if(!payload.init || typeof payload.init != 'function'){
+      //   //   this.__get_stat_for_chart(this.available_charts[name])
+      //   //   //////////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
+      //   // }
+      //
+      //   // if(counter == Object.getLength(this.available_charts) - 1)
+      //   //   this.$nextTick(this.fire_pipelines_events())
+      //
+      //   counter++
+      // }.bind(this))
+
+
+    },
     set_chart_visibility: function (id, isVisible){
 
       if(

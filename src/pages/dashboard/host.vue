@@ -88,13 +88,16 @@ export default {
   //   timePicker24Hour: true,
   //   timePickerSeconds: true,
   //   alwaysShowCalendars: false,
+  //   showCustomRangeLabel: false,
+  //   startDate: moment().subtract(1, 'hour'),
+  //   endDate  : moment(),
   //   // alwaysShowCalendars: true,
   //   // startDate: moment().subtract(29, 'days'),
   //   // endDate  : moment(),
   //   ranges: {
-  //     'Last 5 mins': [function(){ return moment().subtract(5, 'minute')}, function(){ return moment() }],
-  //     'Last 15 mins': [function(){ return moment().subtract(15, 'minute')}, function(){ return moment()}],
-  //     'Last Hour': [function(){ return moment().subtract(1, 'hour')}, function(){ return moment() }],
+  //     'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
+  //     'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
+  //     'Last Hour': [moment().subtract(1, 'hour'), moment()],
   //   }
   // },
 
@@ -111,21 +114,24 @@ export default {
   data () {
     return {
 
-      // daterangepicker:{
-      //   opens: 'left',
-      //   timePicker: true,
-      //   timePicker24Hour: true,
-      //   timePickerSeconds: true,
-      //   alwaysShowCalendars: false,
-      //   // alwaysShowCalendars: true,
-      //   // startDate: moment().subtract(29, 'days'),
-      //   // endDate  : moment(),
-      //   ranges: {
-      //     'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
-      //     'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
-      //     'Last Hour': [moment().subtract(1, 'hour'), moment()],
-      //   }
-      // }
+      daterangepicker:{
+        opens: 'right',
+        timePicker: true,
+        timePicker24Hour: true,
+        timePickerSeconds: true,
+        alwaysShowCalendars: false,
+        showCustomRangeLabel: false,
+        // startDate: moment().subtract(1, 'hour'),
+        // endDate  : moment(),
+        // alwaysShowCalendars: true,
+        // startDate: moment().subtract(29, 'days'),
+        // endDate  : moment(),
+        ranges: {
+          // 'Last 5 mins': [moment().subtract(5, 'minute'), moment()],
+          // 'Last 15 mins': [moment().subtract(15, 'minute'), moment()],
+          // 'Last Hour': [moment().subtract(1, 'hour'), moment()],
+        }
+      }
     }
   },
 
@@ -1024,65 +1030,6 @@ export default {
       //
       // },{deep:true})
       //
-
-    },
-
-
-    update_daterangepicker: function(){
-      ////////////console.log('update_daterangepicker')
-      Object.each(this.$options.daterangepicker.ranges, function(range, key){
-        // range[1] = moment(new Date())
-        // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
-        Array.each(range, function(start_or_end, index){
-          if(typeof this.$options.daterangepicker.ranges[key][index] == 'function')
-            this.$set(this.daterangepicker.ranges[key], index, this.$options.daterangepicker.ranges[key][index]())
-
-        }.bind(this))
-        //////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
-      }.bind(this))
-
-    },
-    set_range: function(start, end){
-      // ////////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
-      let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
-      let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
-      this.$store.commit('app/range', range)
-
-      // let counter = 0
-      // Object.each(this.available_charts, function(payload, name){
-      //   let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]
-      //   let length = Math.trunc((end.utc().valueOf() - start.utc().valueOf()) / 1000)
-      //   this.$store.commit('app/range', Array.clone(range))
-      //   // if(Array.isArray(this.available_charts[name].stat)){
-      //   //   Array.each(this.available_charts[name].stat, function(stat, index){
-      //   //     this.available_charts[name].stat[index].range = Array.clone(range)//clone it, as each one may modify range
-      //   //     this.available_charts[name].stat[index].length = length
-      //   //
-      //   //     let indexed_name = name +'_'+index
-      //   //     this.remove_watcher(indexed_name)
-      //   //   }.bind(this))
-      //   // }
-      //   // else{
-      //   //   this.available_charts[name].stat.range = Array.clone(range)
-      //   //   this.available_charts[name].stat.length = length
-      //   //   this.remove_watcher(name)
-      //   // }
-      //
-      //   // this.remove_chart(name, {unwatch: true})
-      //
-      //
-      //   // // if(name.indexOf('networkInterface') == -1)
-      //   // if(!payload.init || typeof payload.init != 'function'){
-      //   //   this.__get_stat_for_chart(this.available_charts[name])
-      //   //   //////////////console.log('set_range __get_stat_for_chart', this.available_charts[name])
-      //   // }
-      //
-      //   // if(counter == Object.getLength(this.available_charts) - 1)
-      //   //   this.$nextTick(this.fire_pipelines_events())
-      //
-      //   counter++
-      // }.bind(this))
-
 
     },
 
