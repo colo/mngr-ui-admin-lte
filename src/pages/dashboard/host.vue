@@ -231,12 +231,12 @@ export default {
 
       let __create_from_tabular_sources = function(tabular_sources){
 
-        debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
+        // debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
         let whitelist = this.$options.charts_tabular_whitelist
         let blacklist = this.$options.charts_tabular_blacklist
 
         Object.each(tabular_sources, function(tab, source){
-          debug_internals('__init_charts $store.state.tabular_sources', source)
+          // debug_internals('__init_charts $store.state.tabular_sources', source)
 
           if(
             !this.available_charts[source]
@@ -297,12 +297,12 @@ export default {
 
       let __create_from_stat_sources = function(stat_sources){
 
-        debug_internals('__init_charts $store.state.stat_sources', stat_sources)
+        // debug_internals('__init_charts $store.state.stat_sources', stat_sources)
         let whitelist = this.$options.charts_stat_whitelist
         let blacklist = this.$options.charts_stat_blacklist
 
         Object.each(stat_sources, function(stat, source){
-          debug_internals('__init_charts $store.state.stat_sources', source)
+          // debug_internals('__init_charts $store.state.stat_sources', source)
 
           if(
             !this.available_charts[source]
@@ -366,7 +366,7 @@ export default {
       }.bind(this)
 
       let __create_freemem = function(stat_sources){
-        debug_internals('__create_freemem', this.$options.charts_payloads['os_freemem'])
+        // debug_internals('__create_freemem', this.$options.charts_payloads['os_freemem'])
         let source = this.host+'_os_freemem'
         let chart_payload = this.$options.charts_payloads['os_freemem']
         if(
@@ -427,7 +427,7 @@ export default {
 
         Array.each(percentage_cpu, function(source){
 
-          debug_internals('__create_os_procs_percentage_cpu', source)
+          // debug_internals('__create_os_procs_percentage_cpu', source)
           source = this.host+'_'+source
           // let chart_payload = this.$options.charts_payloads['os_freemem']
 
@@ -524,7 +524,7 @@ export default {
             if(__networkInterfaces_merge.contains(prop_name)){
               let merged_chart_name = this.host+'_os_networkInterfaces_stats_'+iface_name+'_'+__networkInterfaces_merge.join('_')
 
-              if(!this.available_charts[merged_chart_name]){
+              if(!this.available_charts[merged_chart_name] && this.dashboard_instances[this.host+'_os_networkInterfaces_stats_'+_name]){
                 /**
                 * @removed
                 **/
@@ -631,7 +631,7 @@ export default {
               let _name = key.substring(key.lastIndexOf('_') + 1)
               // let chart_name = this.host+'.os_mounts.'+_name
 
-              if(_merge.contains(_name)){
+              if(_merge.contains(_name) && this.dashboard_instances[this.host+'_os_mounts_'+_name]){
                 let merged_chart_name = this.host+'_os_mounts'
 
                 if(!_merged_charts[merged_chart_name]){

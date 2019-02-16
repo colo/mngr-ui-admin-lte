@@ -245,7 +245,7 @@ export default {
       return data
     },
     update (data){
-      debug_internals('update', this.id, this.ready)
+      // debug_internals('update', this.id, this.ready)
 
       data = this.get_data(data)
       // let options = (this.ready == true && this.$options.graph.numRows() > 1) ? { 'dateWindow': this.$options.graph.xAxisExtremes() } : {}
@@ -265,7 +265,7 @@ export default {
     },
     updateOptions (data, options, block_redraw){
 
-      debug_internals('updateOptions', this.id, this.ready)
+      // debug_internals('updateOptions', this.id, this.ready)
       // let self = this
 
       if(

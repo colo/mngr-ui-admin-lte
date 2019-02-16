@@ -125,6 +125,13 @@ import AdminLteBoxSolid from 'components/admin-lte/boxSolid'
 import AdminLteDashboardHostSummary from 'components/admin-lte/dashboard/host/summary'
 import bootstrapDaterangepickerWrapper from 'components/wrappers/bootstrap.daterangepicker.vue'
 
+
+const SECOND = 1000
+const MINUTE = SECOND * 60
+const HOUR = MINUTE * 60
+const DAY = HOUR * 24
+
+
 export default {
   mixins: [admin_lte_mixin],
   components: {
@@ -198,11 +205,13 @@ export default {
 
       range: function(state){
         // console.log('EVENTS', this.id)
+        debug_internals('computed range', state['dashboard_'+this.id].range)
+
         if(this.id && state['dashboard_'+this.id]){
           return state['dashboard_'+this.id].range
         }
         else{
-          return []
+          return [Date.now() - (MINUTE * 5), Date.now()]
         }
 
       },
@@ -218,18 +227,18 @@ export default {
 
         let end = Date.now()
         if(
-          state['dashboard_'+this.id]
-          && state['dashboard_'+this.id].range[1]
-          && state['dashboard_'+this.id].range[1] != null
+          this.range
+          && this.range[1]
+          && this.range != null
         )
-          end = state.app.range[1]
+          end = this.range[1]
 
-        let start = Date.now() - (300 * 1000) //5 mins default
+        let start = Date.now() - (MINUTE * 5) //5 mins default
         if(
-          state['dashboard_'+this.id]
-          && state['dashboard_'+this.id].range[0] && state['dashboard_'+this.id].range[0] != null
+          this.range
+          && this.range[0] && this.range[0] != null
         )
-          start = state['dashboard_'+this.id].range[0]
+          start = this.range[0]
 
         let seconds = Math.trunc( (end - start) / 1000 )
 
@@ -861,6 +870,16 @@ export default {
       if(this.freeze_daterangepicker_update == false) {
         this.$set(this.daterangepicker, 'startDate',  moment(payload.data_range.start))
         this.$set(this.daterangepicker, 'endDate',  moment(payload.data_range.end))
+
+        if(payload.data_range.start < Date.now() - MINUTE * 5)
+          this.$set(this.daterangepicker.ranges, 'Last 5 mins', [moment().subtract(5, 'minute'), moment()])
+
+        if(payload.data_range.start < Date.now() - MINUTE * 15)
+          this.$set(this.daterangepicker.ranges, 'Last 15 mins', [moment().subtract(15, 'minute'), moment()])
+
+        if(payload.data_range.start < Date.now() - HOUR)
+          this.$set(this.daterangepicker.ranges, 'Last Hour', [moment().subtract(1, 'hour'), moment()])
+
       }
       debug_internals('__process_dashoard_data_range', payload, this.daterangepicker)
 
