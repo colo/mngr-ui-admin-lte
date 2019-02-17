@@ -44,7 +44,7 @@ export default {
   path: undefined,
   key: undefined,
 
-  length: undefined,
+  // length: undefined,
 
   props: {
     EventBus: {
@@ -106,6 +106,18 @@ export default {
   //     return data
   //   }
   // }),
+  watch: {
+    'stat.range': {
+      handler: function(newVal, oldVal) {
+        // if(newVal) {this.$store.registerModule('dashboard_'+newVal, Object.clone(dashboardStore))}
+        if(newVal && oldVal && !newVal.every(function(val, index){ return val == oldVal[index]})){
+          debug_internals('new range', newVal, oldVal)
+          this.__change_range(newVal)
+        }
+      },
+      // deep: true
+    },
+  },
   created () {
     this.$options.__buffer_data = []
 
@@ -114,7 +126,8 @@ export default {
     if(range_length == undefined || range_length <= 1)
       this.$options.__range_init = true
 
-    this.$options.length = this.stat.length || range_length
+    this.stat.length = this.stat.length || range_length
+    // this.$options.length = this.stat.length || range_length
 
 
     this.$options.root = this.id.split('.')[0]
@@ -157,14 +170,14 @@ export default {
     * @test - no local data
     **/
 
-    debug_internals('stat.vue data', this.id, this.stat.data, this.stat.range, this.$options.length)
+    debug_internals('stat.vue data', this.id, this.stat.data, this.stat.range, this.stat.length)
 
-    if(this.stat.range && this.$options.length > 1){
+    if(this.stat.range && this.stat.length > 1){
       // this.$store.dispatch(this.$options.type+'/'+this.id+'/get', {
       //   root: this.$options.root,
       //   path: this.$options.path,
       //   key: this.$options.key,
-      //   length: this.$options.length,
+      //   length: this.stat.length,
       //   range: this.stat.range
       // }).then((docs) => {
       //   /**
@@ -239,17 +252,7 @@ export default {
       }
 
       if(range.length > 0 && range[0] && range[1]){
-        this.$options.__range_init = false
-
-        debug_internals('adding event', 'dashboard_'+this.dashboard+'/events/add', this.id)
-        this.$store.commit('dashboard_'+this.dashboard+'/events/add', {
-          id: this.id,
-          type: 'onRange',
-          'opts': {
-            range: range,
-            // tabular: (this.$options.type == 'tabular') ? true : false
-          }
-        })
+        this.__change_range(range)
       }
 
       /**
@@ -305,7 +308,7 @@ export default {
               //////////console.log('__stat_unwatcher merged ', val)
 
               if(matched_columns == true){
-                if(this.$options.length == 1){
+                if(this.stat.length == 1){
                   this.__add_stats(val[val.length -1])
                 }
                 else{
@@ -320,7 +323,7 @@ export default {
     }
     else{
       this.$options.__stat_unwatcher = this.$watch('stat.data', function(val, old){
-        // console.log('__stat_unwatcher', this.id, val, this.$options.length)
+        // console.log('__stat_unwatcher', this.id, val, this.stat.length)
         val = JSON.parse(JSON.stringify(val))
 
 
@@ -336,7 +339,7 @@ export default {
         // this.__stat_data_watcher(val)
         if(val && val.length > 0){
           let __cloned = Array.clone(val)
-          if(this.$options.length == 1){
+          if(this.stat.length == 1){
             this.__add_stats(__cloned[__cloned.length -1])
           }
           else{
@@ -362,6 +365,20 @@ export default {
     * based on docs (obtained from local DB) and range, defined if we can update stat with this
     * plus a shorter remote range, or we need to clear and obtain all new data from remote
     */
+    __change_range(range){
+      this.$options.__range_init = false
+
+      debug_internals('adding event', 'dashboard_'+this.dashboard+'/events/add', this.id)
+
+      this.$store.commit('dashboard_'+this.dashboard+'/events/add', {
+        id: this.id,
+        type: 'onRange',
+        'opts': {
+          range: range,
+          // tabular: (this.$options.type == 'tabular') ? true : false
+        }
+      })
+    },
     __get_new_range: function(docs, range){
 
       // //////console.log('__get_new_range', docs, Array.clone(range))
@@ -544,7 +561,7 @@ export default {
         // __stat_data.sort(function(a,b) {
         //   return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);
         // })
-        // let splice = this.$options.length
+        // let splice = this.stat.length
         // let length = __stat_data.length
         //
         // __stat_data.splice(
@@ -630,7 +647,7 @@ export default {
 
           this.stat_lastupdate = Date.now()
 
-          let splice = this.$options.length
+          let splice = this.stat.length
           let length = this.stat_data.length
 
           this.stat_data.splice(

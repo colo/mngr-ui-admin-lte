@@ -224,7 +224,7 @@ export default {
     __init_charts: function(next){
       this.$options.charts_payloads = host_charts_payloads({
         host: this.host,
-        seconds: this.seconds,
+        // seconds: this.seconds,
         // seconds: 300,
         range: this.range,
       })
@@ -263,11 +263,11 @@ export default {
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
                     // key: 'cpus',
-                    length: this.seconds,
+                    // length: this.seconds,
                     tabular: true,
-                    range: this.range
+                    // range: this.range
                   }],
-                  length: this.seconds,
+                  // length: this.seconds,
                   range: this.range,
                 },
                 /**
@@ -332,11 +332,11 @@ export default {
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
                     // key: 'cpus',
-                    length: this.seconds,
+                    // length: this.seconds,
                     tabular: false,
-                    range: this.range
+                    // range: this.range
                   }],
-                  length: this.seconds,
+                  // length: this.seconds,
                   range: this.range,
                 },
                 /**
@@ -391,11 +391,11 @@ export default {
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
                     // key: 'cpus',
-                    length: this.seconds,
+                    // length: this.seconds,
                     tabular: false,
-                    range: this.range
+                    // range: this.range
                   }],
-                  length: this.seconds,
+                  // length: this.seconds,
                   range: this.range,
                 },
                 /**
@@ -456,11 +456,11 @@ export default {
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
                     // key: 'cpus',
-                    length: this.seconds,
+                    // length: this.seconds,
                     tabular: true,
-                    range: this.range
+                    // range: this.range
                   }],
-                  length: this.seconds,
+                  // length: this.seconds,
                   range: this.range,
                 },
                 /**
@@ -549,11 +549,11 @@ export default {
                       events: [{
                         host: this.host,
                         path: 'os_networkInterfaces_stats',
-                        length: this.seconds,
+                        // length: this.seconds,
                         tabular: true,
-                        range: this.range
+                        // range: this.range
                       }],
-                      length: this.seconds,
+                      // length: this.seconds,
                       range: this.range,
                     },
                     /**
@@ -650,11 +650,11 @@ export default {
                       events: [{
                         host: this.host,
                         path: 'os_mounts',
-                        length: this.seconds,
+                        // length: this.seconds,
                         tabular: true,
-                        range: this.range
+                        // range: this.range
                       }],
-                      length: this.seconds,
+                      // length: this.seconds,
                       range: this.range,
                     },
                     /**

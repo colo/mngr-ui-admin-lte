@@ -35,13 +35,15 @@
               :EventBus="EventBus"
               :chart="chart.chart"
               :stat="{
-                range: chart.stat.range,
+                range: range,
                 length: chart.stat.length,
                 merged: chart.stat.merged,
                 data: chart.stat.sources ? chart.stat.sources.map(function(source){ return $store.state[source.type+'_sources'][source.path]}) : chart.stat.data
               }"
             >
             </component>
+            <!-- range: chart.stat.range -->
+
             <!-- data: chart.data.sources ? [$store.state[chart.data.sources[0].type][chart.data.sources[0].path], $store.state[chart.data.sources[1].type][chart.data.sources[1].path]] : chart.data.data -->
             <!-- :stat="{
               range: range,
@@ -222,29 +224,29 @@ export default {
       paused: state => state.app.pause,
       freezed: state => state.app.freeze,
 
-      seconds: function(state){
-        // //////////////////console.log('state.app.range', state.app.range)
-
-        let end = Date.now()
-        if(
-          this.range
-          && this.range[1]
-          && this.range != null
-        )
-          end = this.range[1]
-
-        let start = Date.now() - (MINUTE * 5) //5 mins default
-        if(
-          this.range
-          && this.range[0] && this.range[0] != null
-        )
-          start = this.range[0]
-
-        let seconds = Math.trunc( (end - start) / 1000 )
-
-        return seconds
-        // return 300
-      },
+      // seconds: function(state){
+      //   // //////////////////console.log('state.app.range', state.app.range)
+      //
+      //   let end = Date.now()
+      //   if(
+      //     this.range
+      //     && this.range[1]
+      //     && this.range != null
+      //   )
+      //     end = this.range[1]
+      //
+      //   let start = Date.now() - (MINUTE * 5) //5 mins default
+      //   if(
+      //     this.range
+      //     && this.range[0] && this.range[0] != null
+      //   )
+      //     start = this.range[0]
+      //
+      //   let seconds = Math.trunc( (end - start) / 1000 )
+      //
+      //   return seconds
+      //   // return 300
+      // },
 
       // dashboard_charts: function(state){
       //   // let host = state.hosts.current || this.$route.params.host
@@ -708,7 +710,7 @@ export default {
               if(_ref.$children && _ref.$options.visible === true)
                 Array.each(_ref.$children, function(child){
                   if(child.$options.graph instanceof Dygraph){
-                    console.log('sync charts', name, ref)
+                    // console.log('sync charts', name, ref)
                     gs.push(child.$options.graph)
                   }
                 })
