@@ -12,6 +12,7 @@
               @range="set_range"
               :options="daterangepicker"
               :id="id"
+              :ref="id+'.daterangepicker'"
             />
             <!-- @click="update_daterangepicker" -->
 
@@ -867,23 +868,38 @@ export default {
     **/
     __process_dashoard_data_range: function(payload){
 
-      this.$store.commit('dashboard_'+this.id+'/data_range', [payload.data_range.start, payload.data_range.end])
+
+
 
       if(this.freeze_daterangepicker_update == false) {
-        this.$set(this.daterangepicker, 'startDate',  moment(payload.data_range.start))
-        this.$set(this.daterangepicker, 'endDate',  moment(payload.data_range.end))
+        debug_internals('__process_dashoard_data_range', payload, this.daterangepicker, this.$refs[this.id+'.daterangepicker'])
 
-        if(payload.data_range.start < Date.now() - MINUTE * 5)
+        let range_minutes = ((payload.data_range.end - payload.data_range.start) / 1000) / 60
+        // this.$set(this.daterangepicker, 'startDate',  moment(payload.data_range.start))
+        // this.$set(this.daterangepicker, 'endDate',  moment(payload.data_range.end))
+        if(this.$store.state['dashboard_'+this.id].data_range[0] != payload.data_range.start)
+          this.$refs[this.id+'.daterangepicker'].setStartDate(moment(payload.data_range.start))
+
+        if(this.$store.state['dashboard_'+this.id].data_range[1] != payload.data_range.end)
+          this.$refs[this.id+'.daterangepicker'].setEndDate(moment(payload.data_range.end))
+
+
+        if(range_minutes > 5 && payload.data_range.start < Date.now() - MINUTE * 5)
           this.$set(this.daterangepicker.ranges, 'Last 5 mins', [moment().subtract(5, 'minute'), moment()])
 
-        if(payload.data_range.start < Date.now() - MINUTE * 15)
+        if(range_minutes > 15 && payload.data_range.start < Date.now() - MINUTE * 15)
           this.$set(this.daterangepicker.ranges, 'Last 15 mins', [moment().subtract(15, 'minute'), moment()])
 
-        if(payload.data_range.start < Date.now() - HOUR)
+        if(range_minutes > 30 && payload.data_range.start < Date.now() - MINUTE * 30)
+          this.$set(this.daterangepicker.ranges, 'Last 30 mins', [moment().subtract(30, 'minute'), moment()])
+
+        if(range_minutes > 60 && payload.data_range.start < Date.now() - HOUR)
           this.$set(this.daterangepicker.ranges, 'Last Hour', [moment().subtract(1, 'hour'), moment()])
 
       }
-      debug_internals('__process_dashoard_data_range', payload, this.daterangepicker)
+
+
+      this.$store.commit('dashboard_'+this.id+'/data_range', [payload.data_range.start, payload.data_range.end])
 
     },
     __process_dashoard_data: function(payload){
@@ -981,8 +997,8 @@ export default {
       // EventBus.$once('charts', this.__process_dashoard_charts)
 
       //should be $on probably, not $once
-      EventBus.$on('instances', this.__process_dashoard_instances)
-      EventBus.$on('paths', this.__process_dashoard_paths)
+      EventBus.$once('instances', this.__process_dashoard_instances)
+      EventBus.$once('paths', this.__process_dashoard_paths)
 
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)
@@ -1109,25 +1125,25 @@ export default {
     /**
     * @start - UI
     **/
-    update_daterangepicker: function(){
-      if(!this.daterangepicker) this.daterangepicker = this.$options.daterangepicker
-
-      // Object.each(this.$options.daterangepicker, function(data, prop){
-      //   this.$set(this.daterangepicker, prop, data)
-      // }.bind(this))
-
-      Object.each(this.$options.daterangepicker.ranges, function(range, key){
-        // range[1] = moment(new Date())
-        // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
-        Array.each(range, function(start_or_end, index){
-          if(typeof this.$options.daterangepicker.ranges[key][index] == 'function')
-            this.$set(this.daterangepicker.ranges[key], index, this.$options.daterangepicker.ranges[key][index]())
-
-        }.bind(this))
-        //////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
-      }.bind(this))
-
-    },
+    // update_daterangepicker: function(){
+    //   if(!this.daterangepicker) this.daterangepicker = this.$options.daterangepicker
+    //
+    //   // Object.each(this.$options.daterangepicker, function(data, prop){
+    //   //   this.$set(this.daterangepicker, prop, data)
+    //   // }.bind(this))
+    //
+    //   Object.each(this.$options.daterangepicker.ranges, function(range, key){
+    //     // range[1] = moment(new Date())
+    //     // this.$set(this.daterangepicker.ranges[key], 1, moment(Date.now()))
+    //     Array.each(range, function(start_or_end, index){
+    //       if(typeof this.$options.daterangepicker.ranges[key][index] == 'function')
+    //         this.$set(this.daterangepicker.ranges[key], index, this.$options.daterangepicker.ranges[key][index]())
+    //
+    //     }.bind(this))
+    //     //////////////console.log('update_daterangepicker', this.daterangepicker.ranges[key])
+    //   }.bind(this))
+    //
+    // },
     set_range: function(start, end){
       // ////////console.log('set_range', start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf())
       let range = [start.utc().startOf('second').valueOf(), end.utc().startOf('second').valueOf()]

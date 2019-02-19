@@ -98,7 +98,13 @@ export default {
     this._daterangepicker()
   },
   methods: {
-    _update_daterangepicker(val, old){
+    setStartDate: function(date){
+      $('#'+this.id).data('daterangepicker').setStartDate(date)
+    },
+    setEndDate: function(date){
+      $('#'+this.id).data('daterangepicker').setEndDate(date)
+    },
+    _update_daterangepicker: function(val, old){
       debug_internals('_update_daterangepicker', val, old)
       // if(old)
       //   Object.each(old, function(option, key){
@@ -112,7 +118,6 @@ export default {
       this._daterangepicker()
     },
     _daterangepicker: function(){
-      debug_internals('_daterangepicker', this.id, this.options)
 
       let self = this
       // console.log('_daterangepicker', self.ranges)
@@ -128,6 +133,8 @@ export default {
       $('#'+this.id).on('hide.daterangepicker', function(){
         self.$emit('hide')
       })
+
+      debug_internals('_daterangepicker', this.id, this.options)
     },
   }
 
