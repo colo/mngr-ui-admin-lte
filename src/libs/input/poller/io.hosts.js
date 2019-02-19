@@ -112,7 +112,7 @@ export default new Class({
 
 
     this.addEvent('onConnect', function(){
-      debug_internals('initialize socket.onConnect')
+      debug_internals('initialize socket.onConnect', this.io.id)
       this.io.emit('on', 'hosts')
       this.io.emit('/')
 

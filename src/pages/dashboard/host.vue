@@ -231,7 +231,7 @@ export default {
 
       let __create_from_tabular_sources = function(tabular_sources){
 
-        // debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
+        debug_internals('__init_charts $store.state.tabular_sources', tabular_sources)
         let whitelist = this.$options.charts_tabular_whitelist
         let blacklist = this.$options.charts_tabular_blacklist
 
@@ -707,10 +707,12 @@ export default {
 
       }.bind(this)
 
-
+      debug_internals('$store.state.tabular_sources', this.$store.state.tabular_sources.length)
 
       let __unwatch_tabular_sources = this.$watch('$store.state.tabular_sources', function(tabular_sources){
         //   __unwatch_tabular_sources()
+        debug_internals('$store.state.tabular_sources', tabular_sources, this.id)
+
         if(tabular_sources
           && this.available_charts
           && this.dashboard_instances

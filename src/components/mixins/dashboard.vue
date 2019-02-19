@@ -981,8 +981,8 @@ export default {
       // EventBus.$once('charts', this.__process_dashoard_charts)
 
       //should be $on probably, not $once
-      EventBus.$once('instances', this.__process_dashoard_instances)
-      EventBus.$once('paths', this.__process_dashoard_paths)
+      EventBus.$on('instances', this.__process_dashoard_instances)
+      EventBus.$on('paths', this.__process_dashoard_paths)
 
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)

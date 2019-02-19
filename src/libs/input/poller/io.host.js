@@ -379,7 +379,7 @@ export default new Class({
 		this.profile('root_init');//start profiling
 
     this.addEvent('onConnect', function(){
-      debug_internals('initialize socket.onConnect')
+      debug_internals('initialize socket.onConnect', this.io.id)
 
       this.io.emit('on', [
         {host: this.options.stat_host, prop: 'instances'},
