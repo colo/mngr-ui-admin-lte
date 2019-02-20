@@ -62,6 +62,12 @@ import host_charts_payloads from '@etc/host.charts.payloads'
 
 import dashboard from 'components/mixins/dashboard'
 
+const SECOND = 1000
+const MINUTE = SECOND * 60
+const HOUR = MINUTE * 60
+const DAY = HOUR * 24
+
+
 export default {
   mixins: [dashboard],
   // components: {
@@ -146,6 +152,21 @@ export default {
       // modules_blacklist: state => state.hosts.modules_blacklist,
       // modules_whitelist: state => state.hosts.modules_whitelist,
 
+      /**
+      * @overrides mixins/dashboard
+      **/
+      range: function(state){
+        // console.log('EVENTS', this.id)
+        debug_internals('computed range', state['dashboard_'+this.id].range)
+
+        if(this.id && state['dashboard_'+this.id] && state['dashboard_'+this.id].range.length > 0){
+          return state['dashboard_'+this.id].range
+        }
+        else{
+          return [Date.now() - (MINUTE * 10), Date.now()]
+        }
+
+      },
 
       hosts: state => state.hosts.all,
 

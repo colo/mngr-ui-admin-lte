@@ -210,7 +210,7 @@ export default {
         // console.log('EVENTS', this.id)
         debug_internals('computed range', state['dashboard_'+this.id].range)
 
-        if(this.id && state['dashboard_'+this.id]){
+        if(this.id && state['dashboard_'+this.id] && state['dashboard_'+this.id].range.length > 0){
           return state['dashboard_'+this.id].range
         }
         else{
@@ -278,7 +278,7 @@ export default {
           this.dashboard_instances != undefined
           && this.stat_init == true
           && this.tabular_init == true
-          && this.range.length > 0
+          // && this.range.length > 0
           // && Object.getLength(this.$store.state.stats_sources) > 0
           // && Object.getLength(this.$store.state.tabulars_sources) > 0
         ){
@@ -1007,7 +1007,7 @@ export default {
       // this.update_daterangepicker()
 
       let __init = function(next){
-        this.set_range(moment().subtract(5, 'minute'), moment())
+        // this.set_range(moment().subtract(10, 'minute'), moment())
 
         if(this.all_init === true){
           this.__init_charts()
