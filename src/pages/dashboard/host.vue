@@ -84,7 +84,7 @@ export default {
 
   // charts_stat_whitelist: /freemem/,
   charts_stat_blacklist: /^[a-zA-Z0-9_\.]+$/i,
-  charts_tabular_blacklist: /os_procs_stats_pids_count|os_procs_stats_uids_count|os_procs_stats_cmds_count|os_procs_stats_percentage_cpu|os_procs_cmd_stats_percentage_cpu|os_procs_uid_stats_percentage_cpu|os_networkInterfaces_stats_(.*?)_(drop|err|packets)|mounts/i,
+  charts_tabular_blacklist: /colo_os_procs_uid_stats_uids_count|os_procs_cmd_stats_cmds_count|os_procs_stats_pids_count|os_procs_stats_uids_count|os_procs_stats_cmds_count|os_procs_stats_percentage_cpu|os_procs_cmd_stats_percentage_cpu|os_procs_uid_stats_percentage_cpu|os_networkInterfaces_stats_(.*?)_(drop|err|packets)|mounts/i,
 
   name: 'admin-lte-dashboard-host',
 

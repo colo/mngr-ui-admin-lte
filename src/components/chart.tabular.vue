@@ -1,5 +1,10 @@
 
 <script>
+import * as Debug from "debug"
+const debug = Debug("mngr-ui-admin-lte:components:chart.tabular"),
+      debug_internals = Debug("mngr-ui-admin-lte:components:chart.tabular:Internals"),
+      debug_events = Debug("mngr-ui-admin-lte:components:chart.tabular:Events");
+
 // let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
 // let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
 // let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
@@ -83,6 +88,8 @@ export default {
 
             data.push(row.value)
           })
+
+          // debug_internals('__create_watcher->generic_data_watcher',this.id, data, inmediate)
 
           this.update_chart_stat(this.id, data, inmediate)
 
