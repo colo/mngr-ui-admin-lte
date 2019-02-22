@@ -1008,7 +1008,7 @@ export default {
 
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)
-      EventBus.$on('data_range', this.__process_dashoard_data_range)
+      EventBus.$on('data_range', this.__process_dashoard_data_range.bind(this))
 
       // this.update_daterangepicker()
 
