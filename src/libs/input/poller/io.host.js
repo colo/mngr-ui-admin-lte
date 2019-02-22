@@ -387,7 +387,7 @@ export default new Class({
         // {host: this.options.stat_host, prop: 'data', format: 'stat'},
         // {host: this.options.stat_host, prop: 'data', format: 'tabular'}
       ])
-      // this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
+      this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
 
       // this.io.emit('on', {host: this.options.stat_host, prop: 'paths', format: 'stat'})
 

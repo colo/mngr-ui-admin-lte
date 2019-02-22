@@ -916,49 +916,55 @@ export default {
 
       let counter = 0
       if(payload[type]){
-        Object.each(payload[type], function(data, path){
-          let new_path = undefined
-          let new_val = undefined
-          if(Array.isArray(data)){
+        if(Object.getLength(payload[type]) > 0){
+          Object.each(payload[type], function(data, path){
+            let new_path = undefined
+            let new_val = undefined
+            if(Array.isArray(data)){
 
-            // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
+              // if((whitelist && whitelist.test(path)) || (blacklist && !blacklist.test(path)))
 
-            if(this.__white_black_lists_filter(whitelist, blacklist, path))
-              this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path, value: data})
-          }
-          else{
+              if(this.__white_black_lists_filter(whitelist, blacklist, path))
+                this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path, value: data})
+            }
+            else{
 
-            Object.each(data, function(value, key){
-              if(Array.isArray(value)){
+              Object.each(data, function(value, key){
+                if(Array.isArray(value)){
 
-                // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
-
-
-                if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
-                  this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key, value: value})
-
-              }
-              else{
-                //3rd level, there is no need for more
-                Object.each(value, function(val, sub_key){
-
-                  if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
-                    this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
-
-                }.bind(this))
-              }
+                  // if((whitelist && whitelist.test(path+'.'+key)) || (blacklist && !blacklist.test(path+'.'+key)))
 
 
+                  if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key))
+                    this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key, value: value})
 
-            }.bind(this))
-          }
+                }
+                else{
+                  //3rd level, there is no need for more
+                  Object.each(value, function(val, sub_key){
+
+                    if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key))
+                      this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
+
+                  }.bind(this))
+                }
 
 
-          if(counter == Object.getLength(payload[type]) - 1)
-            this.$set(this, init, true)
 
-          counter++
-        }.bind(this))
+              }.bind(this))
+            }
+
+
+            if(counter == Object.getLength(payload[type]) - 1)
+              this.$set(this, init, true)
+
+            counter++
+          }.bind(this))
+        }
+        else{
+          this.$set(this, init, true)
+        }
+
       }
 
 
