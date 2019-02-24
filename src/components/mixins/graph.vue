@@ -176,8 +176,8 @@ export default {
       this.$options.__chart_init = false
 
     },
-    __create_watcher(name, chart){},
-    update_chart_stat (name, data, inmediate){
+    __create_watcher: function(name, chart){},
+    update_chart_stat: function (name, data, inmediate){
       inmediate = ( inmediate !== undefined ) ? inmediate : (this.$options.firt_update === false) ? true : false
       this.$options.firt_update = true
 

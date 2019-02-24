@@ -83,10 +83,12 @@ export default {
     // }
   },
 
+  stat_data: [],
+
   data () {
     return {
       stat_lastupdate: 0,
-      stat_data: []
+      // stat_data: []
     }
 
   },
@@ -120,6 +122,8 @@ export default {
   },
   created () {
     this.$options.__buffer_data = []
+
+    this.$options.stat_data = []
 
     const DATA_LENGTH = (this.stat && this.stat.data) ? this.stat.data.length : 0
     let range_length = (this.stat.range && this.stat.range[1] && this.stat.range[0]) ? (this.stat.range[1] - this.stat.range[0]) / 1000 : undefined
@@ -510,12 +514,12 @@ export default {
       // this.$store.dispatch(this.$options.type+'/'+this.id+'/add', data)
 
       this.__set_stat_data(data.data)
-      // this.stat_data.push( data.data )
+      // this.$options.stat_data.push( data.data )
       // this.stat_lastupdate = Date.now()
       //
       // let splice = this.stat.length * 1
       //
-      // let length = this.stat_data.length
+      // let length = this.$options.stat_data.length
       //
       // // splice = (splice == 1) ? 2 : splice
       //
@@ -523,14 +527,14 @@ export default {
       // //   this.$set(this.stats[name], 'data', [])
       // // }
       // // else{
-      //   this.stat_data.splice(
+      //   this.$options.stat_data.splice(
       //     (splice * -1) -1,
       //     length - splice
       //   )
       // // }
       //
       //
-      // // //////////console.log('stat.vue __add_stats', this.id, data.data, this.stat_data.length, splice, length)
+      // // //////////console.log('stat.vue __add_stats', this.id, data.data, this.$options.stat_data.length, splice, length)
       //
 
       //   }.bind(this))
@@ -548,7 +552,7 @@ export default {
       //   //////console.log('__set_stat_data visibility', this.id, this.$options.focus, this.$options.visible)
 
         // docs.sort(function(a,b) {return (a.metadata.timestamp > b.metadata.timestamp) ? 1 : ((b.metadata.timestamp > a.metadata.timestamp) ? -1 : 0);} )
-        // let __stat_data = Array.clone(this.stat_data)
+        // let __stat_data = Array.clone(this.$options.stat_data)
         //
         // if(!Array.isArray(data) && this.$options.__range_init == true){
         //   __stat_data.push(Object.clone(data))
@@ -573,16 +577,16 @@ export default {
 
 
         if(Array.isArray(data)){
-          // this.$set(this, 'stat_data', this.stat_data.append(data))
+          // this.$set(this, 'stat_data', this.$options.stat_data.append(data))
           Array.each(Array.clone(data), function(val){
             let found = false
-            Array.each(this.stat_data, function(stat){
+            Array.each(this.$options.stat_data, function(stat){
               if(stat.timestamp == val.timestamp)
                 found = true
             }.bind(this))
 
             if(found == false)
-              this.stat_data.push( val )
+              this.$options.stat_data.push( val )
 
           }.bind(this))
           this.$options.__range_init = true
@@ -600,39 +604,39 @@ export default {
 
           Array.each(Array.clone(this.$options.__buffer_data), function(val){
             let found = false
-            Array.each(this.stat_data, function(stat){
+            Array.each(this.$options.stat_data, function(stat){
               if(stat.timestamp == val.timestamp)
                 found = true
             }.bind(this))
 
             if(found == false)
-              this.stat_data.push( val )
+              this.$options.stat_data.push( val )
 
           }.bind(this))
 
 
           // Array.each(this.$options.__buffer_data, function(buffer_stat){
           //   let found = false
-          //   Array.each(this.stat_data, function(stat){
+          //   Array.each(this.$options.stat_data, function(stat){
           //     if(stat.timestamp == buffer_stat.timestamp)
           //       found = true
           //
           //   }.bind(this))
           //
           //   if(found == false)
-          //     this.stat_data.push( buffer_stat )
+          //     this.$options.stat_data.push( buffer_stat )
           // }.bind(this))
 
           this.$options.__buffer_data = []
 
           // let found = false
-          // Array.each(this.stat_data, function(stat){
+          // Array.each(this.$options.stat_data, function(stat){
           //   if(stat.timestamp == data.timestamp)
           //     found = true
           // }.bind(this))
           //
           // if(found == false)
-          //   this.stat_data.push( data )
+          //   this.$options.stat_data.push( data )
 
           // added = true
         }
@@ -641,21 +645,24 @@ export default {
         }
 
         if(this.$options.__range_init == true){
-          this.stat_data.sort(function(a,b) {
+          this.$options.stat_data.sort(function(a,b) {
             return (a.timestamp > b.timestamp) ? 1 : ((b.timestamp > a.timestamp) ? -1 : 0);
           })
 
           this.stat_lastupdate = Date.now()
 
           let splice = this.stat.length
-          let length = this.stat_data.length
+          let length = this.$options.stat_data.length
 
-          this.stat_data.splice(
+          this.$options.stat_data.splice(
             (splice * -1) -1,
             length - splice
           )
+
+          // this.$emit('stat_data', this.$options.stat_data)
+          this.__update_data(this.$options.stat_data)
         }
-        // ////console.log('stat.vue/splice', splice, length, this.stat_data)
+        // ////console.log('stat.vue/splice', splice, length, this.$options.stat_data)
 
       // }
       // //console.log('__set_stat_data', data, this.$options.__range_init)
