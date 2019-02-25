@@ -641,6 +641,7 @@ export default {
         __networkInterfaces_merge.sort()
         let __networkInterfaces_merged_charts = {}
         let networkInterface = new RegExp(this.host+'_os_networkInterfaces_stats')
+        let __networkInterfaces_merge_names = []
 
         Object.each(tabular_sources, function(stat, key){
 
@@ -654,14 +655,19 @@ export default {
 
             let arr_key = key.split('_')
             let _name = arr_key[arr_key.length - 2]+'_'+arr_key[arr_key.length - 1] //last 2 items
+
+
+
             // let chart_name = this.host+'_os_networkInterfaces_stats_'+_name
             let iface_name = _name.substr(0, _name.indexOf('_'))
             let prop_name = _name.substr(_name.indexOf('_') + 1)
 
-            let data_index = {}
+            // let data_index = {}
 
             // //console.log('IFACE', iface_name, prop_name)
             if(__networkInterfaces_merge.contains(prop_name)){
+              __networkInterfaces_merge_names.push(_name)
+              
               let merged_chart_name = this.host+'_os_networkInterfaces_stats_'+iface_name+'_'+__networkInterfaces_merge.join('_')
 
               if(!this.available_charts[merged_chart_name] && this.dashboard_instances[this.host+'_os_networkInterfaces_stats_'+_name]){
@@ -688,13 +694,14 @@ export default {
                       merged: true,
                       // sources: [],
                       data: [],
-                      events: [{
-                        host: this.host,
-                        path: 'os_networkInterfaces_stats',
-                        // length: this.seconds,
-                        tabular: true,
-                        // range: this.range
-                      }],
+                      events: [],
+                      // events: [{
+                      //   host: this.host,
+                      //   path: 'os_networkInterfaces_stats',
+                      //   // length: this.seconds,
+                      //   tabular: true,
+                      //   // range: this.range
+                      // }],
                       // length: this.seconds,
                       range: this.range,
                     },
@@ -720,7 +727,15 @@ export default {
                   this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name]
                 )
 
-                data_index[_name] = __networkInterfaces_merged_charts[merged_chart_name].stat.data.length -1
+                __networkInterfaces_merged_charts[merged_chart_name].stat.events.push(
+                  Object.clone({
+                    host: this.host,
+                    path: 'os_networkInterfaces_stats_'+_name,
+                    tabular: true,
+                  })
+                )
+
+                // data_index[_name] = __networkInterfaces_merged_charts[merged_chart_name].stat.data.length -1
 
                 let __labels = Array.clone(this.dashboard_instances[this.host+'_os_networkInterfaces_stats_'+_name].options.labels)
                 __labels.shift() //remove 'Time' column
@@ -747,20 +762,23 @@ export default {
                   //   }
                   // })
 
+                  this.$on('tabular_sources', function(){
+                    // if(this.available_charts[merged_chart_name].stat.data.length == __networkInterfaces_merge.length){
+                      this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+
+                    //   debug_internals('on tabular_sources networkInterface cleaning....', merged_chart_name)
+                    // }
+
+                    Array.each(__networkInterfaces_merge_names, function(_name){
+                      this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
+                      debug_internals('on tabular_sources networkInterface merged', merged_chart_name, this.host+'_os_networkInterfaces_stats_'+_name, this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
+                    }.bind(this))
+
+                  }.bind(this))
+
                 }
 
-                this.$on('tabular_sources', function(){
-                  if(this.available_charts[merged_chart_name].stat.data.length == __networkInterfaces_merge.length){
-                    this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
 
-                    debug_internals('on tabular_sources networkInterface cleaning....', merged_chart_name)
-                  }
-
-                  this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
-
-                  debug_internals('on tabular_sources networkInterface', merged_chart_name, this.host+'_os_networkInterfaces_stats_'+_name, this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
-
-                }.bind(this))
 
               }
 
@@ -792,6 +810,8 @@ export default {
             }
           })
 
+          let merged_chart_name = ''
+
           Object.each(tabular_sources, function(stat, key){
             // if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
             if(mount.test(key)){
@@ -800,7 +820,7 @@ export default {
               // let chart_name = this.host+'.os_mounts.'+_name
 
               if(_merge.contains(_name) && this.dashboard_instances[this.host+'_os_mounts_'+_name]){
-                let merged_chart_name = this.host+'_os_mounts'
+                merged_chart_name = this.host+'_os_mounts'
 
                 if(!_merged_charts[merged_chart_name]){
                   _merged_charts[merged_chart_name] = Object.clone({
@@ -816,13 +836,7 @@ export default {
                       merged: true,
                       // sources: [],
                       data: [],
-                      events: [{
-                        host: this.host,
-                        path: 'os_mounts',
-                        // length: this.seconds,
-                        tabular: true,
-                        // range: this.range
-                      }],
+                      events: [],
                       // length: this.seconds,
                       range: this.range,
                     },
@@ -838,9 +852,9 @@ export default {
 
                   _merged_charts[merged_chart_name].chart.options.labels = ['Time']
 
-                  this.$on('tabular_sources', function(){
-                      this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
-                  })
+                  // this.$on('tabular_sources', function(){
+                  //     this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+                  // })
                 }
 
                 // _merged_charts[merged_chart_name].stat.sources.push(
@@ -848,6 +862,14 @@ export default {
                 // )
                 _merged_charts[merged_chart_name].stat.data.push(
                   this.$options['tabular_sources'][this.host+'_os_mounts_'+_name]
+                )
+
+                _merged_charts[merged_chart_name].stat.events.push(
+                  Object.clone({
+                    host: this.host,
+                    path: 'os_mounts_'+_name,
+                    tabular: true,
+                  })
                 )
 
                 let __labels = Array.clone(this.dashboard_instances[this.host+'_os_mounts_'+_name].options.labels)
@@ -878,11 +900,11 @@ export default {
                 }
 
 
-                this.$on('tabular_sources', function(){
-                  this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name])
-                  debug_internals('on tabular_sources mounts', this.$options['tabular_sources'][this.host+'_os_mounts_'+_name], _name)
-
-                })
+                // this.$on('tabular_sources', function(){
+                //   this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name])
+                //   debug_internals('on tabular_sources mounts', this.$options['tabular_sources'][this.host+'_os_mounts_'+_name], _name)
+                //
+                // })
               }
 
 
@@ -891,7 +913,16 @@ export default {
 
           }.bind(this))
 
-        }
+          this.$on('tabular_sources', function(){
+            debug_internals('on tabular_sources mounts', _merge, merged_chart_name)
+            this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+
+            Array.each(_merge, function(_name){
+              this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name])
+            }.bind(this))
+          }.bind(this))
+
+        }//if not chart
 
       }.bind(this)
 
