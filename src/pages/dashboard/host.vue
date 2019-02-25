@@ -164,7 +164,7 @@ export default {
           return state['dashboard_'+this.id].range
         }
         else{
-          return [Date.now() - (MINUTE * 1), Date.now()]
+          return [Date.now() - (MINUTE * 5), Date.now()]
         }
 
       },
