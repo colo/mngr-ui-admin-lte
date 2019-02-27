@@ -654,6 +654,7 @@ export default {
           let splice = this.stat.length
           let length = this.$options.stat_data.length
 
+          debug_internals('__set_stat_data splice', splice, length)
           this.$options.stat_data.splice(
             (splice * -1) -1,
             length - splice

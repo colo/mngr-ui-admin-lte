@@ -117,6 +117,7 @@ export default {
 
   tabular_sources: undefined,
   stat_sources: undefined,
+  MAX_DATA_POINTS: 300,
 
   data () {
     return {
@@ -175,7 +176,7 @@ export default {
 
       // cpus: function(state){
       //   if(this.host && state.stat_sources[this.host+'_os_cpus']){
-      //     return state.stat_sources[this.host+'_os_cpus'][0].value
+      //     return state.stat_sources[this.host+'_os_cpus'][0].data
       //   }
       //   else{
       //     return undefined
@@ -219,13 +220,16 @@ export default {
     /**
     * @overrides: mixins/dashboard
     **/
-    __set_source(type, payload){
+    __set_source: function(type, payload){
       payload.key = payload.key.replace(/\./g, '_')
       payload.key = payload.key.replace(/\%/g, 'percentage_')
 
       if(!this.$options[type+'_sources']) this.$options[type+'_sources'] = {}
 
-      this.$options[type+'_sources'][payload.key] = payload.value
+      if(!this.$options[type+'_sources'][payload.key]) this.$options[type+'_sources'][payload.key] = {}
+
+      this.$options[type+'_sources'][payload.key].data = payload.value
+      this.$options[type+'_sources'][payload.key].step = payload.step || 1
 
       // debug_internals('__set_source', type, this.$options[type+'_sources'])
     },
@@ -373,7 +377,7 @@ export default {
                 stat: {
                   merged: false,
                   // sources: [{type: 'tabular', path: source}],
-                  data: [this.$options['tabular_sources'][source]],
+                  data: [this.$options['tabular_sources'][source].data],
                   events: [{
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
@@ -382,7 +386,7 @@ export default {
                     tabular: true,
                     // range: this.range
                   }],
-                  // length: this.seconds,
+                  length: this.$options.MAX_DATA_POINTS,
                   range: this.range,
                 },
                 /**
@@ -396,7 +400,11 @@ export default {
               }),
               {
                 // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
-                chart: Object.merge(Object.clone(dygraph_line_chart), this.dashboard_instances[source]),
+                chart: Object.merge(
+                  Object.clone(dygraph_line_chart),
+                  this.dashboard_instances[source],
+                  {skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step}
+                ),
 
                 // chart: this.dashboard_charts['os.cpus.times'],
               })
@@ -405,7 +413,7 @@ export default {
             this.set_chart_visibility(source, true)
             this.$on('tabular_sources', function(){
               debug_internals('on tabular_sources', source, this.$options['tabular_sources'][source])
-              this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source]])
+              this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source].data])
             })
           }
 
@@ -447,7 +455,7 @@ export default {
                 stat: {
                   merged: false,
                   // sources: [{type: 'stat', path: source}],
-                  data: [this.$options['stat_sources'][source]],
+                  data: [this.$options['stat_sources'][source].data],
                   events: [{
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
@@ -456,7 +464,7 @@ export default {
                     tabular: false,
                     // range: this.range
                   }],
-                  // length: this.seconds,
+                  length: this.$options.MAX_DATA_POINTS,
                   range: this.range,
                 },
                 /**
@@ -480,7 +488,7 @@ export default {
             this.set_chart_visibility(source, true)
             this.$on('stat_sources', function(){
               debug_internals('on stat_sources', source, this.$options['stat_sources'][source])
-              this.$set(this.available_charts[source].stat, 'data', [this.$options['stat_sources'][source]])
+              this.$set(this.available_charts[source].stat, 'data', [this.$options['stat_sources'][source].data])
             })
           }
 
@@ -511,7 +519,7 @@ export default {
                 stat: {
                   merged: false,
                   // sources: [{type: 'stat', path: source}],
-                  data: [this.$options['stat_sources'][source]],
+                  data: [this.$options['stat_sources'][source].data],
                   events: [{
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
@@ -520,7 +528,7 @@ export default {
                     tabular: false,
                     // range: this.range
                   }],
-                  // length: this.seconds,
+                  length: this.$options.MAX_DATA_POINTS,
                   range: this.range,
                 },
                 /**
@@ -534,8 +542,8 @@ export default {
               }),
               chart_payload,
               {
-                // chart: {totalmem: stat_sources[this.host+'_os_totalmem'][0].value}
-                chart: {totalmem: this.$options.stat_sources[this.host+'_os_totalmem'][0].value}
+                // chart: {totalmem: stat_sources[this.host+'_os_totalmem'][0].data}
+                chart: {totalmem: this.$options.stat_sources[this.host+'_os_totalmem'].data[0].value}
               }
             )
           )
@@ -544,7 +552,7 @@ export default {
 
           this.$on('stat_sources', function(){
             debug_internals('on stat_sources', source, this.$options['stat_sources'][source])
-            this.$set(this.available_charts[source].stat, 'data', [this.$options['stat_sources'][source]])
+            this.$set(this.available_charts[source].stat, 'data', [this.$options['stat_sources'][source].data])
           })
 
         }
@@ -584,7 +592,7 @@ export default {
                 stat: {
                   merged: false,
                   // sources: [{type: 'tabular', path: source}],
-                  data: [this.$options['tabular_sources'][source]],
+                  data: [this.$options['tabular_sources'][source].data],
                   events: [{
                     host: this.host,
                     path: this.__match_source_paths(source.replace(this.host+'_', ''), this.$store.state['dashboard_'+this.host].paths, false),
@@ -593,7 +601,7 @@ export default {
                     tabular: true,
                     // range: this.range
                   }],
-                  // length: this.seconds,
+                  length: this.$options.MAX_DATA_POINTS,
                   range: this.range,
                 },
                 /**
@@ -613,7 +621,7 @@ export default {
                   {
                     "options": {
                       // valueRange: [0, this.cpus.length * 100],
-                      valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'][0].value.length * 100],
+                      valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'].data[0].value.length * 100],
                       stackedGraph: true,
                       // labels: ['Time'],
                     }
@@ -627,7 +635,7 @@ export default {
             this.set_chart_visibility(source, true)
             this.$on('tabular_sources', function(){
               debug_internals('on tabular_sources os_procs_*_percentage_cpu', source, this.$options['tabular_sources'][source])
-              this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source]])
+              this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source].data])
             })
           }
 
@@ -667,7 +675,7 @@ export default {
             // //console.log('IFACE', iface_name, prop_name)
             if(__networkInterfaces_merge.contains(prop_name)){
               __networkInterfaces_merge_names.push(_name)
-              
+
               let merged_chart_name = this.host+'_os_networkInterfaces_stats_'+iface_name+'_'+__networkInterfaces_merge.join('_')
 
               if(!this.available_charts[merged_chart_name] && this.dashboard_instances[this.host+'_os_networkInterfaces_stats_'+_name]){
@@ -702,7 +710,7 @@ export default {
                       //   tabular: true,
                       //   // range: this.range
                       // }],
-                      // length: this.seconds,
+                      length: this.$options.MAX_DATA_POINTS,
                       range: this.range,
                     },
                     /**
@@ -724,7 +732,7 @@ export default {
                 //   {type: 'tabular', path:this.host+'_os_networkInterfaces_stats_'+_name}
                 // )
                 __networkInterfaces_merged_charts[merged_chart_name].stat.data.push(
-                  this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name]
+                  this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].data
                 )
 
                 __networkInterfaces_merged_charts[merged_chart_name].stat.events.push(
@@ -770,7 +778,7 @@ export default {
                     // }
 
                     Array.each(__networkInterfaces_merge_names, function(_name){
-                      this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
+                      this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].data)
                       debug_internals('on tabular_sources networkInterface merged', merged_chart_name, this.host+'_os_networkInterfaces_stats_'+_name, this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
                     }.bind(this))
 
@@ -837,7 +845,7 @@ export default {
                       // sources: [],
                       data: [],
                       events: [],
-                      // length: this.seconds,
+                      length: this.$options.MAX_DATA_POINTS,
                       range: this.range,
                     },
                     /**
@@ -861,7 +869,7 @@ export default {
                 //   {type: 'tabular', path:this.host+'_os_mounts_'+_name}
                 // )
                 _merged_charts[merged_chart_name].stat.data.push(
-                  this.$options['tabular_sources'][this.host+'_os_mounts_'+_name]
+                  this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data
                 )
 
                 _merged_charts[merged_chart_name].stat.events.push(
@@ -918,7 +926,7 @@ export default {
             this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
 
             Array.each(_merge, function(_name){
-              this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name])
+              this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data)
             }.bind(this))
           }.bind(this))
 
