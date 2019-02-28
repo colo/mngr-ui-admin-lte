@@ -232,7 +232,7 @@ export default {
       if(payload.step && payload.step > 1 && payload.step > this.$options[type+'_sources'][payload.key].step)
         this.$options[type+'_sources'][payload.key].step = payload.step
 
-      console.log('__set_source step', this.$options[type+'_sources'][payload.key].step, payload.step)
+      // console.log('__set_source step', this.$options[type+'_sources'][payload.key].step, payload.step)
       // debug_internals('__set_source', type, this.$options[type+'_sources'])
     },
     __process_dashoard_data: function(payload){
@@ -263,7 +263,7 @@ export default {
                 this.__set_source(type, {key: payload.key+'_'+path, value: data, step: payload.step})
               }
             }
-            else{
+            else if(data){
 
               Object.each(data, function(value, key){
                 if(Array.isArray(value)){
@@ -430,10 +430,20 @@ export default {
               debug_internals('on tabular_sources', source, this.$options['tabular_sources'][source])
               this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source].data])
 
-              console.log('host tabular_sources skip', this.$options['tabular_sources'][source].step)
+              debug_internals('host tabular_sources skip', this.$options['tabular_sources'][source].step)
+              // console.log('host tabular_sources skip', this.$options['tabular_sources'][source].step)
 
-              this.$set(this.available_charts[source].chart, 'skip', (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step)
-              this.$set(this.available_charts[source].chart, 'interval', (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step)
+              this.$set(
+                this.available_charts[source].chart,
+                'skip',
+                (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step
+              )
+
+              this.$set(
+                this.available_charts[source].chart,
+                'interval',
+                (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step
+              )
             })
           }
 
@@ -508,8 +518,8 @@ export default {
             this.$set(this.available_charts[source], 'chart', Object.merge(
               Object.clone(dygraph_line_chart),
               {
-                skip:  this.$options['tabular_sources'][source].step,
-                interval: this.$options['tabular_sources'][source].step
+                skip:  this.$options['stat_sources'][source].step,
+                interval: this.$options['stat_sources'][source].step
               }
             ))
 
@@ -518,8 +528,17 @@ export default {
               debug_internals('on stat_sources', source, this.$options['stat_sources'][source])
               this.$set(this.available_charts[source].stat, 'data', [this.$options['stat_sources'][source].data])
 
-              this.$set(this.available_charts[source].chart, 'skip', (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step)
-              this.$set(this.available_charts[source].chart, 'interval', (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step)
+              this.$set(
+                this.available_charts[source].chart,
+                'skip',
+                (this.available_charts[source].chart.skip > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step
+              )
+
+              this.$set(
+                this.available_charts[source].chart,
+                'interval',
+                (this.available_charts[source].chart.interval > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step
+              )
 
             })
           }
@@ -593,12 +612,21 @@ export default {
 
           this.$on('stat_sources', function(){
             debug_internals('on stat_sources', source, this.$options['stat_sources'][source])
-            if(this.$options['stat_sources'][source]){
+            // if(this.$options['stat_sources'][source] !== undefined){
               this.$set(this.available_charts[source].stat, 'data', [this.$options['stat_sources'][source].data])
 
-              this.$set(this.available_charts[source].chart, 'skip', (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step)
-              this.$set(this.available_charts[source].chart, 'interval', (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step)
-            }
+              this.$set(
+                this.available_charts[source].chart,
+                'skip',
+                (this.available_charts[source].chart.skip > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step
+              )
+
+              this.$set(
+                this.available_charts[source].chart,
+                'interval',
+                (this.available_charts[source].chart.interval > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step
+              )
+            // }
           }.bind(this))
 
         }
@@ -661,32 +689,218 @@ export default {
               }),
               {
                 // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
-                chart: Object.merge(
-                  Object.clone(dygraph_line_chart),
-                  this.dashboard_instances[source],
-                  {
-                    "options": {
-                      // valueRange: [0, this.cpus.length * 100],
-                      valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'].data[0].value.length * 100],
-                      stackedGraph: true,
-                      // labels: ['Time'],
-                    }
-                  },
-                ),
+                // chart: Object.merge(
+                //   Object.clone(dygraph_line_chart),
+                //   this.dashboard_instances[source],
+                //   {
+                //     "options": {
+                //       // valueRange: [0, this.cpus.length * 100],
+                //       valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'].data[0].value.length * 100],
+                //       stackedGraph: true,
+                //       // labels: ['Time'],
+                //     }
+                //   },
+                // ),
 
                 // chart: this.dashboard_charts['os.cpus.times'],
               })
             )
 
+            this.$set(this.available_charts[source], 'chart', Object.merge(
+              Object.clone(dygraph_line_chart),
+              this.dashboard_instances[source],
+              {
+                skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step,
+                interval: (this.dashboard_instances[source].interval > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].interval : this.$options['tabular_sources'][source].step,
+                "options": {
+                  // valueRange: [0, this.cpus.length * 100],
+                  valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'].data[0].value.length * 100],
+                  stackedGraph: true,
+                  // labels: ['Time'],
+                }
+              }
+            ))
+
             this.set_chart_visibility(source, true)
             this.$on('tabular_sources', function(){
               debug_internals('on tabular_sources os_procs_*_percentage_cpu', source, this.$options['tabular_sources'][source])
               this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source].data])
+
+              this.$set(
+                this.available_charts[source].chart,
+                'skip',
+                (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step
+              )
+
+              this.$set(
+                this.available_charts[source].chart,
+                'interval',
+                (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step
+              )
             })
           }
 
 
         }.bind(this))
+
+      }.bind(this)
+
+      let __create_os_mounts = function(tabular_sources){
+
+        if(!this.available_charts[this.host+'_mounts']){
+          let mount = new RegExp(this.host+'_os_mounts')
+
+          let _merge = []
+          let _merged_charts = {}
+
+          Object.each(tabular_sources, function(stat, key){
+            if(mount.test(key)){
+              let _name = key.substring(key.lastIndexOf('_') + 1)
+              if(!_merge.contains(_name))
+                _merge.push(_name)
+            }
+          })
+
+          let merged_chart_name = ''
+
+          Object.each(tabular_sources, function(stat, key){
+            // if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
+            if(mount.test(key)){
+
+              let _name = key.substring(key.lastIndexOf('_') + 1)
+              // let chart_name = this.host+'.os_mounts.'+_name
+
+              if(_merge.contains(_name) && this.dashboard_instances[this.host+'_os_mounts_'+_name]){
+                merged_chart_name = this.host+'_os_mounts'
+
+                if(!_merged_charts[merged_chart_name]){
+                  _merged_charts[merged_chart_name] = Object.clone({
+                    name: merged_chart_name,
+                    chart: Object.clone(dygraph_line_chart),
+                    init: undefined,
+                    stop: undefined,
+                    wrapper: {
+                      type: 'dygraph',
+                      props: {}
+                    },
+                    stat: {
+                      merged: true,
+                      // sources: [],
+                      data: [],
+                      events: [],
+                      length: this.$options.MAX_DATA_POINTS,
+                      range: this.range,
+                    },
+                    /**
+                    * for __get_stat_for_chart
+                    **/
+                    pipeline: {
+                      name: 'input.os',
+                      // // path: 'os',
+                      // range: true
+                    }
+                  })
+
+                  _merged_charts[merged_chart_name].chart.options.labels = ['Time']
+
+                  // this.$on('tabular_sources', function(){
+                  //     this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+                  // })
+                }
+
+                // _merged_charts[merged_chart_name].stat.sources.push(
+                //   {type: 'tabular', path:this.host+'_os_mounts_'+_name}
+                // )
+                _merged_charts[merged_chart_name].stat.data.push(
+                  this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data
+                )
+
+                _merged_charts[merged_chart_name].stat.events.push(
+                  Object.clone({
+                    host: this.host,
+                    path: 'os_mounts_'+_name,
+                    tabular: true,
+                  })
+                )
+
+                let __labels = Array.clone(this.dashboard_instances[this.host+'_os_mounts_'+_name].options.labels)
+                __labels.shift() //remove 'Time' column
+
+                Array.each(__labels, function(label, index){
+                  _merged_charts[merged_chart_name].chart.options.labels.push(_name+' '+label)
+                })
+
+                if(_merge.indexOf(_name) == _merge.length - 1){//last item
+                  // this.$set(this.available_charts, merged_chart_name, _merged_charts[merged_chart_name])
+
+                  let __chart = _merged_charts[merged_chart_name].chart
+                  delete _merged_charts[merged_chart_name].chart
+
+                  this.$set(this.available_charts, merged_chart_name, _merged_charts[merged_chart_name])
+
+                  this.$set(this.available_charts[merged_chart_name], 'chart', Object.merge(
+                    // Object.clone(dygraph_line_chart),
+                    __chart,
+                    {
+                      skip: this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step,
+                      interval: this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step,
+                    }
+                  ))
+
+                  /**
+                  * if there is only one mount
+                  **/
+                  // if(this.available_charts[merged_chart_name].stat.sources.length == 1)
+                  //   this.available_charts[merged_chart_name].stat.merged = false
+                  if(this.available_charts[merged_chart_name].stat.data.length == 1)
+                    this.available_charts[merged_chart_name].stat.merged = false
+
+                  this.set_chart_visibility(merged_chart_name, true)
+
+                  //console.log('MERGED MOUNT', _merged_charts[merged_chart_name])
+
+                  delete _merged_charts[merged_chart_name]
+
+
+                }
+
+
+                // this.$on('tabular_sources', function(){
+                //   this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name])
+                //   debug_internals('on tabular_sources mounts', this.$options['tabular_sources'][this.host+'_os_mounts_'+_name], _name)
+                //
+                // })
+              }
+
+
+
+            }
+
+          }.bind(this))
+
+          this.$on('tabular_sources', function(){
+            debug_internals('on tabular_sources mounts', _merge, merged_chart_name)
+            this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+
+            Array.each(_merge, function(_name){
+              this.available_charts[merged_chart_name].stat.data.push((this.$options['tabular_sources'][this.host+'_os_mounts_'+_name]) ? this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data : 0)
+
+              this.$set(
+                this.available_charts[merged_chart_name].chart,
+                'skip',
+                (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
+              )
+
+              this.$set(
+                this.available_charts[merged_chart_name].chart,
+                'interval',
+                (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
+              )
+
+            }.bind(this))
+          }.bind(this))
+
+        }//if not chart
 
       }.bind(this)
 
@@ -799,7 +1013,20 @@ export default {
                 })
 
                 if(__networkInterfaces_merge.indexOf(prop_name) == __networkInterfaces_merge.length - 1){//last item
+
+                  let __chart = __networkInterfaces_merged_charts[merged_chart_name].chart
+                  delete __networkInterfaces_merged_charts[merged_chart_name].chart
+
                   this.$set(this.available_charts, merged_chart_name, __networkInterfaces_merged_charts[merged_chart_name])
+
+                  this.$set(this.available_charts[merged_chart_name], 'chart', Object.merge(
+                    // Object.clone(dygraph_line_chart),
+                    __chart,
+                    {
+                      skip: this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step,
+                      interval: this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step,
+                    }
+                  ))
 
                   // if(this.available_charts[merged_chart_name].stat.sources.length == 1)
                   //   this.available_charts[merged_chart_name].stat.merged = false
@@ -823,8 +1050,23 @@ export default {
                     //   debug_internals('on tabular_sources networkInterface cleaning....', merged_chart_name)
                     // }
 
+
+
                     Array.each(__networkInterfaces_merge_names, function(_name){
                       this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].data)
+
+                      this.$set(
+                        this.available_charts[merged_chart_name].chart,
+                        'skip',
+                        (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step
+                      )
+
+                      this.$set(
+                        this.available_charts[merged_chart_name].chart,
+                        'interval',
+                        (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step
+                      )
+
                       debug_internals('on tabular_sources networkInterface merged', merged_chart_name, this.host+'_os_networkInterfaces_stats_'+_name, this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])
                     }.bind(this))
 
@@ -848,137 +1090,7 @@ export default {
       }.bind(this)
 
 
-      let __create_os_mounts = function(tabular_sources){
 
-        if(!this.available_charts[this.host+'_mounts']){
-          let mount = new RegExp(this.host+'_os_mounts')
-
-          let _merge = []
-          let _merged_charts = {}
-
-          Object.each(tabular_sources, function(stat, key){
-            if(mount.test(key)){
-              let _name = key.substring(key.lastIndexOf('_') + 1)
-              if(!_merge.contains(_name))
-                _merge.push(_name)
-            }
-          })
-
-          let merged_chart_name = ''
-
-          Object.each(tabular_sources, function(stat, key){
-            // if(mount.test(key) && this.dashboard_charts['os_mounts.percentage']){
-            if(mount.test(key)){
-
-              let _name = key.substring(key.lastIndexOf('_') + 1)
-              // let chart_name = this.host+'.os_mounts.'+_name
-
-              if(_merge.contains(_name) && this.dashboard_instances[this.host+'_os_mounts_'+_name]){
-                merged_chart_name = this.host+'_os_mounts'
-
-                if(!_merged_charts[merged_chart_name]){
-                  _merged_charts[merged_chart_name] = Object.clone({
-                    name: merged_chart_name,
-                    chart: Object.clone(dygraph_line_chart),
-                    init: undefined,
-                    stop: undefined,
-                    wrapper: {
-                      type: 'dygraph',
-                      props: {}
-                    },
-                    stat: {
-                      merged: true,
-                      // sources: [],
-                      data: [],
-                      events: [],
-                      length: this.$options.MAX_DATA_POINTS,
-                      range: this.range,
-                    },
-                    /**
-                    * for __get_stat_for_chart
-                    **/
-                    pipeline: {
-                      name: 'input.os',
-                      // // path: 'os',
-                      // range: true
-                    }
-                  })
-
-                  _merged_charts[merged_chart_name].chart.options.labels = ['Time']
-
-                  // this.$on('tabular_sources', function(){
-                  //     this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
-                  // })
-                }
-
-                // _merged_charts[merged_chart_name].stat.sources.push(
-                //   {type: 'tabular', path:this.host+'_os_mounts_'+_name}
-                // )
-                _merged_charts[merged_chart_name].stat.data.push(
-                  this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data
-                )
-
-                _merged_charts[merged_chart_name].stat.events.push(
-                  Object.clone({
-                    host: this.host,
-                    path: 'os_mounts_'+_name,
-                    tabular: true,
-                  })
-                )
-
-                let __labels = Array.clone(this.dashboard_instances[this.host+'_os_mounts_'+_name].options.labels)
-                __labels.shift() //remove 'Time' column
-
-                Array.each(__labels, function(label, index){
-                  _merged_charts[merged_chart_name].chart.options.labels.push(_name+' '+label)
-                })
-
-                if(_merge.indexOf(_name) == _merge.length - 1){//last item
-                  this.$set(this.available_charts, merged_chart_name, _merged_charts[merged_chart_name])
-
-                  /**
-                  * if there is only one mount
-                  **/
-                  // if(this.available_charts[merged_chart_name].stat.sources.length == 1)
-                  //   this.available_charts[merged_chart_name].stat.merged = false
-                  if(this.available_charts[merged_chart_name].stat.data.length == 1)
-                    this.available_charts[merged_chart_name].stat.merged = false
-
-                  this.set_chart_visibility(merged_chart_name, true)
-
-                  //console.log('MERGED MOUNT', _merged_charts[merged_chart_name])
-
-                  delete _merged_charts[merged_chart_name]
-
-
-                }
-
-
-                // this.$on('tabular_sources', function(){
-                //   this.available_charts[merged_chart_name].stat.data.push(this.$options['tabular_sources'][this.host+'_os_mounts_'+_name])
-                //   debug_internals('on tabular_sources mounts', this.$options['tabular_sources'][this.host+'_os_mounts_'+_name], _name)
-                //
-                // })
-              }
-
-
-
-            }
-
-          }.bind(this))
-
-          this.$on('tabular_sources', function(){
-            debug_internals('on tabular_sources mounts', _merge, merged_chart_name)
-            this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
-
-            Array.each(_merge, function(_name){
-              this.available_charts[merged_chart_name].stat.data.push((this.$options['tabular_sources'][this.host+'_os_mounts_'+_name]) ? this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data : 0)
-            }.bind(this))
-          }.bind(this))
-
-        }//if not chart
-
-      }.bind(this)
 
       // debug_internals('$store.state.tabular_sources', this.$store.state.tabular_sources.length)
       // debug_internals('$options.tabular_sources', this.$options.tabular_sources.length)
