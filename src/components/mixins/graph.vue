@@ -211,8 +211,8 @@ export default {
 
         this.$options.tabular.data.sort(function(a,b) {return (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0);} )
 
-        debug_internals('graph update_chart_stat skip',this.chart.skip)
-        console.log('graph update_chart_stat skip',this.chart.skip)
+        debug_internals('graph update_chart_stat skip',this.chart.skip, this.chart.interval)
+        console.log('graph update_chart_stat skip',this.chart.skip, this.chart.interval)
 
         if(
           this.chart.skip
