@@ -226,11 +226,13 @@ export default {
 
       if(!this.$options[type+'_sources']) this.$options[type+'_sources'] = {}
 
-      if(!this.$options[type+'_sources'][payload.key]) this.$options[type+'_sources'][payload.key] = {}
+      if(!this.$options[type+'_sources'][payload.key]) this.$options[type+'_sources'][payload.key] = { data: undefined, step: 1 }
 
       this.$options[type+'_sources'][payload.key].data = payload.value
-      this.$options[type+'_sources'][payload.key].step = payload.step || 1
+      if(payload.step > this.$options[type+'_sources'][payload.key].step)
+        this.$options[type+'_sources'][payload.key].step = payload.step
 
+      console.log('__set_source step', this.$options[type+'_sources'][payload.key].step, payload.step)
       // debug_internals('__set_source', type, this.$options[type+'_sources'])
     },
     __process_dashoard_data: function(payload){
@@ -258,7 +260,7 @@ export default {
 
               if(this.__white_black_lists_filter(whitelist, blacklist, path)){
                 // this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path, value: data})
-                this.__set_source(type, {key: payload.key+'_'+path, value: data})
+                this.__set_source(type, {key: payload.key+'_'+path, value: data, step: payload.step})
               }
             }
             else{
@@ -271,7 +273,7 @@ export default {
 
                   if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key)){
                     // this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key, value: value})
-                    this.__set_source(type, {key: payload.key+'_'+path+'_'+key, value: value})
+                    this.__set_source(type, {key: payload.key+'_'+path+'_'+key, value: value, step: payload.step})
                   }
 
                 }
@@ -281,7 +283,7 @@ export default {
 
                     if(this.__white_black_lists_filter(whitelist, blacklist, path+'_'+key+'_'+sub_key)){
                       // this.$store.commit(type+'_sources/add', {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
-                      this.__set_source(type, {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val})
+                      this.__set_source(type, {key: payload.key+'_'+path+'_'+key+'_'+sub_key, value: val, step: payload.step})
                     }
 
                   }.bind(this))
@@ -398,22 +400,40 @@ export default {
                   // range: true
                 }
               }),
-              {
-                // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
-                chart: Object.merge(
-                  Object.clone(dygraph_line_chart),
-                  this.dashboard_instances[source],
-                  {skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step}
-                ),
-
-                // chart: this.dashboard_charts['os.cpus.times'],
-              })
+              // {
+              //   // chart: Object.merge(cpus_times_chart, this.dashboard_charts['os.cpus.times']),
+              //   chart: Object.merge(
+              //     Object.clone(dygraph_line_chart),
+              //     this.dashboard_instances[source],
+              //     {skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step}
+              //   ),
+              //
+              //   // chart: this.dashboard_charts['os.cpus.times'],
+              // }
+              )
             )
+
+
+            this.$set(this.available_charts[source], 'chart', Object.merge(
+              Object.clone(dygraph_line_chart),
+              this.dashboard_instances[source],
+              {
+                skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step - 1) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step - 1,
+                interval: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step - 1) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step - 1
+              }
+            ))
+
+            debug_internals(source+' skip', this.available_charts[source].chart)
 
             this.set_chart_visibility(source, true)
             this.$on('tabular_sources', function(){
               debug_internals('on tabular_sources', source, this.$options['tabular_sources'][source])
               this.$set(this.available_charts[source].stat, 'data', [this.$options['tabular_sources'][source].data])
+
+              console.log('host tabular_sources skip', this.$options['tabular_sources'][source].step)
+
+              this.$set(this.available_charts[source].chart, 'skip', (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step  - 1)
+              this.$set(this.available_charts[source].chart, 'interval', (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step  - 1) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step  - 1)
             })
           }
 
