@@ -56,6 +56,14 @@ import vueEasyPieChartWrapper from 'components/wrappers/vueEasyPieChart'
 import jqueryKnobWrapper from 'components/wrappers/jqueryKnob'
 import highchartsVueWrapper from 'components/wrappers/highchartsVue'
 
+const roundMilliseconds = function(timestamp){
+  let d = new Date(timestamp)
+  d.setMilliseconds(0)
+
+  // console.log('roundMilliseconds', d.getTime())
+  return d.getTime()
+}
+
 export default {
 
   components: {
@@ -244,7 +252,16 @@ export default {
             //   // //console.log('chart mixin update_chart_stat Array ++', name, this.chart.skip, this.$options.__skiped)
             //   this.$options.__skiped++
             // }
-            if(index % this.chart.skip == 0) new_data.push(row)
+
+            let timestamp = roundMilliseconds(row[0])
+            // if(index % this.chart.skip == 0) new_data.push(row)
+            if(index == 0 || timestamp + (this.chart.skip * 1000) >= this.$options.__skiped){
+              // debug_internals('skiping', this.id, timestamp)
+              new_data.push(row)
+              this.$options.__skiped = timestamp
+            }
+
+
 
           }.bind(this))
 

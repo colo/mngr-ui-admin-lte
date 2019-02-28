@@ -313,9 +313,9 @@ export default {
           //   { 'dateWindow': this.$options.graph.xAxisExtremes() },
           //   block_redraw
           // );
-          // let selection = (this.chart.skip && this.chart.skip > 0) ? 0 : 1
+          let selection = (this.chart.skip && this.chart.skip > 0) ? this.chart.skip : 1
 
-          this.$options.graph.setSelection(this.$options.graph.numRows() - 1, {}, false)
+          this.$options.graph.setSelection(this.$options.graph.numRows() - selection, {}, false)
 
 
       }
