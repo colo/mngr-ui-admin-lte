@@ -4,6 +4,8 @@
 import InputIOHosts from '@libs/input/poller/io.hosts'
 
 import DefaultConn from '@etc/default.io'
+
+let instance = new InputIOHosts(DefaultConn)
 //
 // import store from 'src/store'
 
@@ -15,14 +17,18 @@ export default  {
 			poll: {
 				id: "input.app",
 				conn: [
-          Object.merge(
-            Object.clone(DefaultConn),
-            {
-              id: 'input.hosts',
-              // module: InputIOApp,
-							module: InputIOHosts
-            }
-          )
+					{
+						instance: instance
+					}
+          // Object.merge(
+          //   Object.clone(DefaultConn),
+          //   {
+          //     id: 'input.hosts',
+          //     // module: InputIOApp,
+					// 		module: InputIOHosts
+          //
+          //   }
+          // )
 
 				],
 				// connect_retry_count: 5,
