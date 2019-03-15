@@ -2,7 +2,7 @@
 
 import InputIOHost from '@libs/input/poller/io.host'
 
-import DefaultConn from '@etc/default.io'
+// import DefaultConn from '@etc/default.io'
 
 import store from 'src/store'
 
@@ -22,7 +22,7 @@ export default  {
 				id: "input.os",
 				conn: [
           Object.merge(
-            Object.clone(DefaultConn),
+            // Object.clone(DefaultConn),
             {
               id: 'os',
               module: InputIOHost,

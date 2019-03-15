@@ -11,6 +11,9 @@ const debug = Debug("mngr-ui-admin-lte:libs:input:io.hosts"),
 
 import store from 'src/store'
 
+// import DefaultConn from '@etc/default.io'
+import HostsIO from '@etc/hosts.io'
+
 export default new Class({
   Extends: App,
 
@@ -18,7 +21,12 @@ export default new Class({
   // recived: [],
 
   options: {
-    path: '/hosts',
+    // path: '/hosts',
+
+    scheme: undefined,
+    host: undefined,
+    port: undefined,
+
 
   	requests : {
       once: [
@@ -34,7 +42,7 @@ export default new Class({
 
     io: {
 			middlewares: [], //namespace.use(fn)
-			// rooms: ['root'], //atomatically join connected sockets to this rooms
+			// rooms: ['hosts'], //atomatically join connected sockets to this rooms
 			routes: {
 				// 'app.doc': [{
 				// 	// path: ':param',
@@ -107,6 +115,9 @@ export default new Class({
     debug_internals('initialize')
 
 		this.parent(options);//override default options
+
+    // let _io = new App(DefaultConn)
+    this.add_io(HostsIO)
 
 		this.profile('root_init');//start profiling
 

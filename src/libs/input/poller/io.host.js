@@ -10,6 +10,7 @@ const debug = Debug("mngr-ui-admin-lte:libs:input:io.host"),
       debug_internals = Debug("mngr-ui-admin-lte:libs:input:io.host:Internals"),
       debug_events = Debug("mngr-ui-admin-lte:libs:input:io.host:Events");
 
+import HostsIO from '@etc/hosts.io'
 
 export default new Class({
   Extends: App,
@@ -18,7 +19,11 @@ export default new Class({
 
   options: {
 
-    path: '/hosts',
+    // path: '/hosts',
+    scheme: undefined,
+    host: undefined,
+    port: undefined,
+
 
     status: undefined,
 
@@ -378,7 +383,9 @@ export default new Class({
 
 		this.profile('root_init');//start profiling
 
-    this.addEvent('onConnect', function(){
+    this.add_io(HostsIO)
+
+    // this.addEvent('onConnect', function(){
       debug_internals('initialize socket.onConnect', this.io.id)
 
       this.io.emit('on', [
@@ -402,13 +409,21 @@ export default new Class({
       this.io.emit('/', {host: this.options.stat_host, prop: 'data', format: 'tabular'})
 
 
-    })
+    // })
 
     this.addEvent('onExit', function(){
       debug_internals('onExit')
 
-      if(this.io.disconnected == false)
-        this.io.close()
+      this.registered = false
+      this.io.emit('off', [
+        {host: this.options.stat_host, prop: 'instances'},
+        {host: this.options.stat_host, prop: 'paths', format: 'stat'},
+        {host: this.options.stat_host, prop: 'data', format: 'stat'},
+        {host: this.options.stat_host, prop: 'data', format: 'tabular'},
+        {host: this.options.stat_host, prop: 'data_range'}
+      ])
+      // if(this.io.disconnected == false)
+      //   this.io.close()
     })
     // //////console.log('this.io', this.io)
     // this.io.emit('host', this.options.stat_host)

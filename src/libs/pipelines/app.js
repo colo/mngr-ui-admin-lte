@@ -3,11 +3,10 @@
 // import InputIOApp from '@libs/input/poller/io.app'
 import InputIOHosts from '@libs/input/poller/io.hosts'
 
-import DefaultConn from '@etc/default.io'
+// import DefaultConn from '@etc/default.io'
 
-let instance = new InputIOHosts(DefaultConn)
-//
-// import store from 'src/store'
+// const App = require ( 'node-app-socket.io-client/index' )
+// let app_io = new App(DefaultConn)
 
 let buffer = {}
 
@@ -17,20 +16,23 @@ export default  {
 			poll: {
 				id: "input.app",
 				conn: [
-					{
-						instance: instance
-					}
-          // Object.merge(
-          //   Object.clone(DefaultConn),
-          //   {
-          //     id: 'input.hosts',
-          //     // module: InputIOApp,
-					// 		module: InputIOHosts
-          //
-          //   }
-          // )
+
+          Object.merge(
+            // Object.clone(DefaultConn),
+            {
+              id: 'input.hosts',
+							module: InputIOHosts
+
+            }
+          )
 
 				],
+				// conn: [
+        //     {
+        //       id: 'input.hosts',
+				// 			module: InputIOHosts,
+        //     }
+				// ],
 				// connect_retry_count: 5,
 				// connect_retry_periodical: 1000,
 				requests: {
