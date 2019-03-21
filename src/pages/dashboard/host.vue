@@ -879,25 +879,28 @@ export default {
           }.bind(this))
 
           this.$on('tabular_sources', function(){
+            // let merged_chart_name = this.host+'_os_mounts'
             debug_internals('on tabular_sources mounts', _merge, merged_chart_name)
-            this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
+            if(this.available_charts[merged_chart_name]){
+              this.$set(this.available_charts[merged_chart_name].stat, 'data', [])
 
-            Array.each(_merge, function(_name){
-              this.available_charts[merged_chart_name].stat.data.push((this.$options['tabular_sources'][this.host+'_os_mounts_'+_name]) ? this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data : 0)
+              Array.each(_merge, function(_name){
+                this.available_charts[merged_chart_name].stat.data.push((this.$options['tabular_sources'][this.host+'_os_mounts_'+_name]) ? this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].data : 0)
 
-              this.$set(
-                this.available_charts[merged_chart_name].chart,
-                'skip',
-                (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
-              )
+                this.$set(
+                  this.available_charts[merged_chart_name].chart,
+                  'skip',
+                  (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
+                )
 
-              this.$set(
-                this.available_charts[merged_chart_name].chart,
-                'interval',
-                (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
-              )
+                this.$set(
+                  this.available_charts[merged_chart_name].chart,
+                  'interval',
+                  (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
+                )
 
-            }.bind(this))
+              }.bind(this))
+            }
           }.bind(this))
 
         }//if not chart
@@ -951,7 +954,7 @@ export default {
 
                   __networkInterfaces_merged_charts[merged_chart_name] = Object.clone({
                     name: merged_chart_name,
-                    chart: Object.clone(dygraph_line_chart),
+                    chart: Object.merge(Object.clone(dygraph_line_chart), {options: {fillGraph: true}}),
                     init: undefined,
                     stop: undefined,
                     wrapper: {
