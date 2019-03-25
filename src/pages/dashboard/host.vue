@@ -716,6 +716,8 @@ export default {
                   // valueRange: [0, this.cpus.length * 100],
                   valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'].data[0].value.length * 100],
                   stackedGraph: true,
+                  fillGraph: true,
+                  fillAlpha: 0.5
                   // labels: ['Time'],
                 }
               }
