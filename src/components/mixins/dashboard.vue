@@ -782,7 +782,10 @@ export default {
     // },
     __process_dashoard_paths: function(doc){
       debug_internals('__process_dashoard_paths', doc)
-      this.$store.commit('dashboard_'+this.id+'/paths', doc.paths)
+      if(doc && doc.paths && Array.isArray(doc.paths)){
+        EventBus.$off('paths', this.__process_dashoard_paths)
+        this.$store.commit('dashboard_'+this.id+'/paths', doc.paths)
+      }
       // let paths = []
       // if(doc.paths && doc.paths !== null)
       //   Array.each(doc.paths, function(path){
@@ -823,10 +826,13 @@ export default {
     __process_dashoard_instances: function(doc){
       debug_internals('__process_dashoard_instances', doc)
       let instances = {}
-      if(doc.instances && doc.instances !== null)
+      if(doc.instances && doc.instances !== null && doc.instances.instances !== null){//last one is a BUG
+        EventBus.$off('instances', this.__process_dashoard_instances)
+
         Object.each(doc.instances, function(instance, name){
           instances[this.host+'_'+name] = instance
         }.bind(this))
+      }
       // let counter = 0
       // let instances_objects = {}
       // Object.each(doc.instances, function(data, name){
@@ -877,10 +883,10 @@ export default {
         let range_minutes = ((payload.data_range.end - payload.data_range.start) / 1000) / 60
         // this.$set(this.daterangepicker, 'startDate',  moment(payload.data_range.start))
         // this.$set(this.daterangepicker, 'endDate',  moment(payload.data_range.end))
-        if(this.$store.state['dashboard_'+this.id].data_range[0] != payload.data_range.start)
+        if(this.$store.state['dashboard_'+this.id] && this.$store.state['dashboard_'+this.id].data_range[0] != payload.data_range.start)
           this.$refs[this.id+'.daterangepicker'].setStartDate(moment(payload.data_range.start))
 
-        if(this.$store.state['dashboard_'+this.id].data_range[1] != payload.data_range.end)
+        if(this.$store.state['dashboard_'+this.id] && this.$store.state['dashboard_'+this.id].data_range[1] != payload.data_range.end)
           this.$refs[this.id+'.daterangepicker'].setEndDate(moment(payload.data_range.end))
 
 
@@ -1003,8 +1009,9 @@ export default {
       // EventBus.$once('charts', this.__process_dashoard_charts)
 
       //should be $on probably, not $once
-      EventBus.$once('instances', this.__process_dashoard_instances)
-      EventBus.$once('paths', this.__process_dashoard_paths)
+      EventBus.$on('instances', this.__process_dashoard_instances)
+
+      EventBus.$on('paths', this.__process_dashoard_paths)
 
       EventBus.$on('stat', this.__process_dashoard_data)
       EventBus.$on('tabular', this.__process_dashoard_data)
@@ -1089,6 +1096,7 @@ export default {
 
       // EventBus.$off('charts', this.__process_dashoard_charts)
       EventBus.$off('instances', this.__process_dashoard_instances)
+      EventBus.$off('paths', this.__process_dashoard_paths)
 
       EventBus.$off('stat', this.__process_dashoard_data)
       EventBus.$off('tabular', this.__process_dashoard_data)

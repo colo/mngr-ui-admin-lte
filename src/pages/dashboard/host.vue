@@ -182,7 +182,18 @@ export default {
       //     return undefined
       //   }
       // },
-
+      // id: function(state){
+      //   if(state.hosts.current || this.$route.params.host){
+      //     let host = state.hosts.current || this.$route.params.host
+      //     this.id = host
+      //     return host
+      //   }
+      //   else{
+      //     undefined
+      //   }
+      //
+      //
+      // },
       host: function(state){
         if(state.hosts.current || this.$route.params.host){
           let host = state.hosts.current || this.$route.params.host
@@ -213,7 +224,7 @@ export default {
       EventBus.$off('host')
       EventBus.$off('os')
 
-
+      let _host = this.host //read host to set this.id
       if(next)
         next()
     },
