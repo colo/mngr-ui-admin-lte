@@ -246,8 +246,8 @@ export default {
       // console.log('__set_source step', this.$options[type+'_sources'][payload.key].step, payload.step)
       // debug_internals('__set_source', type, this.$options[type+'_sources'])
     },
-    __process_dashoard_data: function(payload){
-      debug_internals('__process_dashoard_data', payload)
+    __process_dashboard_data: function(payload){
+      debug_internals('__process_dashboard_data', payload)
       // if(payload.range == true)
         // //console.log('recived doc via Event stats', payload)
 

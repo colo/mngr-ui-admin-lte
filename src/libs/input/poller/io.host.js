@@ -332,12 +332,12 @@ export default new Class({
 
       if(this.registered === false){
         this.registered = true
-        this.io.emit('on', [
-          {host: this.options.stat_host, prop: 'paths', format: 'stat'},
-          {host: this.options.stat_host, prop: 'data', format: 'stat'},
-          {host: this.options.stat_host, prop: 'data', format: 'tabular'},
-          {host: this.options.stat_host, prop: 'data_range'}
-        ])
+        // this.io.emit('on', [
+        //   {host: this.options.stat_host, prop: 'paths', format: 'stat'},
+        //   {host: this.options.stat_host, prop: 'data', format: 'stat'},
+        //   {host: this.options.stat_host, prop: 'data', format: 'tabular'},
+        //   {host: this.options.stat_host, prop: 'data_range'}
+        // ])
       }
     }
     // this.charts(socket, next, {host: host, charts: charts})
@@ -390,9 +390,9 @@ export default new Class({
 
       this.io.emit('on', [
         {host: this.options.stat_host, prop: 'instances'},
-        // {host: this.options.stat_host, prop: 'paths', format: 'stat'},
-        // {host: this.options.stat_host, prop: 'data', format: 'stat'},
-        // {host: this.options.stat_host, prop: 'data', format: 'tabular'}
+        {host: this.options.stat_host, prop: 'paths', format: 'stat'},
+        {host: this.options.stat_host, prop: 'data', format: 'stat'},
+        {host: this.options.stat_host, prop: 'data', format: 'tabular'}
       ])
       this.io.emit('/', {host: this.options.stat_host, prop: 'instances'})
 

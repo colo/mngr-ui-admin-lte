@@ -260,8 +260,11 @@ export default {
       //   }
       // },
       dashboard_instances: function(state){
+
         // let host = state.hosts.current || this.$route.params.host
         if(this.id && state['dashboard_'+this.id].instances && Object.getLength(state['dashboard_'+this.id].instances) > 0){
+        // if(this.id && state['dashboard_'+this.id].instances){
+        // if(this.id){
           // //console.log('dashboard_instances', state['dashboard_'+host].instances)
           return state['dashboard_'+this.id].instances
         }
@@ -269,25 +272,54 @@ export default {
           return undefined
         }
       },
+      dashboard_paths: function(state){
+        // let host = state.hosts.current || this.$route.params.host
+        // if(this.id && state['dashboard_'+this.id].paths && state['dashboard_'+this.id].paths.length > 0){
+        if(this.id){
+          // //console.log('dashboard_instances', state['dashboard_'+host].instances)
+          return state['dashboard_'+this.id].paths
+        }
+        else{
+          return undefined
+        }
+      },
+
     }),
     {
       all_init: function(){
+        debug_internals('all_init',
+          this.id,
+          this.dashboard_paths != undefined,
+          this.dashboard_instances != undefined,
+          this.stat_init == true,
+          this.tabular_init == true
+        )
 
-        if(
-          // this.dashboard_charts != undefined &&
-          this.dashboard_instances != undefined
+        return (
+          this.id !== undefined
+          && this.dashboard_paths != undefined
+          && this.dashboard_instances != undefined
           && this.stat_init == true
           && this.tabular_init == true
-          // && this.range.length > 0
-          // && Object.getLength(this.$store.state.stats_sources) > 0
-          // && Object.getLength(this.$store.state.tabulars_sources) > 0
-        ){
-        // if(this.dashboard_charts != undefined){
-          return true
-        }
-        else{
-          return false
-        }
+        )
+
+        // if(
+        //   // this.dashboard_charts != undefined &&
+        //   this.id !== undefined
+        //   && this.dashboard_paths != undefined
+        //   && this.dashboard_instances != undefined
+        //   && this.stat_init == true
+        //   && this.tabular_init == true
+        //   // && this.range.length > 0
+        //   // && Object.getLength(this.$store.state.stats_sources) > 0
+        //   // && Object.getLength(this.$store.state.tabulars_sources) > 0
+        // ){
+        // // if(this.dashboard_charts != undefined){
+        //   return true
+        // }
+        // else{
+        //   return false
+        // }
       }
     }
   ),
@@ -557,9 +589,10 @@ export default {
       Object.each(this.$options.__pipelines_events, function(pipes, pipe_name){
         _events_paths.combine(pipes)
       })
-      console.log('fire_pipelines_events',this.$options.__pipelines_events, _events_paths, this.paths, Object.getLength(this.available_charts))
+      // console.log('fire_pipelines_events',this.$options.__pipelines_events, _events_paths, this.paths, Object.getLength(this.available_charts))
 
-      if(this.all_init){
+      if(this.all_init && Object.getLength(this.$options.__pipelines_events)){
+        debug_internals('fire_pipelines_events',this.$options.__pipelines_events, _events_paths, this.paths, Object.getLength(this.available_charts))
 
         // console.log('fire_pipelines_events',this.$options.__pipelines_events, this.paths)
         /**
@@ -607,6 +640,9 @@ export default {
           // this.$store.commit('dashboard_'+this.id+'/events/clean')
 
       }
+      // else{
+      //   this.$nextTick(this.fire_pipelines_events())
+      // }
 
     // }, 100),
     },
@@ -754,7 +790,7 @@ export default {
     __init_charts: function(){
     },
 
-    // __process_dashoard_charts: function(doc){
+    // __process_dashboard_charts: function(doc){
     //   ////console.log('recived doc via Event charts', doc)
     //   // let counter = 0
     //   let charts_objects = {}
@@ -780,10 +816,12 @@ export default {
     //
     //   this.$store.commit('dashboard_'+this.id+'/charts', charts_objects)
     // },
-    __process_dashoard_paths: function(doc){
-      debug_internals('__process_dashoard_paths', doc)
-      if(doc && doc.paths && Array.isArray(doc.paths)){
-        EventBus.$off('paths', this.__process_dashoard_paths)
+    __process_dashboard_paths: function(doc){
+      debug_internals('__process_dashboard_paths', doc, this.id)
+
+      if(this.id && doc && doc.paths && Array.isArray(doc.paths)){
+
+        // EventBus.$off('paths', this.__process_dashboard_paths)
         this.$store.commit('dashboard_'+this.id+'/paths', doc.paths)
       }
       // let paths = []
@@ -806,7 +844,7 @@ export default {
       //       path = path.replace(/\./g, '_')
       //       Object.each(instance_data, function(value, key){
       //         let new_key = key.replace(/\%/g, 'percentage_')
-      //         debug_internals('__process_dashoard_instances key', key, instance_data)
+      //         debug_internals('__process_dashboard_instances key', key, instance_data)
       //         delete instance_data[key]
       //         instance_data[new_key] = value
       //       })
@@ -823,11 +861,11 @@ export default {
 
       // this.$store.commit('dashboard_'+this.id+'/instances', instances)
     },
-    __process_dashoard_instances: function(doc){
-      debug_internals('__process_dashoard_instances', doc)
+    __process_dashboard_instances: function(doc){
+      debug_internals('__process_dashboard_instances', doc)
       let instances = {}
-      if(doc.instances && doc.instances !== null && doc.instances.instances !== null){//last one is a BUG
-        EventBus.$off('instances', this.__process_dashoard_instances)
+      if(doc.instances && doc.instances !== null && Object.getLength(doc.instances) > 2){//last one is a BUG
+        // EventBus.$off('instances', this.__process_dashboard_instances)
 
         Object.each(doc.instances, function(instance, name){
           instances[this.host+'_'+name] = instance
@@ -848,7 +886,7 @@ export default {
       //       path = path.replace(/\./g, '_')
       //       Object.each(instance_data, function(value, key){
       //         let new_key = key.replace(/\%/g, 'percentage_')
-      //         debug_internals('__process_dashoard_instances key', key, instance_data)
+      //         debug_internals('__process_dashboard_instances key', key, instance_data)
       //         delete instance_data[key]
       //         instance_data[new_key] = value
       //       })
@@ -862,8 +900,8 @@ export default {
       //   //
       //   // counter++
       // }.bind(this))
-
-      this.$store.commit('dashboard_'+this.id+'/instances', instances)
+      if(this.id)
+        this.$store.commit('dashboard_'+this.id+'/instances', instances)
     },
     /**
     * @end - charts
@@ -872,13 +910,13 @@ export default {
     /**
     * @start - STATS
     **/
-    __process_dashoard_data_range: function(payload){
+    __process_dashboard_data_range: function(payload){
 
 
 
 
-      if(this.freeze_daterangepicker_update == false) {
-        debug_internals('__process_dashoard_data_range', payload, this.daterangepicker, this.$refs[this.id+'.daterangepicker'])
+      if(this.freeze_daterangepicker_update == false && this.id) {
+        debug_internals('__process_dashboard_data_range', payload, this.daterangepicker, this.$refs[this.id+'.daterangepicker'])
 
         let range_minutes = ((payload.data_range.end - payload.data_range.start) / 1000) / 60
         // this.$set(this.daterangepicker, 'startDate',  moment(payload.data_range.start))
@@ -904,12 +942,12 @@ export default {
 
       }
 
-
-      this.$store.commit('dashboard_'+this.id+'/data_range', [payload.data_range.start, payload.data_range.end])
+      if(this.id)
+        this.$store.commit('dashboard_'+this.id+'/data_range', [payload.data_range.start, payload.data_range.end])
 
     },
-    __process_dashoard_data: function(payload){
-      debug_internals('__process_dashoard_data', payload)
+    __process_dashboard_data: function(payload){
+      debug_internals('__process_dashboard_data', payload)
       // if(payload.range == true)
         // //console.log('recived doc via Event stats', payload)
 
@@ -1006,16 +1044,16 @@ export default {
     },
 
     __create: function(host, next){
-      // EventBus.$once('charts', this.__process_dashoard_charts)
+      // EventBus.$once('charts', this.__process_dashboard_charts)
 
       //should be $on probably, not $once
-      EventBus.$on('instances', this.__process_dashoard_instances)
+      EventBus.$on('instances', this.__process_dashboard_instances.bind(this))
 
-      EventBus.$on('paths', this.__process_dashoard_paths)
+      EventBus.$on('paths', this.__process_dashboard_paths.bind(this))
 
-      EventBus.$on('stat', this.__process_dashoard_data)
-      EventBus.$on('tabular', this.__process_dashoard_data)
-      EventBus.$on('data_range', this.__process_dashoard_data_range.bind(this))
+      EventBus.$on('stat', this.__process_dashboard_data.bind(this))
+      EventBus.$on('tabular', this.__process_dashboard_data.bind(this))
+      EventBus.$on('data_range', this.__process_dashboard_data_range.bind(this))
 
       // this.update_daterangepicker()
 
@@ -1024,18 +1062,19 @@ export default {
 
         if(this.all_init === true){
           this.__init_charts()
+          this.$nextTick(this.fire_pipelines_events())
         }
         else{
           let unwatch_all_init = this.$watch('all_init', function(val){
-            //console.log('all_init', val)
+            debug_internals('watch all_init', val)
             if(val == true){
 
               unwatch_all_init()
 
               this.__init_charts()
-
+              this.$nextTick(this.fire_pipelines_events())
             }
-          })//watcher
+          }, {deep:true})//watcher
         }
 
         if(next)
@@ -1071,7 +1110,7 @@ export default {
       //     }
       //   })//watcher
       // }
-      this.$nextTick(this.fire_pipelines_events())
+      // this.$nextTick(this.fire_pipelines_events())
 
       if(next)
         next()
@@ -1094,12 +1133,12 @@ export default {
       EventBus.$off('highlightCallback')
       EventBus.$on('unhighlightCallback')
 
-      // EventBus.$off('charts', this.__process_dashoard_charts)
-      EventBus.$off('instances', this.__process_dashoard_instances)
-      EventBus.$off('paths', this.__process_dashoard_paths)
-
-      EventBus.$off('stat', this.__process_dashoard_data)
-      EventBus.$off('tabular', this.__process_dashoard_data)
+      // EventBus.$off('charts', this.__process_dashboard_charts)
+      EventBus.$off('instances', this.__process_dashboard_instances)
+      EventBus.$off('paths', this.__process_dashboard_paths)
+      EventBus.$off('stat', this.__process_dashboard_data)
+      EventBus.$off('tabular', this.__process_dashboard_data)
+      EventBus.$off('data_range', this.__process_dashboard_data_range)
 
       this.stat_init = false
       this.tabular_init = false
