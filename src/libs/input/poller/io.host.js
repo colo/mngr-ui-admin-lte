@@ -389,6 +389,7 @@ export default new Class({
       debug_internals('initialize socket.onConnect', this.io.id)
 
       this.io.emit('on', [
+        // {host: this.options.stat_host, prop: 'data_range'},
         {host: this.options.stat_host, prop: 'instances'},
         {host: this.options.stat_host, prop: 'paths', format: 'stat'},
         {host: this.options.stat_host, prop: 'data', format: 'stat'},
