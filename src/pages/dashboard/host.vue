@@ -789,7 +789,8 @@ export default {
                 if(!_merged_charts[merged_chart_name]){
                   _merged_charts[merged_chart_name] = Object.clone({
                     name: merged_chart_name,
-                    chart: Object.clone(dygraph_line_chart),
+                    // chart: Object.clone(dygraph_line_chart),
+                    chart: Object.clone(this.dashboard_instances[this.host+'_os_mounts_'+_name]),
                     init: undefined,
                     stop: undefined,
                     wrapper: {
