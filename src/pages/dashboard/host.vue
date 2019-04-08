@@ -240,7 +240,7 @@ export default {
       if(!this.$options[type+'_sources'][payload.key]) this.$options[type+'_sources'][payload.key] = { data: undefined, step: 1 }
 
       this.$options[type+'_sources'][payload.key].data = payload.value
-      if(payload.step && payload.step > 1 && payload.step > this.$options[type+'_sources'][payload.key].step)
+      if(payload.step - 1 && payload.step >= 1 && payload.step > this.$options[type+'_sources'][payload.key].step)
         this.$options[type+'_sources'][payload.key].step = payload.step
 
       // console.log('__set_source step', this.$options[type+'_sources'][payload.key].step, payload.step)
@@ -335,7 +335,7 @@ export default {
         path = paths[paths.indexOf(source)]
         if(remaining) path += '.'+remaining
       }
-      else if (source.indexOf('_') && paths.length > 0){
+      else if (source.indexOf('_') > -1 && paths.length > 0){
 
         let new_source = source.substring(0, source.lastIndexOf('_'))
         if(remaining !== false){
@@ -429,8 +429,8 @@ export default {
               Object.clone(dygraph_line_chart),
               this.dashboard_instances[source],
               {
-                skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step,
-                interval: (this.dashboard_instances[source].interval > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].interval : this.$options['tabular_sources'][source].step
+                skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step - 1,
+                interval: (this.dashboard_instances[source].interval > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].interval : this.$options['tabular_sources'][source].step - 1
               }
             ))
 
@@ -447,13 +447,13 @@ export default {
               this.$set(
                 this.available_charts[source].chart,
                 'skip',
-                (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step
+                (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step - 1
               )
 
               this.$set(
                 this.available_charts[source].chart,
                 'interval',
-                (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step
+                (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step - 1
               )
             })
           }
@@ -529,8 +529,8 @@ export default {
             this.$set(this.available_charts[source], 'chart', Object.merge(
               Object.clone(dygraph_line_chart),
               {
-                skip:  this.$options['stat_sources'][source].step,
-                interval: this.$options['stat_sources'][source].step
+                skip:  this.$options['stat_sources'][source].step - 1,
+                interval: this.$options['stat_sources'][source].step - 1
               }
             ))
 
@@ -542,13 +542,13 @@ export default {
               this.$set(
                 this.available_charts[source].chart,
                 'skip',
-                (this.available_charts[source].chart.skip > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step
+                (this.available_charts[source].chart.skip > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step - 1
               )
 
               this.$set(
                 this.available_charts[source].chart,
                 'interval',
-                (this.available_charts[source].chart.interval > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step
+                (this.available_charts[source].chart.interval > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step - 1
               )
 
             })
@@ -614,8 +614,8 @@ export default {
             chart_payload.chart,
             {
               totalmem: this.$options.stat_sources[this.host+'_os_totalmem'].data[0].value,
-              skip:  this.$options['stat_sources'][source].step,
-              interval: this.$options['stat_sources'][source].step
+              skip:  this.$options['stat_sources'][source].step - 1,
+              interval: this.$options['stat_sources'][source].step - 1
             }
           ))
 
@@ -629,13 +629,13 @@ export default {
               this.$set(
                 this.available_charts[source].chart,
                 'skip',
-                (this.available_charts[source].chart.skip > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step
+                (this.available_charts[source].chart.skip > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['stat_sources'][source].step - 1
               )
 
               this.$set(
                 this.available_charts[source].chart,
                 'interval',
-                (this.available_charts[source].chart.interval > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step
+                (this.available_charts[source].chart.interval > this.$options['stat_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['stat_sources'][source].step - 1
               )
             // }
           }.bind(this))
@@ -721,8 +721,8 @@ export default {
               Object.clone(dygraph_line_chart),
               this.dashboard_instances[source],
               {
-                skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step,
-                interval: (this.dashboard_instances[source].interval > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].interval : this.$options['tabular_sources'][source].step,
+                skip: (this.dashboard_instances[source].skip > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].skip : this.$options['tabular_sources'][source].step - 1,
+                interval: (this.dashboard_instances[source].interval > this.$options['tabular_sources'][source].step) ? this.dashboard_instances[source].interval : this.$options['tabular_sources'][source].step - 1,
                 "options": {
                   // valueRange: [0, this.cpus.length * 100],
                   valueRange: [0, this.$options['stat_sources'][this.host+'_os_cpus'].data[0].value.length * 100],
@@ -742,13 +742,13 @@ export default {
               this.$set(
                 this.available_charts[source].chart,
                 'skip',
-                (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step
+                (this.available_charts[source].chart.skip > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.skip : this.$options['tabular_sources'][source].step - 1
               )
 
               this.$set(
                 this.available_charts[source].chart,
                 'interval',
-                (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step
+                (this.available_charts[source].chart.interval > this.$options['tabular_sources'][source].step) ? this.available_charts[source].chart.interval : this.$options['tabular_sources'][source].step - 1
               )
             })
           }
@@ -856,8 +856,8 @@ export default {
                     // Object.clone(dygraph_line_chart),
                     __chart,
                     {
-                      skip: this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step,
-                      interval: this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step,
+                      skip: this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step - 1,
+                      interval: this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step - 1,
                     }
                   ))
 
@@ -904,13 +904,13 @@ export default {
                 this.$set(
                   this.available_charts[merged_chart_name].chart,
                   'skip',
-                  (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
+                  (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step - 1
                 )
 
                 this.$set(
                   this.available_charts[merged_chart_name].chart,
                   'interval',
-                  (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step
+                  (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_mounts_'+_name].step - 1
                 )
 
               }.bind(this))
@@ -968,7 +968,8 @@ export default {
 
                   __networkInterfaces_merged_charts[merged_chart_name] = Object.clone({
                     name: merged_chart_name,
-                    chart: Object.merge(Object.clone(dygraph_line_chart), {options: {fillGraph: true}}),
+                    // chart: Object.merge(Object.clone(dygraph_line_chart), {options: {fillGraph: true}}),
+                    chart: Object.merge(Object.clone(this.dashboard_instances[key]), {options: {fillGraph: true}}),
                     init: undefined,
                     stop: undefined,
                     wrapper: {
@@ -1040,8 +1041,8 @@ export default {
                     // Object.clone(dygraph_line_chart),
                     __chart,
                     {
-                      skip: this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step,
-                      interval: this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step,
+                      skip: this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step - 1,
+                      interval: this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step - 1,
                     }
                   ))
 
@@ -1075,13 +1076,13 @@ export default {
                       this.$set(
                         this.available_charts[merged_chart_name].chart,
                         'skip',
-                        (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step
+                        (this.available_charts[merged_chart_name].chart.skip > this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step) ? this.available_charts[merged_chart_name].chart.skip : this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step - 1
                       )
 
                       this.$set(
                         this.available_charts[merged_chart_name].chart,
                         'interval',
-                        (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step
+                        (this.available_charts[merged_chart_name].chart.interval > this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step) ? this.available_charts[merged_chart_name].chart.interval : this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name].step - 1
                       )
 
                       debug_internals('on tabular_sources networkInterface merged', merged_chart_name, this.host+'_os_networkInterfaces_stats_'+_name, this.$options['tabular_sources'][this.host+'_os_networkInterfaces_stats_'+_name])

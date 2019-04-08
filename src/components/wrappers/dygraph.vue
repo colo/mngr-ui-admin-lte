@@ -35,7 +35,7 @@ const debug = Debug("mngr-ui-admin-lte:components:wrappers:dygraph"),
 import chartWrapper from 'components/mixins/chart.wrapper'
 
 import Dygraph from 'dygraphs'
-// import 'dygraphs/src/extras/smooth-plotter'
+import 'dygraphs/src/extras/smooth-plotter'
 
 import 'dygraphs/dist/dygraph.css'
 
@@ -210,6 +210,12 @@ export default {
         // })
 
         // console.log('__create_chart', this.id, this.$options.chart_options)
+
+        /**
+        * should add an option for general smooth plotting (true | false)
+        **/
+        // if(this.$options.chart_options.fillGraph !== true)
+        //   this.$options.chart_options.plotter = smoothPlotter
 
         this.$options.graph = new Dygraph(
           document.getElementById(this.id),  // containing div
